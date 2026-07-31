@@ -90,13 +90,7 @@
   const maxStoredTranslations = 2500;
   const attemptedRemoteTranslations = new Set();
   const remoteTranslationFailures = new Map();
-  const localFrontendPorts = new Set(['5500', '5501', '5173', '8080']);
-  const configuredApiBase = String(
-    window.DEALETT_API_BASE ||
-    (localFrontendPorts.has(window.location.port) || window.location.protocol === 'file:'
-      ? 'http://127.0.0.1:3000'
-      : '')
-  ).replace(/\/$/, '');
+  const configuredApiBase = 'https://db-qtmd.onrender.com';
   const translationEndpoint = `${configuredApiBase}/api/translate`;
   const queuedRemoteTranslations = new Set();
   let activeLanguage = 'sv';
@@ -1747,7 +1741,7 @@
     const sendChatFeedback = (payload) => {
       if (!window.DealettNetwork?.fetchJson) return Promise.resolve(null);
 
-      return window.DealettNetwork.fetchJson('/api/chat-feedback', {
+      return window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/chat-feedback', {
         label: 'Dealett chat feedback',
         method: 'POST',
         timeoutMs: 8000,
@@ -2096,7 +2090,7 @@
 
     const addCalculatedOfferToCart = async (planId, options = {}) => {
       const { announce = true, openDrawer = true } = options;
-      const response = await window.DealettNetwork.fetchJson('/api/offers/cart-item', {
+      const response = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/offers/cart-item', {
         label: 'Dealett erbjudande till varukorg',
         method: 'POST',
         timeoutMs: 10000,
@@ -2150,7 +2144,7 @@
       setSending(true);
 
       try {
-        const response = await window.DealettNetwork.fetchJson('/api/chat', {
+        const response = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/chat', {
           label: 'Dealett assistant',
           method: 'POST',
           timeoutMs: 20000,
@@ -2285,7 +2279,7 @@
       setSending(true);
 
       try {
-        const response = await window.DealettNetwork.fetchJson('/api/chat', {
+        const response = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/chat', {
           label: 'Dealett assistant',
           method: 'POST',
           timeoutMs: 20000,

@@ -126,7 +126,7 @@
   const closeModal = async (modal, orderRef) => {
     if (orderRef) {
       try {
-        await postJson('/api/bankid/cancel', { orderRef });
+        await postJson('https://db-qtmd.onrender.com/api/bankid/cancel', { orderRef });
       } catch {
         // Closing the UI should not get stuck if the cancel request fails.
       }
@@ -187,7 +187,7 @@
       if (closed) return;
 
       try {
-        const result = await postJson('/api/bankid/collect', { orderRef });
+        const result = await postJson('https://db-qtmd.onrender.com/api/bankid/collect', { orderRef });
 
         if (result.status === 'complete') {
           closed = true;
@@ -212,7 +212,7 @@
     };
 
     try {
-      const start = await postJson('/api/bankid/start', {
+      const start = await postJson('https://db-qtmd.onrender.com/api/bankid/start', {
         intent,
         userVisibleData,
         payload,

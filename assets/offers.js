@@ -86,7 +86,7 @@ const getPlanDataLabel = (plan) => {
 const loadPlans = async () => {
   if (plansCache) return plansCache;
 
-  const data = await apiFetchJson('/api/mobile/plans', {
+  const data = await apiFetchJson('https://db-qtmd.onrender.com/api/mobile/plans', {
     label: 'Mobilabonnemang data',
   });
 
@@ -99,7 +99,7 @@ const loadPlans = async () => {
 };
 
 const loadOperatorOffers = async (operator) => apiFetchJson(
-  `/api/mobile/operator-offers?operator=${encodeURIComponent(operator)}`,
+  `https://db-qtmd.onrender.com/api/mobile/operator-offers?operator=${encodeURIComponent(operator)}`,
   { label: 'Mobilabonnemang erbjudanden' }
 );
 
@@ -767,7 +767,7 @@ const buildFallbackMobileCart = (rewards) => {
 
 const createMobileCartItem = async (rewards) => {
   try {
-    return await apiFetchJson('/api/mobile/cart-item', {
+    return await apiFetchJson('https://db-qtmd.onrender.com/api/mobile/cart-item', {
       label: 'Mobilabonnemang varukorg',
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

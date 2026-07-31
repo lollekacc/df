@@ -813,7 +813,7 @@
       throw new Error('Ordertjänsten är inte tillgänglig.');
     }
 
-    return window.DealettNetwork.fetchJson('/api/orders', {
+    return window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

@@ -2,9 +2,7 @@
   if (window.DealettNetwork) return;
 
   const DEFAULT_TIMEOUT_MS = 8000;
-  const LOCAL_STATIC_PORTS = new Set(['5500', '5501', '5173', '8080']);
-  const API_BASE = window.DEALETT_API_BASE ||
-    (LOCAL_STATIC_PORTS.has(window.location.port) ? 'http://127.0.0.1:3000' : '');
+  const API_BASE = 'https://db-qtmd.onrender.com';
 
   const resolveResource = (resource) => {
     if (typeof resource === 'string' && resource.startsWith('/api/') && API_BASE) {

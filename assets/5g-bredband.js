@@ -332,7 +332,7 @@ const buildFallbackBroadbandCart = () => {
 
 const createBroadbandCartItem = async () => {
   try {
-    return await apiFetchJson('/api/broadband/cart-item', {
+    return await apiFetchJson('https://db-qtmd.onrender.com/api/broadband/cart-item', {
       label: '5G-bredband varukorg',
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -591,7 +591,7 @@ const bindEvents = () => {
 
 const loadPlans = async () => {
   try {
-    const data = await apiFetchJson('/api/broadband/offers', {
+    const data = await apiFetchJson('https://db-qtmd.onrender.com/api/broadband/offers', {
       label: '5G-bredband data',
     });
 

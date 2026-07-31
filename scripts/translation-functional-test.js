@@ -13,7 +13,7 @@ const {
 } = require('./checkout-visual-test');
 
 const HOST = '127.0.0.1';
-const BASE_URL = process.env.TRANSLATION_BASE_URL || 'http://127.0.0.1:3000';
+const BASE_URL = process.env.TRANSLATION_BASE_URL || 'https://lollekacc.github.io/df';
 const useLiveTranslation = process.env.TRANSLATION_USE_LIVE === '1';
 const auditLivePages = process.env.TRANSLATION_AUDIT_LIVE === '1';
 const screenshotDirectory = process.env.TRANSLATION_SCREENSHOT_DIR || '';

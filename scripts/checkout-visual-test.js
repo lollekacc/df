@@ -7,7 +7,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 
 const HOST = '127.0.0.1';
-const BASE_URL = process.env.CHECKOUT_BASE_URL || 'http://127.0.0.1:3000';
+const BASE_URL = process.env.CHECKOUT_BASE_URL || 'https://lollekacc.github.io/df';
 const OUTPUT_DIR = process.env.CHECKOUT_SCREENSHOT_DIR ||
   fs.mkdtempSync(path.join(os.tmpdir(), 'dealett-checkout-visual-'));
 const CHROME = process.env.CHROME_BIN ||

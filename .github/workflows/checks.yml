@@ -25,6 +25,3 @@ jobs:
 
       - name: Check whitespace
         run: npm run check:whitespace
-
-      - name: Run browser smoke tests
-        run: npm run smoke

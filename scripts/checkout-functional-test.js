@@ -13,7 +13,7 @@ const {
 } = require('./checkout-visual-test');
 
 const HOST = '127.0.0.1';
-const BASE_URL = process.env.CHECKOUT_BASE_URL || 'http://127.0.0.1:3000';
+const BASE_URL = process.env.CHECKOUT_BASE_URL || 'https://lollekacc.github.io/df';
 
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);

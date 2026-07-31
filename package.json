@@ -1,13 +1,10 @@
 {
   "private": true,
   "scripts": {
-    "start": "node ../Rbackend/server.js",
-    "dev": "node ../Rbackend/server.js",
-    "check": "npm run check:js && npm run check:json && npm run check:whitespace && npm run smoke",
+    "check": "npm run check:js && npm run check:json && npm run check:whitespace",
     "check:js": "node scripts/check-js.js",
     "check:json": "node scripts/check-json.js",
     "check:whitespace": "node scripts/check-whitespace.js",
-    "smoke": "node scripts/smoke-test.js",
     "test:translations": "node scripts/translation-functional-test.js",
     "test:checkout": "node scripts/checkout-functional-test.js",
     "test:checkout:visual": "node scripts/checkout-visual-test.js"

@@ -974,7 +974,7 @@ function createIndexQuiz() {
     }
 
     try {
-      const data = await window.DealettNetwork.fetchJson("/api/recommendations/mobile", {
+      const data = await window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/recommendations/mobile", {
         label: "Behovsanalys rekommendationer",
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1020,7 +1020,7 @@ function createIndexQuiz() {
 
     const [allPlans, calculation] = await Promise.all([
       loadPlans(),
-      window.DealettNetwork.fetchJson("/api/offers/calculate", {
+      window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/offers/calculate", {
         label: "Behovsanalys kalkyl",
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1226,7 +1226,7 @@ function createIndexQuiz() {
   async function loadPlans() {
     if (plans) return plans;
 
-    const data = await window.DealettNetwork.fetchJson("/api/mobile/plans", {
+    const data = await window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/mobile/plans", {
       label: "Behovsanalys data",
     });
 
@@ -1468,7 +1468,7 @@ function createIndexQuiz() {
       if (status) status.textContent = "Registrerar...";
 
       try {
-        await window.DealettNetwork.fetchJson("/api/newsletter", {
+        await window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/newsletter", {
           label: "Nyhetsbrev",
           method: "POST",
           headers: { "Content-Type": "application/json" },

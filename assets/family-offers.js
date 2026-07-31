@@ -202,7 +202,7 @@ const isMobilePlan = (plan = {}) => ['mobil', 'mobile_subscription'].includes(pl
 const loadPlans = async () => {
   if (plansCache) return plansCache;
 
-  const data = await window.DealettNetwork.fetchJson('/api/mobile/plans', {
+  const data = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/mobile/plans', {
     label: 'Familjabonnemang data',
   });
 
