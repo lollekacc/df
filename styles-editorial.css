@@ -141,7 +141,7 @@ body {
   width: auto;
   height: auto;
   border-radius: 0;
-  background: url('./images/chatt.png') center center / cover no-repeat;
+  background: url('./images/hero.png') center center / cover no-repeat;
   filter:none;
   transform: none;
 }
@@ -2356,7 +2356,7 @@ body:has(.home-intro) {
 }
 
 body:has(.home-intro) .hero::before {
-  background: url('./images/hherro.png') center center / cover no-repeat !important;
+  background: url('./images/hero.png') center center / cover no-repeat !important;
   filter: none !important;
 }
 
@@ -2630,7 +2630,7 @@ body:has(.home-intro) #quiz-steps-wrapper .operator-no-binding-button[aria-press
   }
 
   body:has(.home-intro) .hero::before {
-    background: url('./images/hherro.png') 44% center / cover no-repeat !important;
+    background: url('./images/hero.png') 44% center / cover no-repeat !important;
   }
 
   body:has(.home-intro) .site-header .header-inner {
