@@ -1397,12 +1397,10 @@
         close: 'Stäng chatten',
         title: 'Dealett assistant',
         status: 'AI-rådgivare',
-        greeting: 'Hej! Jag kan hjälpa dig jämföra mobilabonnemang, bredband, täckning och presentkort. Vad vill du börja med?',
         placeholder: 'Fråga AI om vad som helst...',
         send: 'Skicka',
         typing: 'Dealett assistant skriver...',
         error: 'Jag kunde inte svara just nu. Kontrollera att AI-tjänsten är konfigurerad och försök igen.',
-        suggestions: ['Hjälp mig välja mobilabonnemang', 'Vilket bredband passar mig?', 'Förklara presentkort', 'Vad finns i min varukorg?'],
         feedbackQuestion: 'Var svaret hjälpsamt?',
         feedbackYes: 'Ja',
         feedbackNo: 'Nej',
@@ -1416,12 +1414,10 @@
         close: 'Close chat',
         title: 'Dealett assistant',
         status: 'AI advisor',
-        greeting: 'Hi! I can help you compare mobile plans, broadband, coverage and gift cards. What would you like to start with?',
         placeholder: 'Ask AI anything...',
         send: 'Send',
         typing: 'Dealett assistant is typing...',
         error: 'I could not answer right now. Check that the AI service is configured and try again.',
-        suggestions: ['Help me choose a mobile plan', 'Which broadband fits me?', 'Explain gift cards', 'What is in my cart?'],
         feedbackQuestion: 'Was this helpful?',
         feedbackYes: 'Yes',
         feedbackNo: 'No',
@@ -2107,10 +2103,7 @@
         window.DealettCart.openDrawer(cart);
       }
       if (announce) {
-        addMessage(
-          'assistant',
-          `${response.cartItem.operator} ${response.cartItem.title} är lagt i varukorgen. Fortsätt i varukorgen för nummerflytt, startdatum, kontaktuppgifter och signering.`
-        );
+        status.textContent = `${response.cartItem.operator} ${response.cartItem.title}`;
         renderSuggestions([{ label: 'Öppna varukorg', action: 'openCart' }]);
       }
       return response;
@@ -2142,12 +2135,13 @@
 
       suggestionArea.replaceChildren();
       setSending(true);
+      let requestFailed = false;
 
       try {
         const response = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/chat', {
           label: 'Dealett assistant',
           method: 'POST',
-          timeoutMs: 20000,
+          timeoutMs: 60000,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             sessionId: chatSessionId,
@@ -2167,14 +2161,11 @@
         });
 
         renderAssistantResponse(response, { showFeedback: false });
-        if (!Array.isArray(response.quickReplies) || !response.quickReplies.length) {
-          renderSuggestions(text.suggestions);
-        }
       } catch {
-        addMessage('assistant', text.greeting);
-        renderSuggestions(text.suggestions);
+        requestFailed = true;
       } finally {
         setSending(false);
+        if (requestFailed) status.textContent = text.error;
         input.focus();
       }
     };
@@ -2197,15 +2188,18 @@
         article.innerHTML = [
           '<div class="offer-card__accent"></div>',
           '<div class="offer-card__inner">',
-          `  <span class="offer-card__label">${index === 0 ? 'Bäst match' : `Alternativ ${index + 1}`}</span>`,
+          `  <span class="offer-card__label">${escapeChatText(card.resultLabel || (index === 0 ? 'Bäst värde' : 'Lägst månadspris'))}</span>`,
           `  <h4 class="dealett-chat-offer-title">${escapeChatText(card.operator)} ${escapeChatText(card.planName)}</h4>`,
           '  <div class="offer-card__stats">',
           card.dataLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-wifi"></i></span><div><p class="offer-card__stat-label">Surf</p><p class="offer-card__stat-value">${escapeChatText(card.dataLabel)}</p></div></div>` : '',
           card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">Pris</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p></div></div>` : '',
+          card.effectiveCostLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-scale-balanced"></i></span><div><p class="offer-card__stat-label">Effektiv kostnad</p><p class="offer-card__stat-value">${escapeChatText(card.effectiveCostLabel)}</p></div></div>` : '',
+          card.savingsLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-piggy-bank"></i></span><div><p class="offer-card__stat-label">Besparing</p><p class="offer-card__stat-value">${escapeChatText(card.savingsLabel)}</p></div></div>` : '',
           card.rewardLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-gift"></i></span><div><p class="offer-card__stat-label">Belöning</p><p class="offer-card__stat-value">${escapeChatText(card.rewardLabel)}</p></div></div>` : '',
           card.bindingLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-file-signature"></i></span><div><p class="offer-card__stat-label">Bindning</p><p class="offer-card__stat-value">${escapeChatText(card.bindingLabel)}</p></div></div>` : '',
           '  </div>',
           card.reason ? `  <p class="dealett-chat-offer-note">${escapeChatText(card.reason)}</p>` : '',
+          Array.isArray(card.benefits) && card.benefits.length ? `  <ul class="dealett-chat-offer-benefits">${card.benefits.map(benefit => `<li>${escapeChatText(benefit)}</li>`).join('')}</ul>` : '',
           safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel || 'Välj erbjudande')} <i class="fa-solid fa-cart-shopping"></i></button>` : '',
           '</div>',
         ].join('');
@@ -2253,7 +2247,7 @@
         }).catch(() => {
           button.disabled = false;
           button.innerHTML = previousLabel;
-          addMessage('assistant', text.error);
+          status.textContent = text.error;
         });
       });
 
@@ -2277,12 +2271,13 @@
       addMessage('user', message);
       input.value = '';
       setSending(true);
+      let requestFailed = false;
 
       try {
         const response = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/chat', {
           label: 'Dealett assistant',
           method: 'POST',
-          timeoutMs: 20000,
+          timeoutMs: 60000,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             sessionId: chatSessionId,
@@ -2300,9 +2295,10 @@
 
         renderAssistantResponse(response);
       } catch {
-        addMessage('assistant', text.error);
+        requestFailed = true;
       } finally {
         setSending(false);
+        if (requestFailed) status.textContent = text.error;
         input.focus();
       }
     };

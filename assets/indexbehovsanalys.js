@@ -19,6 +19,7 @@ function createIndexQuiz() {
     binding: null,
     streamingCalculation: null,
     streamingServices: [],
+    streamingMonthlyCosts: {},
     internationalTravel: null,
     internationalUsage: null
   };
@@ -50,7 +51,6 @@ function createIndexQuiz() {
   const resultStepIndex = Math.max(steps.length - 1, 0);
   const sectionWrapperAnchor = document.createComment("quiz section mount");
   const selectionFeedbackMs = 220;
-  let plans = null;
   let recommendationsRequestId = 0;
   let lastOfferCalculation = null;
   let pendingAdvanceTimer = null;
@@ -361,7 +361,7 @@ function createIndexQuiz() {
 
   function buildRecommendationCartItem(plan) {
     const persons = state.persons || 1;
-    const rewardTotal = 4000;
+    const rewardTotal = 0;
 
     return {
       cartItemId: `${plan.id || "recommended-offer"}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -371,15 +371,17 @@ function createIndexQuiz() {
       logo: plan.logo,
       data: plan.data || (plan.dataAmount >= 999 ? "Obegränsad" : `${plan.dataAmount} GB`),
       dataAmount: Number(plan.dataAmount) || 0,
-      price: Number(plan.finalPrice ?? plan.price) || 0,
+      price: Number(plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0,
+      monthlyPrice: Number(plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0,
+      regularMonthlyPrice: Number(plan.regularMonthlyPlanPrice ?? plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0,
       pricePerPerson: persons > 1 ? Number(plan.pricePerPerson) || 0 : 0,
       persons,
       phoneLines: persons,
       productType: persons > 1 ? "family" : "mobile",
       unitLabel: "abonnemang",
       rewardTotal,
-      rewardMixLabel: `Presentkort ${new Intl.NumberFormat("sv-SE").format(rewardTotal)} kr`,
-      rewards: { Presentkort: rewardTotal },
+      rewardMixLabel: "",
+      rewards: {},
       qualification: plan.qualification || null,
       offerCalculation: plan.offerCalculation || null,
       answers: {
@@ -394,20 +396,18 @@ function createIndexQuiz() {
         binding: state.binding,
         streamingCalculation: state.streamingCalculation,
         streamingServices: state.streamingServices,
+        streamingMonthlyCosts: state.streamingMonthlyCosts,
         internationalTravel: state.internationalTravel,
         internationalUsage: state.internationalUsage
       },
       features: [
         persons > 1 ? `${persons} abonnemang` : "1 abonnemang",
-        plan.offerCalculation ? `${plan.offerCalculation.contractMonths} mån bindningstid` : "",
-        plan.offerCalculation?.includedServiceMonthlyValue > 0
-          ? `Streamingvärde avräknat ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.includedServiceMonthlyValue)} kr/mån`
+        plan.offerCalculation ? `${plan.offerCalculation.bindingMonths} mån bindningstid` : "",
+        plan.offerCalculation?.streamingSavings > 0
+          ? `Streaming avräknad ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.streamingSavings)} kr/mån`
           : "",
-        plan.offerCalculation?.overlapCostKnown > 0 ? `Dubbelkostnad ca ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.overlapCostKnown)} kr` : "",
-        plan.offerCalculation ? `Uppskattad vinst ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.savingsVsStaying)} kr` : "",
-        "Fria samtal och sms",
-        "5G & eSIM",
-        plan.text || "",
+        plan.offerCalculation ? `Effektiv kostnad ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.effectiveMonthlyCost)} kr/mån` : "",
+        ...(plan.offerCalculation?.benefits || []),
       ].filter(Boolean),
       source: "homepage-quiz"
     };
@@ -703,7 +703,23 @@ function createIndexQuiz() {
     state.streamingServices = Array.from(step.querySelectorAll("[data-streaming-service]:checked"))
       .map(input => input.value)
       .filter(Boolean);
+    state.streamingMonthlyCosts = state.streamingServices.reduce((costs, service) => {
+      const input = step.querySelector(`[data-streaming-cost="${service}"]`);
+      const amount = Number(input?.value);
+      if (amount > 0) costs[service] = amount;
+      return costs;
+    }, {});
     state.streamingCalculation = state.streamingServices.length ? "include" : "none";
+
+    const missingCost = state.streamingServices.find(service => !state.streamingMonthlyCosts[service]);
+    if (missingCost) {
+      const input = step.querySelector(`[data-streaming-cost="${missingCost}"]`);
+      input?.focus();
+      input?.setCustomValidity("Ange vad du betalar per månad så att effektiv kostnad blir korrekt.");
+      input?.reportValidity();
+      return;
+    }
+    step.querySelectorAll("[data-streaming-cost]").forEach(input => input.setCustomValidity(""));
 
     showStepAfterSelection(Math.min(state.currentStep + 1, resultStepIndex));
   }
@@ -965,50 +981,7 @@ function createIndexQuiz() {
   }
 
   async function getRecommendedPlans() {
-    try {
-      const strictPlans = await getStrictCalculatedPlans();
-      if (strictPlans) return strictPlans;
-    } catch {
-      lastOfferCalculation = null;
-      // Fall back to the softer recommender if the strict calculator is unavailable.
-    }
-
-    try {
-      const data = await window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/recommendations/mobile", {
-        label: "Behovsanalys rekommendationer",
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state }),
-      });
-
-      if (Array.isArray(data)) return data;
-    } catch {
-      // Fall back to the old in-browser scorer if the backend is unavailable.
-    }
-
-    const allPlans = await loadPlans();
-    const basePlans = allPlans.filter(plan => plan.category === "mobil" && !plan.isFamilyPlan);
-    const currentOperators = new Set(
-      state.operators
-        .filter(Boolean)
-        .filter(operator => operator !== "Other")
-    );
-
-    const candidates = basePlans
-      .map(plan => enrichPlan(plan, allPlans))
-      .filter(Boolean)
-      .filter(plan => !state.data || plan.tier === state.data)
-      .map(plan => ({
-        ...plan,
-        score: scorePlan(plan, currentOperators)
-      }))
-      .sort((left, right) => {
-        if (right.score !== left.score) return right.score - left.score;
-        if (left.finalPrice !== right.finalPrice) return left.finalPrice - right.finalPrice;
-        return left.operator.localeCompare(right.operator, "sv");
-      });
-
-    return getUniqueOperatorPlans(candidates).slice(0, 4);
+    return getStrictCalculatedPlans();
   }
 
   async function getStrictCalculatedPlans() {
@@ -1018,37 +991,27 @@ function createIndexQuiz() {
       return null;
     }
 
-    const [allPlans, calculation] = await Promise.all([
-      loadPlans(),
-      window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/offers/calculate", {
-        label: "Behovsanalys kalkyl",
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ qualification }),
-      })
-    ]);
+    const calculation = await window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/offers/calculate", {
+      label: "Behovsanalys kalkyl",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ qualification }),
+    });
     lastOfferCalculation = calculation;
 
     if (!calculation.validOfferAvailable) {
       return [];
     }
 
-    return getUniqueOperatorPlans((calculation.options || []).map(option => {
-      const sourcePlan = allPlans.find(plan => String(plan.id) === String(option.planId)) || {};
-
-      return {
-        ...sourcePlan,
-        ...option,
-        id: option.planId,
-        logo: sourcePlan.logo,
-        finalPrice: option.monthlyPrice,
-        pricePerPerson: option.pricePerPerson,
-        rewardTotal: option.rewardTotal,
-        offerCalculation: option,
-        qualification,
-        source: "homepage-quiz-calculator",
-      };
-    })).slice(0, 4);
+    return (calculation.options || []).map(option => ({
+      ...option,
+      id: option.planId,
+      logo: getOperatorLogo(option.operator),
+      finalPrice: option.planMonthlyPrice,
+      offerCalculation: option,
+      qualification,
+      source: "homepage-quiz-calculator",
+    }));
   }
 
   function getUniqueOperatorPlans(items = []) {
@@ -1062,32 +1025,33 @@ function createIndexQuiz() {
     });
   }
 
-  function getRecommendationPrice(plan) {
-    return Number(plan.monthlyPrice ?? plan.finalPrice ?? plan.price ?? plan.pricePerPerson) || 0;
-  }
-
   function getRecommendationKey(plan) {
     return String(plan?.planId ?? plan?.id ?? `${plan?.operator || ""}-${plan?.title || ""}`);
   }
 
   function selectFeaturedRecommendationEntries(plans = []) {
-    if (!plans.length) return [];
-    if (plans.length === 1) return [{ plan: plans[0], label: "Bäst värde" }];
-
-    const bestValue = plans[0];
-    const cheapest = [...plans].sort((left, right) => getRecommendationPrice(left) - getRecommendationPrice(right))[0];
-
+    const qualification = buildQualificationFromState();
     return [
-      { plan: bestValue, label: "Bäst värde" },
-      { plan: cheapest, label: "Billigast möjlig" }
-    ];
+      { plan: lastOfferCalculation?.bestValue, label: "Bäst värde" },
+      { plan: lastOfferCalculation?.lowestMonthlyPrice, label: "Lägst månadspris" }
+    ].filter(entry => entry.plan).map(entry => ({
+      ...entry,
+      plan: {
+        ...entry.plan,
+        id: entry.plan.planId,
+        logo: getOperatorLogo(entry.plan.operator),
+        finalPrice: entry.plan.planMonthlyPrice,
+        offerCalculation: entry.plan,
+        qualification,
+      }
+    }));
   }
 
   function getExpandedRecommendationLabel(plan, index, featuredEntries = []) {
     const key = getRecommendationKey(plan);
 
     if (key === getRecommendationKey(featuredEntries[0]?.plan)) return "Bäst värde";
-    if (key === getRecommendationKey(featuredEntries[1]?.plan)) return "Billigast möjlig";
+    if (key === getRecommendationKey(featuredEntries[1]?.plan)) return "Lägst månadspris";
 
     return `Operatör ${index + 1}`;
   }
@@ -1158,84 +1122,14 @@ function createIndexQuiz() {
       priceRange: state.price || null,
       streamingCalculation: state.streamingCalculation || null,
       streamingServices: state.streamingServices,
+      streamingMonthlyCosts: state.streamingMonthlyCosts,
       internationalTravel: state.internationalTravel || null,
+      internationalUsage: state.internationalUsage || null,
       exactMonthlyPrice: null,
       exactMonthlyPrices: [],
       readyForOffer: missingFields.length === 0,
       missingFields,
     };
-  }
-
-  function enrichPlan(plan, allPlans) {
-    const persons = state.persons || 1;
-    let finalPrice = plan.price;
-    let pricePerPerson = plan.price;
-
-    if (persons > 1) {
-      const addon = allPlans.find(candidate =>
-        candidate.operator === plan.operator &&
-        candidate.isFamilyPlan === true &&
-        candidate.familyPriceType === "addon"
-      );
-
-      if (!addon) return null;
-
-      finalPrice = plan.price + (persons - 1) * addon.addonPrice;
-      pricePerPerson = Math.round(finalPrice / persons);
-    }
-
-    return {
-      ...plan,
-      finalPrice,
-      pricePerPerson
-    };
-  }
-
-  function scorePlan(plan, currentOperators) {
-    let score = 0;
-
-    if (matchesPriceExpectation(plan.pricePerPerson)) {
-      score += 4;
-    }
-
-    if (currentOperators.has(plan.operator)) {
-      score += 2;
-    }
-
-    if (state.binding === "yes" && currentOperators.has(plan.operator)) {
-      score += 1;
-    }
-
-    if (state.binding === "no" && !currentOperators.has(plan.operator)) {
-      score += 1;
-    }
-
-    return score;
-  }
-
-  function matchesPriceExpectation(pricePerPerson) {
-    if (!state.price) return true;
-
-    if (state.price === "under300") return pricePerPerson < 300;
-    if (state.price === "300-400") return pricePerPerson >= 300 && pricePerPerson < 400;
-    if (state.price === "400-500") return pricePerPerson >= 400;
-
-    return true;
-  }
-
-  async function loadPlans() {
-    if (plans) return plans;
-
-    const data = await window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/mobile/plans", {
-      label: "Behovsanalys data",
-    });
-
-    if (!Array.isArray(data)) {
-      throw new Error("Behovsanalys data must be an array.");
-    }
-
-    plans = data;
-    return plans;
   }
 
   function escapeHtml(value) {
@@ -1341,13 +1235,12 @@ function createIndexQuiz() {
     const persons = Number(state.persons) || 1;
     const isMulti = persons > 1;
     const dataText = plan.dataAmount >= 999 ? "Obegr\u00e4nsad" : `${plan.dataAmount} GB`;
-    const finalPrice = Number(plan.finalPrice ?? plan.price) || 0;
+    const finalPrice = Number(plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0;
     const pricePerPerson = Number(plan.pricePerPerson) || finalPrice;
-    const rewardTotal = Number(plan.rewardTotal) || 4000;
-    const contractMonths = Number(plan.offerCalculation?.contractMonths) || null;
-    const overlapCost = Number(plan.offerCalculation?.overlapCostKnown) || 0;
-    const savings = Number(plan.offerCalculation?.savingsVsStaying) || 0;
-    const includedServiceValue = Number(plan.offerCalculation?.includedServiceMonthlyValue) || 0;
+    const contractMonths = Number(plan.offerCalculation?.bindingMonths) || null;
+    const savings = Number(plan.offerCalculation?.monthlySavings);
+    const includedServiceValue = Number(plan.offerCalculation?.streamingSavings) || 0;
+    const effectiveMonthlyCost = Number(plan.offerCalculation?.effectiveMonthlyCost) || finalPrice;
 
     return {
       id: `index-quiz-${plan.id || plan.title || plan.operator}-${persons}-${index}`,
@@ -1363,33 +1256,21 @@ function createIndexQuiz() {
         { label: "Surf", value: dataText },
         { label: "Pris", value: isMulti ? `${formatMoney(pricePerPerson)}/person` : `${formatMoney(finalPrice)}/m\u00e5n` },
         isMulti ? { label: "Totalpris", value: `${formatMoney(finalPrice)}/m\u00e5n` } : null,
-        { label: "Presentkort", value: `${formatMoney(rewardTotal)}` },
         contractMonths ? { label: "Bindningstid", value: `${contractMonths} m\u00e5n` } : null,
-        includedServiceValue > 0 ? { label: "Streamingvärde", value: `${formatMoney(includedServiceValue)}/mån` } : null,
-        overlapCost > 0 ? { label: "Dubbelkostnad", value: `ca ${formatMoney(overlapCost)}` } : null,
-        savings > 0 ? { label: "Uppskattad vinst", value: `${formatMoney(savings)}` } : null,
+        { label: "Effektiv kostnad", value: `${formatMoney(effectiveMonthlyCost)}/mån` },
+        includedServiceValue > 0 ? { label: "Ersatt streaming", value: `${formatMoney(includedServiceValue)}/mån` } : null,
+        Number.isFinite(savings) ? {
+          label: savings >= 0 ? "Besparing" : "Högre kostnad",
+          value: `${formatMoney(Math.abs(savings))}/mån`,
+        } : null,
+        ...(plan.offerCalculation?.benefits || []).map(benefit => ({ label: "Fördel", value: benefit })),
         ...getAnswerCompareFacts(),
       ].filter(Boolean),
     };
   }
 
   function buildRecommendationReason(plan) {
-    const reasons = [];
-    const savings = Number(plan.offerCalculation?.savingsVsStaying) || 0;
-    const includedServiceValue = Number(plan.offerCalculation?.includedServiceMonthlyValue) || 0;
-
-    if (state.data) reasons.push(getDataNeedLabel(state.data).toLowerCase());
-    if (state.price) reasons.push(getPriceNeedLabel(state.price).toLowerCase());
-    if (state.internationalTravel) reasons.push(getTravelLabel(state.internationalTravel).toLowerCase());
-    if (state.internationalUsage) reasons.push(getInternationalUsageLabel(state.internationalUsage).toLowerCase());
-    if (includedServiceValue > 0) {
-      reasons.push(`Telias streamingvärde (${formatMoney(includedServiceValue)}/mån) är avräknat`);
-    }
-    if (savings > 0) reasons.push(`uppskattad vinst ${formatMoney(savings)}`);
-
-    return reasons.length
-      ? `Visas eftersom du valde ${reasons.join(", ")}.`
-      : "Visas eftersom den matchar svaren du gav i analysen.";
+    return plan.offerCalculation?.reason || "Matchar behoven du angav i analysen.";
   }
 
   function buildRecommendationCard(plan, index, label) {
@@ -1403,8 +1284,11 @@ function createIndexQuiz() {
 
     const topLabel = label || `Operatör ${index + 1}`;
     const isMulti = state.persons && state.persons > 1;
-    const priceMain = isMulti ? `${plan.pricePerPerson} kr/p` : `${plan.finalPrice} kr/mån`;
-    const priceSub  = isMulti ? `${plan.finalPrice} kr totalt` : null;
+    const planMonthlyPrice = Number(plan.planMonthlyPrice ?? plan.finalPrice) || 0;
+    const effectiveMonthlyCost = Number(plan.effectiveMonthlyCost ?? plan.offerCalculation?.effectiveMonthlyCost) || planMonthlyPrice;
+    const monthlySavings = Number(plan.monthlySavings ?? plan.offerCalculation?.monthlySavings);
+    const priceMain = `${planMonthlyPrice} kr/mån`;
+    const priceSub  = isMulti ? `${plan.pricePerPerson} kr per användare` : null;
     const dataText  = plan.dataAmount >= 999 ? "Obegränsad" : `${plan.dataAmount} GB`;
     const reasonText = buildRecommendationReason(plan);
 
@@ -1435,7 +1319,9 @@ function createIndexQuiz() {
       '      </div>',
       '    </div>',
       '  </div>',
+      `  <div class="offer-card__stats"><div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-scale-balanced"></i></span><div><p class="offer-card__stat-label">Effektiv kostnad</p><p class="offer-card__stat-value">${escapeHtml(`${effectiveMonthlyCost} kr/mån`)}</p></div></div>${Number.isFinite(monthlySavings) ? `<div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-piggy-bank"></i></span><div><p class="offer-card__stat-label">${plan.currentMonthlyTotalIsEstimate ? 'Uppskattad besparing' : 'Besparing'}</p><p class="offer-card__stat-value">${escapeHtml(`${monthlySavings} kr/mån`)}</p></div></div>` : ''}</div>`,
       `  <p class="offer-card__reason">${escapeHtml(reasonText)}</p>`,
+      Array.isArray(plan.benefits) && plan.benefits.length ? `  <ul class="offer-card__benefits">${plan.benefits.map(benefit => `<li>${escapeHtml(benefit)}</li>`).join("")}</ul>` : '',
       '  <div class="offer-card__actions"></div>',
       '  <a href="varukorg.html" class="offer-card__cta" data-recommendation-cart>Till varukorg <i class="fa-solid fa-cart-shopping"></i></a>',
       '</div>'
@@ -1506,6 +1392,11 @@ function createIndexQuiz() {
       .replace("ö", "o")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
+  }
+
+  function getOperatorLogo(operator) {
+    const provider = getProviderClass(operator);
+    return `images/${provider}.${["telia", "tele2"].includes(provider) ? "png" : "jpg"}`;
   }
 
   return { init };

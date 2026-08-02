@@ -7187,11 +7187,47 @@ body.cart-drawer-open {
   transform: translateY(-2px);
 }
 
-.streaming-checkbox input {
+.streaming-checkbox input[type="checkbox"] {
   width: 22px;
   height: 22px;
   flex: 0 0 auto;
   accent-color: var(--accent);
+}
+
+.dealett-chat-offer-benefits,
+.offer-card__benefits {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  color: rgba(39, 36, 67, 0.76);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.dealett-chat-offer-benefits li::before,
+.offer-card__benefits li::before {
+  content: "✓";
+  margin-right: 7px;
+  color: var(--deal-blue, #003a6e);
+  font-weight: 900;
+}
+
+.streaming-checkbox .streaming-cost-input {
+  width: 82px;
+  min-width: 0;
+  margin-left: auto;
+  padding: 8px 7px;
+  border: 1px solid rgba(39, 36, 67, 0.22);
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  font: 700 13px/1 Arial, sans-serif;
+}
+
+.streaming-checkbox:not(:has(input[type="checkbox"]:checked)) .streaming-cost-input {
+  visibility: hidden;
 }
 
 .streaming-checkbox:has(input:checked) {

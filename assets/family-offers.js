@@ -24,7 +24,7 @@ const offers = [
     accent: '#6E2380',
     members: '4 abonnemang',
     surf: 'Obegr\u00e4nsad surf',
-    reward: 5000,
+    reward: 0,
   },
   {
     provider: 'Telenor',
@@ -33,7 +33,7 @@ const offers = [
     accent: '#00437E',
     members: '4 abonnemang',
     surf: 'Obegr\u00e4nsad surf',
-    reward: 5000,
+    reward: 0,
   },
   {
     provider: 'Tre',
@@ -42,7 +42,7 @@ const offers = [
     accent: '#E65C00',
     members: '5 abonnemang',
     surf: 'Obegr\u00e4nsad surf',
-    reward: 6000,
+    reward: 0,
   },
   {
     provider: 'Tele2',
@@ -51,75 +51,11 @@ const offers = [
     accent: '#003A6E',
     members: '4 abonnemang',
     surf: 'Obegr\u00e4nsad surf',
-    reward: 5000,
+    reward: 0,
   },
 ];
 
 const giftCards = ['Apollo', 'H&M', 'Hotel', 'ICA Maxi', 'Mio', 'Zalando', 'Elgiganten', 'Ticketmaster'];
-
-const streamingServicePrices = {
-  netflixStandard: 169,
-  hboMaxBasicAds: 89,
-  disneyStandardAds: 59,
-  amazonPrime: 59,
-  tv4PlayPlus: 69,
-};
-
-const teliaStreamingOffers = [
-  {
-    id: 'none',
-    label: 'Utan streaming',
-    detail: 'Obegränsad Plus utan extra streamingtjänst',
-    monthlyPrice: 569,
-    services: [],
-  },
-  {
-    id: 'disney',
-    label: 'Disney+',
-    detail: 'Disney+ Standard med reklam',
-    monthlyPrice: 599,
-    services: [{ name: 'Disney+ Standard med reklam', price: streamingServicePrices.disneyStandardAds }],
-  },
-  {
-    id: 'prime',
-    label: 'Amazon Prime',
-    detail: 'Amazon Prime med reklam',
-    monthlyPrice: 599,
-    services: [{ name: 'Amazon Prime', price: streamingServicePrices.amazonPrime }],
-  },
-  {
-    id: 'tv4',
-    label: 'TV4 Play Plus',
-    detail: 'TV4 Play Plus',
-    monthlyPrice: 599,
-    services: [{ name: 'TV4 Play Plus', price: streamingServicePrices.tv4PlayPlus }],
-  },
-  {
-    id: 'hbo',
-    label: 'HBO Max',
-    detail: 'HBO Max Basic med reklam',
-    monthlyPrice: 609,
-    services: [{ name: 'HBO Max Basic med reklam', price: streamingServicePrices.hboMaxBasicAds }],
-  },
-  {
-    id: 'netflix',
-    label: 'Netflix',
-    detail: 'Netflix Standard',
-    monthlyPrice: 629,
-    services: [{ name: 'Netflix Standard', price: streamingServicePrices.netflixStandard }],
-  },
-  {
-    id: 'netflix-hbo-disney',
-    label: 'Netflix, HBO Max och Disney+',
-    detail: 'Netflix Standard, HBO Max Basic med reklam och Disney+ Standard med reklam',
-    monthlyPrice: 699,
-    services: [
-      { name: 'Netflix Standard', price: streamingServicePrices.netflixStandard },
-      { name: 'HBO Max Basic med reklam', price: streamingServicePrices.hboMaxBasicAds },
-      { name: 'Disney+ Standard med reklam', price: streamingServicePrices.disneyStandardAds },
-    ],
-  },
-];
 
 let selectedOffer = null;
 let plansCache = null;
@@ -128,8 +64,6 @@ let activeData = null;
 let dataSteps = [];
 
 const formatCurrency = (value) => currency.format(Math.max(Number(value) || 0, 0));
-
-const getTeliaStreamingOffer = (id) => teliaStreamingOffers.find((item) => item.id === id) || teliaStreamingOffers[0];
 
 const getStreamingServiceName = (service) => {
   if (typeof service === 'string') return service;
@@ -169,7 +103,7 @@ const getPlanStreamingOffer = (plan = {}) => {
 const getStreamingPackageSummaryLabel = (answers = {}) => {
   if (answers.streamingPackage === 'all') return 'Visa alla Telia-varianter';
   if (answers.streamingPackage === 'none') return 'Ingen Telia-streaming';
-  return getTeliaStreamingOffer(answers.streamingPackage).label;
+  return 'Streamingval från mobilplansdatan';
 };
 
 const createElement = (tag, className, text) => {
@@ -612,9 +546,7 @@ const renderStreamingQuestion = (offer, card, answers) => {
     ? [
       '<p class="family-streaming-note">Vi visar Telias obegr&auml;nsade val i resultatet, s&aring; ni slipper v&auml;lja streamingpaket h&auml;r.</p>',
       '<div class="family-streaming-summary" aria-label="Telia-varianter som visas">',
-      ['Obegränsad', 'Obegränsad Plus', 'Plus Netflix', 'Plus Netflix, HBO Max, Disney+']
-        .map((label) => `<span>${label}</span>`)
-        .join(''),
+      '<span>Aktuella varianter hämtas från mobilplansdatan</span>',
       '</div>',
     ].join('')
     : '<p class="family-streaming-note">Den här operatören har inga separata streamingval i vår familjekalkyl just nu.</p>';

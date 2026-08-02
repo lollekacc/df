@@ -19,25 +19,25 @@ const offers = [
     provider: 'Telia',
     logo: 'images/telia.png',
     accent: '#6E2380',
-    reward: 4000,
+    reward: 0,
   },
   {
     provider: 'Telenor',
     logo: 'images/telenor.jpg',
     accent: '#00437E',
-    reward: 4000,
+    reward: 0,
   },
   {
     provider: 'Tre',
     logo: 'images/tre.jpg',
     accent: '#E65C00',
-    reward: 4000,
+    reward: 0,
   },
   {
     provider: 'Tele2',
     logo: 'images/tele2.png',
     accent: '#003A6E',
-    reward: 4000,
+    reward: 0,
   },
 ];
 
@@ -123,7 +123,7 @@ const buildSelectedPlanOffer = (plan, answers) => {
     invoiceFee: plan.invoiceFee,
     invoiceFeeOptional: plan.invoiceFeeOptional !== false,
     logo: plan.logo,
-    reward: operatorOffer.reward || 4000,
+    reward: Number(operatorOffer.reward) || 0,
     accent: operatorOffer.accent || 'var(--accent)',
     answers,
   };
