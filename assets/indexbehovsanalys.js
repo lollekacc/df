@@ -39,6 +39,7 @@ function createIndexQuiz() {
     stack: document.getElementById("quiz-card-stack"),
     startButton: document.getElementById("quiz-start"),
     heroStartButton: document.getElementById("hero-start-analysis"),
+    heroOfferButtons: document.querySelectorAll("[data-hero-offer-persons]"),
     hero: document.querySelector(".hero"),
     heroVisual: document.querySelector(".hero-visual"),
     heroMount: document.getElementById("hero-quiz-mount"),
@@ -91,6 +92,12 @@ function createIndexQuiz() {
     dom.heroStartButton?.addEventListener("click", event => {
       event.preventDefault();
       startQuiz({ inHero: true });
+    });
+    dom.heroOfferButtons?.forEach(button => {
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        startQuizFromHeroOffer(button);
+      });
     });
     document.querySelectorAll("[data-home-quiz-link]").forEach(link => {
       link.addEventListener("click", event => {
@@ -599,6 +606,17 @@ function createIndexQuiz() {
     resetCustomerStep();
     prepareOperatorQuestion(persons);
     showStepAfterSelection(1);
+  }
+
+  function startQuizFromHeroOffer(button) {
+    const persons = Number(button.dataset.heroOfferPersons);
+    if (!persons) return;
+
+    startQuiz({ inHero: true });
+    window.setTimeout(() => {
+      const option = steps[0]?.querySelector(`[data-persons="${persons}"]`);
+      if (option) handlePersonsStep(option, steps[0]);
+    }, selectionFeedbackMs);
   }
 
   function resizePersonDetailArrays(persons) {

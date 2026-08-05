@@ -1530,7 +1530,7 @@ img {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('./images/hero-wide.png') no-repeat var(--hero-position-x) var(--hero-position-y) / cover;
+  background: none;
   transform: translateX(var(--hero-shift)) scale(var(--hero-scale));
   transform-origin: var(--hero-position-x) var(--hero-position-y);
   will-change: transform;
@@ -9570,4 +9570,288 @@ body {
 .quiz-ai-button--primary:focus-visible {
   background: var(--accent, #da6f21);
   color: #111;
+}
+
+/* Pictureless coded-offer hero */
+.hero {
+  --quiz-card-height: 640px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(420px, 7fr) minmax(220px, 3fr);
+  gap: 0;
+  min-height: min(860px, calc(100vh - 18px));
+  padding: 104px max(20px, calc((100vw - 1420px) / 2)) 34px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.hero::before,
+.hero::after {
+  content: none;
+}
+
+.hero-showcase {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  align-self: stretch;
+  min-height: 0;
+  border: 1px solid #111;
+  background: #111;
+}
+
+.hero-offer-tile {
+  position: relative;
+  display: grid;
+  align-content: space-between;
+  justify-items: start;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(18px, 2.4vw, 34px);
+  border: 0;
+  border-right: 1px solid #111;
+  border-radius: 0;
+  background: #fff;
+  color: #111;
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color .18s ease, transform .18s ease;
+}
+
+.hero-offer-tile:last-child {
+  border-right: 0;
+}
+
+.hero-offer-tile:hover,
+.hero-offer-tile:focus-visible {
+  z-index: 1;
+  transform: translateY(-6px);
+  outline: none;
+}
+
+.hero-offer-tile--family { background: #fff; }
+.hero-offer-tile--group { background: #fbfbf8; }
+.hero-offer-tile--duo { background: #f6f6f1; }
+.hero-offer-tile--single { background: #fdfdfb; }
+
+.hero-offer-tile:hover,
+.hero-offer-tile:focus-visible {
+  background: #f1f1ec;
+}
+
+.hero-offer-kicker {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid #111;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .84);
+  font: 900 clamp(11px, .88vw, 13px)/1 Arial, sans-serif;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.hero-offer-tile strong {
+  max-width: 100%;
+  margin-top: clamp(18px, 3vw, 42px);
+  font: 900 clamp(28px, 3vw, 54px)/.88 Arial, sans-serif;
+  letter-spacing: -.06em;
+  overflow-wrap: anywhere;
+}
+
+.hero-offer-gift {
+  display: block;
+  margin-top: 14px;
+  font: 900 clamp(44px, 5.2vw, 86px)/.82 Arial, sans-serif;
+  letter-spacing: -.08em;
+}
+
+.hero-offer-copy {
+  margin-top: 8px;
+  font: 900 clamp(18px, 1.65vw, 27px)/1 Arial, sans-serif;
+  letter-spacing: -.03em;
+}
+
+.hero-offer-tile small {
+  align-self: end;
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  margin-top: clamp(20px, 3vw, 42px);
+  padding: 0 13px;
+  border: 1px solid #111;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font: 800 13px/1 Arial, sans-serif;
+}
+
+.hero-bottom {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(20px, 5vw, 70px);
+  align-items: center;
+  min-height: 0;
+  padding-top: clamp(22px, 3vw, 42px);
+  color: #111;
+}
+
+.hero-bottom-copy {
+  min-width: 0;
+}
+
+.hero-bottom .hero-eyebrow {
+  margin: 0 0 14px;
+  color: rgba(0, 0, 0, .62);
+}
+
+.hero-bottom .hero-eyebrow span {
+  background: var(--accent);
+}
+
+.hero-bottom h1 {
+  max-width: none;
+  color: #111;
+  font: 900 clamp(43px, 6.4vw, 96px)/.86 Arial, Helvetica, sans-serif;
+  letter-spacing: -.075em;
+}
+
+.hero-bottom h1 em {
+  color: var(--deal-blue);
+  font: 700 clamp(37px, 5.2vw, 78px)/.9 Georgia, 'Times New Roman', serif;
+  letter-spacing: -.075em;
+}
+
+.hero-bottom-actions {
+  display: grid;
+  justify-items: end;
+  gap: 20px;
+}
+
+.hero-bottom .button {
+  background: #111;
+  color: #fff;
+}
+
+.hero-bottom .button:hover,
+.hero-bottom .button:focus-visible {
+  background: var(--deal-blue);
+  color: #111;
+}
+
+.hero-proof {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 0;
+}
+
+.hero-proof strong {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  padding: 0 13px;
+  border: 1px solid rgba(0, 0, 0, .18);
+  border-radius: 999px;
+  color: #111;
+  font: 900 13px/1 Arial, sans-serif;
+}
+
+.hero.quiz-in-hero {
+  display: block;
+  min-height: 760px;
+  padding-top: 130px;
+  background: var(--deal-blue);
+}
+
+.hero.quiz-in-hero .hero-showcase,
+.hero.quiz-in-hero .hero-bottom {
+  display: none;
+}
+
+@media (max-width: 1120px) {
+  .hero {
+    grid-template-rows: minmax(460px, 7fr) minmax(250px, 3fr);
+    min-height: auto;
+    padding-top: 96px;
+  }
+
+  .hero-showcase {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-bottom-actions {
+    justify-items: start;
+  }
+
+  .hero-proof {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    grid-template-rows: minmax(620px, auto) auto;
+    padding: 88px 14px 28px;
+    background: #fff;
+  }
+
+  .hero-showcase {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .hero-offer-tile {
+    min-height: 138px;
+    padding: 18px;
+    border-right: 0;
+    border-bottom: 1px solid #111;
+    box-shadow: none;
+  }
+
+  .hero-offer-tile:last-child {
+    border-bottom: 0;
+  }
+
+  .hero-offer-tile:hover,
+  .hero-offer-tile:focus-visible {
+    transform: translateX(6px);
+    box-shadow: none;
+  }
+
+  .hero-offer-tile strong {
+    margin-top: 16px;
+    font-size: 30px;
+  }
+
+  .hero-offer-gift {
+    font-size: 48px;
+  }
+
+  .hero-bottom {
+    padding-top: 34px;
+  }
+
+  .hero-bottom h1 {
+    font-size: clamp(42px, 14vw, 64px);
+  }
+
+  .hero-bottom h1 em {
+    font-size: clamp(34px, 11vw, 50px);
+  }
+
+  .hero-proof strong {
+    font-size: 12px;
+  }
 }

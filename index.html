@@ -18,37 +18,53 @@
 
     <main>
       <section class="hero">
-        <div class="hero-content">
-          <p class="hero-eyebrow"><span></span>Bättre deals, helt enkelt.</p>
-         <h1>
-  Rätt abonnemang<br />
-  <em>Presentkort på köpet  </em>
-</h1>
-          <p class="hero-lead">Vi jämför Sveriges ledande operatörer och hjälper dig hitta rätt abonnemang på under två minuter.</p>
-          <div class="hero-actions">
-            <a href="#quiz-steps-wrapper" id="hero-start-analysis" class="button button--primary">Hitta mitt abonnemang <span aria-hidden="true">→</span></a>
-            <a href="mobilabonnemang.html" class="hero-text-link">Se alla abonnemang <span aria-hidden="true">↗</span></a>
-          </div>
-          <div class="hero-proof" aria-label="Fördelar med Dealett">
-            <span><i class="fa-solid fa-check" aria-hidden="true"></i> Kostnadsfritt</span>
-            <span><i class="fa-solid fa-check" aria-hidden="true"></i> Under 2 minuter</span>
-            <span><i class="fa-solid fa-check" aria-hidden="true"></i> Ingen inloggning</span>
-          </div>
-
+        <div class="hero-showcase" aria-label="Aktuella presentkortserbjudanden">
+          <button class="hero-offer-tile hero-offer-tile--family" type="button" data-hero-offer-persons="4">
+            <span class="hero-offer-kicker">Familj</span>
+            <strong><span class="hero-offer-count">4</span><span class="hero-offer-subscriptions">abonnemang</span></strong>
+            <span class="hero-offer-gift">4000 kr</span>
+            <span class="hero-offer-copy">Presentkort</span>
+            <small>Välj erbjudande</small>
+          </button>
+          <button class="hero-offer-tile hero-offer-tile--group" type="button" data-hero-offer-persons="3">
+            <span class="hero-offer-kicker">Hushåll</span>
+            <strong><span class="hero-offer-count">3</span><span class="hero-offer-subscriptions">abonnemang</span></strong>
+            <span class="hero-offer-gift">3000 kr</span>
+            <span class="hero-offer-copy">Presentkort</span>
+            <small>Välj erbjudande</small>
+          </button>
+          <button class="hero-offer-tile hero-offer-tile--duo" type="button" data-hero-offer-persons="2">
+            <span class="hero-offer-kicker">Duo</span>
+            <strong><span class="hero-offer-count">2</span><span class="hero-offer-subscriptions">abonnemang</span></strong>
+            <span class="hero-offer-gift">2000 kr</span>
+            <span class="hero-offer-copy">Presentkort</span>
+            <small>Välj erbjudande</small>
+          </button>
+          <button class="hero-offer-tile hero-offer-tile--single" type="button" data-hero-offer-persons="1">
+            <span class="hero-offer-kicker">En person</span>
+            <strong><span class="hero-offer-count">1</span><span class="hero-offer-subscriptions">abonnemang</span></strong>
+            <span class="hero-offer-gift">1000 kr</span>
+            <span class="hero-offer-copy">Presentkort</span>
+            <small>Välj erbjudande</small>
+          </button>
         </div>
 
-        <div class="hero-visual" aria-hidden="true">
-          <div class="hero-orbit hero-orbit--one"></div>
-          <div class="hero-orbit hero-orbit--two"></div>
-          <div class="hero-deal-card">
-            <span class="hero-deal-label">Din match</span>
-            <strong>Obegränsad surf</strong>
-            <div class="hero-deal-price"><b>299</b><span>kr<br />/ mån</span></div>
-            <div class="hero-deal-row"><span>5G ingår</span><span>Ingen bindningstid</span></div>
+        <div class="hero-bottom">
+          <div class="hero-bottom-copy">
+            <p class="hero-eyebrow"><span></span>Bättre deals, helt enkelt.</p>
+            <h1>
+              rätt abonnemang<br />
+              <em>Presentkort på köpet</em>
+            </h1>
           </div>
-          <div class="hero-float hero-float--gift"><i class="fa-solid fa-gift"></i><span>Presentkort<br /><b>på köpet</b></span></div>
-          <div class="hero-float hero-float--saving"><small>Du sparar</small><strong>1 560 kr</strong><span>per år</span></div>
-          <div class="hero-badge"><span>4</span><small>operatörer<br />jämförda</small></div>
+          <div class="hero-bottom-actions">
+            <a href="#quiz-steps-wrapper" id="hero-start-analysis" class="button button--primary">Hitta mitt abonnemang <span aria-hidden="true">→</span></a>
+            <div class="hero-proof" aria-label="Fördelar med Dealett">
+              <strong>Kostnadsfritt</strong>
+              <strong>Under 2 minuter</strong>
+              <strong>Ingen inloggning</strong>
+            </div>
+          </div>
         </div>
 
         <div id="hero-quiz-mount" class="hero-quiz-mount" aria-live="polite">
