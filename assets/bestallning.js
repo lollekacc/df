@@ -78,18 +78,15 @@
     title: 'Obegränsat Plus',
     logo: 'images/telenor.jpg',
     data: 'Obegränsad surf',
-    price: 529,
-    monthlyPrice: 529,
+    price: 629,
+    monthlyPrice: 629,
     regularMonthlyPrice: 629,
-    campaignPrice: 529,
-    campaignMonths: 24,
-    campaignDiscount: 100,
     bindingMonths: 24,
     noticePeriodMonths: 1,
     startFee: 0,
     invoiceFee: 59,
     invoiceFeeOptional: true,
-    minimumTotalCost: 12696,
+    minimumTotalCost: 15096,
     productType: 'mobile',
     persons: 1,
     phoneLines: 1,
@@ -169,26 +166,14 @@
     const subscription = params.get('test') === 'missing-subscription'
       ? ''
       : String(item.title || item.name || item.data || '').trim();
-    const campaignMonths = Math.max(numericValue(item.campaignMonths, item.discountMonths), 0);
-    const campaignPrice = numericValue(item.campaignPrice);
     const itemPrice = numericValue(item.price, item.monthlyPrice, item.finalPrice);
-    const currentMonthlyPrice = campaignPrice > 0 ? campaignPrice : itemPrice;
-    const regularMonthlyPrice = numericValue(
-      item.regularMonthlyPrice,
-      item.normalPriceAfterCampaign,
-      campaignMonths > 0 ? item.monthlyPrice : currentMonthlyPrice,
-      currentMonthlyPrice
-    );
+    const currentMonthlyPrice = itemPrice;
+    const regularMonthlyPrice = currentMonthlyPrice;
     const bindingMonths = Math.max(numericValue(item.bindingMonths, item.binding), 0);
     const startFee = Math.max(numericValue(item.startFee, item.setupFee), 0);
     const invoiceFee = Math.max(numericValue(item.invoiceFee), 0);
     const commitmentMonths = bindingMonths > 0 ? bindingMonths : 1;
-    const promotionalMonthsInCommitment = Math.min(campaignMonths, commitmentMonths);
-    const calculatedMinimumTotal = (
-      (currentMonthlyPrice * (promotionalMonthsInCommitment || commitmentMonths)) +
-      (regularMonthlyPrice * Math.max(commitmentMonths - promotionalMonthsInCommitment, 0)) +
-      startFee
-    );
+    const calculatedMinimumTotal = (currentMonthlyPrice * commitmentMonths) + startFee;
     const phoneNumbers = Array.isArray(checkout.phoneNumbers) ? checkout.phoneNumbers.filter(Boolean) : [];
     const numberHandling = checkout.numberHandling || (
       phoneNumbers.length ? 'number_transfer' : 'new_number'
@@ -203,11 +188,6 @@
       productType: item.productType || 'mobile',
       currentMonthlyPrice,
       regularMonthlyPrice: regularMonthlyPrice || currentMonthlyPrice,
-      campaignMonths,
-      campaignDiscount: Math.max(
-        numericValue(item.campaignDiscount),
-        regularMonthlyPrice > currentMonthlyPrice ? regularMonthlyPrice - currentMonthlyPrice : 0
-      ),
       bindingMonths,
       noticePeriodMonths: Math.max(numericValue(item.noticePeriodMonths), 0),
       startFee,
@@ -308,19 +288,6 @@
   };
 
   const getPricePeriods = () => {
-    if (order.campaignMonths > 0 && order.regularMonthlyPrice !== order.currentMonthlyPrice) {
-      return [
-        {
-          label: `Månad 1–${order.campaignMonths}`,
-          monthlyPrice: order.currentMonthlyPrice,
-        },
-        {
-          label: `Därefter`,
-          monthlyPrice: order.regularMonthlyPrice,
-        },
-      ];
-    }
-
     return [{
       label: order.bindingMonths > 0 ? `Under ${order.bindingMonths} månader` : 'Månadspris',
       monthlyPrice: order.currentMonthlyPrice,
@@ -329,9 +296,6 @@
 
   const renderSummary = () => {
     const pricePeriods = getPricePeriods();
-    const campaignCopy = order.campaignDiscount > 0 && order.campaignMonths > 0
-      ? `<p class="summary-campaign">Rabatt ${formatCurrency(order.campaignDiscount)} kr/mån i ${order.campaignMonths} månader</p>`
-      : '';
     const logo = order.logo
       ? `<img src="${escapeHtml(order.logo)}" alt="${escapeHtml(order.operator)}" />`
       : `<span class="summary-operator-fallback">${escapeHtml(order.operator.slice(0, 2).toUpperCase())}</span>`;
@@ -343,14 +307,25 @@
         ...order.giftCards.map((gift) => [
           '    <div class="summary-gift-row">',
           `      <span>${escapeHtml(gift.provider)}</span>`,
-          `      <strong>${formatCurrency(gift.value)} kr</strong>`,
+          '      <strong>XXX kr</strong>',
           '    </div>',
         ].join('')),
         '  </div>',
         '  <p class="summary-gift-note">Tillhandahålls och skickas av Dealett när villkoren är uppfyllda.</p>',
         '</div>',
       ].join('')
-      : '<p class="summary-no-gift">Inget presentkort är valt för den här beställningen.</p>';
+      : [
+        '<div class="summary-gift">',
+        '  <p class="summary-gift-kicker">Ditt presentkort</p>',
+        '  <div class="summary-gift-list">',
+        '    <div class="summary-gift-row">',
+        '      <span>Presentkort</span>',
+        '      <strong>XXX kr</strong>',
+        '    </div>',
+        '  </div>',
+        '  <p class="summary-gift-note">Tillhandahålls och skickas av Dealett när villkoren är uppfyllda.</p>',
+        '</div>',
+      ].join('');
     const calculationText = order.bindingMonths > 0
       ? `Vi räknar månadspriset under hela bindningstiden och lägger till obligatoriska startavgifter. En valbar fakturaavgift ingår inte.`
       : 'Vi räknar en månadsavgift och lägger till obligatoriska startavgifter. Löpande och valbara avgifter ingår inte.';
@@ -364,7 +339,6 @@
       order.data ? `    <p>${escapeHtml(order.data)}</p>` : '',
       `    <p>${escapeHtml(getBindingLabel())}</p>`,
       `    <p>${escapeHtml(getNumberHandlingLabel())}</p>`,
-      campaignCopy,
       '  </div>',
       '</div>',
       '<hr class="summary-divider" />',
@@ -383,10 +357,7 @@
       '<details class="summary-details">',
       '  <summary>Visa detaljer</summary>',
       '  <div class="summary-details-body">',
-      `    <div class="summary-details-row"><span>Ordinarie månadspris</span><strong>${formatCurrency(order.regularMonthlyPrice)} kr/mån</strong></div>`,
-      order.campaignMonths > 0
-        ? `    <div class="summary-details-row"><span>Kampanjpris</span><strong>${formatCurrency(order.currentMonthlyPrice)} kr/mån i ${order.campaignMonths} mån</strong></div>`
-        : '',
+      `    <div class="summary-details-row"><span>Månadspris</span><strong>${formatCurrency(order.regularMonthlyPrice)} kr/mån</strong></div>`,
       `    <div class="summary-details-row"><span>Startavgift</span><strong>${order.startFee ? `${formatCurrency(order.startFee)} kr` : '0 kr'}</strong></div>`,
       `    <div class="summary-details-row"><span>Fakturaavgift</span><strong>${order.invoiceFee ? `${formatCurrency(order.invoiceFee)} kr${order.invoiceFeeOptional ? ', kan undvikas' : ''}` : 'Ingen angiven'}</strong></div>`,
       `    <div class="summary-details-row"><span>Bindningstid</span><strong>${escapeHtml(getBindingLabel())}</strong></div>`,
@@ -435,7 +406,13 @@
 
   const renderGiftCard = () => {
     if (!order.giftCards.length) {
-      els.giftCardDetails.innerHTML = '<p class="gift-card-empty">Inget presentkort är valt för den här beställningen.</p>';
+      els.giftCardDetails.innerHTML = [
+        '<div class="gift-card-heading">',
+        '  <span>Ditt presentkort tillhandahålls av Dealett.</span>',
+        '  <strong>XXX kr</strong>',
+        '</div>',
+        '<p>Slutligt presentkortsbelopp bekräftas när Dealett har fastställt presentkortsreglerna.</p>',
+      ].join('');
       return;
     }
 
@@ -447,13 +424,13 @@
     els.giftCardDetails.innerHTML = [
       '<div class="gift-card-heading">',
       '  <span>Ditt valda presentkort tillhandahålls av Dealett.</span>',
-      `  <strong>${formatCurrency(order.giftCardValue)} kr</strong>`,
+      '  <strong>XXX kr</strong>',
       '</div>',
       '<div class="gift-card-list">',
       ...order.giftCards.map((gift) => [
         `  <div class="gift-card-item${order.giftCards.length === 1 ? ' gift-card-item--single' : ''}">`,
         `    <span>${order.giftCards.length === 1 ? 'Presentkort: ' : ''}${escapeHtml(gift.provider)}</span>`,
-        order.giftCards.length > 1 ? `    <strong>${formatCurrency(gift.value)} kr</strong>` : '',
+        order.giftCards.length > 1 ? '    <strong>XXX kr</strong>' : '',
         '  </div>',
       ].join('')),
       '</div>',
@@ -694,9 +671,9 @@
   };
 
   const buildAgreementPayload = (submittedAt) => {
-    const pricePeriods = getPricePeriods().map((period, index) => ({
-      fromMonth: index === 0 ? 1 : order.campaignMonths + 1,
-      toMonth: index === 0 && order.campaignMonths > 0 ? order.campaignMonths : null,
+    const pricePeriods = getPricePeriods().map((period) => ({
+      fromMonth: 1,
+      toMonth: null,
       monthlyPrice: period.monthlyPrice,
       label: period.label,
     }));
@@ -716,7 +693,7 @@
       },
       pricing: {
         currentMonthlyPrice: order.currentMonthlyPrice,
-        laterMonthlyPrice: order.regularMonthlyPrice,
+        laterMonthlyPrice: order.currentMonthlyPrice,
         pricePeriods,
         bindingMonths: order.bindingMonths,
         noticePeriodMonths: order.noticePeriodMonths,

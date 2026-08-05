@@ -1,4 +1,5 @@
 const currency = new Intl.NumberFormat('sv-SE');
+const giftCardPlaceholderAmount = 'XXX kr';
 
 const apiFetchJson = async (resource, options = {}) => window.DealettNetwork.fetchJson(resource, {
   timeoutMs: 7000,
@@ -183,7 +184,7 @@ const renderOffers = () => {
 
           <button class="bredband-reward-btn gift-btn" data-reward="${reward}" type="button">
             <span>Presentkort</span>
-            <strong>${formatCurrency(reward)} kr</strong>
+            <strong>${giftCardPlaceholderAmount}</strong>
           </button>
         </div>
 
@@ -304,7 +305,7 @@ const buildFallbackBroadbandCart = () => {
     productType: 'broadband',
     unitLabel: 'bredband',
     rewardTotal: reward,
-    rewardMixLabel: `Presentkort ${formatCurrency(reward)} kr`,
+    rewardMixLabel: 'Presentkort: XXX kr',
     rewards: { Presentkort: reward },
     features: [
       address ? `Adress/plats: ${address}` : '',
@@ -517,7 +518,7 @@ const bindEvents = () => {
       event.stopPropagation();
       const rewardValue = Number(giftButton.dataset.reward) || 0;
       localStorage.setItem('rewardChoice', JSON.stringify({ reward: rewardValue }));
-      setSearchMessage(`Presentkort på ${formatCurrency(rewardValue)} kr sparat. Välj bredband och fortsätt till varukorgen.`, 'success');
+      setSearchMessage('Presentkort: XXX kr sparat. Välj bredband och fortsätt till varukorgen.', 'success');
       return;
     }
 

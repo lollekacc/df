@@ -142,10 +142,10 @@ const getReward = () => {
 
   const rewardNames = Object.entries(rewardDistribution || {})
     .filter(([, value]) => Number(value) > 0)
-    .map(([name, value]) => `${name}: ${Number(value).toLocaleString('sv-SE')} kr`);
+    .map(([name]) => `${name}: XXX kr`);
 
   return {
-    name: `Presentkort ${rewardTotal.toLocaleString('sv-SE')} kr`,
+    name: 'Presentkort: XXX kr',
     description: rewardNames.length
       ? rewardNames.join(' | ')
       : 'Presentkort kopplat till ditt valda abonnemang.',

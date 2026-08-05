@@ -10,6 +10,14 @@ function createIndexQuiz() {
     operators: [],
     operatorDates: [],
     operatorNoBinding: [],
+    currentMonthlyCosts: [],
+    noticePeriodMonths: [],
+    keepNumberPreferences: [],
+    numberOwnerConfirmed: [],
+    addOnMonthlyCosts: [],
+    devicePaymentMonthlyCosts: [],
+    devicePaymentRemainingMonths: [],
+    coverageLocations: [],
     selectedOperator: null,
     customerStatus: null,
     existingCustomers: null,
@@ -51,6 +59,7 @@ function createIndexQuiz() {
   const resultStepIndex = Math.max(steps.length - 1, 0);
   const sectionWrapperAnchor = document.createComment("quiz section mount");
   const selectionFeedbackMs = 220;
+  const giftCardPlaceholder = "Presentkort: XXX kr";
   let recommendationsRequestId = 0;
   let lastOfferCalculation = null;
   let pendingAdvanceTimer = null;
@@ -59,8 +68,15 @@ function createIndexQuiz() {
     if (!dom.wrapper || !dom.stack || !steps.length) return;
 
     window.abonState = state;
+    window.DealettQuiz = {
+      getChatContext: buildQuizChatContext,
+      applyQualification: applyQualificationFromChat,
+      getState: () => JSON.parse(JSON.stringify(state)),
+    };
 
+    injectQuizAiButtons();
     bindEvents();
+    document.addEventListener("dealett:chat-qualification-updated", handleChatQualificationUpdate);
     updateStepState(0);
     syncProgress();
     syncStackHeight();
@@ -86,6 +102,7 @@ function createIndexQuiz() {
     dom.familyOfferGrid?.addEventListener("click", handleFamilyOfferClick);
     dom.wrapper.addEventListener("click", handleWrapperClick);
     dom.wrapper.addEventListener("change", handleWrapperChange);
+    dom.wrapper.addEventListener("input", handleWrapperInput);
     window.addEventListener("resize", syncStackHeight);
     bindNewsletterForm();
     bindStaticOfferCards();
@@ -105,7 +122,29 @@ function createIndexQuiz() {
     });
   }
 
+  function injectQuizAiButtons() {
+    steps.forEach((step) => {
+      const card = step.querySelector(".quiz-card");
+      if (!card || card.querySelector("[data-quiz-ai-actions]")) return;
+
+      const actions = document.createElement("div");
+      actions.className = "quiz-ai-actions";
+      actions.dataset.quizAiActions = "";
+      actions.innerHTML = [
+        '<button type="button" class="quiz-ai-button" data-quiz-ai-action="ask">Fråga Dealett AI</button>',
+        '<button type="button" class="quiz-ai-button quiz-ai-button--primary" data-quiz-ai-action="continue">Fortsätt härifrån med Dealett AI</button>',
+      ].join("");
+      card.append(actions);
+    });
+  }
+
   function handleWrapperClick(event) {
+    const aiButton = event.target.closest("[data-quiz-ai-action]");
+    if (aiButton) {
+      handleQuizAiClick(aiButton);
+      return;
+    }
+
     const personToggle = event.target.closest("[data-person-toggle]");
     if (personToggle) {
       toggleExtraPersonOptions();
@@ -146,6 +185,11 @@ function createIndexQuiz() {
       return;
     }
 
+    if (event.target.matches("[data-current-monthly-cost], [data-notice-period], [data-keep-number], [data-number-owner-confirmed], [data-addon-monthly-cost], [data-device-monthly-cost], [data-device-remaining-months], [data-coverage-locations]")) {
+      handleOperatorDetailChange(event.target);
+      return;
+    }
+
     if (event.target !== dom.newCustomersSelect) return;
 
     const existingCustomers = Number(dom.newCustomersSelect.value);
@@ -154,6 +198,73 @@ function createIndexQuiz() {
     state.existingCustomers = existingCustomers;
     state.newCustomers = Math.max((state.persons || 1) - existingCustomers, 0);
     prepareOperatorQuestion(existingCustomers);
+  }
+
+  function handleWrapperInput(event) {
+    if (!event.target.matches("[data-current-monthly-cost], [data-addon-monthly-cost], [data-device-monthly-cost], [data-device-remaining-months], [data-coverage-locations]")) return;
+    handleOperatorDetailChange(event.target);
+  }
+
+  function handleQuizAiClick(button) {
+    const action = button.dataset.quizAiAction || "ask";
+    const context = buildQuizChatContext();
+    const message = action === "continue"
+      ? "Fortsätt härifrån med Dealett AI"
+      : "Fråga Dealett AI";
+
+    if (window.DealettChat?.continueFromQuiz) {
+      window.DealettChat.continueFromQuiz({
+        message,
+        qualification: context.qualification,
+        currentStage: context.currentStage,
+        currentStep: context.currentStep,
+        answers: context.answers,
+        context,
+      });
+      return;
+    }
+
+    document.querySelector(".dealett-chat-toggle")?.click();
+  }
+
+  function buildQuizChatContext() {
+    const qualification = buildQualificationFromState();
+    const activeStep = steps[state.currentStep] || null;
+    const stageTitle = activeStep?.querySelector(".quiz-title, .result-title")?.textContent?.trim() || "";
+
+    return {
+      quizHandoff: true,
+      source: "homepage_mobile_quiz",
+      currentStep: state.currentStep,
+      currentStage: activeStep?.id || `step${state.currentStep}`,
+      currentStageTitle: stageTitle,
+      readyForOffer: qualification.readyForOffer,
+      missingFields: qualification.missingFields || [],
+      answers: JSON.parse(JSON.stringify({
+        ...state,
+        qualification,
+        answerFacts: getAnswerCompareFacts(),
+      })),
+      people: qualification.people || [],
+      qualification,
+    };
+  }
+
+  function handleOperatorDetailChange(input) {
+    const personIndex = Number(input.dataset.personIndex);
+    if (!Number.isInteger(personIndex)) return;
+
+    const numericValue = Math.max(Number(input.value) || 0, 0);
+    if (input.matches("[data-current-monthly-cost]")) state.currentMonthlyCosts[personIndex] = numericValue || null;
+    if (input.matches("[data-notice-period]")) state.noticePeriodMonths[personIndex] = numericValue;
+    if (input.matches("[data-keep-number]")) state.keepNumberPreferences[personIndex] = input.value || "port_number";
+    if (input.matches("[data-number-owner-confirmed]")) state.numberOwnerConfirmed[personIndex] = Boolean(input.checked);
+    if (input.matches("[data-addon-monthly-cost]")) state.addOnMonthlyCosts[personIndex] = numericValue;
+    if (input.matches("[data-device-monthly-cost]")) state.devicePaymentMonthlyCosts[personIndex] = numericValue;
+    if (input.matches("[data-device-remaining-months]")) state.devicePaymentRemainingMonths[personIndex] = numericValue;
+    if (input.matches("[data-coverage-locations]")) state.coverageLocations[personIndex] = input.value || "";
+
+    maybeAdvanceFromOperatorQuestion();
   }
 
   function handleFamilyOfferClick(event) {
@@ -319,7 +430,7 @@ function createIndexQuiz() {
       productType: "family",
       unitLabel: "abonnemang",
       rewardTotal,
-      rewardMixLabel: rewardTotal ? `Presentkort ${new Intl.NumberFormat("sv-SE").format(rewardTotal)} kr` : "",
+      rewardMixLabel: rewardTotal ? giftCardPlaceholder : "",
       rewards: rewardTotal > 0 ? { Presentkort: rewardTotal } : {},
       features,
       source: "homepage-provider-card"
@@ -354,14 +465,14 @@ function createIndexQuiz() {
       productType: "family",
       unitLabel: "abonnemang",
       rewardTotal,
-      rewardMixLabel: card.dataset.rewardMixLabel || "",
+      rewardMixLabel: rewardTotal ? giftCardPlaceholder : card.dataset.rewardMixLabel || "",
       rewards: rewardTotal > 0 ? { Presentkort: rewardTotal } : {}
     };
   }
 
   function buildRecommendationCartItem(plan) {
-    const persons = state.persons || 1;
-    const rewardTotal = 0;
+    const persons = Number(plan.peopleCount ?? plan.offerCalculation?.peopleCount ?? state.persons) || 1;
+    const rewardTotal = Math.max(Number(plan.giftCardValue ?? plan.offerCalculation?.giftCardValue) || 0, 0);
 
     return {
       cartItemId: `${plan.id || "recommended-offer"}-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -373,15 +484,15 @@ function createIndexQuiz() {
       dataAmount: Number(plan.dataAmount) || 0,
       price: Number(plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0,
       monthlyPrice: Number(plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0,
-      regularMonthlyPrice: Number(plan.regularMonthlyPlanPrice ?? plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0,
+      regularMonthlyPrice: Number(plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0,
       pricePerPerson: persons > 1 ? Number(plan.pricePerPerson) || 0 : 0,
       persons,
       phoneLines: persons,
       productType: persons > 1 ? "family" : "mobile",
       unitLabel: "abonnemang",
       rewardTotal,
-      rewardMixLabel: "",
-      rewards: {},
+      rewardMixLabel: rewardTotal ? giftCardPlaceholder : "",
+      rewards: rewardTotal ? { Presentkort: rewardTotal } : {},
       qualification: plan.qualification || null,
       offerCalculation: plan.offerCalculation || null,
       answers: {
@@ -393,6 +504,14 @@ function createIndexQuiz() {
         currentOperator: state.selectedOperator,
         operatorDates: state.operatorDates,
         operatorNoBinding: state.operatorNoBinding,
+        currentMonthlyCosts: state.currentMonthlyCosts,
+        noticePeriodMonths: state.noticePeriodMonths,
+        keepNumberPreferences: state.keepNumberPreferences,
+        numberOwnerConfirmed: state.numberOwnerConfirmed,
+        addOnMonthlyCosts: state.addOnMonthlyCosts,
+        devicePaymentMonthlyCosts: state.devicePaymentMonthlyCosts,
+        devicePaymentRemainingMonths: state.devicePaymentRemainingMonths,
+        coverageLocations: state.coverageLocations,
         binding: state.binding,
         streamingCalculation: state.streamingCalculation,
         streamingServices: state.streamingServices,
@@ -407,6 +526,10 @@ function createIndexQuiz() {
           ? `Streaming avräknad ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.streamingSavings)} kr/mån`
           : "",
         plan.offerCalculation ? `Effektiv kostnad ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.effectiveMonthlyCost)} kr/mån` : "",
+        plan.offerCalculation?.total24MonthCost
+          ? `24 mån total ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.total24MonthCost)} kr`
+          : "",
+        giftCardPlaceholder,
         ...(plan.offerCalculation?.benefits || []),
       ].filter(Boolean),
       source: "homepage-quiz"
@@ -466,6 +589,7 @@ function createIndexQuiz() {
     state.operators = Array.from({ length: persons }, () => null);
     state.operatorDates = Array.from({ length: persons }, () => null);
     state.operatorNoBinding = Array.from({ length: persons }, () => false);
+    resizePersonDetailArrays(persons);
     state.selectedOperator = null;
     state.customerStatus = "all";
     state.existingCustomers = persons;
@@ -475,6 +599,22 @@ function createIndexQuiz() {
     resetCustomerStep();
     prepareOperatorQuestion(persons);
     showStepAfterSelection(1);
+  }
+
+  function resizePersonDetailArrays(persons) {
+    const count = Math.max(Number(persons) || 0, 0);
+    const resize = (items, fallback) => Array.from({ length: count }, (_, index) => (
+      items[index] !== undefined ? items[index] : fallback
+    ));
+
+    state.currentMonthlyCosts = resize(state.currentMonthlyCosts || [], null);
+    state.noticePeriodMonths = resize(state.noticePeriodMonths || [], 0);
+    state.keepNumberPreferences = resize(state.keepNumberPreferences || [], "port_number");
+    state.numberOwnerConfirmed = resize(state.numberOwnerConfirmed || [], false);
+    state.addOnMonthlyCosts = resize(state.addOnMonthlyCosts || [], 0);
+    state.devicePaymentMonthlyCosts = resize(state.devicePaymentMonthlyCosts || [], 0);
+    state.devicePaymentRemainingMonths = resize(state.devicePaymentRemainingMonths || [], 0);
+    state.coverageLocations = resize(state.coverageLocations || [], "");
   }
 
   function handleOperatorStep(option) {
@@ -500,6 +640,7 @@ function createIndexQuiz() {
       state.operators = Array.from({ length: state.persons || 1 }, () => null);
       state.operatorDates = Array.from({ length: state.persons || 1 }, () => null);
       state.operatorNoBinding = Array.from({ length: state.persons || 1 }, () => false);
+      resizePersonDetailArrays(state.persons || 1);
       dom.newCustomersField?.classList.add("hidden");
       hideOperatorQuestion();
       showStepAfterSelection(2);
@@ -578,6 +719,21 @@ function createIndexQuiz() {
     state.operatorNoBinding = Array.from({ length: persons }, (_, index) => (
       index < boundedExistingCount ? Boolean(state.operatorNoBinding[index]) : false
     ));
+    resizePersonDetailArrays(persons);
+    [
+      "currentMonthlyCosts",
+      "noticePeriodMonths",
+      "keepNumberPreferences",
+      "numberOwnerConfirmed",
+      "addOnMonthlyCosts",
+      "devicePaymentMonthlyCosts",
+      "devicePaymentRemainingMonths",
+      "coverageLocations"
+    ].forEach(key => {
+      state[key] = state[key].map((value, index) => (
+        index < boundedExistingCount ? value : (key === "keepNumberPreferences" ? "new_number" : key === "coverageLocations" ? "" : key === "numberOwnerConfirmed" ? false : 0)
+      ));
+    });
     state.selectedOperator = state.operators.find(Boolean) || null;
 
     renderOperatorChoices(boundedExistingCount);
@@ -654,7 +810,8 @@ function createIndexQuiz() {
       .slice(0, existingCount)
       .filter((date, index) => date || state.operatorNoBinding[index])
       .length;
-    const isComplete = selectedCount === existingCount && bindingChoiceCount === existingCount;
+    const isComplete = selectedCount === existingCount &&
+      bindingChoiceCount === existingCount;
 
     return isComplete;
   }
@@ -779,6 +936,46 @@ function createIndexQuiz() {
         } else {
           button.classList.remove("selected", "active");
         }
+      });
+
+      fragment.querySelectorAll("[data-current-monthly-cost]").forEach(input => {
+        input.dataset.personIndex = String(personIndex);
+        input.value = state.currentMonthlyCosts[personIndex] || "";
+      });
+
+      fragment.querySelectorAll("[data-notice-period]").forEach(input => {
+        input.dataset.personIndex = String(personIndex);
+        input.value = String(state.noticePeriodMonths[personIndex] || 0);
+      });
+
+      fragment.querySelectorAll("[data-keep-number]").forEach(input => {
+        input.dataset.personIndex = String(personIndex);
+        input.value = state.keepNumberPreferences[personIndex] || "port_number";
+      });
+
+      fragment.querySelectorAll("[data-number-owner-confirmed]").forEach(input => {
+        input.dataset.personIndex = String(personIndex);
+        input.checked = Boolean(state.numberOwnerConfirmed[personIndex]);
+      });
+
+      fragment.querySelectorAll("[data-addon-monthly-cost]").forEach(input => {
+        input.dataset.personIndex = String(personIndex);
+        input.value = state.addOnMonthlyCosts[personIndex] || "";
+      });
+
+      fragment.querySelectorAll("[data-device-monthly-cost]").forEach(input => {
+        input.dataset.personIndex = String(personIndex);
+        input.value = state.devicePaymentMonthlyCosts[personIndex] || "";
+      });
+
+      fragment.querySelectorAll("[data-device-remaining-months]").forEach(input => {
+        input.dataset.personIndex = String(personIndex);
+        input.value = state.devicePaymentRemainingMonths[personIndex] || "";
+      });
+
+      fragment.querySelectorAll("[data-coverage-locations]").forEach(input => {
+        input.dataset.personIndex = String(personIndex);
+        input.value = state.coverageLocations[personIndex] || "";
       });
 
       dom.operatorContainer.appendChild(fragment);
@@ -1073,6 +1270,8 @@ function createIndexQuiz() {
 
     [
       { plan: lastOfferCalculation?.bestValue, label: "Bäst värde" },
+      { plan: lastOfferCalculation?.bestTravelFit, label: "Bäst för utlandet" },
+      { plan: lastOfferCalculation?.bestStreamingFit, label: "Bäst för streaming" },
       { plan: lastOfferCalculation?.lowestMonthlyPrice, label: "Lägst månadspris" }
     ].forEach(entry => addFeaturedPlan(entry.plan, entry.label));
 
@@ -1124,7 +1323,7 @@ function createIndexQuiz() {
       const toggle = document.createElement("button");
       toggle.type = "button";
       toggle.className = "recommendation-results-toggle";
-      toggle.textContent = "Show all 4 operators";
+      toggle.textContent = "Visa alla operatörer";
       toggle.setAttribute("aria-expanded", "false");
       toggle.addEventListener("click", () => {
         renderRecommendationResults(plans, { expanded: true });
@@ -1136,20 +1335,54 @@ function createIndexQuiz() {
 
   function buildQualificationFromState() {
     const peopleCount = Number(state.persons) || null;
+    const existingCount = Number(state.existingCustomers || 0);
     const operators = Array.from({ length: peopleCount || 0 }, (_, index) => {
-      if (state.customerStatus === "none" || index >= Number(state.existingCustomers || 0)) {
+      if (state.customerStatus === "none" || index >= existingCount) {
         return "Annan / ingen";
       }
 
       return state.operators[index] || "Annan / ingen";
     });
     const bindingEnds = Array.from({ length: peopleCount || 0 }, (_, index) => {
-      if (state.customerStatus === "none" || index >= Number(state.existingCustomers || 0)) {
+      if (state.customerStatus === "none" || index >= existingCount) {
         return "Ingen bindningstid";
       }
 
       if (state.operatorNoBinding[index]) return "Ingen bindningstid";
       return state.operatorDates[index] || "Vet inte";
+    });
+    const exactMonthlyPrices = Array.from({ length: peopleCount || 0 }, (_, index) => Number(state.currentMonthlyCosts[index]) || 0)
+      .filter(value => value > 0);
+    const people = Array.from({ length: peopleCount || 0 }, (_, index) => {
+      const existingCustomer = state.customerStatus !== "none" && index < existingCount;
+      const coverage = String(state.coverageLocations[index] || "")
+        .split(/[,;]+/)
+        .map(value => value.trim())
+        .filter(Boolean);
+
+      return {
+        id: `person-${index + 1}`,
+        label: `Person ${index + 1}`,
+        currentOperator: existingCustomer ? (state.operators[index] || "Annan / ingen") : "Annan / ingen",
+        currentMonthlyCost: existingCustomer ? Number(state.currentMonthlyCosts[index]) || null : null,
+        bindingEnd: existingCustomer
+          ? (state.operatorNoBinding[index] ? "Ingen bindningstid" : state.operatorDates[index] || "Vet inte")
+          : "Ingen bindningstid",
+        noticePeriodMonths: existingCustomer ? Number(state.noticePeriodMonths[index]) || 0 : 0,
+        dataNeed: state.data || null,
+        keepNumberPreference: existingCustomer
+          ? state.keepNumberPreferences[index] || "port_number"
+          : "new_number",
+        mustKeepNumber: existingCustomer && ["port_number", "scheduled_port"].includes(state.keepNumberPreferences[index] || "port_number"),
+        numberOwnerConfirmed: Boolean(state.numberOwnerConfirmed[index]),
+        hasAddOns: Number(state.addOnMonthlyCosts[index]) > 0,
+        addOnMonthlyCost: existingCustomer ? Number(state.addOnMonthlyCosts[index]) || 0 : 0,
+        devicePaymentMonthlyCost: existingCustomer ? Number(state.devicePaymentMonthlyCosts[index]) || 0 : 0,
+        devicePaymentRemainingMonths: existingCustomer ? Number(state.devicePaymentRemainingMonths[index]) || 0 : 0,
+        coverageLocations: coverage,
+        existingCustomer,
+        excluded: (state.keepNumberPreferences[index] || "") === "exclude"
+      };
     });
     const missingFields = [];
     if (!peopleCount) missingFields.push("peopleCount");
@@ -1160,6 +1393,7 @@ function createIndexQuiz() {
 
     return {
       peopleCount,
+      people,
       operators,
       bindingEnds,
       mobileUsage: state.data || null,
@@ -1170,10 +1404,122 @@ function createIndexQuiz() {
       internationalTravel: state.internationalTravel || null,
       internationalUsage: state.internationalUsage || null,
       exactMonthlyPrice: null,
-      exactMonthlyPrices: [],
+      exactMonthlyPrices,
       readyForOffer: missingFields.length === 0,
       missingFields,
     };
+  }
+
+  function handleChatQualificationUpdate(event) {
+    const qualification = event.detail?.qualification;
+    if (!qualification || !document.body.contains(dom.wrapper)) return;
+    applyQualificationFromChat(qualification, { refreshResults: true });
+  }
+
+  function applyQualificationFromChat(qualification = {}, options = {}) {
+    const peopleCount = Number(qualification.peopleCount) || state.persons || null;
+    if (peopleCount) {
+      state.persons = peopleCount;
+      state.operators = Array.from({ length: peopleCount }, (_, index) => state.operators[index] || null);
+      state.operatorDates = Array.from({ length: peopleCount }, (_, index) => state.operatorDates[index] || null);
+      state.operatorNoBinding = Array.from({ length: peopleCount }, (_, index) => Boolean(state.operatorNoBinding[index]));
+      resizePersonDetailArrays(peopleCount);
+    }
+
+    const people = Array.isArray(qualification.people) ? qualification.people : [];
+    if (people.length) {
+      const count = Number(state.persons) || people.length;
+      state.existingCustomers = people.filter((person) => person.existingCustomer !== false && person.currentOperator && person.currentOperator !== "Annan / ingen").length;
+      state.newCustomers = Math.max(count - (state.existingCustomers || 0), 0);
+      state.customerStatus = state.existingCustomers === 0
+        ? "none"
+        : state.existingCustomers < count ? "partial" : "all";
+
+      people.slice(0, count).forEach((person, index) => {
+        state.operators[index] = person.currentOperator && person.currentOperator !== "Annan / ingen" ? person.currentOperator : null;
+        state.currentMonthlyCosts[index] = Number(person.currentMonthlyCost) || state.currentMonthlyCosts[index] || null;
+        state.noticePeriodMonths[index] = Number(person.noticePeriodMonths) || 0;
+        state.keepNumberPreferences[index] = person.keepNumberPreference || state.keepNumberPreferences[index] || "port_number";
+        state.numberOwnerConfirmed[index] = person.numberOwnerConfirmed === true;
+        state.addOnMonthlyCosts[index] = Number(person.addOnMonthlyCost) || 0;
+        state.devicePaymentMonthlyCosts[index] = Number(person.devicePaymentMonthlyCost) || 0;
+        state.devicePaymentRemainingMonths[index] = Number(person.devicePaymentRemainingMonths) || 0;
+        state.coverageLocations[index] = Array.isArray(person.coverageLocations)
+          ? person.coverageLocations.join(", ")
+          : state.coverageLocations[index] || "";
+
+        const bindingEnd = String(person.bindingEnd || "").trim();
+        state.operatorNoBinding[index] = /ingen bindningstid/i.test(bindingEnd) || Number(person.remainingBindingMonths) === 0;
+        state.operatorDates[index] = /^\d{4}-\d{2}-\d{2}$/.test(bindingEnd) ? bindingEnd : null;
+      });
+      state.selectedOperator = state.operators.find(Boolean) || null;
+    } else {
+      if (Array.isArray(qualification.operators)) {
+        state.operators = Array.from({ length: state.persons || qualification.operators.length }, (_, index) => {
+          const operator = qualification.operators[index];
+          return operator && operator !== "Annan / ingen" ? operator : null;
+        });
+        state.selectedOperator = state.operators.find(Boolean) || null;
+      }
+      if (Array.isArray(qualification.bindingEnds)) {
+        state.operatorDates = Array.from({ length: state.persons || qualification.bindingEnds.length }, (_, index) => {
+          const bindingEnd = String(qualification.bindingEnds[index] || "");
+          return /^\d{4}-\d{2}-\d{2}$/.test(bindingEnd) ? bindingEnd : null;
+        });
+        state.operatorNoBinding = Array.from({ length: state.persons || qualification.bindingEnds.length }, (_, index) => (
+          /ingen bindningstid/i.test(String(qualification.bindingEnds[index] || ""))
+        ));
+      }
+    }
+
+    if (qualification.mobileUsage) state.data = qualification.mobileUsage;
+    if (qualification.priceRange) state.price = qualification.priceRange;
+    if (qualification.streamingCalculation) state.streamingCalculation = qualification.streamingCalculation;
+    if (Array.isArray(qualification.streamingServices)) state.streamingServices = qualification.streamingServices;
+    if (qualification.streamingMonthlyCosts && typeof qualification.streamingMonthlyCosts === "object") {
+      state.streamingMonthlyCosts = { ...qualification.streamingMonthlyCosts };
+    }
+    if (qualification.internationalTravel) state.internationalTravel = qualification.internationalTravel;
+    if (qualification.internationalUsage) state.internationalUsage = qualification.internationalUsage;
+
+    syncQuizUiFromState();
+    if (options.refreshResults && state.currentStep === resultStepIndex) {
+      renderRecommendations();
+    }
+  }
+
+  function syncQuizUiFromState() {
+    steps[0]?.querySelectorAll("[data-persons]").forEach(button => {
+      const selected = Number(button.dataset.persons) === Number(state.persons);
+      button.classList.toggle("selected", selected);
+      button.classList.toggle("active", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+
+    [
+      { index: 2, selector: "[data-data]", value: state.data, key: "data" },
+      { index: 4, selector: "[data-travel]", value: state.internationalTravel, key: "travel" },
+      { index: 5, selector: "[data-international-usage]", value: state.internationalUsage, key: "internationalUsage" },
+      { index: 6, selector: "[data-price]", value: state.price, key: "price" },
+    ].forEach(({ index, selector, value, key }) => {
+      steps[index]?.querySelectorAll(selector).forEach(button => {
+        const selected = button.dataset[key] === value;
+        button.classList.toggle("selected", selected);
+        button.classList.toggle("active", selected);
+        button.setAttribute("aria-pressed", String(selected));
+      });
+    });
+
+    steps[3]?.querySelectorAll("[data-streaming-service]").forEach(input => {
+      input.checked = state.streamingServices.includes(input.value);
+    });
+    steps[3]?.querySelectorAll("[data-streaming-cost]").forEach(input => {
+      input.value = state.streamingMonthlyCosts[input.dataset.streamingCost] || "";
+    });
+
+    if (state.currentStep === 1) {
+      renderOperatorChoices(state.existingCustomers || state.persons || 0);
+    }
   }
 
   function escapeHtml(value) {
@@ -1283,6 +1629,8 @@ function createIndexQuiz() {
     const pricePerPerson = Number(plan.pricePerPerson) || finalPrice;
     const contractMonths = Number(plan.offerCalculation?.bindingMonths) || null;
     const savings = Number(plan.offerCalculation?.monthlySavings);
+    const total24MonthCost = Number(plan.offerCalculation?.total24MonthCost);
+    const total24MonthResult = Number(plan.offerCalculation?.total24MonthResult);
     const includedServiceValue = Number(plan.offerCalculation?.streamingSavings) || 0;
     const effectiveMonthlyCost = Number(plan.offerCalculation?.effectiveMonthlyCost) || finalPrice;
 
@@ -1299,9 +1647,15 @@ function createIndexQuiz() {
         { label: "Antal abonnemang", value: `${persons} abonnemang` },
         { label: "Surf", value: dataText },
         { label: "Pris", value: isMulti ? `${formatMoney(pricePerPerson)}/person` : `${formatMoney(finalPrice)}/m\u00e5n` },
+        { label: "Presentkort", value: "XXX kr" },
         isMulti ? { label: "Totalpris", value: `${formatMoney(finalPrice)}/m\u00e5n` } : null,
         contractMonths ? { label: "Bindningstid", value: `${contractMonths} m\u00e5n` } : null,
         { label: "Effektiv kostnad", value: `${formatMoney(effectiveMonthlyCost)}/mån` },
+        Number.isFinite(total24MonthCost) ? { label: "24 mån total", value: formatMoney(total24MonthCost) } : null,
+        Number.isFinite(total24MonthResult) ? {
+          label: total24MonthResult >= 0 ? "24 mån resultat" : "24 mån merkostnad",
+          value: formatMoney(Math.abs(total24MonthResult)),
+        } : null,
         includedServiceValue > 0 ? { label: "Ersatt streaming", value: `${formatMoney(includedServiceValue)}/mån` } : null,
         Number.isFinite(savings) ? {
           label: savings >= 0 ? "Besparing" : "Högre kostnad",
@@ -1331,6 +1685,8 @@ function createIndexQuiz() {
     const planMonthlyPrice = Number(plan.planMonthlyPrice ?? plan.finalPrice) || 0;
     const effectiveMonthlyCost = Number(plan.effectiveMonthlyCost ?? plan.offerCalculation?.effectiveMonthlyCost) || planMonthlyPrice;
     const monthlySavings = Number(plan.monthlySavings ?? plan.offerCalculation?.monthlySavings);
+    const total24MonthCost = Number(plan.total24MonthCost ?? plan.offerCalculation?.total24MonthCost);
+    const total24MonthResult = Number(plan.total24MonthResult ?? plan.offerCalculation?.total24MonthResult);
     const priceMain = `${planMonthlyPrice} kr/mån`;
     const priceSub  = isMulti ? `${plan.pricePerPerson} kr per användare` : null;
     const dataText  = plan.dataAmount >= 999 ? "Obegränsad" : `${plan.dataAmount} GB`;
@@ -1362,8 +1718,15 @@ function createIndexQuiz() {
       priceSub ? `        <p class="offer-card__stat-sub">${escapeHtml(priceSub)}</p>` : '',
       '      </div>',
       '    </div>',
+      '    <div class="offer-card__stat">',
+      '      <span class="offer-card__stat-icon"><i class="fa-solid fa-gift"></i></span>',
+      '      <div>',
+      '        <p class="offer-card__stat-label">Presentkort</p>',
+      '        <p class="offer-card__stat-value">XXX kr</p>',
+      '      </div>',
+      '    </div>',
       '  </div>',
-      `  <div class="offer-card__stats"><div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-scale-balanced"></i></span><div><p class="offer-card__stat-label">Effektiv kostnad</p><p class="offer-card__stat-value">${escapeHtml(`${effectiveMonthlyCost} kr/mån`)}</p></div></div>${Number.isFinite(monthlySavings) ? `<div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-piggy-bank"></i></span><div><p class="offer-card__stat-label">${plan.currentMonthlyTotalIsEstimate ? 'Uppskattad besparing' : 'Besparing'}</p><p class="offer-card__stat-value">${escapeHtml(`${monthlySavings} kr/mån`)}</p></div></div>` : ''}</div>`,
+      `  <div class="offer-card__stats"><div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-scale-balanced"></i></span><div><p class="offer-card__stat-label">24 mån total</p><p class="offer-card__stat-value">${escapeHtml(Number.isFinite(total24MonthCost) ? `${formatMoney(total24MonthCost)}` : `${effectiveMonthlyCost} kr/mån`)}</p></div></div>${Number.isFinite(total24MonthResult) ? `<div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-piggy-bank"></i></span><div><p class="offer-card__stat-label">${total24MonthResult >= 0 ? '24 mån resultat' : '24 mån merkostnad'}</p><p class="offer-card__stat-value">${escapeHtml(`${formatMoney(Math.abs(total24MonthResult))}`)}</p></div></div>` : Number.isFinite(monthlySavings) ? `<div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-piggy-bank"></i></span><div><p class="offer-card__stat-label">${plan.currentMonthlyTotalIsEstimate ? 'Uppskattad besparing' : 'Besparing'}</p><p class="offer-card__stat-value">${escapeHtml(`${monthlySavings} kr/mån`)}</p></div></div>` : ''}</div>`,
       `  <p class="offer-card__reason">${escapeHtml(reasonText)}</p>`,
       Array.isArray(plan.benefits) && plan.benefits.length ? `  <ul class="offer-card__benefits">${plan.benefits.map(benefit => `<li>${escapeHtml(benefit)}</li>`).join("")}</ul>` : '',
       '  <div class="offer-card__actions"></div>',

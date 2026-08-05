@@ -26,6 +26,14 @@ const normalizeFacts = (facts) => (Array.isArray(facts) ? facts : [])
     value: Array.isArray(fact.value) ? fact.value.filter(Boolean).join(', ') : String(fact.value),
   }));
 
+const withGiftCardFact = (facts) => {
+  const normalized = normalizeFacts(facts);
+  const hasGiftCard = normalized.some((fact) => /presentkort|gift card/i.test(fact.label));
+  return hasGiftCard
+    ? normalized
+    : [...normalized, { label: 'Presentkort', value: 'XXX kr' }];
+};
+
 const normalizeItem = (item) => ({
   id: String(item.id),
   title: String(item.title || item.operator || 'Valt alternativ'),
@@ -33,7 +41,7 @@ const normalizeItem = (item) => ({
   type: String(item.type || 'Alternativ'),
   logo: item.logo || '',
   accent: item.accent || 'var(--accent)',
-  facts: normalizeFacts(item.facts),
+  facts: withGiftCardFact(item.facts),
 });
 
 const makeIcon = (className) => {

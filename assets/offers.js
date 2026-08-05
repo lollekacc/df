@@ -13,6 +13,7 @@ const dataFilterAll = document.querySelector('#dataFilterAll');
 const dataFilterTicks = document.querySelector('#dataFilterTicks');
 
 const currency = new Intl.NumberFormat('sv-SE');
+const giftCardPlaceholder = 'Presentkort: XXX kr';
 
 const offers = [
   {
@@ -112,11 +113,9 @@ const buildSelectedPlanOffer = (plan, answers) => {
     operator: plan.operator,
     title: plan.title,
     data: getPlanDataLabel(plan),
-    price: plan.campaignPrice ?? plan.price,
+    price: plan.price,
     monthlyPrice: plan.monthlyPrice,
-    regularMonthlyPrice: plan.normalPriceAfterCampaign || plan.monthlyPrice || plan.price,
-    campaignPrice: plan.campaignPrice,
-    campaignMonths: plan.campaignMonths,
+    regularMonthlyPrice: plan.monthlyPrice || plan.price,
     bindingMonths: plan.bindingMonths,
     noticePeriodMonths: plan.noticePeriodMonths,
     startFee: plan.startFee,
@@ -184,7 +183,7 @@ const buildBaseCompareItem = (offer) => ({
     { label: 'Surf', value: 'Obegr\u00e4nsad surf' },
     { label: 'Samtal & SMS', value: 'Fria samtal och SMS' },
     { label: '5G/eSIM', value: '5G & eSIM' },
-    { label: 'Presentkort', value: `${formatCurrency(offer.reward)} kr` },
+    { label: 'Presentkort', value: 'XXX kr' },
   ],
 });
 
@@ -199,7 +198,7 @@ const buildPlanCompareItem = (selectedPlan, plan, answers) => ({
     { label: 'Typ', value: 'Mobilabonnemang' },
     { label: 'Surf', value: `${getPlanDataLabel(plan)} surf` },
     { label: 'Pris', value: `${formatCurrency(plan.price)} kr/m\u00e5n` },
-    { label: 'Presentkort', value: `${formatCurrency(selectedPlan.reward)} kr` },
+    { label: 'Presentkort', value: 'XXX kr' },
     { label: 'Samtal & SMS', value: 'Fria samtal och SMS' },
     ...getMobileAnswerFacts({ provider: selectedPlan.operator }, answers),
   ],
@@ -284,7 +283,7 @@ const updateRewardState = () => {
   const remaining = Math.max(selectedOffer.reward - allocated, 0);
   const progress = selectedOffer.reward ? Math.min((allocated / selectedOffer.reward) * 100, 100) : 0;
 
-  remainingSum.textContent = formatCurrency(remaining);
+  remainingSum.textContent = 'XXX';
   rewardProgressFill.style.width = `${progress}%`;
   rewardContinueBtn.disabled = allocated !== selectedOffer.reward;
 };
@@ -295,8 +294,8 @@ const renderRewards = (offer) => {
   }
 
   rewardGrid.replaceChildren();
-  totalReward.textContent = formatCurrency(offer.reward);
-  remainingSum.textContent = formatCurrency(offer.reward);
+  totalReward.textContent = 'XXX';
+  remainingSum.textContent = 'XXX';
   rewardProgressFill.style.width = '0%';
   rewardContinueBtn.disabled = true;
 
@@ -418,7 +417,7 @@ const renderPlanOffers = async (offer, answers, card) => {
       [
         `${getPlanDataLabel(plan)} surf`,
         `${formatCurrency(plan.price)} kr/m\u00e5n`,
-        `${formatCurrency(selectedPlan.reward)} kr presentkort`,
+        giftCardPlaceholder,
       ].forEach((item) => {
         meta.append(createElement('li', '', item));
       });
@@ -664,7 +663,7 @@ const createPlanCard = (plan) => {
   price.innerHTML = `<strong>${formatCurrency(plan.price)} kr</strong><span>/mån</span>`;
 
   const meta = createElement('ul', 'offer-card-meta');
-  ['Fria samtal och sms', `${formatCurrency(selectedPlan.reward)} kr presentkort`].forEach((item) => {
+  ['Fria samtal och sms', giftCardPlaceholder].forEach((item) => {
     meta.append(createElement('li', '', item));
   });
 
@@ -726,12 +725,8 @@ const buildFallbackMobileCart = (rewards) => {
     price: monthlyPrice,
     monthlyPrice: Number(selectedOffer.monthlyPrice ?? selectedOffer.price) + addonPrice,
     regularMonthlyPrice: Number(
-      selectedOffer.regularMonthlyPrice ?? selectedOffer.monthlyPrice ?? selectedOffer.price
+      selectedOffer.monthlyPrice ?? selectedOffer.price
     ) + addonPrice,
-    campaignPrice: selectedOffer.campaignPrice === null || selectedOffer.campaignPrice === undefined
-      ? null
-      : Number(selectedOffer.campaignPrice) + addonPrice,
-    campaignMonths: Number(selectedOffer.campaignMonths) || 0,
     bindingMonths: Number(selectedOffer.bindingMonths) || 0,
     noticePeriodMonths: Number(selectedOffer.noticePeriodMonths) || 0,
     startFee: Number(selectedOffer.startFee) || 0,
@@ -743,7 +738,7 @@ const buildFallbackMobileCart = (rewards) => {
     productType: 'mobile',
     unitLabel: 'abonnemang',
     rewardTotal: selectedOffer.reward,
-    rewardMixLabel: `Presentkort ${formatCurrency(selectedOffer.reward)} kr`,
+    rewardMixLabel: giftCardPlaceholder,
     rewards,
     addon: selectedOffer.addon || null,
     answers: selectedOffer.answers || {},

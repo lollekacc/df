@@ -37,18 +37,15 @@ const makeItem = (overrides = {}) => ({
   title: 'Obegränsat Plus',
   logo: 'images/telenor.jpg',
   data: 'Obegränsad surf',
-  price: 529,
+  price: 629,
   monthlyPrice: 629,
   regularMonthlyPrice: 629,
-  campaignPrice: 529,
-  campaignMonths: 24,
-  campaignDiscount: 100,
   bindingMonths: 24,
   noticePeriodMonths: 1,
   startFee: 0,
   invoiceFee: 59,
   invoiceFeeOptional: true,
-  minimumTotalCost: 12696,
+  minimumTotalCost: 15096,
   productType: 'mobile',
   persons: 1,
   phoneLines: 1,
@@ -334,33 +331,34 @@ const main = async () => {
       return page;
     });
 
-    await test('selected gift card and large gift values render', async () => {
+    await test('selected gift card renders placeholder value', async () => {
       const page = await createPage(debugBase, {
         item: makeItem({ rewards: { Apollo: 99999 }, rewardTotal: 99999 }),
         checkout: { startDate: 'snarast', phoneNumbers: [] },
       });
       const text = await bodyText(page);
       assert(
-        text.includes('Apollo') && normalizeSpaces(text).includes('99 999'),
+        text.includes('Apollo') && normalizeSpaces(text).includes('XXX kr') && !normalizeSpaces(text).includes('99 999'),
         'Gift-card information is missing.'
       );
       return page;
     });
 
-    await test('order without a gift card has a clear empty state', async () => {
+    await test('order without a gift card shows placeholder value', async () => {
       const page = await createPage(debugBase, {
         item: makeItem({ rewards: {}, rewardTotal: 0 }),
         checkout: { startDate: 'snarast', phoneNumbers: [] },
       });
       const text = await bodyText(page);
-      assert(text.includes('Inget presentkort är valt'), 'Missing gift card rendered unclearly.');
+      assert(text.includes('Presentkort') && normalizeSpaces(text).includes('XXX kr'), 'Missing gift card placeholder rendered unclearly.');
       return page;
     });
 
-    await test('campaign price is followed by the higher standard price', async () => {
-      const page = await createPage(debugBase);
+    await test('summary uses one real monthly price', async () => {
+      const page = await createPage(debugBase, { item: makeItem() });
       const text = await page.evaluate(`document.querySelector('#orderSummary').innerText`);
-      assert(text.includes('Månad 1–24') && text.includes('529 kr/mån') && text.includes('629 kr/mån'), 'Price periods are wrong.');
+      assert(text.includes('Under 24 månader') && text.includes('629 kr/mån'), 'Monthly price period is wrong.');
+      assert(!/kampanj|därefter|Månad 1/i.test(text), 'Temporary campaign copy should not be shown.');
       return page;
     });
 
@@ -370,8 +368,6 @@ const main = async () => {
           price: 299,
           monthlyPrice: 299,
           regularMonthlyPrice: 299,
-          campaignPrice: null,
-          campaignMonths: 0,
           bindingMonths: 0,
           minimumTotalCost: 299,
         }),
@@ -386,7 +382,7 @@ const main = async () => {
       const page = await createPage(debugBase);
       const text = await page.evaluate(`document.querySelector('#orderSummary').innerText`);
       assert(text.includes('24 månaders bindningstid'), 'Binding period is missing.');
-      assert(normalizeSpaces(text).includes('12 696 kr'), 'Minimum total is wrong.');
+      assert(normalizeSpaces(text).includes('15 096 kr'), 'Minimum total is wrong.');
       assert(!text.includes('14 112'), 'Optional invoice fees were included in the minimum total.');
       return page;
     });
@@ -525,8 +521,6 @@ const main = async () => {
         item: makeItem({
           operator: 'Operatören med ett ovanligt långt namn',
           title: 'Obegränsat familjeabonnemang med extra lång benämning',
-          campaignPrice: null,
-          campaignMonths: null,
           invoiceFee: null,
           noticePeriodMonths: null,
           startFee: null,

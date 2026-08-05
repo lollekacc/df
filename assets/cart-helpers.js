@@ -134,11 +134,12 @@
   const normalizeFeatures = (item = {}) => {
     const productType = getProductType(item);
     const features = Array.isArray(item.features) ? item.features : [];
+    const giftCardFeature = 'Presentkort: XXX kr';
     const fallback = productType === 'broadband'
       ? ['Stabil uppkoppling', 'Support ingår']
       : ['Fria samtal och sms', '5G & eSIM'];
 
-    return [...features, ...fallback]
+    return [giftCardFeature, ...features, ...fallback]
       .map((feature) => String(feature || '').trim())
       .filter(Boolean)
       .filter((feature, index, list) => list.indexOf(feature) === index)
@@ -177,13 +178,8 @@
       price,
       monthlyPrice: Math.max(Number(item.monthlyPrice ?? price) || 0, 0),
       regularMonthlyPrice: Math.max(Number(
-        item.regularMonthlyPrice ?? item.normalPriceAfterCampaign ?? item.monthlyPrice ?? price
+        item.monthlyPrice ?? price
       ) || 0, 0),
-      campaignPrice: item.campaignPrice === null || item.campaignPrice === undefined
-        ? null
-        : Math.max(Number(item.campaignPrice) || 0, 0),
-      campaignMonths: Math.max(Number(item.campaignMonths) || 0, 0),
-      campaignDiscount: Math.max(Number(item.campaignDiscount) || 0, 0),
       bindingMonths: Math.max(Number(item.bindingMonths) || 0, 0),
       noticePeriodMonths: Math.max(Number(item.noticePeriodMonths) || 0, 0),
       startFee: Math.max(Number(item.startFee) || 0, 0),
@@ -198,7 +194,7 @@
       productType,
       unitLabel: getUnitLabel({ ...item, productType }),
       rewardTotal,
-      rewardMixLabel: item.rewardMixLabel || (rewardTotal ? `Presentkort ${formatCurrency(rewardTotal)} kr` : ''),
+      rewardMixLabel: item.rewardMixLabel || (rewardTotal ? 'Presentkort: XXX kr' : ''),
       rewards: rewards || {},
       features: normalizeFeatures({ ...item, productType }),
       answers: item.answers || {},
@@ -373,7 +369,7 @@
     const dataLabel = item.productType === 'broadband'
       ? item.speed || item.data || item.title
       : item.data || item.title;
-    const rewardLabel = item.rewardTotal ? `Presentkort ${formatCurrency(item.rewardTotal)} kr` : '';
+    const rewardLabel = 'Presentkort: XXX kr';
     const countLabel = `${item.persons} ${getUnitLabel(item)}`;
     const priceLabel = `${formatCurrency(item.price)} kr/mån`;
     const features = (item.features || []).slice(0, 3);
@@ -417,7 +413,7 @@
     summaryArea.innerHTML = [
       `<div><span>Varor</span><strong>${cart.length}</strong></div>`,
       `<div><span>Telefonlinjer</span><strong>${totals.phoneLines}</strong></div>`,
-      `<div><span>Presentkort</span><strong>${formatCurrency(totals.reward)} kr</strong></div>`,
+      '<div><span>Presentkort</span><strong>XXX kr</strong></div>',
     ].join('');
     totalPrice.textContent = `${formatCurrency(totals.price)} kr/mån`;
   };

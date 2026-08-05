@@ -1439,6 +1439,7 @@
     let lastAssistantResponse = null;
     let offerClickedInSession = false;
     let hasUserStartedChat = false;
+    let activeQuizContext = null;
 
     const root = document.createElement('section');
     root.id = 'dealettChat';
@@ -1566,6 +1567,15 @@
       } catch {
         // Keep chat usable if session storage is unavailable.
       }
+
+      document.dispatchEvent(new CustomEvent('dealett:chat-qualification-updated', {
+        detail: {
+          qualification: {
+            ...createEmptyQualification(),
+            ...qualification,
+          },
+        },
+      }));
     };
 
     const writeOfferCalculation = (offerCalculation) => {
@@ -1584,6 +1594,18 @@
         ...readQualification(),
         ...patch,
       });
+    };
+
+    const getQuizContext = () => {
+      const liveContext = window.DealettQuiz?.getChatContext?.() || null;
+      if (liveContext) {
+        activeQuizContext = {
+          ...activeQuizContext,
+          ...liveContext,
+          quizHandoff: true,
+        };
+      }
+      return activeQuizContext;
     };
 
     const inferSuggestion = (suggestion) => {
@@ -2262,9 +2284,13 @@
       status.textContent = nextValue ? text.typing : text.status;
     };
 
-    const sendMessage = async (rawMessage) => {
+    const sendMessage = async (rawMessage, options = {}) => {
       const message = String(rawMessage || '').trim();
       if (!message || isSending) return;
+      const requestContext = {
+        ...(getQuizContext() || {}),
+        ...(options.context || {}),
+      };
 
       hasUserStartedChat = true;
       suggestionArea.replaceChildren();
@@ -2290,6 +2316,7 @@
               title: document.title,
               path: window.location.pathname.split('/').pop() || 'index.html',
             },
+            context: requestContext,
           }),
         });
 
@@ -2303,12 +2330,12 @@
       }
     };
 
-    const openPanel = () => {
+    const openPanel = (options = {}) => {
       syncLanguage();
       panel.hidden = false;
       root.classList.add('is-open');
       toggle.setAttribute('aria-expanded', 'true');
-      if (!messages.length) {
+      if (!messages.length && !options.skipGreeting) {
         loadInitialGreeting();
       }
       window.setTimeout(() => input.focus(), 50);
@@ -2325,6 +2352,32 @@
       if (panel.hidden) openPanel();
       else closePanel();
     });
+
+    window.DealettChat = {
+      ...(window.DealettChat || {}),
+      open: openPanel,
+      close: closePanel,
+      readQualification,
+      writeQualification,
+      continueFromQuiz(payload = {}) {
+        const qualification = payload.qualification || payload.quizQualification || null;
+        if (qualification) writeQualification(qualification);
+        activeQuizContext = {
+          ...(payload.context || {}),
+          quizHandoff: true,
+          source: 'homepage_mobile_quiz',
+          currentStage: payload.currentStage || null,
+          currentStep: payload.currentStep ?? null,
+          answers: payload.answers || {},
+          qualification: qualification || readQualification(),
+          missingFields: qualification?.missingFields || [],
+        };
+        openPanel({ skipGreeting: true });
+        sendMessage(payload.message || 'Fortsätt härifrån med Dealett AI', {
+          context: activeQuizContext,
+        });
+      },
+    };
 
     closeButton.addEventListener('click', closePanel);
 

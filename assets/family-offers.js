@@ -15,6 +15,7 @@ const dataFilterAll = document.querySelector('#dataFilterAll');
 const dataFilterTicks = document.querySelector('#dataFilterTicks');
 
 const currency = new Intl.NumberFormat('sv-SE');
+const giftCardPlaceholder = 'Presentkort: XXX kr';
 
 const offers = [
   {
@@ -277,7 +278,7 @@ const buildBaseCompareItem = (offer) => ({
     { label: 'Antal abonnemang', value: offer.members },
     { label: 'Surf', value: offer.surf },
     { label: 'Samtal & SMS', value: 'Fria samtal och SMS' },
-    { label: 'Presentkort', value: `${formatCurrency(offer.reward)} kr` },
+    { label: 'Presentkort', value: 'XXX kr' },
   ],
 });
 
@@ -303,7 +304,7 @@ const buildFamilyCompareItem = (selectedPlan, plan, answers) => ({
       ? { label: 'Avräknat streamingvärde', value: `${formatCurrency(selectedPlan.includedServiceValue)} kr/mån` }
       : null,
     selectedPlan.internationalTravel ? { label: 'Utlandsresor', value: getTravelLabel(selectedPlan.internationalTravel) } : null,
-    { label: 'Presentkort', value: `${formatCurrency(selectedPlan.reward)} kr` },
+    { label: 'Presentkort', value: 'XXX kr' },
     ...getFamilyAnswerFacts(answers),
   ].filter(Boolean),
 });
@@ -366,7 +367,7 @@ const updateRewardState = () => {
   const remaining = Math.max(selectedOffer.reward - allocated, 0);
   const progress = selectedOffer.reward ? Math.min((allocated / selectedOffer.reward) * 100, 100) : 0;
 
-  remainingSum.textContent = formatCurrency(remaining);
+  remainingSum.textContent = 'XXX';
   rewardProgressFill.style.width = `${progress}%`;
   rewardContinueBtn.disabled = allocated !== selectedOffer.reward;
 };
@@ -377,8 +378,8 @@ const renderRewards = (offer) => {
   }
 
   rewardGrid.replaceChildren();
-  totalReward.textContent = formatCurrency(offer.reward);
-  remainingSum.textContent = formatCurrency(offer.reward);
+  totalReward.textContent = 'XXX';
+  remainingSum.textContent = 'XXX';
   rewardProgressFill.style.width = '0%';
   rewardContinueBtn.disabled = true;
 
@@ -480,7 +481,7 @@ const renderPlanOffers = async (offer, answers, card) => {
           ? `Avräknat tjänstevärde: ${formatCurrency(selectedPlan.includedServiceValue)} kr/mån`
           : '',
         selectedPlan.internationalTravel ? getTravelLabel(selectedPlan.internationalTravel) : '',
-        `${formatCurrency(selectedPlan.reward)} kr presentkort`,
+        giftCardPlaceholder,
         addonPlan ? `Extra: ${formatCurrency(selectedPlan.addonPrice)} kr/st` : '',
       ].filter(Boolean).forEach((item) => {
         meta.append(createElement('li', '', item));
@@ -802,7 +803,7 @@ const createFamilyPlanCard = (plan, addonPlan, offer, persons) => {
   const meta = createElement('ul', 'offer-card-meta');
   [
     `${formatCurrency(selectedPlan.addonPrice)} kr per extra abonnemang`,
-    `${formatCurrency(selectedPlan.reward)} kr presentkort`,
+    giftCardPlaceholder,
   ].forEach((item) => meta.append(createElement('li', '', item)));
 
   const button = createElement('button', 'offer-card-action', 'Välj familjeabonnemang');
@@ -886,7 +887,7 @@ rewardContinueBtn?.addEventListener('click', () => {
     productType: 'family',
     unitLabel: 'abonnemang',
     rewardTotal: selectedOffer.reward,
-    rewardMixLabel: `Presentkort ${formatCurrency(selectedOffer.reward)} kr`,
+    rewardMixLabel: giftCardPlaceholder,
     rewards,
     answers: selectedOffer.answers || {},
     streamingOffer: selectedOffer.streamingOffer || null,

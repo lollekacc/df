@@ -9529,3 +9529,45 @@ body {
     transform: translateY(-50%);
   }
 }
+/* Dealett AI handoff buttons inside the adaptive quiz */
+.quiz-ai-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.quiz-ai-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid #111;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font: 700 14px/1.1 Arial, sans-serif;
+  cursor: pointer;
+  transition: transform .2s ease, background-color .2s ease, color .2s ease;
+}
+
+.quiz-ai-button:hover,
+.quiz-ai-button:focus-visible {
+  transform: translateY(-1px);
+  background: #111;
+  color: #fff;
+}
+
+.quiz-ai-button--primary {
+  background: #111;
+  color: #fff;
+}
+
+.quiz-ai-button--primary:hover,
+.quiz-ai-button--primary:focus-visible {
+  background: var(--accent, #da6f21);
+  color: #111;
+}

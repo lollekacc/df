@@ -236,7 +236,7 @@
       dataAmount: 9999,
       persons: 4,
       rewardTotal: 4000,
-      rewardMixLabel: 'Presentkort 4 000 kr',
+      rewardMixLabel: 'Presentkort: XXX kr',
       rewards: { Presentkort: 4000 },
       features: ['Obegr\u00e4nsad surf', 'Samtal & SMS ing\u00e5r', '5G & eSIM']
     };
@@ -350,11 +350,11 @@
   const renderSummaryCard = (item, index) => {
     const accent = getAccent(item.operator);
     const accentSoft = `${accent}14`;
-    const rewardLabel = item.rewardTotal ? `${formatCurrency(item.rewardTotal)} kr presentkort` : 'Presentkort v\u00e4ljs senare';
+    const rewardLabel = 'Presentkort: XXX kr';
     const priceLabel = item.price > 0 ? `${formatCurrency(item.price)} kr/m\u00e5n` : rewardLabel;
     const totalLabel = item.price > 0 ? 'M\u00e5nadspris' : 'Presentkort';
     const priceNote = item.price > 0
-      ? `Presentkort: ${formatCurrency(item.rewardTotal)} kr`
+      ? 'Presentkort: XXX kr'
       : 'M\u00e5nadspris bekr\u00e4ftas vid signering.';
     const countIcon = item.productType === 'broadband' ? 'fa-wifi' : 'fa-users';
 
@@ -406,7 +406,7 @@
       '  </div>',
       '  <div>',
       '    <span>Presentkort totalt</span>',
-      `    <strong>${formatCurrency(totals.reward)} kr</strong>`,
+      '    <strong>XXX kr</strong>',
       '  </div>',
       '  <div>',
       '    <span>Telefonlinjer</span>',
