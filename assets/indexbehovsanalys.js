@@ -1026,32 +1026,76 @@ function createIndexQuiz() {
   }
 
   function getRecommendationKey(plan) {
-    return String(plan?.planId ?? plan?.id ?? `${plan?.operator || ""}-${plan?.title || ""}`);
+    if (!plan) return "";
+    return String(plan.planId ?? plan.id ?? [plan.operator, plan.title].filter(Boolean).join("-"));
+  }
+
+  function buildCalculatedRecommendationPlan(plan, qualification) {
+    const offerCalculation = plan.offerCalculation || plan;
+    const planId = offerCalculation.planId || plan.planId || plan.id;
+
+    return {
+      ...plan,
+      id: planId,
+      logo: getOperatorLogo(plan.operator),
+      finalPrice: plan.planMonthlyPrice ?? plan.finalPrice,
+      offerCalculation,
+      qualification,
+    };
+  }
+
+  function combineRecommendationLabels(labels = []) {
+    const uniqueLabels = [...new Set(labels.filter(Boolean))];
+    if (uniqueLabels.length <= 1) return uniqueLabels[0] || "Rekommenderat";
+
+    return uniqueLabels
+      .map((label, index) => index === 0 ? label : label.charAt(0).toLowerCase() + label.slice(1))
+      .join(" & ");
   }
 
   function selectFeaturedRecommendationEntries(plans = []) {
     const qualification = buildQualificationFromState();
-    return [
+    const featuredByKey = new Map();
+    const addFeaturedPlan = (plan, label, { mergeLabel = true } = {}) => {
+      const key = getRecommendationKey(plan);
+      if (!key) return;
+
+      if (featuredByKey.has(key)) {
+        if (mergeLabel) featuredByKey.get(key).labels.push(label);
+        return;
+      }
+
+      featuredByKey.set(key, {
+        labels: [label],
+        plan: buildCalculatedRecommendationPlan(plan, qualification),
+      });
+    };
+
+    [
       { plan: lastOfferCalculation?.bestValue, label: "Bäst värde" },
       { plan: lastOfferCalculation?.lowestMonthlyPrice, label: "Lägst månadspris" }
-    ].filter(entry => entry.plan).map(entry => ({
-      ...entry,
-      plan: {
-        ...entry.plan,
-        id: entry.plan.planId,
-        logo: getOperatorLogo(entry.plan.operator),
-        finalPrice: entry.plan.planMonthlyPrice,
-        offerCalculation: entry.plan,
-        qualification,
-      }
+    ].forEach(entry => addFeaturedPlan(entry.plan, entry.label));
+
+    [...plans]
+      .sort((left, right) => (
+        (Number(left?.planMonthlyPrice ?? left?.finalPrice) || Number.POSITIVE_INFINITY) -
+        (Number(right?.planMonthlyPrice ?? right?.finalPrice) || Number.POSITIVE_INFINITY)
+      ))
+      .forEach(plan => {
+        if (featuredByKey.size < 2) addFeaturedPlan(plan, "Annat starkt alternativ", { mergeLabel: false });
+      });
+
+    return [...featuredByKey.values()].slice(0, 2).map(entry => ({
+      plan: entry.plan,
+      label: combineRecommendationLabels(entry.labels),
     }));
   }
 
   function getExpandedRecommendationLabel(plan, index, featuredEntries = []) {
     const key = getRecommendationKey(plan);
+    const featuredEntry = featuredEntries.find(entry => key === getRecommendationKey(entry.plan));
 
-    if (key === getRecommendationKey(featuredEntries[0]?.plan)) return "Bäst värde";
-    if (key === getRecommendationKey(featuredEntries[1]?.plan)) return "Lägst månadspris";
+    if (featuredEntry) return featuredEntry.label;
 
     return `Operatör ${index + 1}`;
   }
