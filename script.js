@@ -2106,6 +2106,11 @@
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
 
+    const getOperatorLogo = (operator) => {
+      const provider = getProviderClass(operator);
+      return provider ? `images/${provider}.${['telia', 'tele2'].includes(provider) ? 'png' : 'jpg'}` : '';
+    };
+
     const addCalculatedOfferToCart = async (planId, options = {}) => {
       const { announce = true, openDrawer = true } = options;
       const response = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/offers/cart-item', {
@@ -2199,6 +2204,7 @@
       wrap.className = 'dealett-chat-offers';
       offerCards.slice(0, 3).forEach((card, index) => {
         const providerClass = getProviderClass(card.operator);
+        const logo = getOperatorLogo(card.operator);
         const safeCtaUrl = getSafeChatUrl(card.ctaUrl);
         const article = document.createElement('article');
         article.className = [
@@ -2211,13 +2217,16 @@
           '<div class="offer-card__accent"></div>',
           '<div class="offer-card__inner">',
           `  <span class="offer-card__label">${escapeChatText(card.resultLabel || (index === 0 ? 'Bäst värde' : 'Lägst månadspris'))}</span>`,
+          logo ? [
+            '  <div class="offer-card__head">',
+            `    <img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ''}" />`,
+            '    <span class="offer-card__gift-badge" aria-label="Presentkort XXX kr"><strong>XXX kr</strong><span>Presentkort</span></span>',
+            '  </div>',
+          ].join('') : '',
           `  <h4 class="dealett-chat-offer-title">${escapeChatText(card.operator)} ${escapeChatText(card.planName)}</h4>`,
           '  <div class="offer-card__stats">',
           card.dataLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-wifi"></i></span><div><p class="offer-card__stat-label">Surf</p><p class="offer-card__stat-value">${escapeChatText(card.dataLabel)}</p></div></div>` : '',
-          card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">Pris</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p></div></div>` : '',
-          card.effectiveCostLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-scale-balanced"></i></span><div><p class="offer-card__stat-label">Effektiv kostnad</p><p class="offer-card__stat-value">${escapeChatText(card.effectiveCostLabel)}</p></div></div>` : '',
-          card.savingsLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-piggy-bank"></i></span><div><p class="offer-card__stat-label">Besparing</p><p class="offer-card__stat-value">${escapeChatText(card.savingsLabel)}</p></div></div>` : '',
-          card.rewardLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-gift"></i></span><div><p class="offer-card__stat-label">Belöning</p><p class="offer-card__stat-value">${escapeChatText(card.rewardLabel)}</p></div></div>` : '',
+          card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">Månadskostnad</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p></div></div>` : '',
           card.bindingLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-file-signature"></i></span><div><p class="offer-card__stat-label">Bindning</p><p class="offer-card__stat-value">${escapeChatText(card.bindingLabel)}</p></div></div>` : '',
           '  </div>',
           card.reason ? `  <p class="dealett-chat-offer-note">${escapeChatText(card.reason)}</p>` : '',

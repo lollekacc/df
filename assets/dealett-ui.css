@@ -1,0 +1,1719 @@
+@import url("https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+/*
+  Dealett Unified UI
+  One visual component layer mapped onto the existing markup.
+  This file intentionally preserves all page structure and JavaScript hooks.
+*/
+
+:root {
+  color-scheme: light;
+  --dui-bg-deep: #0F1728;
+  --dui-bg: #FAF9F7;
+  --dui-surface: #FFFFFF;
+  --dui-surface-soft: #F4F1EC;
+  --dui-surface-muted: #EEEAE3;
+  --dui-text: #121212;
+  --dui-muted: #6B7280;
+  --dui-muted-2: #8B929E;
+  --dui-line: rgba(15, 23, 40, .11);
+  --dui-line-strong: rgba(15, 23, 40, .18);
+  --dui-accent: #C9792B;
+  --dui-accent-soft: rgba(201, 121, 43, .12);
+  --dui-success: #256E52;
+  --dui-danger: #B63D32;
+  --dui-radius: 8px;
+  --dui-radius-pill: 999px;
+  --dui-shadow: 0 18px 48px rgba(15, 23, 40, .08);
+  --dui-shadow-soft: 0 10px 30px rgba(15, 23, 40, .06);
+  --dui-font-heading: "General Sans", Inter, Arial, sans-serif;
+  --dui-font-body: Inter, Arial, sans-serif;
+  --dui-ease: cubic-bezier(.2, .8, .2, 1);
+  --dui-fast: 180ms var(--dui-ease);
+  --dui-page-x: clamp(20px, 4vw, 64px);
+  --dui-section-y: clamp(56px, 7vw, 112px);
+  --dui-shell: min(100% - (var(--dui-page-x) * 2), 1480px);
+}
+
+html {
+  background: var(--dui-bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--dui-bg) !important;
+  color: var(--dui-text) !important;
+  font-family: var(--dui-font-body) !important;
+  letter-spacing: 0 !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before,
+body::after {
+  display: none !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:where(h1, h2, h3, h4, h5, h6, .quiz-title, .result-title) {
+  color: var(--dui-text) !important;
+  font-family: var(--dui-font-heading) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+:where(p, li, label, input, select, textarea, button, a, span) {
+  font-family: var(--dui-font-body);
+  letter-spacing: 0 !important;
+}
+
+:where(p, li, .result-desc, .quiz-subtitle) {
+  color: var(--dui-muted);
+  line-height: 1.6;
+}
+
+:where(a) {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+:where(img) {
+  max-width: 100%;
+}
+
+:where(.site-header, .footer, .cart-drawer-panel, .dealett-chat-panel) {
+  font-family: var(--dui-font-body) !important;
+}
+
+/* Layout primitives */
+:where(
+  .result-shell,
+  .business-shell,
+  .about-container,
+  .support-shell,
+  .account-shell,
+  .bredband-results-shell,
+  .page-shell,
+  .package-options,
+  .legal-document-shell
+) {
+  width: var(--dui-shell) !important;
+  max-width: 1480px !important;
+  margin-inline: auto !important;
+}
+
+:where(
+  .result-section,
+  .business-size-section,
+  .business-plans-section,
+  .about-section,
+  .support-section,
+  .account-content-section,
+  .account-overview,
+  .bredband-results-section,
+  .package-options,
+  .legal-document-main
+) {
+  padding-block: var(--dui-section-y) !important;
+  background: var(--dui-bg) !important;
+}
+
+:where(.section-head, .about-section-head, .support-head, .bredband-results-top, .package-options__head) {
+  display: grid !important;
+  gap: 12px !important;
+  max-width: 760px !important;
+  margin-bottom: clamp(28px, 4vw, 56px) !important;
+}
+
+:where(.section-head.center, .about-section-head.center, .support-head) {
+  margin-inline: auto !important;
+  text-align: center !important;
+  justify-items: center !important;
+}
+
+:where(
+  .section-kicker,
+  .shop-breadcrumb,
+  .business-kicker,
+  .about-kicker,
+  .support-eyebrow,
+  .bredband-kicker,
+  .coverage-badge,
+  .account-kicker,
+  .quiz-refinement-kicker,
+  .offer-card__label,
+  .business-plan-badge,
+  .offers-strip-badge
+) {
+  color: var(--dui-accent) !important;
+  font-family: var(--dui-font-body) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: .08em !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase !important;
+}
+
+:where(.section-head h2, .about-section-head h2, .support-head h2, .bredband-results-top h2, .package-options__head h2) {
+  margin: 0 !important;
+  font-size: clamp(34px, 4vw, 64px) !important;
+  line-height: .98 !important;
+}
+
+:where(.section-head p, .about-section-head p, .support-head p, .bredband-results-copy) {
+  max-width: 680px !important;
+  margin: 0 !important;
+  color: var(--dui-muted) !important;
+  font-size: clamp(15px, 1.4vw, 18px) !important;
+}
+
+/* Navigation */
+.site-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, .08) !important;
+  background: rgba(15, 23, 40, .94) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(18px);
+}
+
+.header-inner {
+  width: var(--dui-shell) !important;
+  min-height: 76px !important;
+  margin-inline: auto !important;
+  padding: 0 !important;
+}
+
+.brand-logo-crop {
+  height: 34px !important;
+  width: 178px !important;
+}
+
+.brand-logo-crop img {
+  width: auto !important;
+  height: 34px !important;
+  object-fit: contain !important;
+  filter: brightness(0) invert(1) !important;
+}
+
+.site-nav,
+.nav-menu {
+  gap: clamp(18px, 2vw, 34px) !important;
+}
+
+.nav-link,
+.header-topbar-link,
+.language-switcher select {
+  color: rgba(255, 255, 255, .78) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: color var(--dui-fast), background-color var(--dui-fast), border-color var(--dui-fast);
+}
+
+.nav-link:hover,
+.nav-link.is-active,
+.header-topbar-link:hover,
+.language-switcher:hover select {
+  color: #fff !important;
+}
+
+.nav-link::after,
+.header-account-link::after {
+  background: var(--dui-accent) !important;
+}
+
+.language-switcher {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.language-switcher select {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.header-cart-count {
+  background: var(--dui-accent) !important;
+  color: #fff !important;
+}
+
+.mobile-nav-toggle {
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  border-radius: var(--dui-radius) !important;
+  background: rgba(255, 255, 255, .06) !important;
+}
+
+.mobile-nav-toggle span {
+  background: #fff !important;
+}
+
+/* Buttons */
+:where(
+  .primary-btn,
+  .full-btn,
+  .adeala-btn,
+  .business-action--primary,
+  .business-plan-btn,
+  .support-btn-primary,
+  .bredband-primary-btn,
+  .bredband-search-btn,
+  .bredband-choose-btn,
+  .coverage-btn--primary,
+  .checkout-primary-btn,
+  .quiz-next-button,
+  .offer-card__cta,
+  .dealett-chat-send,
+  .dealett-chat-widget-button--primary,
+  .dealett-chat-feedback__button--primary
+) {
+  display: inline-flex !important;
+  min-height: 46px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  border: 1px solid var(--dui-bg-deep) !important;
+  border-radius: var(--dui-radius) !important;
+  padding: 0 20px !important;
+  background: var(--dui-bg-deep) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  font-family: var(--dui-font-body) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+  text-decoration: none !important;
+  transition: transform var(--dui-fast), background-color var(--dui-fast), border-color var(--dui-fast), color var(--dui-fast);
+}
+
+:where(
+  .account-ghost-btn,
+  .business-action--secondary,
+  .support-btn-light,
+  .support-btn-ghost,
+  .bredband-secondary-btn,
+  .coverage-btn--ghost,
+  .coverage-soft-btn,
+  .recommendation-results-toggle,
+  .offer-answer-edit,
+  .compare-open-button,
+  .compare-clear-button,
+  .quiz-refinement-link,
+  .dealett-chat-chip,
+  .dealett-chat-widget-button,
+  .dealett-chat-feedback__button
+) {
+  display: inline-flex !important;
+  min-height: 44px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  border: 1px solid var(--dui-line-strong) !important;
+  border-radius: var(--dui-radius) !important;
+  padding: 0 18px !important;
+  background: var(--dui-surface) !important;
+  color: var(--dui-text) !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+  text-decoration: none !important;
+  transition: transform var(--dui-fast), background-color var(--dui-fast), border-color var(--dui-fast), color var(--dui-fast);
+}
+
+:where(
+  .quiz-back-inline,
+  .legal-document-back,
+  .cart-drawer-close,
+  .dealett-chat-close,
+  .dealett-chat-reset,
+  .modal-close-btn
+) {
+  border-radius: var(--dui-radius) !important;
+  color: var(--dui-text) !important;
+  transition: background-color var(--dui-fast), color var(--dui-fast), border-color var(--dui-fast);
+}
+
+:where(
+  .primary-btn,
+  .full-btn,
+  .adeala-btn,
+  .business-action--primary,
+  .business-plan-btn,
+  .support-btn-primary,
+  .bredband-primary-btn,
+  .bredband-search-btn,
+  .bredband-choose-btn,
+  .coverage-btn--primary,
+  .quiz-next-button,
+  .offer-card__cta,
+  .dealett-chat-send
+):hover {
+  transform: translateY(-1px) !important;
+  background: #17213A !important;
+  border-color: #17213A !important;
+}
+
+:where(
+  .account-ghost-btn,
+  .business-action--secondary,
+  .support-btn-light,
+  .support-btn-ghost,
+  .bredband-secondary-btn,
+  .coverage-btn--ghost,
+  .coverage-soft-btn,
+  .recommendation-results-toggle,
+  .offer-answer-edit,
+  .compare-open-button,
+  .compare-clear-button,
+  .quiz-refinement-link,
+  .dealett-chat-chip,
+  .dealett-chat-widget-button,
+  .dealett-chat-feedback__button
+):hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(15, 23, 40, .28) !important;
+  background: #F7F5F1 !important;
+  color: var(--dui-text) !important;
+}
+
+/* Hero systems */
+:where(
+  .hero,
+  .shop-hero,
+  .business-hero,
+  .about-hero,
+  .support-hero,
+  .bredband-hero,
+  .coverage-hero,
+  .package-hero,
+  .account-hero
+) {
+  position: relative !important;
+  min-height: min(760px, calc(100vh - 76px)) !important;
+  padding: clamp(72px, 9vw, 132px) var(--dui-page-x) clamp(54px, 7vw, 96px) !important;
+  background: var(--dui-bg) !important;
+  color: var(--dui-text) !important;
+  overflow: hidden !important;
+}
+
+:where(
+  .shop-hero-image,
+  .business-hero-image,
+  .about-hero-image,
+  .support-hero-image,
+  .bredband-hero-image,
+  .coverage-hero__img
+) {
+  position: absolute !important;
+  inset: auto var(--dui-page-x) 56px auto !important;
+  width: min(42vw, 560px) !important;
+  height: min(48vh, 520px) !important;
+  border-radius: var(--dui-radius) !important;
+  object-fit: cover !important;
+  opacity: .82 !important;
+  filter: saturate(.82) contrast(.96) !important;
+}
+
+:where(
+  .shop-hero-content,
+  .business-hero-inner,
+  .about-hero-inner,
+  .support-hero-inner,
+  .bredband-hero-inner,
+  .coverage-hero__inner,
+  .package-hero,
+  .account-shell
+) {
+  width: var(--dui-shell) !important;
+  max-width: 1480px !important;
+  margin-inline: auto !important;
+}
+
+:where(
+  .shop-hero-content,
+  .business-hero-copy,
+  .about-hero-copy,
+  .support-hero-copy,
+  .bredband-hero-copy,
+  .coverage-hero__copy,
+  .package-hero__copy,
+  .account-hero-copy
+) {
+  max-width: min(680px, 100%) !important;
+}
+
+:where(
+  .shop-hero h1,
+  .business-hero h1,
+  .about-hero h1,
+  .support-hero h1,
+  .bredband-hero h1,
+  .coverage-hero h1,
+  .package-hero h1,
+  .account-hero h1,
+  .hero h1
+) {
+  max-width: 820px !important;
+  margin: 18px 0 20px !important;
+  color: var(--dui-text) !important;
+  font-size: clamp(48px, 7vw, 112px) !important;
+  line-height: .92 !important;
+  letter-spacing: 0 !important;
+}
+
+:where(
+  .shop-hero-lead,
+  .business-hero-copy p,
+  .about-hero-copy p,
+  .support-hero-copy p,
+  .bredband-hero-copy p,
+  .coverage-hero__copy p,
+  .package-hero__copy p,
+  .account-hero-copy p
+) {
+  max-width: 660px !important;
+  color: var(--dui-muted) !important;
+  font-size: clamp(17px, 1.6vw, 22px) !important;
+  line-height: 1.45 !important;
+}
+
+:where(.business-hero-panel, .about-hero-side, .support-hero-panel, .coverage-hero__panel, .bredband-search-panel, .account-hero-card) {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  background: rgba(255, 255, 255, .84) !important;
+  box-shadow: var(--dui-shadow-soft) !important;
+  backdrop-filter: blur(16px);
+}
+
+.hero.quiz-in-hero {
+  min-height: auto !important;
+  padding-block: 38px 64px !important;
+  background: var(--dui-bg) !important;
+}
+
+.hero-showcase {
+  width: var(--dui-shell) !important;
+  margin-inline: auto !important;
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  overflow: hidden !important;
+  background: var(--dui-surface) !important;
+}
+
+.hero-offer-tile {
+  min-height: clamp(420px, 58vh, 620px) !important;
+  border: 0 !important;
+  border-right: 1px solid var(--dui-line) !important;
+  border-radius: 0 !important;
+  padding: clamp(28px, 4vw, 56px) !important;
+  background: var(--dui-surface) !important;
+  transition: background-color var(--dui-fast), transform var(--dui-fast) !important;
+}
+
+.hero-offer-tile--family { background: #fff !important; }
+.hero-offer-tile--group { background: #F8F6F1 !important; }
+.hero-offer-tile--duo { background: #F1EEE7 !important; }
+.hero-offer-tile--single { background: #FBFAF7 !important; }
+
+.hero-offer-tile:hover {
+  transform: translateY(-2px) !important;
+  background: #fff !important;
+}
+
+.hero-offer-count,
+.hero-offer-gift {
+  color: var(--dui-text) !important;
+  font-family: var(--dui-font-heading) !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+}
+
+.hero-offer-gift {
+  color: var(--dui-accent) !important;
+}
+
+.home-intro {
+  width: var(--dui-shell) !important;
+  margin-inline: auto !important;
+  padding-block: clamp(52px, 6vw, 92px) !important;
+}
+
+/* Cards and panels */
+:where(
+  .offer-card,
+  .bredband-offer-card,
+  .business-plan-card,
+  .business-stat-card,
+  .business-mini-card,
+  .about-story-card,
+  .about-value-card,
+  .about-process-card,
+  .about-team-card,
+  .support-faq-item,
+  .support-contact-wrap,
+  .support-panel-card,
+  .account-card,
+  .pro-card,
+  .checkout-card,
+  .contact-card,
+  .cart-summary-card,
+  .empty-cart-card,
+  .package-card,
+  .hero-panel-card,
+  .quiz-card,
+  .quiz-refinement-panel,
+  .operator-person-card,
+  .login-card,
+  .legal-document-shell
+) {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  background: var(--dui-surface) !important;
+  box-shadow: none !important;
+  color: var(--dui-text) !important;
+}
+
+:where(
+  .offer-card:hover,
+  .bredband-offer-card:hover,
+  .business-plan-card:hover,
+  .account-card:hover,
+  .package-card:hover,
+  .support-faq-item:hover
+) {
+  transform: translateY(-2px) !important;
+  border-color: var(--dui-line-strong) !important;
+  box-shadow: var(--dui-shadow-soft) !important;
+}
+
+:where(.offer-card--top, .business-plan-card.is-featured, .operator-plan-row.is-selected, .bredband-offer-card.active, .offer-card.is-selected) {
+  border-color: rgba(201, 121, 43, .42) !important;
+  box-shadow: inset 0 3px 0 var(--dui-accent) !important;
+}
+
+:where(.offer-card::before, .bredband-offer-card::before, .business-plan-card::before, .package-card::before) {
+  background: var(--dui-accent) !important;
+}
+
+:where(.offer-card-logo, .offer-card__head, .bredband-operator-logo-wrap) {
+  border: 0 !important;
+  border-radius: var(--dui-radius) !important;
+  background: #F6F4F0 !important;
+}
+
+:where(.offer-card__logo, .offer-card-logo img, .operator-choice-grid img, .bredband-operator-logo-wrap img, .coverage-operator img) {
+  filter: none !important;
+}
+
+.offer-card__gift-badge {
+  border: 1px solid rgba(15, 23, 40, .2) !important;
+  border-radius: 50% !important;
+  background: var(--dui-accent) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 24px rgba(201, 121, 43, .2) !important;
+}
+
+.offer-card__stat,
+.account-stat-row .account-card,
+.business-mini-card,
+.about-mini-card {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  background: #FBFAF8 !important;
+}
+
+.offer-card__reason,
+.dealett-chat-offer-note {
+  border-left: 2px solid var(--dui-accent) !important;
+  border-radius: var(--dui-radius) !important;
+  background: var(--dui-accent-soft) !important;
+  color: var(--dui-text) !important;
+}
+
+/* Forms and filters */
+:where(
+  input,
+  select,
+  textarea,
+  .checkout-field input,
+  .form-field input,
+  .support-field input,
+  .support-field select,
+  .support-field textarea,
+  .bredband-input-wrap,
+  .dealett-chat-input,
+  .dealett-chat-address-input,
+  .operator-date-field,
+  .operator-no-binding-button
+) {
+  border: 1px solid var(--dui-line-strong) !important;
+  border-radius: var(--dui-radius) !important;
+  background: var(--dui-surface) !important;
+  color: var(--dui-text) !important;
+  box-shadow: none !important;
+  font-family: var(--dui-font-body) !important;
+  transition: border-color var(--dui-fast), background-color var(--dui-fast), box-shadow var(--dui-fast);
+}
+
+:where(input, select, textarea):focus,
+:where(.dealett-chat-input, .dealett-chat-address-input):focus {
+  border-color: var(--dui-accent) !important;
+  box-shadow: 0 0 0 4px rgba(201, 121, 43, .12) !important;
+  outline: 0 !important;
+}
+
+:where(.operator-filter, .range-filter, .bredband-filters, .plan-toolbar) {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  background: rgba(255, 255, 255, .72) !important;
+  box-shadow: none !important;
+}
+
+:where(.range-filter input, input[type="range"]) {
+  accent-color: var(--dui-accent) !important;
+}
+
+/* Quiz */
+.hero.quiz-in-hero .hero-quiz-mount {
+  width: var(--dui-shell) !important;
+  max-width: 1480px !important;
+}
+
+.hero.quiz-in-hero .quiz-card {
+  padding: clamp(24px, 4vw, 48px) !important;
+  background: var(--dui-surface) !important;
+}
+
+.hero.quiz-in-hero .quiz-card-toolbar {
+  align-items: flex-start !important;
+  padding-right: 0 !important;
+}
+
+.hero.quiz-in-hero .quiz-progress-row {
+  position: relative !important;
+  display: grid !important;
+  justify-items: end !important;
+  gap: 8px !important;
+}
+
+.hero.quiz-in-hero .quiz-progress-track,
+.quiz-progress-track {
+  height: 4px !important;
+  border-radius: var(--dui-radius-pill) !important;
+  background: rgba(15, 23, 40, .1) !important;
+}
+
+.hero.quiz-in-hero .quiz-progress-inline,
+.quiz-progress-inline {
+  background: var(--dui-accent) !important;
+}
+
+.hero.quiz-in-hero .quiz-ai-actions {
+  position: absolute !important;
+  top: 54px !important;
+  right: 0 !important;
+  z-index: 10 !important;
+  margin: 0 !important;
+}
+
+.hero.quiz-in-hero .quiz-ai-button,
+.quiz-ai-button {
+  display: inline-flex !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 40px !important;
+  max-width: 240px !important;
+  flex-direction: row !important;
+  gap: 6px !important;
+  padding: 0 14px !important;
+  border: 1px solid var(--dui-line-strong) !important;
+  border-radius: var(--dui-radius) !important;
+  background: var(--dui-surface) !important;
+  color: var(--dui-text) !important;
+  box-shadow: none !important;
+  font-family: var(--dui-font-body) !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1.1 !important;
+  text-align: left !important;
+}
+
+.hero.quiz-in-hero .quiz-ai-button span,
+.quiz-ai-button span,
+.hero.quiz-in-hero .quiz-ai-button strong,
+.quiz-ai-button strong {
+  display: inline !important;
+  max-width: none !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+}
+
+.hero.quiz-in-hero .quiz-ai-button strong {
+  font-weight: 750 !important;
+}
+
+.hero.quiz-in-hero .quiz-ai-button:hover,
+.hero.quiz-in-hero .quiz-ai-button:focus-visible {
+  transform: translateY(-1px) !important;
+  border-color: rgba(15, 23, 40, .28) !important;
+  background: #F7F5F1 !important;
+  color: var(--dui-text) !important;
+}
+
+.hero.quiz-in-hero .quiz-title {
+  max-width: 880px !important;
+  margin: clamp(28px, 4vw, 56px) auto 0 !important;
+  font-size: clamp(36px, 5vw, 76px) !important;
+  line-height: .98 !important;
+}
+
+.hero.quiz-in-hero .quiz-subtitle,
+.hero.quiz-in-hero .quiz-card-body > h3,
+.result-desc {
+  max-width: 720px !important;
+  margin-inline: auto !important;
+  color: var(--dui-muted) !important;
+  font-size: clamp(15px, 1.5vw, 18px) !important;
+}
+
+.hero.quiz-in-hero .quiz-option,
+.quiz-option,
+.business-size,
+.coverage-maplibre-action,
+.coverage-maplibre-themes button,
+.coverage-maplibre-network,
+.coverage-maplibre-operator,
+.coverage-operator,
+.quiz-refinement-option {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  background: var(--dui-surface) !important;
+  color: var(--dui-text) !important;
+  box-shadow: none !important;
+  transition: transform var(--dui-fast), background-color var(--dui-fast), border-color var(--dui-fast), color var(--dui-fast);
+}
+
+.hero.quiz-in-hero .quiz-option:hover,
+.quiz-option:hover,
+.business-size:hover,
+.coverage-maplibre-action:hover,
+.coverage-maplibre-themes button:hover,
+.coverage-maplibre-network:hover,
+.coverage-maplibre-operator:hover,
+.coverage-operator:hover,
+.quiz-refinement-option:hover {
+  transform: translateY(-1px) !important;
+  border-color: var(--dui-line-strong) !important;
+  background: #F7F5F1 !important;
+}
+
+.hero.quiz-in-hero .quiz-option.active,
+.hero.quiz-in-hero .quiz-option.selected,
+.quiz-option.active,
+.quiz-option.selected,
+.business-size.is-active,
+.coverage-maplibre-action.is-active,
+.coverage-maplibre-themes button.is-active,
+.coverage-maplibre-network.is-active,
+.coverage-maplibre-operator.is-active,
+.coverage-operator.is-active {
+  border-color: var(--dui-accent) !important;
+  background: rgba(201, 121, 43, .1) !important;
+  color: var(--dui-text) !important;
+  box-shadow: inset 0 0 0 1px var(--dui-accent) !important;
+}
+
+.hero.quiz-in-hero .offers-recommendation-grid {
+  gap: 20px !important;
+}
+
+.hero.quiz-in-hero .offers-recommendation-grid.offers-recommendation-grid--featured {
+  grid-template-columns: repeat(2, minmax(0, 340px)) minmax(280px, 340px) !important;
+  max-width: 1100px !important;
+}
+
+.hero.quiz-in-hero .offers-recommendation-grid.offers-recommendation-grid--expanded {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(280px, 330px) !important;
+  max-width: 1280px !important;
+}
+
+.hero.quiz-in-hero .offers-recommendation-grid > .quiz-refinement-panel {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  align-self: start !important;
+}
+
+.hero.quiz-in-hero .offers-recommendation-grid--expanded > .quiz-refinement-panel {
+  grid-column: 4 !important;
+}
+
+.hero.quiz-in-hero .offers-recommendation-grid > .recommendation-results-toggle {
+  grid-column: 1 / 3 !important;
+}
+
+.quiz-refinement-panel {
+  padding: 22px !important;
+}
+
+.quiz-refinement-copy h4 {
+  margin: 0 0 10px !important;
+  font-size: clamp(24px, 2.2vw, 34px) !important;
+  line-height: 1.02 !important;
+}
+
+.quiz-refinement-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+/* Chat */
+.dealett-chat {
+  right: 22px !important;
+  bottom: 22px !important;
+  z-index: 1100 !important;
+}
+
+.dealett-chat-toggle {
+  width: auto !important;
+  min-width: 154px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  border: 1px solid var(--dui-line-strong) !important;
+  border-radius: var(--dui-radius) !important;
+  padding: 0 16px !important;
+  background: var(--dui-bg-deep) !important;
+  color: #fff !important;
+  box-shadow: var(--dui-shadow-soft) !important;
+}
+
+.dealett-chat-toggle::before,
+.dealett-chat-toggle::after,
+.dealett-chat-toggle__sparkles,
+.dealett-chat-toggle__divider,
+.dealett-chat-toggle__bot,
+.dealett-chat-toggle__arrow {
+  display: none !important;
+}
+
+.dealett-chat-toggle__label {
+  display: block !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+}
+
+.dealett-chat-toggle__label::after {
+  content: " AI";
+}
+
+.dealett-chat-panel {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  background: var(--dui-surface) !important;
+  box-shadow: var(--dui-shadow) !important;
+}
+
+.dealett-chat-header,
+.dealett-chat-composer {
+  border-color: var(--dui-line) !important;
+  background: #FBFAF8 !important;
+}
+
+.dealett-chat-bubble {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  box-shadow: none !important;
+}
+
+.dealett-chat-message--user .dealett-chat-bubble {
+  background: var(--dui-bg-deep) !important;
+  color: #fff !important;
+}
+
+/* Checkout, account, legal, maps */
+.checkout-layout {
+  background: var(--dui-bg) !important;
+}
+
+.checkout-summary-panel,
+.checkout-main-column,
+.checkout-progress,
+.cart-drawer-panel,
+.bredband-modal-card,
+.coverage-modal-card,
+.coverage-map-panel,
+.coverage-maplibre-shell {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  background: var(--dui-surface) !important;
+  box-shadow: var(--dui-shadow-soft) !important;
+}
+
+.legal-document-shell {
+  max-width: 920px !important;
+  padding: clamp(28px, 5vw, 64px) !important;
+}
+
+.legal-document-header h1 {
+  margin: 12px 0 !important;
+  font-size: clamp(40px, 5vw, 72px) !important;
+  line-height: .98 !important;
+}
+
+.legal-document-content h2 {
+  font-family: var(--dui-font-heading) !important;
+  font-weight: 600 !important;
+}
+
+.coverage-maplibre-shell,
+.coverage-leaflet-map,
+.coverage-maplibre-canvas {
+  overflow: hidden !important;
+}
+
+.coverage-maplibre-copy,
+.coverage-maplibre-search,
+.coverage-maplibre-actions,
+.coverage-maplibre-themes,
+.coverage-maplibre-operators,
+.coverage-maplibre-networks,
+.coverage-maplibre-note {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  background: rgba(255, 255, 255, .88) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(14px);
+}
+
+/* Footer */
+.footer {
+  border: 0 !important;
+  background: var(--dui-bg-deep) !important;
+  color: #fff !important;
+}
+
+.footer-inner {
+  width: var(--dui-shell) !important;
+  max-width: 1480px !important;
+  margin-inline: auto !important;
+  padding-block: clamp(44px, 6vw, 80px) !important;
+}
+
+.footer a,
+.footer p,
+.footer small {
+  color: rgba(255, 255, 255, .72) !important;
+}
+
+.footer-brand-link,
+.footer-links p,
+.footer-contact-title {
+  color: #fff !important;
+  font-family: var(--dui-font-heading) !important;
+}
+
+.footer-social-plate {
+  border: 1px solid rgba(255, 255, 255, .1) !important;
+  border-radius: var(--dui-radius) !important;
+  background: rgba(255, 255, 255, .04) !important;
+  box-shadow: none !important;
+}
+
+.footer-social-icon {
+  border-radius: var(--dui-radius) !important;
+  background: rgba(201, 121, 43, .16) !important;
+  color: #fff !important;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  :root {
+    --dui-page-x: 24px;
+  }
+
+  :where(
+    .shop-hero-image,
+    .business-hero-image,
+    .about-hero-image,
+    .support-hero-image,
+    .bredband-hero-image,
+    .coverage-hero__img
+  ) {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: clamp(260px, 42vw, 420px) !important;
+    margin-top: 34px !important;
+  }
+
+  .hero.quiz-in-hero .offers-recommendation-grid.offers-recommendation-grid--featured,
+  .hero.quiz-in-hero .offers-recommendation-grid.offers-recommendation-grid--expanded {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    max-width: 760px !important;
+  }
+
+  .hero.quiz-in-hero .offers-recommendation-grid > .quiz-refinement-panel,
+  .hero.quiz-in-hero .offers-recommendation-grid--expanded > .quiz-refinement-panel {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+
+  .hero.quiz-in-hero .offers-recommendation-grid > .recommendation-results-toggle {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --dui-page-x: 18px;
+    --dui-section-y: 52px;
+  }
+
+  .site-header {
+    position: sticky !important;
+  }
+
+  .header-inner {
+    min-height: 68px !important;
+  }
+
+  .brand-logo-crop {
+    width: 162px !important;
+  }
+
+  .site-nav {
+    border: 1px solid rgba(255, 255, 255, .1) !important;
+    border-radius: var(--dui-radius) !important;
+    background: rgba(15, 23, 40, .98) !important;
+  }
+
+  :where(
+    .hero,
+    .shop-hero,
+    .business-hero,
+    .about-hero,
+    .support-hero,
+    .bredband-hero,
+    .coverage-hero,
+    .package-hero,
+    .account-hero
+  ) {
+    min-height: auto !important;
+    padding-block: 54px !important;
+  }
+
+  :where(
+    .shop-hero h1,
+    .business-hero h1,
+    .about-hero h1,
+    .support-hero h1,
+    .bredband-hero h1,
+    .coverage-hero h1,
+    .package-hero h1,
+    .account-hero h1,
+    .hero h1
+  ) {
+    font-size: clamp(44px, 13vw, 66px) !important;
+  }
+
+  .hero-showcase {
+    width: 100% !important;
+    border-inline: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .hero-offer-tile {
+    min-height: 360px !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--dui-line) !important;
+  }
+
+  .hero.quiz-in-hero .quiz-card {
+    padding: 22px 18px !important;
+  }
+
+  .hero.quiz-in-hero .quiz-card-toolbar {
+    display: grid !important;
+    gap: 14px !important;
+  }
+
+  .hero.quiz-in-hero .quiz-progress-row {
+    justify-items: start !important;
+  }
+
+  .hero.quiz-in-hero .quiz-ai-actions {
+    position: static !important;
+    justify-content: flex-start !important;
+    margin-top: 8px !important;
+  }
+
+  .hero.quiz-in-hero .quiz-ai-button {
+    width: 100% !important;
+    max-width: none !important;
+    justify-content: center !important;
+  }
+
+  .hero.quiz-in-hero .quiz-title {
+    font-size: clamp(34px, 10vw, 52px) !important;
+  }
+
+  .hero.quiz-in-hero .offers-recommendation-grid.offers-recommendation-grid--featured,
+  .hero.quiz-in-hero .offers-recommendation-grid.offers-recommendation-grid--expanded {
+    grid-template-columns: 1fr !important;
+    max-width: 390px !important;
+  }
+
+  .hero.quiz-in-hero .offers-recommendation-grid > .quiz-refinement-panel {
+    order: 0 !important;
+  }
+
+  .dealett-chat {
+    right: 12px !important;
+    bottom: 12px !important;
+  }
+
+  .dealett-chat-toggle {
+    min-width: 124px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .dealett-chat-panel {
+    right: -4px !important;
+    bottom: 58px !important;
+    width: calc(100vw - 24px) !important;
+    max-height: calc(100vh - 92px) !important;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Final legacy-page enforcement: stronger than old page-specific !important rules. */
+html body .site-header {
+  border-bottom: 1px solid rgba(255, 255, 255, .08) !important;
+  background: rgba(15, 23, 40, .96) !important;
+  color: #fff !important;
+}
+
+html body .site-header .header-inner {
+  width: var(--dui-shell) !important;
+  max-width: 1480px !important;
+  min-height: 76px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+html body .site-header > .header-inner,
+html body:has(.home-intro) .site-header .header-inner,
+html body.mobile-plans-page .site-header .header-inner,
+html body.family-page .site-header .header-inner,
+html body.business-page .site-header .header-inner,
+html body.bredband-page .site-header .header-inner,
+html body.about-page .site-header .header-inner,
+html body.support-page .site-header .header-inner,
+html body.jamfor-page .site-header .header-inner,
+html body.package-page .site-header .header-inner,
+html body.account-page .site-header .header-inner,
+html body.legal-document-page .site-header .header-inner {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body .site-header .brand,
+html body .site-header .brand-logo-crop {
+  position: static !important;
+  display: inline-flex !important;
+  width: 178px !important;
+  height: 36px !important;
+  overflow: visible !important;
+  align-items: center !important;
+}
+
+html body .site-header .brand::after {
+  content: "DEALETT" !important;
+  color: #fff !important;
+  font-family: var(--dui-font-heading) !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: .22em !important;
+}
+
+html body .site-header .brand-logo-crop {
+  display: none !important;
+}
+
+html body .site-header .brand-logo-crop img {
+  position: static !important;
+  width: 178px !important;
+  height: 36px !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  transform: none !important;
+  filter: brightness(0) invert(1) !important;
+}
+
+html body .site-header .nav-link,
+html body .site-header .header-topbar-link,
+html body .site-header .language-switcher select {
+  color: rgba(255, 255, 255, .78) !important;
+}
+
+html body .site-header .nav-link:hover,
+html body .site-header .nav-link.is-active,
+html body .site-header .header-topbar-link:hover {
+  color: #fff !important;
+}
+
+html body.mobile-plans-page .shop-hero,
+html body.family-page .shop-hero,
+html body.business-page .business-hero,
+html body.bredband-page .bredband-hero,
+html body.about-page .about-hero,
+html body.support-page .support-hero,
+html body.jamfor-page .coverage-hero,
+html body.package-page .package-hero,
+html body.account-page .account-hero {
+  min-height: min(760px, calc(100vh - 76px)) !important;
+  padding: clamp(72px, 9vw, 132px) var(--dui-page-x) clamp(54px, 7vw, 96px) !important;
+  background: var(--dui-bg) !important;
+  color: var(--dui-text) !important;
+  overflow: hidden !important;
+}
+
+html body.mobile-plans-page .shop-hero::before,
+html body.mobile-plans-page .shop-hero::after,
+html body.family-page .shop-hero::before,
+html body.family-page .shop-hero::after,
+html body.business-page .business-hero::before,
+html body.business-page .business-hero::after,
+html body.bredband-page .bredband-hero::before,
+html body.bredband-page .bredband-hero::after,
+html body.about-page .about-hero::before,
+html body.about-page .about-hero::after,
+html body.support-page .support-hero::before,
+html body.support-page .support-hero::after,
+html body.jamfor-page .coverage-hero::before,
+html body.jamfor-page .coverage-hero::after,
+html body.package-page .package-hero::before,
+html body.package-page .package-hero::after,
+html body.account-page .account-hero::before,
+html body.account-page .account-hero::after {
+  display: none !important;
+  content: none !important;
+}
+
+html body.mobile-plans-page .shop-hero-content,
+html body.family-page .shop-hero-content,
+html body.business-page .business-hero-inner,
+html body.bredband-page .bredband-hero-inner,
+html body.about-page .about-hero-inner,
+html body.support-page .support-hero-inner,
+html body.jamfor-page .coverage-hero__inner,
+html body.account-page .account-shell {
+  position: relative !important;
+  z-index: 1 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 680px) minmax(300px, 1fr) !important;
+  gap: clamp(36px, 6vw, 96px) !important;
+  align-items: center !important;
+  width: var(--dui-shell) !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+html body.mobile-plans-page .shop-hero-content,
+html body.family-page .shop-hero-content {
+  display: block !important;
+  max-width: 680px !important;
+  margin: 0 auto 0 0 !important;
+}
+
+html body.business-page .business-hero-copy,
+html body.bredband-page .bredband-hero-copy,
+html body.about-page .about-hero-copy,
+html body.support-page .support-hero-copy,
+html body.jamfor-page .coverage-hero__copy,
+html body.account-page .account-hero-copy {
+  position: relative !important;
+  inset: auto !important;
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  max-width: 680px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  text-align: left !important;
+}
+
+html body.business-page .business-hero-panel,
+html body.about-page .about-hero-side,
+html body.support-page .support-hero-panel,
+html body.jamfor-page .coverage-hero__panel,
+html body.bredband-page .bredband-search-panel {
+  position: relative !important;
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: center !important;
+  max-width: 440px !important;
+  margin: 0 0 0 auto !important;
+  transform: none !important;
+}
+
+html body.mobile-plans-page .shop-hero-image,
+html body.family-page .shop-hero-image,
+html body.business-page .business-hero-image,
+html body.bredband-page .bredband-hero-image,
+html body.about-page .about-hero-image,
+html body.support-page .support-hero-image,
+html body.jamfor-page .coverage-hero__img {
+  position: absolute !important;
+  inset: clamp(118px, 14vw, 168px) var(--dui-page-x) auto auto !important;
+  z-index: 0 !important;
+  width: min(42vw, 560px) !important;
+  height: min(46vh, 480px) !important;
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  object-fit: cover !important;
+  opacity: .78 !important;
+  filter: saturate(.78) contrast(.95) !important;
+  transform: none !important;
+}
+
+html body.mobile-plans-page .shop-hero h1,
+html body.family-page .shop-hero h1,
+html body.business-page .business-hero h1,
+html body.bredband-page .bredband-hero h1,
+html body.about-page .about-hero h1,
+html body.support-page .support-hero h1,
+html body.jamfor-page .coverage-hero h1,
+html body.package-page .package-hero h1,
+html body.account-page .account-hero h1,
+html body .home-intro h1 {
+  position: static !important;
+  width: auto !important;
+  max-width: 760px !important;
+  margin: 18px 0 20px !important;
+  color: var(--dui-text) !important;
+  font-family: var(--dui-font-heading) !important;
+  font-size: clamp(44px, 6vw, 84px) !important;
+  font-weight: 600 !important;
+  line-height: .98 !important;
+  text-align: left !important;
+  text-shadow: none !important;
+}
+
+html body .hero-bottom h1,
+html body:has(.home-intro) .hero-bottom h1 {
+  position: static !important;
+  width: min(100%, 920px) !important;
+  max-width: 920px !important;
+  color: var(--dui-text) !important;
+  font-family: var(--dui-font-heading) !important;
+  font-size: clamp(52px, 7vw, 112px) !important;
+  font-weight: 600 !important;
+  line-height: .92 !important;
+  text-align: left !important;
+}
+
+html body .hero-bottom,
+html body:has(.home-intro) .hero-bottom {
+  display: grid !important;
+  grid-template-columns: minmax(0, 920px) minmax(260px, 1fr) !important;
+  gap: clamp(24px, 4vw, 72px) !important;
+  align-items: end !important;
+  width: var(--dui-shell) !important;
+  max-width: 1480px !important;
+  margin: 0 auto !important;
+  padding: clamp(44px, 5vw, 72px) 0 !important;
+}
+
+html body .hero-bottom-copy,
+html body:has(.home-intro) .hero-bottom-copy {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 920px !important;
+}
+
+html body .hero-bottom-actions,
+html body:has(.home-intro) .hero-bottom-actions {
+  position: static !important;
+  inset: auto !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  gap: 14px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  transform: none !important;
+}
+
+html body .hero-bottom .button,
+html body:has(.home-intro) .hero-bottom .button {
+  max-width: 100% !important;
+  border-radius: var(--dui-radius) !important;
+}
+
+html body .hero-proof,
+html body:has(.home-intro) .hero-proof {
+  position: static !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  transform: none !important;
+}
+
+html body .hero-bottom h1 em,
+html body:has(.home-intro) .hero-bottom h1 em {
+  color: var(--dui-bg-deep) !important;
+  font-family: inherit !important;
+  font-style: normal !important;
+  text-decoration: none !important;
+}
+
+html body .footer .footer-inner {
+  overflow: hidden !important;
+}
+
+html body .footer .footer-main {
+  display: grid !important;
+  grid-template-columns: minmax(220px, .85fr) minmax(420px, 1.45fr) minmax(220px, .7fr) !important;
+  gap: clamp(28px, 4vw, 64px) !important;
+  align-items: start !important;
+}
+
+html body .footer .footer-contact {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+html body.mobile-plans-page .shop-hero-lead,
+html body.family-page .shop-hero-lead,
+html body.business-page .business-hero-copy p,
+html body.bredband-page .bredband-hero-copy p,
+html body.about-page .about-hero-copy p,
+html body.support-page .support-hero-copy p,
+html body.jamfor-page .coverage-hero__copy p,
+html body.account-page .account-hero-copy p {
+  max-width: 650px !important;
+  color: var(--dui-muted) !important;
+  font-size: clamp(17px, 1.55vw, 22px) !important;
+  line-height: 1.45 !important;
+  text-shadow: none !important;
+}
+
+html body .business-hero-points li,
+html body .bredband-trust-row li,
+html body .about-hero-points li,
+html body .support-hero-tags li {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--dui-radius) !important;
+  background: rgba(255, 255, 255, .78) !important;
+  color: var(--dui-text) !important;
+}
+
+html body .business-hero-points i,
+html body .bredband-trust-row i,
+html body .about-hero-points i,
+html body .support-hero-tags i {
+  color: var(--dui-accent) !important;
+}
+
+html body .primary-btn,
+html body .full-btn,
+html body .adeala-btn,
+html body .business-action,
+html body .business-plan-btn,
+html body .support-btn,
+html body .bredband-primary-btn,
+html body .bredband-secondary-btn,
+html body .bredband-search-btn,
+html body .bredband-choose-btn,
+html body .coverage-btn,
+html body .coverage-soft-btn,
+html body .quiz-next-button,
+html body .quiz-ai-button,
+html body .offer-card__cta,
+html body .recommendation-results-toggle,
+html body .offer-answer-edit,
+html body .compare-open-button,
+html body .compare-clear-button,
+html body .dealett-chat-toggle,
+html body .dealett-chat-send,
+html body .dealett-chat-chip,
+html body .dealett-chat-widget-button,
+html body .dealett-chat-feedback__button {
+  border-radius: var(--dui-radius) !important;
+  box-shadow: none !important;
+}
+
+html body .business-action--primary,
+html body .support-btn-primary,
+html body .bredband-primary-btn,
+html body .bredband-search-btn,
+html body .coverage-btn--primary,
+html body .primary-btn,
+html body .quiz-next-button,
+html body .offer-card__cta {
+  border-color: var(--dui-bg-deep) !important;
+  background: var(--dui-bg-deep) !important;
+  color: #fff !important;
+}
+
+html body .business-action--secondary,
+html body .support-btn-light,
+html body .support-btn-ghost,
+html body .bredband-secondary-btn,
+html body .coverage-btn--ghost,
+html body .account-ghost-btn,
+html body .recommendation-results-toggle {
+  border-color: var(--dui-line-strong) !important;
+  background: var(--dui-surface) !important;
+  color: var(--dui-text) !important;
+}
+
+html body .dealett-chat-toggle {
+  gap: 8px !important;
+  min-width: 136px !important;
+  height: 48px !important;
+  padding: 0 16px !important;
+}
+
+html body .dealett-chat-toggle::after {
+  content: "Dealett AI" !important;
+  position: static !important;
+  display: inline !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+html body .dealett-chat-toggle i {
+  display: inline-block !important;
+  color: #fff !important;
+  font-size: 14px !important;
+}
+
+@media (max-width: 760px) {
+  html body .site-header .header-inner {
+    min-height: 68px !important;
+  }
+
+  html body .site-header .brand,
+  html body .site-header .brand-logo-crop {
+    width: auto !important;
+    height: 32px !important;
+  }
+
+  html body .site-header .brand::after {
+    font-size: 16px !important;
+  }
+
+  html body .site-header .brand-logo-crop img {
+    width: 154px !important;
+    height: 32px !important;
+  }
+
+  html body.mobile-plans-page .shop-hero,
+  html body.family-page .shop-hero,
+  html body.business-page .business-hero,
+  html body.bredband-page .bredband-hero,
+  html body.about-page .about-hero,
+  html body.support-page .support-hero,
+  html body.jamfor-page .coverage-hero,
+  html body.package-page .package-hero,
+  html body.account-page .account-hero {
+    min-height: auto !important;
+    padding-block: 52px !important;
+  }
+
+  html body.mobile-plans-page .shop-hero-content,
+  html body.family-page .shop-hero-content,
+  html body.business-page .business-hero-inner,
+  html body.bredband-page .bredband-hero-inner,
+  html body.about-page .about-hero-inner,
+  html body.support-page .support-hero-inner,
+  html body.jamfor-page .coverage-hero__inner,
+  html body.account-page .account-shell {
+    display: block !important;
+    width: var(--dui-shell) !important;
+  }
+
+  html body.mobile-plans-page .shop-hero-image,
+  html body.family-page .shop-hero-image,
+  html body.business-page .business-hero-image,
+  html body.bredband-page .bredband-hero-image,
+  html body.about-page .about-hero-image,
+  html body.support-page .support-hero-image,
+  html body.jamfor-page .coverage-hero__img {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: clamp(240px, 58vw, 330px) !important;
+    margin: 0 0 34px !important;
+  }
+
+  html body.mobile-plans-page .shop-hero h1,
+  html body.family-page .shop-hero h1,
+  html body.business-page .business-hero h1,
+  html body.bredband-page .bredband-hero h1,
+  html body.about-page .about-hero h1,
+  html body.support-page .support-hero h1,
+  html body.jamfor-page .coverage-hero h1,
+  html body.package-page .package-hero h1,
+  html body.account-page .account-hero h1,
+  html body .hero-bottom h1 {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: clamp(42px, 12vw, 58px) !important;
+    line-height: .98 !important;
+  }
+
+  html body .hero-bottom,
+  html body:has(.home-intro) .hero-bottom {
+    display: block !important;
+    width: calc(100% - 36px) !important;
+    padding: 44px 0 56px !important;
+  }
+
+  html body .hero-bottom-copy,
+  html body:has(.home-intro) .hero-bottom-copy {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  html body .hero-bottom-actions,
+  html body:has(.home-intro) .hero-bottom-actions,
+  html body .hero-proof,
+  html body:has(.home-intro) .hero-proof {
+    justify-content: flex-start !important;
+  }
+
+  html body .dealett-chat-toggle {
+    min-width: 118px !important;
+    height: 44px !important;
+  }
+
+  html body .footer .footer-main {
+    grid-template-columns: 1fr !important;
+  }
+}

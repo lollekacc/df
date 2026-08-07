@@ -581,6 +581,27 @@ img {
   transform: none;
 }
 
+.dealett-chat-offer-card .offer-card__head {
+  min-height: 86px;
+  margin-top: 10px;
+}
+
+.dealett-chat-offer-card .offer-card__logo,
+.dealett-chat-offer-card .offer-card__logo--telenor,
+.dealett-chat-offer-card .offer-card__logo--tre {
+  position: relative;
+  inset: auto;
+  width: 82%;
+  max-width: 180px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.dealett-chat-offer-card .offer-card__gift-badge {
+  width: 66px;
+  height: 66px;
+}
+
 .dealett-chat-offer-title {
   margin: 10px 0 0;
   color: #0D1726;
@@ -7952,6 +7973,48 @@ body.cart-drawer-open {
   object-fit: cover;
 }
 
+.offer-card__gift-badge {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: 4;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 74px;
+  height: 74px;
+  border: 2px solid #0D1726;
+  border-radius: 999px;
+  background: #C96F24;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+  box-shadow: 0 8px 18px rgba(13, 23, 38, 0.18);
+  transform: rotate(3deg);
+}
+
+.offer-card__gift-badge strong,
+.offer-card__gift-badge span {
+  display: block;
+  margin: 0;
+  color: inherit;
+  line-height: 1;
+}
+
+.offer-card__gift-badge strong {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.offer-card__gift-badge span {
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
 .offer-card__desc {
   display: none;
   margin: 10px 0 0;
@@ -8819,6 +8882,25 @@ body.compare-modal-open {
     width: 100%;
   }
 
+  .offer-card__gift-badge {
+    width: 64px;
+    height: 64px;
+    top: 7px;
+    right: 8px;
+  }
+
+  .offer-card__gift-badge strong {
+    font-size: 14px;
+  }
+
+  .offer-card__gift-badge span {
+    font-size: 8px;
+  }
+
+  .offer-card__reason {
+    padding-right: 90px;
+  }
+
   .newsletter-panel {
     grid-template-columns: 1fr;
     width: calc(100% - 32px);
@@ -9531,45 +9613,57 @@ body {
 }
 /* Dealett AI handoff buttons inside the adaptive quiz */
 .quiz-ai-actions {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 8;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
   justify-content: center;
-  margin-top: auto;
-  padding-top: 18px;
 }
 
 .quiz-ai-button {
   display: inline-flex;
+  width: 112px;
+  height: 112px;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
-  padding: 10px 16px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
   border: 1px solid #111;
-  border-radius: 999px;
-  background: #fff;
-  color: #111;
-  font: 700 14px/1.1 Arial, sans-serif;
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, .18);
+  font: 800 11px/1.05 Arial, sans-serif;
   cursor: pointer;
-  transition: transform .2s ease, background-color .2s ease, color .2s ease;
+  text-align: center;
+  transition: transform .2s ease, background-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.quiz-ai-button span {
+  display: block;
+  max-width: 76px;
+  font-size: 10px;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.quiz-ai-button strong {
+  display: block;
+  max-width: 76px;
+  font-size: 18px;
+  line-height: .95;
+  letter-spacing: 0;
 }
 
 .quiz-ai-button:hover,
 .quiz-ai-button:focus-visible {
-  transform: translateY(-1px);
-  background: #111;
-  color: #fff;
-}
-
-.quiz-ai-button--primary {
-  background: #111;
-  color: #fff;
-}
-
-.quiz-ai-button--primary:hover,
-.quiz-ai-button--primary:focus-visible {
+  transform: translate(-2px, -2px);
   background: var(--accent, #da6f21);
   color: #111;
+  box-shadow: 7px 7px 0 rgba(0, 0, 0, .22);
 }
 
 /* Pictureless coded-offer hero */

@@ -914,6 +914,66 @@ textarea:focus,
 .hero.quiz-in-hero .offers-recommendation-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
 .hero.quiz-in-hero .offer-card { border:var(--rd-line); box-shadow:none; }
 .hero.quiz-in-hero .offer-card:hover { box-shadow:7px 7px 0 #111; }
+.hero.quiz-in-hero .quiz-refinement-panel {
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);
+  gap:18px;
+  align-items:start;
+  padding:22px;
+  border:var(--rd-line);
+  border-radius:18px;
+  background:#fff;
+}
+.hero.quiz-in-hero .quiz-refinement-kicker {
+  margin:0 0 8px;
+  color:var(--rd-muted);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.hero.quiz-in-hero .quiz-refinement-copy h4 {
+  margin:0 0 10px;
+  color:#111;
+  font:800 28px/1 Arial,sans-serif;
+  letter-spacing:-.03em;
+}
+.hero.quiz-in-hero .quiz-refinement-copy p:last-child {
+  max-width:760px;
+  margin:0;
+  color:var(--rd-muted);
+  line-height:1.5;
+}
+.hero.quiz-in-hero .quiz-refinement-options { display:grid; gap:8px; }
+.hero.quiz-in-hero .quiz-refinement-option {
+  display:flex;
+  min-height:48px;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border:var(--rd-line);
+  border-radius:12px;
+  background:var(--rd-paper);
+  color:#111;
+  font-weight:800;
+}
+.hero.quiz-in-hero .quiz-refinement-option input { width:18px; height:18px; accent-color:#111; }
+.hero.quiz-in-hero .quiz-refinement-actions {
+  grid-column:1/-1;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+.hero.quiz-in-hero .quiz-refinement-link {
+  min-height:46px;
+  border:0;
+  border-bottom:1px solid #111;
+  background:transparent;
+  color:#111;
+  font-weight:800;
+}
 
 /* Chat launcher and panel are part of the same interaction system. */
 .dealett-chat { right:18px; bottom:18px; }
@@ -1001,6 +1061,8 @@ textarea:focus,
   .hero.quiz-in-hero .operator-choice-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .hero.quiz-in-hero .operator-binding-controls { grid-template-columns:1fr; }
   .hero.quiz-in-hero .offers-recommendation-grid { grid-template-columns:1fr; }
+  .hero.quiz-in-hero .quiz-refinement-panel { grid-template-columns:1fr; padding:16px; }
+  .hero.quiz-in-hero .quiz-refinement-copy h4 { font-size:23px; }
   .dealett-chat-panel { right:-6px; bottom:78px; width:calc(100vw - 24px); max-height:calc(100vh - 108px); border-radius:20px; box-shadow:6px 6px 0 #111; }
 }
 

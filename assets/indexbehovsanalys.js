@@ -29,7 +29,10 @@ function createIndexQuiz() {
     streamingServices: [],
     streamingMonthlyCosts: {},
     internationalTravel: null,
-    internationalUsage: null
+    internationalUsage: null,
+    resultMode: "initial",
+    selectedRefinements: [],
+    refinementQueue: []
   };
 
   const dom = {
@@ -58,6 +61,13 @@ function createIndexQuiz() {
   const steps = Array.from(document.querySelectorAll("#quiz-card-stack .quiz-step-card"));
   const questionStepCount = Math.max(steps.length - 1, 0);
   const resultStepIndex = Math.max(steps.length - 1, 0);
+  const dataStepIndex = 2;
+  const priceStepIndex = 6;
+  const refinementStepIndexes = {
+    streaming: 3,
+    travel: 4,
+    internationalUsage: 5
+  };
   const sectionWrapperAnchor = document.createComment("quiz section mount");
   const selectionFeedbackMs = 220;
   const giftCardPlaceholder = "Presentkort: XXX kr";
@@ -137,10 +147,7 @@ function createIndexQuiz() {
       const actions = document.createElement("div");
       actions.className = "quiz-ai-actions";
       actions.dataset.quizAiActions = "";
-      actions.innerHTML = [
-        '<button type="button" class="quiz-ai-button" data-quiz-ai-action="ask">Fråga Dealett AI</button>',
-        '<button type="button" class="quiz-ai-button quiz-ai-button--primary" data-quiz-ai-action="continue">Fortsätt härifrån med Dealett AI</button>',
-      ].join("");
+      actions.innerHTML = '<button type="button" class="quiz-ai-button" data-quiz-ai-action="continue" aria-label="Fortsätt härifrån med Dealett AI"><span>Fortsätt härifrån med</span><strong>Dealett AI</strong></button>';
       card.append(actions);
     });
   }
@@ -149,6 +156,21 @@ function createIndexQuiz() {
     const aiButton = event.target.closest("[data-quiz-ai-action]");
     if (aiButton) {
       handleQuizAiClick(aiButton);
+      return;
+    }
+
+    const refinementStart = event.target.closest("[data-refinement-start]");
+    if (refinementStart) {
+      handleRefinementStart();
+      return;
+    }
+
+    const refinementSkip = event.target.closest("[data-refinement-skip]");
+    if (refinementSkip) {
+      state.resultMode = "initial";
+      state.selectedRefinements = [];
+      state.refinementQueue = [];
+      renderRecommendations();
       return;
     }
 
@@ -213,11 +235,8 @@ function createIndexQuiz() {
   }
 
   function handleQuizAiClick(button) {
-    const action = button.dataset.quizAiAction || "ask";
     const context = buildQuizChatContext();
-    const message = action === "continue"
-      ? "Fortsätt härifrån med Dealett AI"
-      : "Fråga Dealett AI";
+    const message = "Fortsätt härifrån med Dealett AI";
 
     if (window.DealettChat?.continueFromQuiz) {
       window.DealettChat.continueFromQuiz({
@@ -579,9 +598,7 @@ function createIndexQuiz() {
         });
         break;
       case 6:
-        handleSingleChoiceStep(step, "[data-price]", option, () => {
-          state.price = option.dataset.price || null;
-        });
+        handlePriceStep(step, option);
         break;
       default:
         break;
@@ -601,6 +618,9 @@ function createIndexQuiz() {
     state.customerStatus = "all";
     state.existingCustomers = persons;
     state.newCustomers = 0;
+    state.resultMode = "initial";
+    state.selectedRefinements = [];
+    state.refinementQueue = [];
 
     setSelected(step, "[data-persons]", option);
     resetCustomerStep();
@@ -661,7 +681,7 @@ function createIndexQuiz() {
       resizePersonDetailArrays(state.persons || 1);
       dom.newCustomersField?.classList.add("hidden");
       hideOperatorQuestion();
-      showStepAfterSelection(2);
+      showStepAfterSelection(dataStepIndex);
       return;
     }
 
@@ -837,15 +857,21 @@ function createIndexQuiz() {
   function maybeAdvanceFromOperatorQuestion() {
     if (!updateOperatorContinueState() || state.currentStep !== 1) return;
 
-    showStepAfterSelection(2);
+    showStepAfterSelection(dataStepIndex);
+  }
+
+  function handlePriceStep(step, option) {
+    state.price = option.dataset.price || null;
+    state.resultMode = state.selectedRefinements.length ? "refined" : "initial";
+    setSelected(step, "[data-price]", option);
+    showStepAfterSelection(resultStepIndex);
   }
 
   function handleSingleChoiceStep(step, selector, option, applyState) {
     applyState();
     setSelected(step, selector, option);
 
-    const nextIndex = Math.min(state.currentStep + 1, resultStepIndex);
-    showStepAfterSelection(nextIndex);
+    showStepAfterSelection(getNextStepAfterCurrent());
   }
 
   function handleTravelStep(step, option) {
@@ -862,7 +888,7 @@ function createIndexQuiz() {
       button.classList.remove("selected", "active");
       button.setAttribute("aria-pressed", "false");
     });
-    showStepAfterSelection(6);
+    showStepAfterSelection(getNextStepAfterCurrent());
   }
 
   function isInternationalUsageRelevant() {
@@ -870,7 +896,13 @@ function createIndexQuiz() {
   }
 
   function getPreviousStepIndex(index) {
-    if (index === 6 && !isInternationalUsageRelevant()) return 4;
+    if (index === resultStepIndex) {
+      return state.resultMode === "refined" && state.selectedRefinements.length
+        ? getLastAnsweredRefinementStep()
+        : priceStepIndex;
+    }
+    if (index === priceStepIndex) return dataStepIndex;
+    if (index === refinementStepIndexes.internationalUsage) return refinementStepIndexes.travel;
     return Math.max(index - 1, 0);
   }
 
@@ -896,7 +928,59 @@ function createIndexQuiz() {
     }
     step.querySelectorAll("[data-streaming-cost]").forEach(input => input.setCustomValidity(""));
 
-    showStepAfterSelection(Math.min(state.currentStep + 1, resultStepIndex));
+    showStepAfterSelection(getNextStepAfterCurrent());
+  }
+
+  function getSelectedRefinementKeys() {
+    return Array.from(dom.wrapper.querySelectorAll("[data-refinement-question]:checked"))
+      .map(input => input.value)
+      .filter(Boolean);
+  }
+
+  function handleRefinementStart() {
+    const selected = getSelectedRefinementKeys();
+    if (!selected.length) {
+      dom.wrapper.querySelector("[data-refinement-question]")?.focus();
+      return;
+    }
+
+    state.resultMode = "refined";
+    state.selectedRefinements = selected;
+    state.refinementQueue = buildRefinementQueue(selected);
+
+    const firstStep = state.refinementQueue[0];
+    if (Number.isInteger(firstStep)) {
+      showStep(firstStep);
+    }
+  }
+
+  function buildRefinementQueue(selected = state.selectedRefinements) {
+    const order = ["streaming", "travel"];
+    return order
+      .filter(key => selected.includes(key))
+      .map(key => refinementStepIndexes[key])
+      .filter(Number.isInteger);
+  }
+
+  function getNextStepAfterCurrent() {
+    if (state.currentStep === dataStepIndex) return priceStepIndex;
+    if (state.resultMode !== "refined" || !state.refinementQueue.length) return resultStepIndex;
+
+    const currentQueueIndex = state.refinementQueue.indexOf(state.currentStep);
+    if (currentQueueIndex >= 0 && currentQueueIndex < state.refinementQueue.length - 1) {
+      return state.refinementQueue[currentQueueIndex + 1];
+    }
+
+    return resultStepIndex;
+  }
+
+  function getLastAnsweredRefinementStep() {
+    if (state.selectedRefinements.includes("travel") && isInternationalUsageRelevant()) {
+      return refinementStepIndexes.internationalUsage;
+    }
+
+    const queue = buildRefinementQueue();
+    return queue.length ? queue[queue.length - 1] : priceStepIndex;
   }
 
   function setSelected(scope, selector, activeOption) {
@@ -1087,16 +1171,20 @@ function createIndexQuiz() {
   }
 
   function updateStepState(activeIndex) {
+    const visibleIndexes = getVisibleStepIndexes();
+    const activeVisibleIndex = visibleIndexes.indexOf(activeIndex);
+
     steps.forEach((step, index) => {
       step.classList.remove("active-step", "stacked-card", "upcoming-card", "hidden-step");
       step.setAttribute("aria-hidden", index === activeIndex ? "false" : "true");
 
-      if (index === 5 && !isInternationalUsageRelevant()) {
+      const visibleIndex = visibleIndexes.indexOf(index);
+      if (visibleIndex < 0) {
         step.classList.add("hidden-step");
         return;
       }
 
-      if (index < activeIndex) {
+      if (visibleIndex < activeVisibleIndex) {
         step.classList.add("stacked-card");
       } else if (index === activeIndex) {
         step.classList.add("active-step");
@@ -1106,9 +1194,21 @@ function createIndexQuiz() {
     });
   }
 
+  function getVisibleStepIndexes() {
+    const baseSteps = [0, 1, dataStepIndex, priceStepIndex];
+    const refinementSteps = state.resultMode === "refined"
+      ? [
+        ...buildRefinementQueue(),
+        ...(isInternationalUsageRelevant() ? [refinementStepIndexes.internationalUsage] : [])
+      ]
+      : [];
+
+    return [...new Set([...baseSteps, ...refinementSteps, resultStepIndex])]
+      .filter(index => index >= 0 && index <= resultStepIndex);
+  }
+
   function syncProgress() {
-    const visibleQuestionSteps = Array.from({ length: questionStepCount }, (_, index) => index)
-      .filter(index => index !== 5 || isInternationalUsageRelevant());
+    const visibleQuestionSteps = getVisibleStepIndexes().filter(index => index !== resultStepIndex);
     const visibleStepIndex = visibleQuestionSteps.indexOf(state.currentStep);
     const visibleStep = state.currentStep === resultStepIndex
       ? visibleQuestionSteps.length
@@ -1139,6 +1239,8 @@ function createIndexQuiz() {
   async function renderRecommendations() {
     if (!dom.offersContainer) return;
 
+    updateResultHeader();
+
     const requestId = ++recommendationsRequestId;
     dom.offersContainer.innerHTML = [
       '<div class="quiz-loading" role="status" aria-live="polite">',
@@ -1163,6 +1265,7 @@ function createIndexQuiz() {
         '<p class="offer-card__empty-text">Försök igen om en stund eller välj ett paket direkt från startsidan.</p>',
         "</article>"
       ].join("");
+      dom.offersContainer.appendChild(buildRefinementPanel());
       syncStackHeight();
       return;
     }
@@ -1180,6 +1283,7 @@ function createIndexQuiz() {
         `<p class="offer-card__empty-text">${escapeHtml(noOfferText)}</p>`,
         "</article>"
       ].join("");
+      dom.offersContainer.appendChild(buildRefinementPanel());
       syncStackHeight();
       return;
     }
@@ -1187,6 +1291,25 @@ function createIndexQuiz() {
     renderRecommendationResults(getUniqueOperatorPlans(recommendedPlans), { expanded: false });
 
     syncStackHeight();
+  }
+
+  function updateResultHeader() {
+    const resultStep = steps[resultStepIndex];
+    const title = resultStep?.querySelector(".result-title");
+    const desc = resultStep?.querySelector(".result-desc");
+    const isRefined = state.resultMode === "refined" && state.selectedRefinements.length > 0;
+
+    if (title) {
+      title.textContent = isRefined
+        ? "Vi uppdaterade dina bästa alternativ"
+        : "Här är våra initiala erbjudanden";
+    }
+
+    if (desc) {
+      desc.textContent = isRefined
+        ? "Nu väger vi även in de extra frågor du valde."
+        : "Baserat på antal personer, nuvarande operatör, bindningstid, surf och pris visar vi en första matchning.";
+    }
   }
 
   function wait(duration) {
@@ -1206,12 +1329,7 @@ function createIndexQuiz() {
       return null;
     }
 
-    const calculation = await window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/offers/calculate", {
-      label: "Behovsanalys kalkyl",
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ qualification }),
-    });
+    const calculation = await fetchOfferCalculation(qualification);
     lastOfferCalculation = calculation;
 
     if (!calculation.validOfferAvailable) {
@@ -1227,6 +1345,37 @@ function createIndexQuiz() {
       qualification,
       source: "homepage-quiz-calculator",
     }));
+  }
+
+  async function fetchOfferCalculation(qualification) {
+    const requestCalculation = (requestQualification) => window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/offers/calculate", {
+      label: "Behovsanalys kalkyl",
+      timeoutMs: 18000,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ qualification: requestQualification }),
+    });
+
+    const calculation = await requestCalculation(qualification);
+    const canRetryInitialWithoutData = qualification.recommendationMode === "initial" &&
+      calculation?.readyForOffer === false &&
+      Array.isArray(calculation.missingFields) &&
+      calculation.missingFields.length === 1 &&
+      calculation.missingFields.includes("mobileUsage");
+
+    if (!canRetryInitialWithoutData) return calculation;
+
+    return requestCalculation({
+      ...qualification,
+      mobileUsage: "low",
+      people: (qualification.people || []).map(person => ({
+        ...person,
+        dataNeed: person.dataNeed || "low",
+      })),
+      initialCompatibilityAssumption: "mobileUsage-low",
+      missingFields: [],
+      readyForOffer: true,
+    });
   }
 
   function getUniqueOperatorPlans(items = []) {
@@ -1349,6 +1498,42 @@ function createIndexQuiz() {
       });
       dom.offersContainer.appendChild(toggle);
     }
+
+    dom.offersContainer.appendChild(buildRefinementPanel());
+  }
+
+  function buildRefinementPanel() {
+    const panel = document.createElement("section");
+    panel.className = "quiz-refinement-panel";
+    panel.setAttribute("aria-label", "Förfina erbjudanden");
+
+    const isRefined = state.resultMode === "refined" && state.selectedRefinements.length > 0;
+    const refinementLabels = {
+      streaming: "Streamingkostnader",
+      travel: "Resor, roaming och utlandssamtal"
+    };
+
+    panel.innerHTML = [
+      '<div class="quiz-refinement-copy">',
+      `  <p class="quiz-refinement-kicker">${isRefined ? 'Fördjupad matchning' : 'Initiala erbjudanden'}</p>`,
+      `  <h4>${isRefined ? 'Erbjudandena är uppdaterade efter dina extra svar.' : 'Det här är våra initiala erbjudanden utifrån operatör, bindningstid, surf och pris.'}</h4>`,
+      `  <p>${isRefined ? 'Du kan välja fler frågor och uppdatera igen om du vill väga in fler behov.' : 'Vill du ha ett mer träffsäkert förslag? Välj vilka frågor du vill svara på, så räknar vi om utan att börja om.'}</p>`,
+      '</div>',
+      '<div class="quiz-refinement-options" aria-label="Välj extra frågor">',
+      ...Object.entries(refinementLabels).map(([value, label]) => [
+        '<label class="quiz-refinement-option">',
+        `  <input type="checkbox" value="${escapeHtml(value)}" data-refinement-question ${state.selectedRefinements.includes(value) ? 'checked' : ''} />`,
+        `  <span>${escapeHtml(label)}</span>`,
+        '</label>'
+      ].join("")),
+      '</div>',
+      '<div class="quiz-refinement-actions">',
+      '  <button class="quiz-next-button" type="button" data-refinement-start>Gör erbjudandena 100% anpassade</button>',
+      '  <button class="quiz-refinement-link" type="button" data-refinement-skip>Behåll initiala erbjudanden</button>',
+      '</div>'
+    ].join("");
+
+    return panel;
   }
 
   function buildQualificationFromState() {
@@ -1414,6 +1599,7 @@ function createIndexQuiz() {
       people,
       operators,
       bindingEnds,
+      recommendationMode: state.resultMode === "refined" ? "refined" : "initial",
       mobileUsage: state.data || null,
       priceRange: state.price || null,
       streamingCalculation: state.streamingCalculation || null,
@@ -1686,7 +1872,36 @@ function createIndexQuiz() {
   }
 
   function buildRecommendationReason(plan) {
-    return plan.offerCalculation?.reason || "Matchar behoven du angav i analysen.";
+    const peopleCount = Number(plan.peopleCount ?? plan.offerCalculation?.peopleCount ?? state.persons) || 1;
+    const planMonthlyPrice = Number(plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0;
+    const total24MonthCost = Number(plan.total24MonthCost ?? plan.offerCalculation?.total24MonthCost);
+    const remainingOldCosts = Number(plan.remainingOldCosts ?? plan.offerCalculation?.remainingOldCosts) || 0;
+    const streamingSavings = Number(plan.streamingSavings ?? plan.offerCalculation?.streamingSavings) || 0;
+    const switchAction = plan.switchAction || plan.offerCalculation?.switchAction || "";
+    const dataText = plan.data || (plan.dataAmount >= 999 ? "obegränsad surf" : `${plan.dataAmount} GB`);
+    const operator = plan.operator || "operatören";
+    const notes = [
+      `Det här passar ${peopleCount === 1 ? "1 användare" : `${peopleCount} användare`} med ${String(dataText).toLowerCase()} hos ${operator}.`,
+      planMonthlyPrice > 0 ? `Du betalar ${formatMoney(planMonthlyPrice)}/mån.` : "",
+      Number.isFinite(total24MonthCost)
+        ? `På 24 månader blir helheten cirka ${formatMoney(total24MonthCost)} efter presentkort och valda behov.`
+        : "",
+      remainingOldCosts > 0
+        ? "Vi har också räknat med att en gammal kostnad kan finnas kvar en kort period."
+        : "",
+      streamingSavings > 0
+        ? "Streaming som ingår räknas som extra värde om den ersätter något du redan betalar för."
+        : "",
+      switchAction === "delay_switch"
+        ? "Om bindningen är för lång är det bättre att vänta eller välja bort den personen just nu."
+        : "",
+      switchAction === "switch_some_now"
+        ? "De som kan byta nu visas direkt, och övriga kan vänta tills bindningen är kortare."
+        : "",
+      "Numret kan flyttas, men kontrollera nummerägare, tillägg, mobilbetalning och uppsägningstid innan beställning."
+    ];
+
+    return notes.filter(Boolean).join(" ");
   }
 
   function buildRecommendationCard(plan, index, label) {
@@ -1701,10 +1916,6 @@ function createIndexQuiz() {
     const topLabel = label || `Operatör ${index + 1}`;
     const isMulti = state.persons && state.persons > 1;
     const planMonthlyPrice = Number(plan.planMonthlyPrice ?? plan.finalPrice) || 0;
-    const effectiveMonthlyCost = Number(plan.effectiveMonthlyCost ?? plan.offerCalculation?.effectiveMonthlyCost) || planMonthlyPrice;
-    const monthlySavings = Number(plan.monthlySavings ?? plan.offerCalculation?.monthlySavings);
-    const total24MonthCost = Number(plan.total24MonthCost ?? plan.offerCalculation?.total24MonthCost);
-    const total24MonthResult = Number(plan.total24MonthResult ?? plan.offerCalculation?.total24MonthResult);
     const priceMain = `${planMonthlyPrice} kr/mån`;
     const priceSub  = isMulti ? `${plan.pricePerPerson} kr per användare` : null;
     const dataText  = plan.dataAmount >= 999 ? "Obegränsad" : `${plan.dataAmount} GB`;
@@ -1718,6 +1929,7 @@ function createIndexQuiz() {
       '  </div>',
       '  <div class="offer-card__head">',
       `    <img src="${escapeHtml(plan.logo)}" alt="${escapeHtml(plan.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ""}" />`,
+      '    <span class="offer-card__gift-badge" aria-label="Presentkort XXX kr"><strong>XXX kr</strong><span>Presentkort</span></span>',
       '  </div>',
       plan.text ? `  <p class="offer-card__desc">${escapeHtml(plan.text)}</p>` : '',
       '  <div class="offer-card__stats">',
@@ -1731,20 +1943,12 @@ function createIndexQuiz() {
       '    <div class="offer-card__stat">',
       '      <span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span>',
       '      <div>',
-      '        <p class="offer-card__stat-label">Pris</p>',
+      '        <p class="offer-card__stat-label">Månadskostnad</p>',
       `        <p class="offer-card__stat-value">${escapeHtml(priceMain)}</p>`,
       priceSub ? `        <p class="offer-card__stat-sub">${escapeHtml(priceSub)}</p>` : '',
       '      </div>',
       '    </div>',
-      '    <div class="offer-card__stat">',
-      '      <span class="offer-card__stat-icon"><i class="fa-solid fa-gift"></i></span>',
-      '      <div>',
-      '        <p class="offer-card__stat-label">Presentkort</p>',
-      '        <p class="offer-card__stat-value">XXX kr</p>',
-      '      </div>',
-      '    </div>',
       '  </div>',
-      `  <div class="offer-card__stats"><div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-scale-balanced"></i></span><div><p class="offer-card__stat-label">24 mån total</p><p class="offer-card__stat-value">${escapeHtml(Number.isFinite(total24MonthCost) ? `${formatMoney(total24MonthCost)}` : `${effectiveMonthlyCost} kr/mån`)}</p></div></div>${Number.isFinite(total24MonthResult) ? `<div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-piggy-bank"></i></span><div><p class="offer-card__stat-label">${total24MonthResult >= 0 ? '24 mån resultat' : '24 mån merkostnad'}</p><p class="offer-card__stat-value">${escapeHtml(`${formatMoney(Math.abs(total24MonthResult))}`)}</p></div></div>` : Number.isFinite(monthlySavings) ? `<div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-piggy-bank"></i></span><div><p class="offer-card__stat-label">${plan.currentMonthlyTotalIsEstimate ? 'Uppskattad besparing' : 'Besparing'}</p><p class="offer-card__stat-value">${escapeHtml(`${monthlySavings} kr/mån`)}</p></div></div>` : ''}</div>`,
       `  <p class="offer-card__reason">${escapeHtml(reasonText)}</p>`,
       Array.isArray(plan.benefits) && plan.benefits.length ? `  <ul class="offer-card__benefits">${plan.benefits.map(benefit => `<li>${escapeHtml(benefit)}</li>`).join("")}</ul>` : '',
       '  <div class="offer-card__actions"></div>',
