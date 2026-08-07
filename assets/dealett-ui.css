@@ -1612,6 +1612,93 @@ html body .dealett-chat-toggle i {
   font-size: 14px !important;
 }
 
+/* Adaptive operator/binding density, scoped to the generated operator grid only. */
+html body .hero.quiz-in-hero #step1 .quiz-card-body--operator-active {
+  max-width: min(1320px, 100%) !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person {
+  display: grid !important;
+  width: 100% !important;
+  margin-inline: auto !important;
+  margin-top: 12px !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="1"] {
+  grid-template-columns: minmax(0, 1fr) !important;
+  max-width: 1080px !important;
+  gap: 16px !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  max-width: 1240px !important;
+  gap: 14px !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="3"],
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="4"],
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="5"],
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="6"],
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="7"],
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="8"],
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="9"],
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="10"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  max-width: 1240px !important;
+  gap: 10px !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="1"] .operator-person-card {
+  padding: clamp(20px, 2.2vw, 28px) !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="1"] .operator-card-controls {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px) !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="1"] .operator-choice-grid .quiz-option {
+  min-height: 64px !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="1"] .partner-logo {
+  max-width: 92px !important;
+  max-height: 34px !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="5"] .operator-person-card,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="6"] .operator-person-card,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="7"] .operator-person-card,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="8"] .operator-person-card,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="9"] .operator-person-card,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="10"] .operator-person-card {
+  padding: 9px !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="7"] .operator-person-title,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="8"] .operator-person-title,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="9"] .operator-person-title,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="10"] .operator-person-title {
+  margin-bottom: 6px !important;
+  font-size: 13px !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="7"] .operator-card-controls,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="8"] .operator-card-controls,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="9"] .operator-card-controls,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="10"] .operator-card-controls {
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 220px) !important;
+  gap: 8px !important;
+}
+
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="7"] .operator-choice-grid,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="8"] .operator-choice-grid,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="9"] .operator-choice-grid,
+html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="10"] .operator-choice-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+
 @media (max-width: 760px) {
   html body .site-header .header-inner {
     min-height: 68px !important;
@@ -1715,5 +1802,183 @@ html body .dealett-chat-toggle i {
 
   html body .footer .footer-main {
     grid-template-columns: 1fr !important;
+  }
+
+  html body .hero.quiz-in-hero .quiz-card {
+    position: relative !important;
+  }
+
+  html body .hero.quiz-in-hero .quiz-ai-actions {
+    position: absolute !important;
+    top: 18px !important;
+    right: 18px !important;
+    z-index: 4 !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+
+  html body .hero.quiz-in-hero .quiz-ai-button {
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-indent: 48px !important;
+  }
+
+  html body .hero.quiz-in-hero .quiz-ai-button::before {
+    content: "AI" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    color: inherit !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    text-indent: 0 !important;
+  }
+
+  html body .hero.quiz-in-hero .quiz-ai-button span,
+  html body .hero.quiz-in-hero .quiz-ai-button strong {
+    display: none !important;
+  }
+
+  html body:has(.hero.quiz-in-hero #quiz-steps-wrapper:not(.hidden)) .dealett-chat-toggle:not(.is-open) {
+    display: none !important;
+  }
+
+  html body .hero.quiz-in-hero .hero-quiz-mount,
+  html body .hero.quiz-in-hero #quiz-steps-wrapper,
+  html body .hero.quiz-in-hero #quiz-card-stack,
+  html body .hero.quiz-in-hero .quiz-step-card.active-step,
+  html body .hero.quiz-in-hero .quiz-step-card.active-step .quiz-card {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body .hero.quiz-in-hero:has(#step1.active-step) {
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  html body .hero.quiz-in-hero:has(#step1.active-step) .hero-quiz-mount,
+  html body .hero.quiz-in-hero:has(#step1.active-step) #quiz-steps-wrapper,
+  html body .hero.quiz-in-hero:has(#step1.active-step) #quiz-card-stack,
+  html body .hero.quiz-in-hero:has(#step1.active-step) #step1,
+  html body .hero.quiz-in-hero:has(#step1.active-step) #step1 .quiz-card {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person {
+    gap: 8px !important;
+    margin-top: 12px !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="1"] {
+    grid-template-columns: 1fr !important;
+    max-width: 100% !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="2"],
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="3"],
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="4"],
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="5"],
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="6"],
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="7"],
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="8"],
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="9"],
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="10"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    max-width: 100% !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="1"] .operator-person-card {
+    padding: 16px !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count] .operator-card-controls {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count] .operator-choice-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count] .operator-binding-controls {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 6px !important;
+    gap: 6px !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count] .operator-date-field,
+  html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count] .operator-no-binding-button {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .operator-person-card {
+    padding: 7px !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .operator-person-title {
+    margin-bottom: 5px !important;
+    font-size: 12px !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .operator-choice-grid {
+    gap: 4px !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .operator-choice-grid .quiz-option {
+    min-height: 34px !important;
+    padding: 3px !important;
+    overflow: hidden !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .partner-logo {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 15px !important;
+    max-height: 15px !important;
+    object-fit: contain !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .operator-date-icon {
+    display: none !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .operator-date-field {
+    display: block !important;
+    min-height: 36px !important;
+    padding: 5px !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .operator-date-label {
+    display: none !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .operator-date-field input {
+    width: 100% !important;
+    min-height: 26px !important;
+    font-size: 10px !important;
+  }
+
+  html body .hero.quiz-in-hero #step1 .operator-per-person:not([data-operator-count="1"]) .operator-no-binding-button {
+    min-height: 36px !important;
+    padding: 4px 6px !important;
+    font-size: 9px !important;
+    line-height: 1.05 !important;
   }
 }

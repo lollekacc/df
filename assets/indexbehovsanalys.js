@@ -997,8 +997,11 @@ function createIndexQuiz() {
     if (!dom.operatorContainer || !dom.operatorTemplate || !state.persons) return;
 
     dom.operatorContainer.innerHTML = "";
+    dom.operatorContainer.dataset.operatorCount = String(count);
     dom.operatorContainer.classList.toggle("hidden", count <= 0);
-    dom.operatorContainer.closest(".quiz-card-body")?.classList.toggle("quiz-card-body--operator-active", count > 0);
+    const operatorBody = dom.operatorContainer.closest(".quiz-card-body");
+    operatorBody?.classList.toggle("quiz-card-body--operator-active", count > 0);
+    if (operatorBody) operatorBody.dataset.operatorCount = String(count);
     updateOperatorQuestionTitle(count);
     dom.customerOperatorQuestion?.classList.toggle("hidden", count <= 0);
 
@@ -1007,6 +1010,7 @@ function createIndexQuiz() {
       const card = fragment.firstElementChild;
 
       card?.setAttribute("data-operator-group", "");
+      card?.setAttribute("data-operator-count", String(count));
 
       const personNumber = fragment.querySelector("[data-person-number]");
       if (personNumber) {
@@ -1164,9 +1168,26 @@ function createIndexQuiz() {
     updateStepState(safeIndex);
     syncProgress();
     syncStackHeight();
+    requestAnimationFrame(alignActiveStepInViewport);
 
     if (safeIndex === resultStepIndex) {
       renderRecommendations();
+    }
+  }
+
+  function alignActiveStepInViewport() {
+    const activeStep = steps[state.currentStep];
+    const activeCard = activeStep?.querySelector(".quiz-card") || activeStep;
+    if (!activeCard || dom.wrapper?.classList.contains("hidden")) return;
+
+    const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
+    const rect = activeCard.getBoundingClientRect();
+    const targetTop = Math.max(window.scrollY + rect.top - headerHeight - 12, 0);
+    const isHiddenUnderHeader = rect.top < headerHeight + 8;
+    const isTooLow = rect.top > Math.max(window.innerHeight * 0.2, headerHeight + 80);
+
+    if (isHiddenUnderHeader || isTooLow) {
+      window.scrollTo({ top: targetTop, behavior: "auto" });
     }
   }
 
