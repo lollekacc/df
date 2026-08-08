@@ -173,89 +173,6 @@ body::after {
   font-size: clamp(15px, 1.4vw, 18px) !important;
 }
 
-/* Navigation */
-.site-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 1000 !important;
-  border: 0 !important;
-  border-bottom: 1px solid rgba(255, 255, 255, .08) !important;
-  background: rgba(15, 23, 40, .94) !important;
-  color: #fff !important;
-  box-shadow: none !important;
-  backdrop-filter: blur(18px);
-}
-
-.header-inner {
-  width: var(--dui-shell) !important;
-  min-height: 76px !important;
-  margin-inline: auto !important;
-  padding: 0 !important;
-}
-
-.brand-logo-crop {
-  height: 34px !important;
-  width: 178px !important;
-}
-
-.brand-logo-crop img {
-  width: auto !important;
-  height: 34px !important;
-  object-fit: contain !important;
-  filter: brightness(0) invert(1) !important;
-}
-
-.site-nav,
-.nav-menu {
-  gap: clamp(18px, 2vw, 34px) !important;
-}
-
-.nav-link,
-.header-topbar-link,
-.language-switcher select {
-  color: rgba(255, 255, 255, .78) !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  transition: color var(--dui-fast), background-color var(--dui-fast), border-color var(--dui-fast);
-}
-
-.nav-link:hover,
-.nav-link.is-active,
-.header-topbar-link:hover,
-.language-switcher:hover select {
-  color: #fff !important;
-}
-
-.nav-link::after,
-.header-account-link::after {
-  background: var(--dui-accent) !important;
-}
-
-.language-switcher {
-  border: 0 !important;
-  background: transparent !important;
-}
-
-.language-switcher select {
-  border: 0 !important;
-  background: transparent !important;
-}
-
-.header-cart-count {
-  background: var(--dui-accent) !important;
-  color: #fff !important;
-}
-
-.mobile-nav-toggle {
-  border: 1px solid rgba(255, 255, 255, .18) !important;
-  border-radius: var(--dui-radius) !important;
-  background: rgba(255, 255, 255, .06) !important;
-}
-
-.mobile-nav-toggle span {
-  background: #fff !important;
-}
-
 /* Buttons */
 :where(
   .primary-btn,
@@ -1080,24 +997,6 @@ body::after {
     --dui-section-y: 52px;
   }
 
-  .site-header {
-    position: sticky !important;
-  }
-
-  .header-inner {
-    min-height: 68px !important;
-  }
-
-  .brand-logo-crop {
-    width: 162px !important;
-  }
-
-  .site-nav {
-    border: 1px solid rgba(255, 255, 255, .1) !important;
-    border-radius: var(--dui-radius) !important;
-    background: rgba(15, 23, 40, .98) !important;
-  }
-
   :where(
     .hero,
     .shop-hero,
@@ -1199,84 +1098,6 @@ body::after {
   .footer-main {
     grid-template-columns: 1fr !important;
   }
-}
-
-/* Final legacy-page enforcement: stronger than old page-specific !important rules. */
-html body .site-header {
-  border-bottom: 1px solid rgba(255, 255, 255, .08) !important;
-  background: rgba(15, 23, 40, .96) !important;
-  color: #fff !important;
-}
-
-html body .site-header .header-inner {
-  width: var(--dui-shell) !important;
-  max-width: 1480px !important;
-  min-height: 76px !important;
-  margin: 0 auto !important;
-  padding: 0 !important;
-  background: transparent !important;
-}
-
-html body .site-header > .header-inner,
-html body:has(.home-intro) .site-header .header-inner,
-html body.mobile-plans-page .site-header .header-inner,
-html body.family-page .site-header .header-inner,
-html body.business-page .site-header .header-inner,
-html body.bredband-page .site-header .header-inner,
-html body.about-page .site-header .header-inner,
-html body.support-page .site-header .header-inner,
-html body.jamfor-page .site-header .header-inner,
-html body.package-page .site-header .header-inner,
-html body.account-page .site-header .header-inner,
-html body.legal-document-page .site-header .header-inner {
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-html body .site-header .brand,
-html body .site-header .brand-logo-crop {
-  position: static !important;
-  display: inline-flex !important;
-  width: 178px !important;
-  height: 36px !important;
-  overflow: visible !important;
-  align-items: center !important;
-}
-
-html body .site-header .brand::after {
-  content: "DEALETT" !important;
-  color: #fff !important;
-  font-family: var(--dui-font-heading) !important;
-  font-size: 18px !important;
-  font-weight: 700 !important;
-  letter-spacing: .22em !important;
-}
-
-html body .site-header .brand-logo-crop {
-  display: none !important;
-}
-
-html body .site-header .brand-logo-crop img {
-  position: static !important;
-  width: 178px !important;
-  height: 36px !important;
-  max-width: none !important;
-  object-fit: contain !important;
-  transform: none !important;
-  filter: brightness(0) invert(1) !important;
-}
-
-html body .site-header .nav-link,
-html body .site-header .header-topbar-link,
-html body .site-header .language-switcher select {
-  color: rgba(255, 255, 255, .78) !important;
-}
-
-html body .site-header .nav-link:hover,
-html body .site-header .nav-link.is-active,
-html body .site-header .header-topbar-link:hover {
-  color: #fff !important;
 }
 
 html body.mobile-plans-page .shop-hero,
@@ -1980,5 +1801,257 @@ html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="10
     padding: 4px 6px !important;
     font-size: 9px !important;
     line-height: 1.05 !important;
+  }
+}
+
+/* Keep the full homepage landing composition inside the first viewport. */
+html body:has(.home-intro) .hero:not(.quiz-in-hero) {
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) auto auto !important;
+  gap: clamp(12px, 1.8vh, 18px) !important;
+  height: 100svh !important;
+  min-height: 620px !important;
+  max-height: 100svh !important;
+  padding: clamp(78px, 10svh, 104px) max(16px, calc((100vw - 1420px) / 2)) 0 !important;
+  overflow: hidden !important;
+}
+
+html body:has(.home-intro) .hero-showcase {
+  align-self: stretch !important;
+  min-height: 0 !important;
+}
+
+html body:has(.home-intro) .hero-offer-tile {
+  align-content: space-between !important;
+  min-height: 0 !important;
+  padding: clamp(14px, 2.1vw, 28px) !important;
+}
+
+html body:has(.home-intro) .hero-offer-kicker {
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  font-size: clamp(10px, .78vw, 12px) !important;
+}
+
+html body:has(.home-intro) .hero-offer-tile strong {
+  margin-top: clamp(10px, 2vh, 22px) !important;
+  font-size: clamp(26px, 3.1vw, 48px) !important;
+  line-height: .88 !important;
+}
+
+html body:has(.home-intro) .hero-offer-gift {
+  margin-top: clamp(8px, 1.5vh, 14px) !important;
+  font-size: clamp(38px, 5vw, 72px) !important;
+  line-height: .82 !important;
+}
+
+html body:has(.home-intro) .hero-offer-copy {
+  margin-top: 6px !important;
+  font-size: clamp(16px, 1.6vw, 24px) !important;
+}
+
+html body:has(.home-intro) .hero-offer-tile small {
+  min-height: 34px !important;
+  margin-top: clamp(12px, 2vh, 24px) !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+}
+
+html body:has(.home-intro) .hero-bottom {
+  grid-template-columns: minmax(0, 1fr) minmax(250px, auto) !important;
+  align-items: center !important;
+  gap: clamp(16px, 3vw, 48px) !important;
+  width: min(100%, 1420px) !important;
+  padding: 0 !important;
+}
+
+html body:has(.home-intro) .hero-bottom .hero-eyebrow {
+  margin: 0 0 8px !important;
+  font-size: clamp(12px, 1vw, 14px) !important;
+}
+
+html body:has(.home-intro) .hero-bottom h1 {
+  width: min(100%, 820px) !important;
+  max-width: 820px !important;
+  font-size: clamp(42px, 6vw, 84px) !important;
+  line-height: .88 !important;
+}
+
+html body:has(.home-intro) .hero-bottom h1 em {
+  font-size: .82em !important;
+}
+
+html body:has(.home-intro) .hero-bottom-actions {
+  gap: 10px !important;
+}
+
+html body:has(.home-intro) .hero-bottom .button {
+  min-height: 44px !important;
+  padding: 0 18px !important;
+}
+
+html body:has(.home-intro) .hero-proof {
+  gap: 7px !important;
+}
+
+html body:has(.home-intro) .hero-proof strong {
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 11px !important;
+}
+
+html body:has(.home-intro) .hero > .home-marquee {
+  align-self: end !important;
+  width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  border-top: 1px solid rgba(17, 17, 17, .14) !important;
+  border-bottom: 0 !important;
+}
+
+html body:has(.home-intro) .hero > .home-marquee .home-marquee__group {
+  min-height: 38px !important;
+  padding: 0 16px !important;
+}
+
+html body:has(.home-intro) .hero > .home-marquee span {
+  font-size: clamp(11px, .95vw, 13px) !important;
+}
+
+@media (max-height: 720px) and (min-width: 761px) {
+  html body:has(.home-intro) .hero:not(.quiz-in-hero) {
+    min-height: 560px !important;
+    padding-top: 76px !important;
+    gap: 10px !important;
+  }
+
+  html body:has(.home-intro) .hero-offer-tile {
+    padding: 13px 16px !important;
+  }
+
+  html body:has(.home-intro) .hero-bottom h1 {
+    font-size: clamp(38px, 5.4vw, 70px) !important;
+  }
+
+  html body:has(.home-intro) .hero-offer-gift {
+    font-size: clamp(34px, 4.4vw, 58px) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  html body:has(.home-intro) .hero:not(.quiz-in-hero) {
+    grid-template-rows: minmax(0, 1fr) auto auto !important;
+    min-height: 680px !important;
+    padding-top: 84px !important;
+  }
+
+  html body:has(.home-intro) .hero-showcase {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body:has(.home-intro) .hero-offer-tile {
+    padding: 12px 14px !important;
+  }
+
+  html body:has(.home-intro) .hero-bottom {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  html body:has(.home-intro) .hero-bottom-actions,
+  html body:has(.home-intro) .hero-proof {
+    justify-content: flex-start !important;
+  }
+}
+
+@media (max-width: 640px) {
+  html body:has(.home-intro) .hero:not(.quiz-in-hero) {
+    height: 100svh !important;
+    max-height: 100svh !important;
+    min-height: 720px !important;
+    gap: 8px !important;
+    padding: 76px 16px 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body:has(.home-intro) .hero-showcase {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body:has(.home-intro) .hero-offer-tile {
+    padding: 8px !important;
+  }
+
+  html body:has(.home-intro) .hero-offer-kicker {
+    min-height: 20px !important;
+    padding: 0 7px !important;
+    font-size: 8.5px !important;
+  }
+
+  html body:has(.home-intro) .hero-offer-tile strong {
+    margin-top: 6px !important;
+    font-size: clamp(20px, 7vw, 28px) !important;
+  }
+
+  html body:has(.home-intro) .hero-offer-gift {
+    margin-top: 5px !important;
+    font-size: clamp(26px, 9vw, 36px) !important;
+  }
+
+  html body:has(.home-intro) .hero-offer-copy {
+    margin-top: 3px !important;
+    font-size: 12px !important;
+  }
+
+  html body:has(.home-intro) .hero-offer-tile small {
+    min-height: 24px !important;
+    margin-top: 6px !important;
+    padding: 0 8px !important;
+    font-size: 10px !important;
+  }
+
+  html body:has(.home-intro) .hero-bottom {
+    gap: 8px !important;
+  }
+
+  html body:has(.home-intro) .hero-bottom h1 {
+    font-size: clamp(30px, 9.5vw, 40px) !important;
+  }
+
+  html body:has(.home-intro) .hero-bottom .hero-eyebrow {
+    margin-bottom: 5px !important;
+    font-size: 11px !important;
+  }
+
+  html body:has(.home-intro) .hero-bottom .button {
+    min-height: 40px !important;
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+  }
+
+  html body:has(.home-intro) .hero-proof {
+    gap: 5px !important;
+  }
+
+  html body:has(.home-intro) .hero-proof strong {
+    min-height: 24px !important;
+    padding: 0 7px !important;
+    font-size: 9.5px !important;
+  }
+
+  html body:has(.home-intro) .hero > .home-marquee .home-marquee__group {
+    min-height: 32px !important;
+    padding: 0 12px !important;
+    justify-content: flex-start !important;
+  }
+
+  html body:has(.home-intro) .hero > .home-marquee span {
+    font-size: 10px !important;
+  }
+
+  html body:has(.home-intro) .hero > .home-marquee span,
+  html body:has(.home-intro) .hero > .home-marquee i {
+    display: inline-flex !important;
   }
 }
