@@ -1094,8 +1094,8 @@ function createIndexQuiz() {
     if (!dom.customerOperatorQuestion) return;
 
     dom.customerOperatorQuestion.textContent = count === 1
-      ? "Vilken operatör och bindningstid har du?"
-      : "Vilka operatörer och bindningstider har ni?";
+      ? "Vilken operatör har du? Välj datum för bindningstiden också."
+      : "Vilka operatörer har ni? Välj datum för bindningstiderna också.";
   }
 
   function mountQuizInHero() {
@@ -1536,9 +1536,9 @@ function createIndexQuiz() {
 
     panel.innerHTML = [
       '<div class="quiz-refinement-copy">',
-      `  <p class="quiz-refinement-kicker">${isRefined ? 'Fördjupad matchning' : 'Initiala erbjudanden'}</p>`,
-      `  <h4>${isRefined ? 'Erbjudandena är uppdaterade efter dina extra svar.' : 'Det här är våra initiala erbjudanden utifrån operatör, bindningstid, surf och pris.'}</h4>`,
-      `  <p>${isRefined ? 'Du kan välja fler frågor och uppdatera igen om du vill väga in fler behov.' : 'Vill du ha ett mer träffsäkert förslag? Välj vilka frågor du vill svara på, så räknar vi om utan att börja om.'}</p>`,
+      `  <p class="quiz-refinement-kicker">${isRefined ? 'Fördjupad matchning' : 'Skräddarsy analysen'}</p>`,
+      `  <h4>${isRefined ? 'Erbjudandena är uppdaterade efter dina extra svar.' : 'Vi rekommenderar att du svarar på några mer specifika frågor.'}</h4>`,
+      `  <p>${isRefined ? 'Du kan välja fler frågor och uppdatera igen om du vill väga in fler behov.' : 'Det gör analysen mer skräddarsydd för dig och väger in behov som streaming, roaming och utlandssamtal innan vi räknar om erbjudandena.'}</p>`,
       '</div>',
       '<div class="quiz-refinement-options" aria-label="Välj extra frågor">',
       ...Object.entries(refinementLabels).map(([value, label]) => [

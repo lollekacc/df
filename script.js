@@ -2192,7 +2192,12 @@
         requestFailed = true;
       } finally {
         setSending(false);
-        if (requestFailed) status.textContent = text.error;
+        if (requestFailed) {
+          status.textContent = text.error;
+          addMessage('assistant', text.error, {
+            contentLanguage: chatLanguage,
+          });
+        }
         input.focus();
       }
     };
@@ -2334,7 +2339,12 @@
         requestFailed = true;
       } finally {
         setSending(false);
-        if (requestFailed) status.textContent = text.error;
+        if (requestFailed) {
+          status.textContent = text.error;
+          addMessage('assistant', text.error, {
+            contentLanguage: chatLanguage,
+          });
+        }
         input.focus();
       }
     };
