@@ -32,7 +32,8 @@ function createIndexQuiz() {
     internationalUsage: null,
     resultMode: "initial",
     selectedRefinements: [],
-    refinementQueue: []
+    refinementQueue: [],
+    refinementPromptCollapsed: false
   };
 
   const dom = {
@@ -113,7 +114,6 @@ function createIndexQuiz() {
       link.addEventListener("click", event => {
         event.preventDefault();
         startQuiz({ inHero: true });
-        dom.hero?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     });
     dom.familyOfferGrid?.addEventListener("click", handleFamilyOfferClick);
@@ -165,12 +165,22 @@ function createIndexQuiz() {
       return;
     }
 
+    const refinementToggle = event.target.closest("[data-refinement-toggle]");
+    if (refinementToggle) {
+      const panel = refinementToggle.closest(".quiz-refinement-panel");
+      state.refinementPromptCollapsed = refinementToggle.dataset.refinementToggle !== "open";
+      panel?.classList.toggle("is-collapsed", state.refinementPromptCollapsed);
+      refinementToggle.setAttribute("aria-expanded", String(!state.refinementPromptCollapsed));
+      syncStackHeight();
+      return;
+    }
+
     const refinementSkip = event.target.closest("[data-refinement-skip]");
     if (refinementSkip) {
-      state.resultMode = "initial";
-      state.selectedRefinements = [];
-      state.refinementQueue = [];
-      renderRecommendations();
+      state.refinementPromptCollapsed = true;
+      const panel = refinementSkip.closest(".quiz-refinement-panel");
+      panel?.classList.add("is-collapsed");
+      syncStackHeight();
       return;
     }
 
@@ -621,6 +631,7 @@ function createIndexQuiz() {
     state.resultMode = "initial";
     state.selectedRefinements = [];
     state.refinementQueue = [];
+    state.refinementPromptCollapsed = false;
 
     setSelected(step, "[data-persons]", option);
     resetCustomerStep();
@@ -878,6 +889,11 @@ function createIndexQuiz() {
     state.internationalTravel = option.dataset.travel || null;
     setSelected(step, "[data-travel]", option);
 
+    if (state.resultMode === "refined" && state.refinementQueue.includes(refinementStepIndexes.internationalUsage)) {
+      showStepAfterSelection(getNextStepAfterCurrent());
+      return;
+    }
+
     if (isInternationalUsageRelevant()) {
       showStepAfterSelection(5);
       return;
@@ -931,22 +947,12 @@ function createIndexQuiz() {
     showStepAfterSelection(getNextStepAfterCurrent());
   }
 
-  function getSelectedRefinementKeys() {
-    return Array.from(dom.wrapper.querySelectorAll("[data-refinement-question]:checked"))
-      .map(input => input.value)
-      .filter(Boolean);
-  }
-
   function handleRefinementStart() {
-    const selected = getSelectedRefinementKeys();
-    if (!selected.length) {
-      dom.wrapper.querySelector("[data-refinement-question]")?.focus();
-      return;
-    }
-
+    const selected = ["streaming", "travel", "internationalUsage"];
     state.resultMode = "refined";
     state.selectedRefinements = selected;
     state.refinementQueue = buildRefinementQueue(selected);
+    state.refinementPromptCollapsed = false;
 
     const firstStep = state.refinementQueue[0];
     if (Number.isInteger(firstStep)) {
@@ -955,7 +961,7 @@ function createIndexQuiz() {
   }
 
   function buildRefinementQueue(selected = state.selectedRefinements) {
-    const order = ["streaming", "travel"];
+    const order = ["streaming", "travel", "internationalUsage"];
     return order
       .filter(key => selected.includes(key))
       .map(key => refinementStepIndexes[key])
@@ -975,10 +981,6 @@ function createIndexQuiz() {
   }
 
   function getLastAnsweredRefinementStep() {
-    if (state.selectedRefinements.includes("travel") && isInternationalUsageRelevant()) {
-      return refinementStepIndexes.internationalUsage;
-    }
-
     const queue = buildRefinementQueue();
     return queue.length ? queue[queue.length - 1] : priceStepIndex;
   }
@@ -1107,6 +1109,7 @@ function createIndexQuiz() {
 
     dom.heroMount.appendChild(dom.wrapper);
     dom.hero?.classList.add("quiz-in-hero");
+    document.body.classList.add("quiz-overlay-open");
     dom.heroVisual?.classList.add("is-quiz-active");
   }
 
@@ -1115,6 +1118,7 @@ function createIndexQuiz() {
 
     sectionWrapperAnchor.parentNode?.insertBefore(dom.wrapper, sectionWrapperAnchor);
     dom.hero?.classList.remove("quiz-in-hero");
+    document.body.classList.remove("quiz-overlay-open");
     dom.heroVisual?.classList.remove("is-quiz-active");
   }
 
@@ -1218,10 +1222,7 @@ function createIndexQuiz() {
   function getVisibleStepIndexes() {
     const baseSteps = [0, 1, dataStepIndex, priceStepIndex];
     const refinementSteps = state.resultMode === "refined"
-      ? [
-        ...buildRefinementQueue(),
-        ...(isInternationalUsageRelevant() ? [refinementStepIndexes.internationalUsage] : [])
-      ]
+      ? buildRefinementQueue()
       : [];
 
     return [...new Set([...baseSteps, ...refinementSteps, resultStepIndex])]
@@ -1328,7 +1329,7 @@ function createIndexQuiz() {
 
     if (desc) {
       desc.textContent = isRefined
-        ? "Nu väger vi även in de extra frågor du valde."
+        ? "Nu väger vi även in de extra frågor du besvarade."
         : "Baserat på antal personer, nuvarande operatör, bindningstid, surf och pris visar vi en första matchning.";
     }
   }
@@ -1525,33 +1526,37 @@ function createIndexQuiz() {
 
   function buildRefinementPanel() {
     const panel = document.createElement("section");
-    panel.className = "quiz-refinement-panel";
+    panel.className = [
+      "quiz-refinement-panel",
+      "quiz-refinement-panel--blind",
+      state.refinementPromptCollapsed ? "is-collapsed" : ""
+    ].filter(Boolean).join(" ");
     panel.setAttribute("aria-label", "Förfina erbjudanden");
 
     const isRefined = state.resultMode === "refined" && state.selectedRefinements.length > 0;
-    const refinementLabels = {
-      streaming: "Streamingkostnader",
-      travel: "Resor, roaming och utlandssamtal"
-    };
+    const title = isRefined
+      ? "Resultaten är uppdaterade med dina extra svar."
+      : "Svara på 3 frågor till för bättre resultat";
+    const copy = isRefined
+      ? "Du kan fortfarande gå igenom frågorna igen om du vill finjustera analysen."
+      : "Vi väger in streaming, resor och användning utanför EU innan vi räknar om dina erbjudanden.";
 
     panel.innerHTML = [
-      '<div class="quiz-refinement-copy">',
-      `  <p class="quiz-refinement-kicker">${isRefined ? 'Fördjupad matchning' : 'Skräddarsy analysen'}</p>`,
-      `  <h4>${isRefined ? 'Erbjudandena är uppdaterade efter dina extra svar.' : 'Vi rekommenderar att du svarar på några mer specifika frågor.'}</h4>`,
-      `  <p>${isRefined ? 'Du kan välja fler frågor och uppdatera igen om du vill väga in fler behov.' : 'Det gör analysen mer skräddarsydd för dig och väger in behov som streaming, roaming och utlandssamtal innan vi räknar om erbjudandena.'}</p>`,
+      '<button class="quiz-refinement-tab" type="button" data-refinement-toggle="open" aria-expanded="false">',
+      '  <span>3 frågor för bättre resultat</span>',
+      '  <span aria-hidden="true">⌄</span>',
+      '</button>',
+      '<div class="quiz-refinement-blind">',
+      '  <div class="quiz-refinement-copy">',
+      `    <p class="quiz-refinement-kicker">${isRefined ? 'Fördjupad matchning' : 'Bättre matchning'}</p>`,
+      `    <h4>${escapeHtml(title)}</h4>`,
+      `    <p>${escapeHtml(copy)}</p>`,
+      '  </div>',
+      '  <div class="quiz-refinement-actions">',
+      '    <button class="quiz-next-button" type="button" data-refinement-start>Svara på frågorna</button>',
+      '    <button class="quiz-refinement-link" type="button" data-refinement-skip data-refinement-toggle="close" aria-expanded="true">Stäng</button>',
+      '  </div>',
       '</div>',
-      '<div class="quiz-refinement-options" aria-label="Välj extra frågor">',
-      ...Object.entries(refinementLabels).map(([value, label]) => [
-        '<label class="quiz-refinement-option">',
-        `  <input type="checkbox" value="${escapeHtml(value)}" data-refinement-question ${state.selectedRefinements.includes(value) ? 'checked' : ''} />`,
-        `  <span>${escapeHtml(label)}</span>`,
-        '</label>'
-      ].join("")),
-      '</div>',
-      '<div class="quiz-refinement-actions">',
-      '  <button class="quiz-next-button" type="button" data-refinement-start>Gör erbjudandena 100% anpassade</button>',
-      '  <button class="quiz-refinement-link" type="button" data-refinement-skip>Behåll initiala erbjudanden</button>',
-      '</div>'
     ].join("");
 
     return panel;
