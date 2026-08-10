@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="./assets/language-bootstrap.js"></script>
-    <link rel="icon" href="./images/favicon.png" type="image/svg+xml" />
+    <link rel="icon" href="./images/favicon.png" type="image/png" />
     <title>Bättre deals, helt enkelt.</title>
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.css" />
     <link rel="stylesheet" href="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.5.0/dist/maplibre-gl-geocoder.css" />
@@ -57,10 +57,12 @@
               Rätt abonnemang<br />
               <em>Presentkort på köpet</em>
             </h1>
-            <p class="hero-lead">Vi analyserar och rekomenderar</p>
+            <p class="hero-lead">
+              Vi analyserar och rekomenderar
+              <button type="button" id="hero-start-analysis" class="hero-inline-action">Starta analys <span aria-hidden="true">→</span></button>
+            </p>
           </div>
           <div class="hero-bottom-actions">
-            <a href="#quiz-steps-wrapper" id="hero-start-analysis" class="button button--primary">Starta analys <span aria-hidden="true">→</span></a>
             <div class="hero-proof-mobile" aria-label="Fördelar med Dealett">
               <span>Kostnadsfritt</span>
               <span>Under 2 minuter</span>
@@ -576,6 +578,7 @@
 
       <section class="newsletter-section section-space" aria-labelledby="newsletterTitle">
         <div class="newsletter-panel">
+          <canvas class="codex-bg-canvas" data-codex-newsletter-bg aria-hidden="true"></canvas>
           <div class="newsletter-copy">
             <p class="section-label">Nyhetsbrev</p>
             <h2 id="newsletterTitle">Få nya deals först.</h2>
@@ -662,6 +665,7 @@
     <script src="./assets/offer-compare.js"></script>
     <script src="script.js"></script>
     <script src="./assets/coverage-maplibre.js"></script>
+    <script src="./assets/newsletter-codex-background.js"></script>
     <script src="assets/indexbehovsanalys.js"></script>
   </body>
 </html>

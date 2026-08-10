@@ -70,6 +70,7 @@ function createIndexQuiz() {
     internationalUsage: 5
   };
   const sectionWrapperAnchor = document.createComment("quiz section mount");
+  let quizModalLayer = null;
   const selectionFeedbackMs = 220;
   const giftCardPlaceholder = "Presentkort: XXX kr";
   let recommendationsRequestId = 0;
@@ -1101,28 +1102,36 @@ function createIndexQuiz() {
   }
 
   function mountQuizInHero() {
-    if (!dom.heroMount || !dom.wrapper) return;
+    if (!dom.wrapper) return;
 
     if (!sectionWrapperAnchor.parentNode) {
       dom.wrapper.parentNode?.insertBefore(sectionWrapperAnchor, dom.wrapper);
     }
 
-    dom.heroMount.appendChild(dom.wrapper);
-    dom.hero?.classList.add("quiz-in-hero");
+    if (!quizModalLayer) {
+      quizModalLayer = document.createElement("div");
+      quizModalLayer.id = "dealett-quiz-modal-layer";
+      quizModalLayer.className = "quiz-modal-layer";
+      quizModalLayer.setAttribute("aria-live", "polite");
+      document.body.appendChild(quizModalLayer);
+    }
+
+    quizModalLayer.appendChild(dom.wrapper);
     document.body.classList.add("quiz-overlay-open");
-    dom.heroVisual?.classList.add("is-quiz-active");
   }
 
   function mountQuizInSection() {
     if (!dom.wrapper) return;
 
     sectionWrapperAnchor.parentNode?.insertBefore(dom.wrapper, sectionWrapperAnchor);
-    dom.hero?.classList.remove("quiz-in-hero");
     document.body.classList.remove("quiz-overlay-open");
-    dom.heroVisual?.classList.remove("is-quiz-active");
   }
 
   function startQuiz(options = {}) {
+    const preserveScroll = options.inHero
+      ? { x: window.scrollX || 0, y: window.scrollY || 0 }
+      : null;
+
     if (options.inHero) {
       mountQuizInHero();
     } else {
@@ -1137,6 +1146,10 @@ function createIndexQuiz() {
     requestAnimationFrame(() => {
       dom.wrapper?.classList.remove("opacity-0");
       showStep(0);
+      if (preserveScroll) {
+        window.scrollTo(preserveScroll.x, preserveScroll.y);
+        window.setTimeout(() => window.scrollTo(preserveScroll.x, preserveScroll.y), 0);
+      }
     });
   }
 
@@ -1183,6 +1196,7 @@ function createIndexQuiz() {
     const activeStep = steps[state.currentStep];
     const activeCard = activeStep?.querySelector(".quiz-card") || activeStep;
     if (!activeCard || dom.wrapper?.classList.contains("hidden")) return;
+    if (document.body.classList.contains("quiz-overlay-open") && dom.wrapper?.parentElement === quizModalLayer) return;
 
     const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
     const rect = activeCard.getBoundingClientRect();

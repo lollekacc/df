@@ -399,6 +399,8 @@ const renderRewards = (offer) => {
     choice.append(label, input);
     rewardGrid.append(choice);
   });
+
+  updateRewardState();
 };
 
 const selectOffer = (offer, card) => {

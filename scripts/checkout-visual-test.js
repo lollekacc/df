@@ -120,6 +120,20 @@ const capture = async (page, fileName) => {
   fs.writeFileSync(path.join(OUTPUT_DIR, fileName), Buffer.from(result.data, 'base64'));
 };
 
+const stopChromeAndRemoveProfile = async (chrome, userDataDir) => {
+  if (!chrome.killed) chrome.kill();
+  await Promise.race([
+    new Promise((resolve) => chrome.once('exit', resolve)),
+    delay(1500),
+  ]);
+  fs.rmSync(userDataDir, {
+    recursive: true,
+    force: true,
+    maxRetries: 8,
+    retryDelay: 150,
+  });
+};
+
 const scrollTo = async (page, selector) => {
   await page.evaluate(`(() => {
     const target = document.querySelector(${JSON.stringify(selector)});
@@ -228,8 +242,7 @@ const main = async () => {
 
     console.log(JSON.stringify({ outputDirectory: OUTPUT_DIR, results }, null, 2));
   } finally {
-    chrome.kill();
-    fs.rmSync(userDataDir, { recursive: true, force: true });
+    await stopChromeAndRemoveProfile(chrome, userDataDir);
   }
 };
 

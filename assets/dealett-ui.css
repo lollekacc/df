@@ -4430,6 +4430,16 @@ html body .site-header .brand-logo-crop img {
   }
 }
 
+html body.legal-document-page .site-header {
+  overflow-x: clip !important;
+}
+
+html:has(body.legal-document-page),
+html body.legal-document-page {
+  max-width: 100%;
+  overflow-x: hidden !important;
+}
+
 /* Landing offer-card fit lock: keep all text and buttons inside each tile. */
 html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-offer-tile {
   padding: 16px 18px !important;
@@ -4652,5 +4662,1420 @@ html body .site-header .audience-switch__link:focus-visible {
     min-height: 16px !important;
     padding-inline: 5px !important;
     font-size: 8px !important;
+  }
+}
+
+/* True quiz popup: keep the landing view intact and float a compact modal above it. */
+html body.quiz-overlay-open .site-header {
+  display: block !important;
+  visibility: visible !important;
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: 0 !important;
+  z-index: 10001 !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  isolation: isolate !important;
+  display: grid !important;
+  grid-template-rows: 1fr auto auto !important;
+  gap: 16px !important;
+  width: 100% !important;
+  height: 100svh !important;
+  min-height: 941px !important;
+  max-height: 100svh !important;
+  margin: 0 !important;
+  padding: 145px 64px 20px !important;
+  overflow: hidden !important;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, .66) 0%, rgba(0, 0, 0, .28) 31%, rgba(0, 0, 0, .08) 63%, rgba(0, 0, 0, .32) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, .04) 46%, rgba(0, 0, 0, .54) 100%),
+    url("../images/hherro.png") right center / auto 118% no-repeat !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero::before {
+  display: none !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: auto 0 0 !important;
+  z-index: -1 !important;
+  display: block !important;
+  height: 45% !important;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .58)) !important;
+  pointer-events: none !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-bottom {
+  position: relative !important;
+  z-index: 5 !important;
+  order: 1 !important;
+  align-self: start !important;
+  justify-self: start !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 760px) !important;
+  width: min(760px, 100%) !important;
+  margin: 0 0 0 117px !important;
+  padding: 0 !important;
+  gap: 33px !important;
+  color: #fff !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-showcase {
+  position: absolute !important;
+  right: clamp(34px, 5.4vw, 92px) !important;
+  bottom: clamp(78px, 11svh, 116px) !important;
+  z-index: 3 !important;
+  order: 2 !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  width: clamp(780px, 52vw, 880px) !important;
+  max-width: calc(100vw - 760px) !important;
+  margin: 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-offer-tile {
+  height: 254px !important;
+  min-height: 0 !important;
+  padding: 16px 18px !important;
+  overflow: hidden !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-offer-kicker {
+  min-height: 24px !important;
+  padding: 0 12px !important;
+  font-size: 9px !important;
+  letter-spacing: .1em !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-offer-tile strong {
+  margin-top: 10px !important;
+  line-height: .82 !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-offer-count {
+  font-size: 36px !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-offer-subscriptions {
+  font-size: 15px !important;
+  line-height: 1.08 !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-offer-gift {
+  margin-top: 8px !important;
+  font-size: 39px !important;
+  line-height: .92 !important;
+  white-space: nowrap !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-offer-copy {
+  margin-top: 4px !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-offer-tile small {
+  min-height: 29px !important;
+  max-width: 100% !important;
+  gap: 9px !important;
+  margin-top: 8px !important;
+  padding: 0 12px !important;
+  overflow: hidden !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .hero-quiz-mount {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10002 !important;
+  display: grid !important;
+  width: 100vw !important;
+  min-height: 100svh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  place-items: center !important;
+  background: transparent !important;
+  pointer-events: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero #quiz-steps-wrapper {
+  width: min(680px, calc(100vw - 48px)) !important;
+  max-width: min(680px, calc(100vw - 48px)) !important;
+  max-height: min(620px, calc(100svh - 96px)) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  animation: dealettQuizOverlayIn .24s ease-out both !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero #quiz-card-stack,
+html body.quiz-overlay-open .hero.quiz-in-hero #quiz-steps-wrapper > *,
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-step-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-step-card:not(.active-step) {
+  display: none !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-step-card.active-step {
+  display: block !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  max-height: min(620px, calc(100svh - 96px)) !important;
+  padding: 22px 28px 26px !important;
+  border: 1px solid rgba(255, 255, 255, .45) !important;
+  border-radius: 18px !important;
+  background: rgba(255, 252, 246, .92) !important;
+  box-shadow: 0 22px 72px rgba(0, 0, 0, .34) !important;
+  overflow: hidden !important;
+  backdrop-filter: blur(12px) saturate(1.1) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.1) !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-card-toolbar {
+  margin-bottom: 16px !important;
+  padding-bottom: 14px !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-card-body {
+  max-height: min(470px, calc(100svh - 230px)) !important;
+  padding-top: 18px !important;
+  overflow: auto !important;
+  scrollbar-width: none !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-card-body::-webkit-scrollbar {
+  display: none !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-title,
+html body.quiz-overlay-open .hero.quiz-in-hero .result-title {
+  margin-top: 0 !important;
+  font-size: clamp(34px, 4.2vw, 54px) !important;
+  line-height: .96 !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-subtitle,
+html body.quiz-overlay-open .hero.quiz-in-hero .result-desc,
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-card-body > h3 {
+  max-width: 560px !important;
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-person-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin-top: 28px !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-option {
+  min-height: 58px !important;
+  min-width: 0 !important;
+  padding: 12px 14px !important;
+  font-size: 18px !important;
+}
+
+html body.quiz-overlay-open .hero.quiz-in-hero .quiz-more-toggle {
+  min-height: 44px !important;
+  margin-top: 18px !important;
+  padding: 0 24px !important;
+  font-size: 16px !important;
+}
+
+@media (max-width: 980px) {
+  html body.quiz-overlay-open .hero.quiz-in-hero {
+    min-height: 100svh !important;
+    height: 100svh !important;
+    max-height: 100svh !important;
+    padding: 92px 14px 22px !important;
+  }
+
+  html body.quiz-overlay-open .hero.quiz-in-hero .hero-bottom,
+  html body.quiz-overlay-open .hero.quiz-in-hero .hero-showcase {
+    display: none !important;
+  }
+
+  html body.quiz-overlay-open .hero.quiz-in-hero #quiz-steps-wrapper {
+    width: min(350px, calc(100vw - 40px)) !important;
+    max-width: min(350px, calc(100vw - 40px)) !important;
+    max-height: calc(100svh - 96px) !important;
+  }
+
+  html body.quiz-overlay-open .hero.quiz-in-hero .quiz-card {
+    max-height: calc(100svh - 96px) !important;
+    padding: 18px 14px !important;
+  }
+
+  html body.quiz-overlay-open .hero.quiz-in-hero .quiz-title,
+  html body.quiz-overlay-open .hero.quiz-in-hero .result-title {
+    font-size: clamp(28px, 9.4vw, 38px) !important;
+  }
+
+  html body.quiz-overlay-open .hero.quiz-in-hero .quiz-person-grid,
+  html body.quiz-overlay-open .hero.quiz-in-hero .quiz-option-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+  }
+}
+
+/* Standalone quiz modal. The landing hero stays exactly where it is. */
+html body.quiz-overlay-open {
+  overflow: hidden !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10002 !important;
+  display: grid !important;
+  width: 100vw !important;
+  height: 100svh !important;
+  margin: 0 !important;
+  padding: 112px 5vw 38px !important;
+  place-items: center !important;
+  background: transparent !important;
+  pointer-events: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #quiz-steps-wrapper {
+  width: min(1180px, calc(100vw - 10vw)) !important;
+  max-width: min(1180px, calc(100vw - 10vw)) !important;
+  height: min(720px, calc(100svh - 150px)) !important;
+  max-height: min(720px, calc(100svh - 150px)) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  transform-origin: center !important;
+  animation: dealettQuizOverlayIn .24s ease-out both !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #quiz-card-stack,
+html body.quiz-overlay-open .quiz-modal-layer #quiz-steps-wrapper > *,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-step-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: visible !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-step-card {
+  position: static !important;
+  inset: auto !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-step-card:not(.active-step) {
+  display: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-step-card.active-step {
+  display: block !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-card {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  max-height: min(720px, calc(100svh - 150px)) !important;
+  padding: clamp(24px, 3vw, 38px) clamp(28px, 4vw, 56px) !important;
+  border: 1px solid rgba(255, 255, 255, .42) !important;
+  border-radius: 18px !important;
+  background: rgba(255, 252, 246, .68) !important;
+  color: #141414 !important;
+  box-shadow: 0 26px 80px rgba(0, 0, 0, .34) !important;
+  overflow: hidden !important;
+  backdrop-filter: blur(9px) saturate(1.08) !important;
+  -webkit-backdrop-filter: blur(9px) saturate(1.08) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-card-toolbar {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  margin: 0 0 clamp(18px, 2.4vw, 30px) !important;
+  padding: 0 0 16px !important;
+  border-bottom: 1px solid rgba(20, 20, 20, .18) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-back-inline {
+  min-height: 48px !important;
+  padding: 0 22px !important;
+  border-radius: 12px !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-progress-row {
+  display: grid !important;
+  justify-items: end !important;
+  gap: 7px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-progress-track {
+  width: 220px !important;
+  height: 5px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-step-count {
+  font-size: 17px !important;
+  line-height: 1 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-ai-actions {
+  position: absolute !important;
+  top: 78px !important;
+  right: 0 !important;
+  z-index: 8 !important;
+  margin: 0 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-ai-button {
+  min-height: 48px !important;
+  max-width: 310px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  font-size: 16px !important;
+  white-space: nowrap !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-card-body {
+  flex: 1 1 auto !important;
+  height: auto !important;
+  max-height: min(520px, calc(100svh - 300px)) !important;
+  padding-top: clamp(10px, 2vw, 28px) !important;
+  justify-content: center !important;
+  overflow: auto !important;
+  overscroll-behavior: contain !important;
+  scrollbar-width: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-card-body::-webkit-scrollbar {
+  display: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-title,
+html body.quiz-overlay-open .quiz-modal-layer .result-title {
+  max-width: 760px !important;
+  margin: 0 auto !important;
+  font-size: clamp(52px, 5.2vw, 78px) !important;
+  line-height: .96 !important;
+  letter-spacing: 0 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-subtitle,
+html body.quiz-overlay-open .quiz-modal-layer .result-desc,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-card-body > h3 {
+  max-width: 720px !important;
+  margin: 18px auto 0 !important;
+  color: #697184 !important;
+  font-size: 18px !important;
+  line-height: 1.35 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-person-grid,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-option-list {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+  margin-top: 42px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-option {
+  min-width: 0 !important;
+  min-height: 128px !important;
+  padding: 20px 16px !important;
+  border-radius: 10px !important;
+  font-size: 24px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-more-toggle,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-next-button {
+  min-height: 56px !important;
+  margin-top: 28px !important;
+  padding: 0 34px !important;
+  border-radius: 0 !important;
+  font-size: 19px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .offers-recommendation-grid {
+  gap: 12px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .offers-recommendation-grid.offers-recommendation-grid--featured,
+html body.quiz-overlay-open .quiz-modal-layer .offers-recommendation-grid.offers-recommendation-grid--expanded {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  max-width: 100% !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .offers-recommendation-grid > .quiz-refinement-panel,
+html body.quiz-overlay-open .quiz-modal-layer .offers-recommendation-grid--expanded > .quiz-refinement-panel {
+  grid-column: 1 / -1 !important;
+  grid-row: auto !important;
+}
+
+/* Keep every quiz control centered inside the popup. */
+html body.quiz-overlay-open .quiz-modal-layer .quiz-card-toolbar {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  justify-items: center !important;
+  text-align: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-back-inline,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-progress-row,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-more-toggle,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-next-button,
+html body.quiz-overlay-open .quiz-modal-layer .recommendation-results-toggle,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-refinement-link,
+html body.quiz-overlay-open .quiz-modal-layer .operator-no-binding-button {
+  justify-self: center !important;
+  margin-right: auto !important;
+  margin-left: auto !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-progress-row {
+  justify-items: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-ai-actions {
+  top: clamp(24px, 3vw, 38px) !important;
+  right: clamp(28px, 4vw, 56px) !important;
+  left: auto !important;
+  transform: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-back-inline {
+  position: absolute !important;
+  top: clamp(24px, 3vw, 38px) !important;
+  left: clamp(28px, 4vw, 56px) !important;
+  z-index: 9 !important;
+  margin: 0 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-ai-button {
+  justify-self: auto !important;
+  margin: 0 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-person-grid,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-option-list,
+html body.quiz-overlay-open .quiz-modal-layer .operator-per-person,
+html body.quiz-overlay-open .quiz-modal-layer .operator-choice-grid,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-refinement-options,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-refinement-actions,
+html body.quiz-overlay-open .quiz-modal-layer .offers-recommendation-grid {
+  margin-right: auto !important;
+  margin-left: auto !important;
+  justify-content: center !important;
+  justify-items: center !important;
+  text-align: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-person-grid,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-option-list {
+  width: min(100%, 980px) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-option,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-refinement-option,
+html body.quiz-overlay-open .quiz-modal-layer .operator-person-card {
+  text-align: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-option,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-next-button,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-more-toggle,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-refinement-option {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-option {
+  flex-direction: column !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-option span,
+html body.quiz-overlay-open .quiz-modal-layer .operator-person-title {
+  text-align: center !important;
+}
+
+/* Compact operator step: remove dead white space around logos and binding controls. */
+html body.quiz-overlay-open .quiz-modal-layer #step1 .quiz-card-body {
+  max-width: min(1320px, 100%) !important;
+  padding-top: 0 !important;
+  justify-content: flex-start !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .quiz-title {
+  max-width: 820px !important;
+  font-size: clamp(34px, 3.4vw, 52px) !important;
+  line-height: .98 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .quiz-card-body > h3 {
+  margin-top: 8px !important;
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person {
+  display: grid !important;
+  width: min(100%, 1260px) !important;
+  gap: 14px !important;
+  margin: 14px auto 0 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person[data-operator-count="1"] {
+  max-width: 1200px !important;
+  grid-template-columns: 1fr !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-person-card {
+  display: grid !important;
+  gap: 14px !important;
+  width: 100% !important;
+  padding: 18px 20px !important;
+  border: 1px solid rgba(15, 23, 42, .13) !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, .62) !important;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, .08) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-person-title {
+  margin: 0 !important;
+  color: #101624 !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-card-controls {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
+  align-items: start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-choice-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(92px, 1fr)) !important;
+  gap: 10px !important;
+  width: min(100%, 900px) !important;
+  margin: 0 !important;
+  align-items: stretch !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-choice-grid .quiz-option {
+  width: 100% !important;
+  min-height: 76px !important;
+  height: 76px !important;
+  max-height: 76px !important;
+  padding: 8px 10px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, .72) !important;
+  overflow: hidden !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-choice-grid .partner-logo {
+  width: auto !important;
+  max-width: 112px !important;
+  height: auto !important;
+  max-height: 38px !important;
+  object-fit: contain !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-choice-grid [data-operator="Other"] {
+  font-size: 21px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-binding-controls {
+  display: grid !important;
+  grid-template-columns: minmax(280px, 430px) minmax(190px, 230px) !important;
+  gap: 10px !important;
+  width: min(100%, 700px) !important;
+  min-width: 0 !important;
+  margin: 0 auto !important;
+  padding: 8px !important;
+  border: 1px solid rgba(201, 121, 43, .18) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, .4) !important;
+  box-shadow: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-date-field,
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-no-binding-button {
+  width: 100% !important;
+  min-height: 56px !important;
+  height: 56px !important;
+  max-height: 56px !important;
+  margin: 0 !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, .76) !important;
+  box-shadow: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-date-field {
+  display: grid !important;
+  grid-template-columns: 34px minmax(0, 1fr) minmax(145px, 170px) !important;
+  gap: 8px !important;
+  align-items: center !important;
+  padding: 8px 10px !important;
+  text-align: left !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-date-icon {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-date-label {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.08 !important;
+  text-align: left !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-date-field input {
+  grid-column: auto !important;
+  width: 100% !important;
+  min-height: 38px !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-no-binding-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 16px !important;
+  font-size: 16px !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-choice-grid .quiz-option.selected::after,
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-choice-grid .quiz-option.active::after,
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-choice-grid .quiz-option[aria-pressed="true"]::after,
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-no-binding-button.selected::after,
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-no-binding-button.active::after,
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-no-binding-button[aria-pressed="true"]::after {
+  top: 6px !important;
+  right: 6px !important;
+  width: 18px !important;
+  height: 18px !important;
+  font-size: 11px !important;
+}
+
+/* Multi-person operator step: fit up to 10 people on the popup without scrolling. */
+html body.quiz-overlay-open .quiz-modal-layer #step1 .quiz-card-body--operator-active:not([data-operator-count="1"]) {
+  max-height: none !important;
+  padding-top: 0 !important;
+  overflow: visible !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .quiz-card-body--operator-active:not([data-operator-count="1"]) .quiz-title {
+  max-width: 100% !important;
+  font-size: clamp(25px, 2.1vw, 34px) !important;
+  line-height: 1 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .quiz-card-body--operator-active:not([data-operator-count="1"]) > h3 {
+  margin-top: 4px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) {
+  display: grid !important;
+  width: min(100%, 1060px) !important;
+  grid-template-columns: 1fr !important;
+  gap: 6px !important;
+  margin-top: 10px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-person-card {
+  display: grid !important;
+  grid-template-columns: minmax(58px, 70px) minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 42px !important;
+  padding: 5px 8px !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, .58) !important;
+  box-shadow: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-person-title {
+  margin: 0 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-card-controls {
+  display: grid !important;
+  grid-template-columns: minmax(290px, 1fr) minmax(320px, 395px) !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-choice-grid {
+  display: grid !important;
+  width: 100% !important;
+  grid-template-columns: repeat(5, minmax(44px, 1fr)) !important;
+  gap: 5px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-choice-grid .quiz-option {
+  min-height: 32px !important;
+  height: 32px !important;
+  max-height: 32px !important;
+  padding: 4px 6px !important;
+  border-radius: 8px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-choice-grid .partner-logo {
+  max-width: 62px !important;
+  max-height: 24px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-choice-grid [data-operator="Other"] {
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-binding-controls {
+  display: grid !important;
+  width: 100% !important;
+  grid-template-columns: minmax(186px, 1fr) minmax(112px, 128px) !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-date-field,
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-no-binding-button {
+  min-height: 32px !important;
+  height: 32px !important;
+  max-height: 32px !important;
+  border-radius: 8px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-date-field {
+  grid-template-columns: 24px minmax(118px, 1fr) !important;
+  gap: 5px !important;
+  padding: 4px 6px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-date-icon {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-date-label {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-date-field input {
+  min-height: 24px !important;
+  height: 24px !important;
+  padding: 0 5px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:not([data-operator-count="1"]) .operator-no-binding-button {
+  padding: 0 8px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:is([data-operator-count="7"], [data-operator-count="8"], [data-operator-count="9"], [data-operator-count="10"]) {
+  gap: 3px !important;
+  margin-top: 7px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .quiz-card-body--operator-active:is([data-operator-count="7"], [data-operator-count="8"], [data-operator-count="9"], [data-operator-count="10"]) .quiz-title {
+  font-size: clamp(22px, 1.8vw, 29px) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .quiz-card-body--operator-active:is([data-operator-count="7"], [data-operator-count="8"], [data-operator-count="9"], [data-operator-count="10"]) > h3 {
+  display: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:is([data-operator-count="7"], [data-operator-count="8"], [data-operator-count="9"], [data-operator-count="10"]) .operator-person-card {
+  min-height: 36px !important;
+  padding: 3px 7px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:is([data-operator-count="7"], [data-operator-count="8"], [data-operator-count="9"], [data-operator-count="10"]) .operator-choice-grid .quiz-option,
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:is([data-operator-count="7"], [data-operator-count="8"], [data-operator-count="9"], [data-operator-count="10"]) .operator-date-field,
+html body.quiz-overlay-open .quiz-modal-layer #step1 .operator-per-person:is([data-operator-count="7"], [data-operator-count="8"], [data-operator-count="9"], [data-operator-count="10"]) .operator-no-binding-button {
+  min-height: 28px !important;
+  height: 28px !important;
+  max-height: 28px !important;
+}
+
+/* Compact remaining modal steps so later questions fit the popup cleanly. */
+html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6) .quiz-card-body {
+  padding-top: 6px !important;
+  justify-content: flex-start !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6) .quiz-title {
+  max-width: 860px !important;
+  font-size: clamp(36px, 3.6vw, 56px) !important;
+  line-height: .98 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6) .quiz-subtitle,
+html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6) .quiz-card-body > h3 {
+  max-width: 720px !important;
+  margin-top: 10px !important;
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6) .quiz-option-list {
+  display: grid !important;
+  width: min(100%, 880px) !important;
+  grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)) !important;
+  gap: 14px !important;
+  margin-top: 28px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6) .quiz-option {
+  width: 100% !important;
+  min-height: 138px !important;
+  padding: 18px 14px !important;
+  border-radius: 12px !important;
+  gap: 8px !important;
+  background: rgba(255, 255, 255, .72) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step2 .quiz-option {
+  min-height: 158px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6) .quiz-option span:first-child {
+  max-width: 100% !important;
+  font-size: clamp(18px, 1.7vw, 23px) !important;
+  line-height: 1.06 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6) .quiz-option span + span {
+  max-width: 100% !important;
+  margin-top: 2px !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6) .quiz-option::before {
+  flex: 0 0 auto !important;
+  width: 58px !important;
+  height: 58px !important;
+  margin-bottom: 2px !important;
+  font-size: 26px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step5 .quiz-option-list {
+  width: min(100%, 520px) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .quiz-card-body {
+  padding-top: 4px !important;
+  justify-content: flex-start !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .quiz-title {
+  max-width: 840px !important;
+  font-size: clamp(34px, 3.3vw, 52px) !important;
+  line-height: .98 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .quiz-subtitle {
+  max-width: 720px !important;
+  margin-top: 10px !important;
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .streaming-checkbox-grid {
+  display: grid !important;
+  width: min(100%, 960px) !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  margin: 24px auto 0 !important;
+  justify-content: center !important;
+  justify-items: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .streaming-checkbox {
+  position: relative !important;
+  display: grid !important;
+  width: 100% !important;
+  min-height: 96px !important;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 8px !important;
+  padding: 13px 12px !important;
+  border: 1px solid rgba(15, 23, 42, .12) !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, .72) !important;
+  color: #111827 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .streaming-checkbox input[type="checkbox"] {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  clip: rect(0 0 0 0) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .streaming-checkbox span {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 34px !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .streaming-checkbox span::before {
+  display: none !important;
+  content: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .streaming-checkbox:has(input[type="checkbox"]:checked) {
+  border-color: #c8792b !important;
+  background: rgba(255, 244, 228, .86) !important;
+  box-shadow: inset 0 0 0 2px #c8792b !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .streaming-checkbox:has(input[type="checkbox"]:checked)::after {
+  content: "✓" !important;
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  display: grid !important;
+  width: 24px !important;
+  height: 24px !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background: #c8792b !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step3 .streaming-cost-input {
+  width: min(100%, 108px) !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-card-body {
+  padding-top: 0 !important;
+  justify-content: flex-start !important;
+  max-height: calc(100% - 86px) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .result-title {
+  max-width: 820px !important;
+  font-size: clamp(32px, 3.1vw, 48px) !important;
+  line-height: .98 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .result-desc {
+  max-width: 780px !important;
+  margin-top: 8px !important;
+  font-size: 15px !important;
+  line-height: 1.25 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offers-recommendation-grid {
+  display: grid !important;
+  width: min(100%, 1060px) !important;
+  max-height: 500px !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  margin-top: 18px !important;
+  overflow: auto !important;
+  padding: 2px 4px 8px !important;
+  align-items: stretch !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offers-recommendation-grid > .quiz-refinement-panel--blind {
+  grid-column: 1 / -1 !important;
+  order: 0 !important;
+  width: 100% !important;
+  border-radius: 14px !important;
+  background: rgba(255, 252, 246, .74) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .12) !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind .quiz-refinement-blind {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 14px !important;
+  max-height: 118px !important;
+  padding: 13px 16px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind .quiz-refinement-tab {
+  display: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind.is-collapsed .quiz-refinement-tab {
+  display: inline-flex !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind.is-collapsed .quiz-refinement-blind {
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind .quiz-refinement-copy {
+  gap: 4px !important;
+  text-align: left !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind .quiz-refinement-copy h4 {
+  font-size: clamp(19px, 1.7vw, 24px) !important;
+  line-height: 1.05 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind .quiz-refinement-copy p:last-child {
+  font-size: 13px !important;
+  line-height: 1.22 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind .quiz-refinement-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  margin: 0 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind .quiz-next-button,
+html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind .quiz-refinement-link {
+  width: auto !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+  padding: 0 20px !important;
+  border-radius: 999px !important;
+  font-size: 14px !important;
+  white-space: nowrap !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card,
+html body.quiz-overlay-open .quiz-modal-layer #step7 .recommendation-card {
+  min-width: 0 !important;
+  order: 1 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .recommendation-results-toggle {
+  grid-column: 1 / -1 !important;
+  order: 2 !important;
+  width: auto !important;
+  min-height: 42px !important;
+  padding: 0 24px !important;
+  border-radius: 999px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card {
+  min-height: 0 !important;
+  max-height: 264px !important;
+  overflow: hidden !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__inner {
+  display: grid !important;
+  gap: 8px !important;
+  padding: 12px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__top {
+  min-height: 0 !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__label {
+  min-height: 24px !important;
+  padding: 0 10px !important;
+  font-size: 10px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__head {
+  min-height: 76px !important;
+  padding: 10px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__logo {
+  max-width: 150px !important;
+  max-height: 50px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__gift-badge {
+  width: 56px !important;
+  height: 56px !important;
+  font-size: 9px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__gift-badge strong {
+  font-size: 13px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__stat {
+  min-height: 52px !important;
+  padding: 8px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__stat-label {
+  font-size: 10px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__stat-value {
+  font-size: 14px !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__desc,
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__reason,
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__benefits,
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__actions {
+  display: none !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offer-card__cta {
+  min-height: 38px !important;
+  margin-top: 0 !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+}
+
+@media (max-width: 760px) {
+  html body.quiz-overlay-open .quiz-modal-layer {
+    padding: 82px 14px 18px !important;
+  }
+
+  html body.quiz-overlay-open .quiz-modal-layer #quiz-steps-wrapper {
+    width: min(350px, calc(100vw - 32px)) !important;
+    max-width: min(350px, calc(100vw - 32px)) !important;
+    max-height: calc(100svh - 104px) !important;
+  }
+
+  html body.quiz-overlay-open .quiz-modal-layer .quiz-card {
+    max-height: calc(100svh - 104px) !important;
+    padding: 16px 14px 18px !important;
+  }
+
+  html body.quiz-overlay-open .quiz-modal-layer .quiz-card-toolbar {
+    gap: 10px !important;
+  }
+
+  html body.quiz-overlay-open .quiz-modal-layer .quiz-ai-actions {
+    position: static !important;
+    grid-column: 1 / -1 !important;
+    margin: 8px 0 0 !important;
+  }
+
+  html body.quiz-overlay-open .quiz-modal-layer .quiz-title,
+  html body.quiz-overlay-open .quiz-modal-layer .result-title {
+    font-size: clamp(28px, 9vw, 38px) !important;
+  }
+
+  html body.quiz-overlay-open .quiz-modal-layer .quiz-person-grid,
+  html body.quiz-overlay-open .quiz-modal-layer .quiz-option-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Inline hero analysis action: one sentence with a clear orange CTA. */
+html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-lead {
+  display: flex !important;
+  width: min(700px, 100%) !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+}
+
+html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-inline-action {
+  display: inline-flex !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 34px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 16px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: #c8792b !important;
+  color: #fff !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .3) !important;
+  font: inherit !important;
+  font-size: .86em !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  text-shadow: none !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+
+html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-inline-action span {
+  display: inline !important;
+  margin-left: 2px !important;
+  color: inherit !important;
+  font: inherit !important;
+  line-height: inherit !important;
+}
+
+html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-inline-action:hover,
+html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-inline-action:focus-visible {
+  background: #d98935 !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Codex-inspired interactive WebGL background for the newsletter panel only. */
+html body:has(.home-intro) .newsletter-panel {
+  isolation: isolate !important;
+  background:
+    radial-gradient(circle at 16% 20%, rgba(27, 73, 76, .42), transparent 36%),
+    radial-gradient(circle at 86% 72%, rgba(201, 121, 43, .24), transparent 34%),
+    #05070c !important;
+}
+
+html body:has(.home-intro) .newsletter-panel::before {
+  display: none !important;
+  content: none !important;
+}
+
+html body:has(.home-intro) .newsletter-panel .codex-bg-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  opacity: .98 !important;
+}
+
+html body:has(.home-intro) .newsletter-panel::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  display: block !important;
+  background:
+    linear-gradient(90deg, rgba(5, 7, 12, .7) 0%, rgba(5, 7, 12, .28) 48%, rgba(5, 7, 12, .72) 100%),
+    linear-gradient(180deg, rgba(5, 7, 12, .15), rgba(5, 7, 12, .62)) !important;
+  pointer-events: none !important;
+}
+
+html body:has(.home-intro) .newsletter-panel.codex-bg-fallback::after {
+  background:
+    radial-gradient(circle at 28% 38%, rgba(0, 212, 198, .22), transparent 18%),
+    radial-gradient(circle at 70% 58%, rgba(215, 127, 43, .24), transparent 22%),
+    repeating-linear-gradient(110deg, rgba(119, 229, 216, .12) 0 1px, transparent 1px 22px),
+    linear-gradient(90deg, rgba(5, 7, 12, .76) 0%, rgba(5, 7, 12, .34) 48%, rgba(5, 7, 12, .74) 100%),
+    #05070c !important;
+}
+
+html body:has(.home-intro) .newsletter-panel > :not(.codex-bg-canvas) {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+html body:has(.home-intro) .newsletter-panel .newsletter-copy h2,
+html body:has(.home-intro) .newsletter-panel .newsletter-form label > span {
+  color: #fff !important;
+}
+
+html body:has(.home-intro) .newsletter-panel .newsletter-copy p:last-child,
+html body:has(.home-intro) .newsletter-panel .newsletter-status {
+  color: rgba(255, 255, 255, .72) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body:has(.home-intro) .newsletter-panel .codex-bg-canvas {
+    opacity: .72 !important;
   }
 }
