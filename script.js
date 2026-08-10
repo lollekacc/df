@@ -4,7 +4,6 @@
     footer: 'partials/footer.html',
   };
 
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   const languageCatalog = [
     ['sv', 'Svenska'],
     ['en', 'English'],
@@ -1180,37 +1179,6 @@
     }));
   };
 
-  const setHeaderActiveState = () => {
-    document.querySelectorAll('.nav-item--active').forEach((item) => {
-      item.classList.remove('nav-item--active');
-    });
-
-    document.querySelectorAll('.nav-menu a[href]').forEach((link) => {
-      link.classList.remove('is-active');
-      link.removeAttribute('aria-current');
-
-      const targetPage = link.getAttribute('href').split('#')[0].split('/').pop() || 'index.html';
-
-      if (targetPage === currentPage) {
-        link.classList.add('is-active');
-        link.setAttribute('aria-current', 'page');
-
-        const parentDropdown = link.closest('.nav-item--dropdown');
-        const parentItem = parentDropdown || link.closest('.nav-item');
-
-        parentItem?.classList.add('nav-item--active');
-      }
-    });
-
-    document.querySelectorAll('.header-topbar-link').forEach((link) => {
-      const targetPage = link.getAttribute('href').split('#')[0].split('/').pop() || 'index.html';
-      const isMainArea = currentPage !== 'foretag.html';
-      const isActive = targetPage === currentPage || (targetPage === 'index.html' && isMainArea);
-
-      link.classList.toggle('is-active', isActive);
-    });
-  };
-
   const initDropdowns = () => {
     const dropdowns = document.querySelectorAll('.nav-item--dropdown');
     const header = document.querySelector('.site-header');
@@ -1274,55 +1242,6 @@
         closeMobileNav();
       }
     });
-  };
-
-  const initHeaderMotion = () => {
-    const header = document.querySelector('.site-header');
-    const hero = document.querySelector('.hero');
-
-    if (!header && !hero) {
-      return;
-    }
-
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    const updateOnScroll = () => {
-      const nextScrollY = window.scrollY;
-
-      if (header) {
-        if (nextScrollY <= 0 || nextScrollY < lastScrollY) {
-          header.classList.remove('is-hidden');
-        } else if (nextScrollY > lastScrollY && nextScrollY > 80) {
-          header.classList.add('is-hidden');
-        }
-      }
-
-      if (hero) {
-        const heroHeight = hero.offsetHeight || 1;
-        const progress = Math.min(Math.max(nextScrollY / heroHeight, 0), 1);
-        const maxShift = window.matchMedia('(max-width: 680px)').matches ? 32 : 90;
-        const shift = Math.round(progress * -maxShift);
-
-        hero.style.setProperty('--hero-shift', `${shift}px`);
-      }
-
-      lastScrollY = Math.max(nextScrollY, 0);
-      ticking = false;
-    };
-
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!ticking) {
-          window.requestAnimationFrame(updateOnScroll);
-          ticking = true;
-        }
-      },
-      { passive: true }
-    );
-
-    updateOnScroll();
   };
 
   const initCoveragePreview = () => {
@@ -2607,10 +2526,8 @@
   };
 
   const initGlobalBehaviors = () => {
-    setHeaderActiveState();
     updateCartCount();
     initDropdowns();
-    initHeaderMotion();
     initCoveragePreview();
     initDealettChat();
     initTranslations();

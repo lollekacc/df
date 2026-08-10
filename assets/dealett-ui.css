@@ -4376,7 +4376,7 @@ html body .hero.quiz-in-hero .streaming-checkbox:has(input[type="checkbox"]:chec
   box-shadow: 0 0 0 4px rgba(200, 121, 43, .16) !important;
 }
 
-/* Header logo: use the provided Dealett.png asset directly. */
+/* Header logo: render the provided image normally. */
 html body .site-header .brand--logo::before,
 html body .site-header .brand--logo::after {
   display: none !important;
@@ -4385,48 +4385,28 @@ html body .site-header .brand--logo::after {
 
 html body .site-header .brand--logo {
   display: inline-flex !important;
-  width: 186px !important;
-  height: 45px !important;
-  min-height: 45px !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  align-items: center !important;
   padding: 0 !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   background: transparent !important;
 }
 
-html body .site-header .brand-logo-crop {
-  position: relative !important;
+html body .site-header .brand-logo {
   display: block !important;
-  width: 186px !important;
-  height: 45px !important;
-  overflow: hidden !important;
-  background: transparent !important;
-}
-
-html body .site-header .brand-logo-crop img {
-  position: absolute !important;
-  top: -63px !important;
-  left: -38px !important;
-  display: block !important;
-  width: 262px !important;
-  height: 175px !important;
-  max-width: none !important;
+  width: auto !important;
+  height: 108px !important;
+  max-width: 324px !important;
   object-fit: contain !important;
   filter: none !important;
 }
 
 @media (max-width: 980px) {
-  html body .site-header .brand--logo,
-  html body .site-header .brand-logo-crop {
-    width: 142px !important;
-    height: 38px !important;
-    min-height: 38px !important;
-  }
-
-  html body .site-header .brand-logo-crop img {
-    top: -50px !important;
-    left: -31px !important;
-    width: 210px !important;
-    height: 140px !important;
+  html body .site-header .brand-logo {
+    height: 70px !important;
+    max-width: 210px !important;
   }
 }
 

@@ -38,6 +38,7 @@
 - Perform reasonably broader regression testing based on the scope and risk of the change, but do not automatically test the entire site after every task.
 - Before finishing, review your own diff and confirm every modification is related to the requested task.
 - Remove or revert accidental and unnecessary changes.
+- Scale investigation and verification to the task. For trivial/local changes, make the change and perform only proportionate checks. Do not run broad analysis or regression testing unnecessarily.
 
 ## Recovery
 
