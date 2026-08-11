@@ -39,6 +39,7 @@
 - Before finishing, review your own diff and confirm every modification is related to the requested task.
 - Remove or revert accidental and unnecessary changes.
 - Scale investigation and verification to the task. For trivial/local changes, make the change and perform only proportionate checks. Do not run broad analysis or regression testing unnecessarily.
+- For trivial, clearly scoped edits, use a fast path: inspect only the directly relevant file(s), make the smallest correct change, run only the minimum necessary verification, and stop. Do not perform broad repository searches, full-site checks, screenshots, or unrelated validation unless the change requires them.
 
 ## Recovery
 
