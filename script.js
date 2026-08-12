@@ -1319,6 +1319,7 @@
         placeholder: 'Fråga AI om vad som helst...',
         send: 'Skicka',
         typing: 'Dealett assistant skriver...',
+        queued: 'Ditt tillägg är köat...',
         error: 'Jag kunde inte svara just nu. Kontrollera att AI-tjänsten är konfigurerad och försök igen.',
         feedbackQuestion: 'Var svaret hjälpsamt?',
         feedbackYes: 'Ja',
@@ -1336,6 +1337,7 @@
         placeholder: 'Ask AI anything...',
         send: 'Send',
         typing: 'Dealett assistant is typing...',
+        queued: 'Your follow-up is queued...',
         error: 'I could not answer right now. Check that the AI service is configured and try again.',
         feedbackQuestion: 'Was this helpful?',
         feedbackYes: 'Yes',
@@ -1359,6 +1361,8 @@
     let offerClickedInSession = false;
     let hasUserStartedChat = false;
     let activeQuizContext = null;
+    let ignoreQuizContext = false;
+    const pendingMessages = [];
 
     const root = document.createElement('section');
     root.id = 'dealettChat';
@@ -1516,6 +1520,7 @@
     };
 
     const getQuizContext = () => {
+      if (ignoreQuizContext) return null;
       const liveContext = window.DealettQuiz?.getChatContext?.() || null;
       if (liveContext) {
         activeQuizContext = {
@@ -1551,17 +1556,18 @@
       const label = String(suggestion || '').trim();
       const normalized = label.toLowerCase();
       const patchMap = [
-        { test: /^1$/, patch: { peopleCount: 1 } },
-        { test: /^2$/, patch: { peopleCount: 2 } },
-        { test: /^3$/, patch: { peopleCount: 3 } },
-        { test: /^4$/, patch: { peopleCount: 4 } },
-        { test: /5\+/, patch: { peopleCount: 5 } },
+        { test: /^1(?:\s|$)/, patch: { peopleCount: 1 } },
+        { test: /^2(?:\s|$)/, patch: { peopleCount: 2 } },
+        { test: /^3(?:\s|$)/, patch: { peopleCount: 3 } },
+        { test: /4 eller fler|4 or more|5\+/, patch: { peopleCount: 5 } },
+        { test: /^4(?:\s+abonnemang|\s+subscriptions?)?$/i, patch: { peopleCount: 4 } },
         { test: /lite surf|wifi|social/i, patch: { mobileUsage: 'low' } },
         { test: /streaming|video/i, patch: { mobileUsage: 'medium' } },
         { test: /max surf|obegränsad|unlimited/i, patch: { mobileUsage: 'high' } },
         { test: /under 300/i, patch: { priceRange: 'under300' } },
         { test: /300.?400/i, patch: { priceRange: '300-400' } },
         { test: /400.?500/i, patch: { priceRange: '400-500' } },
+        { test: /spelar ingen roll|ingen prisgräns|utan prisgräns|no limit|no preference/i, patch: { priceRange: 'no_limit' } },
       ];
       const operator = ['Telia', 'Tele2', 'Telenor', 'Tre']
         .find((item) => item.toLowerCase() === normalized);
@@ -1792,9 +1798,10 @@
       const wrap = document.createElement('div');
       wrap.className = 'dealett-chat-quick-replies';
 
-      quickReplies.slice(0, 4).forEach((reply) => {
+      quickReplies.slice(0, 5).forEach((reply) => {
         const label = String(reply?.label || reply || '').trim();
         if (!label) return;
+        const suggestion = inferSuggestion(label);
 
         const button = document.createElement('button');
         button.type = 'button';
@@ -1802,12 +1809,19 @@
         button.textContent = label;
         button.setAttribute('data-translation-complete', '');
         button.addEventListener('click', () => {
-          if (isSending) return;
+          if (suggestion.qualificationPatch) {
+            mergeQualification(suggestion.qualificationPatch);
+          }
           wrap.querySelectorAll('button').forEach((item) => {
             item.disabled = true;
           });
           input.value = label;
-          sendMessage(label);
+          sendMessage(label, {
+            context: {
+              quickReply: true,
+              qualificationPatch: suggestion.qualificationPatch || null,
+            },
+          });
         });
         wrap.append(button);
       });
@@ -1940,9 +1954,15 @@
         '</div>',
         isUser ? '<span class="dealett-chat-avatar dealett-chat-avatar--user" aria-hidden="true"></span>' : '',
       ].join('');
-      messageList.append(item);
-      messages.push({ role, content });
-      if (messages.length > 10) messages.splice(0, messages.length - 10);
+      if (options.before instanceof Node && options.before.parentNode === messageList) {
+        messageList.insertBefore(item, options.before);
+      } else {
+        messageList.append(item);
+      }
+      if (options.persist !== false) {
+        messages.push({ role, content });
+        if (messages.length > 10) messages.splice(0, messages.length - 10);
+      }
       scrollMessages();
       return item;
     };
@@ -2057,13 +2077,17 @@
 
     const renderAssistantResponse = (response, options = {}) => {
       const { showFeedback = true } = options;
-      const assistantText = response.reply || response.message || '';
+      const assistantText = typeof response?.reply === 'string' ? response.reply.trim() : '';
+      if (response?.source !== 'openai' || !assistantText) {
+        throw new Error('Chat response was not generated by OpenAI');
+      }
       lastAssistantResponse = {
         ...response,
         reply: assistantText,
       };
       const assistantItem = addMessage('assistant', assistantText, {
         contentLanguage: chatLanguage,
+        before: pendingMessages[0]?.item,
       });
       renderQuickReplies(assistantItem, response.quickReplies);
       renderChatOfferCards(assistantItem, response.offerCards);
@@ -2074,6 +2098,17 @@
       writeQualification(response.qualification);
       writeOfferCalculation(response.offerCalculation);
       return assistantItem;
+    };
+
+    const continuePendingMessage = () => {
+      const nextMessage = pendingMessages.shift();
+      if (!nextMessage) {
+        input.focus();
+        return;
+      }
+      messages.push({ role: 'user', content: nextMessage.message });
+      if (messages.length > 10) messages.splice(0, messages.length - 10);
+      void processMessage(nextMessage.message, nextMessage.options);
     };
 
     const loadInitialGreeting = async () => {
@@ -2113,11 +2148,8 @@
         setSending(false);
         if (requestFailed) {
           status.textContent = text.error;
-          addMessage('assistant', text.error, {
-            contentLanguage: chatLanguage,
-          });
         }
-        input.focus();
+        continuePendingMessage();
       }
     };
 
@@ -2212,23 +2244,17 @@
 
     const setSending = (nextValue) => {
       isSending = nextValue;
-      input.disabled = nextValue;
-      root.querySelector('.dealett-chat-send').disabled = nextValue;
-      status.textContent = nextValue ? text.typing : text.status;
+      status.textContent = nextValue
+        ? (pendingMessages.length ? text.queued : text.typing)
+        : text.status;
     };
 
-    const sendMessage = async (rawMessage, options = {}) => {
-      const message = String(rawMessage || '').trim();
-      if (!message || isSending) return;
+    const processMessage = async (message, options = {}) => {
       const requestContext = {
         ...(getQuizContext() || {}),
         ...(options.context || {}),
       };
 
-      hasUserStartedChat = true;
-      suggestionArea.replaceChildren();
-      addMessage('user', message);
-      input.value = '';
       setSending(true);
       let requestFailed = false;
 
@@ -2260,12 +2286,36 @@
         setSending(false);
         if (requestFailed) {
           status.textContent = text.error;
-          addMessage('assistant', text.error, {
-            contentLanguage: chatLanguage,
-          });
         }
-        input.focus();
+        continuePendingMessage();
       }
+    };
+
+    const sendMessage = (rawMessage, options = {}) => {
+      const message = String(rawMessage || '').trim();
+      if (!message) return;
+
+      if (/\b(starta om|börja om|börja från början|start over|start again|restart)\b/i.test(message)) {
+        sessionStorage.removeItem(qualificationKey);
+        sessionStorage.removeItem(offerCalculationKey);
+        activeQuizContext = null;
+        ignoreQuizContext = true;
+      }
+
+      hasUserStartedChat = true;
+      suggestionArea.replaceChildren();
+      input.value = '';
+
+      if (isSending) {
+        const item = addMessage('user', message, { persist: false });
+        pendingMessages.push({ message, options, item });
+        status.textContent = text.queued;
+        input.focus();
+        return;
+      }
+
+      addMessage('user', message);
+      void processMessage(message, options);
     };
 
     const openPanel = (options = {}) => {
@@ -2298,6 +2348,7 @@
       readQualification,
       writeQualification,
       continueFromQuiz(payload = {}) {
+        ignoreQuizContext = false;
         const qualification = payload.qualification || payload.quizQualification || null;
         if (qualification) writeQualification(qualification);
         activeQuizContext = {
@@ -2326,6 +2377,9 @@
       lastAssistantResponse = null;
       offerClickedInSession = false;
       hasUserStartedChat = false;
+      activeQuizContext = null;
+      ignoreQuizContext = true;
+      pendingMessages.splice(0, pendingMessages.length);
       messages.splice(0, messages.length);
       messageList.replaceChildren();
       loadInitialGreeting();
