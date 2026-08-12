@@ -1,14 +1,14 @@
 html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image {
   position: relative !important;
-  width: min(280px, calc(100vw - 28px)) !important;
+  width: min(153px, calc(100vw - 24px)) !important;
   min-width: 0 !important;
   height: auto !important;
   min-height: 0 !important;
-  aspect-ratio: 4.28 / 1 !important;
+  aspect-ratio: 153 / 43 !important;
   padding: 0 !important;
   overflow: hidden !important;
   border: 0 !important;
-  border-radius: 999px !important;
+  border-radius: 7px !important;
   background: transparent !important;
   box-shadow: none !important;
   color: transparent !important;
@@ -24,12 +24,11 @@ html body #dealettChat .dealett-chat-toggle--image > .dealett-button-orbit {
 
 html body #dealettChat .dealett-chat-toggle--image .dealett-chat-toggle__image {
   position: absolute !important;
-  top: -114.7% !important;
-  left: -9.75% !important;
+  inset: 0 !important;
   display: block !important;
-  width: 119.5% !important;
+  width: 100% !important;
   max-width: none !important;
-  height: auto !important;
+  height: 100% !important;
   pointer-events: none;
   user-select: none;
 }
@@ -42,10 +41,4 @@ html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image:hover {
 html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image:focus-visible {
   outline: 3px solid #ffffff !important;
   outline-offset: 3px !important;
-}
-
-@media (max-width: 680px) {
-  html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image {
-    width: min(260px, calc(100vw - 24px)) !important;
-  }
 }
