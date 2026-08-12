@@ -1,0 +1,51 @@
+html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image {
+  position: relative !important;
+  width: min(280px, calc(100vw - 28px)) !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 4.28 / 1 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: transparent !important;
+}
+
+html body #dealettChat .dealett-chat-toggle--image::before,
+html body #dealettChat .dealett-chat-toggle--image::after,
+html body #dealettChat .dealett-chat-toggle--image > i,
+html body #dealettChat .dealett-chat-toggle--image > .dealett-button-orbit {
+  display: none !important;
+  content: none !important;
+}
+
+html body #dealettChat .dealett-chat-toggle--image .dealett-chat-toggle__image {
+  position: absolute !important;
+  top: -114.7% !important;
+  left: -9.75% !important;
+  display: block !important;
+  width: 119.5% !important;
+  max-width: none !important;
+  height: auto !important;
+  pointer-events: none;
+  user-select: none;
+}
+
+html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image:hover {
+  background: transparent !important;
+  filter: brightness(1.06);
+}
+
+html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image:focus-visible {
+  outline: 3px solid #ffffff !important;
+  outline-offset: 3px !important;
+}
+
+@media (max-width: 680px) {
+  html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image {
+    width: min(260px, calc(100vw - 24px)) !important;
+  }
+}

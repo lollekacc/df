@@ -1310,6 +1310,14 @@
   const initDealettChat = () => {
     if (document.querySelector('#dealettChat')) return;
 
+    if (!document.querySelector('link[data-dealett-chat-launcher]')) {
+      const launcherStyles = document.createElement('link');
+      launcherStyles.rel = 'stylesheet';
+      launcherStyles.href = 'assets/chat-launcher.css';
+      launcherStyles.dataset.dealettChatLauncher = '';
+      document.head.append(launcherStyles);
+    }
+
     const copy = {
       sv: {
         open: 'Öppna Dealett assistant',
@@ -1368,8 +1376,8 @@
     root.id = 'dealettChat';
     root.className = 'dealett-chat';
     root.innerHTML = [
-      `<button class="dealett-chat-toggle" type="button" aria-label="${text.open}" aria-expanded="false">`,
-      '  <i class="fa-solid fa-message" aria-hidden="true"></i>',
+      `<button class="dealett-chat-toggle dealett-chat-toggle--image" type="button" aria-label="${text.open}" aria-expanded="false">`,
+      '  <img class="dealett-chat-toggle__image" src="images/chat.png" alt="" aria-hidden="true" draggable="false">',
       '</button>',
       '<div class="dealett-chat-panel" role="dialog" aria-modal="false" aria-labelledby="dealettChatTitle" hidden>',
       '  <header class="dealett-chat-header">',
