@@ -6171,12 +6171,27 @@ button:disabled,
 
 body.cart-drawer-open {
   overflow: hidden;
+  padding-right: var(--cart-scrollbar-width, 0px);
+}
+
+body.cart-drawer-open .site-header {
+  width: calc(100% - var(--cart-scrollbar-width, 0px));
 }
 
 .cart-drawer {
   position: fixed;
   inset: 0;
   z-index: 9999;
+  visibility: visible;
+  pointer-events: auto;
+  transition: visibility 0s linear;
+}
+
+.cart-drawer.hidden {
+  display: block !important;
+  visibility: hidden;
+  pointer-events: none;
+  transition-delay: 360ms;
 }
 
 .cart-drawer .cart-drawer-overlay {
@@ -6184,6 +6199,8 @@ body.cart-drawer-open {
   inset: 0;
   background: rgba(23, 20, 43, 0.48);
   backdrop-filter: blur(2px);
+  opacity: 1;
+  transition: opacity 280ms ease;
 }
 
 .cart-drawer .cart-drawer-panel {
@@ -6196,6 +6213,25 @@ body.cart-drawer-open {
   height: 100%;
   background: #fff;
   box-shadow: -24px 0 60px rgba(39, 36, 67, 0.22);
+  transform: translateX(0);
+  will-change: transform;
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cart-drawer.hidden .cart-drawer-overlay {
+  opacity: 0;
+}
+
+.cart-drawer.hidden .cart-drawer-panel {
+  transform: translateX(105%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-drawer,
+  .cart-drawer .cart-drawer-overlay,
+  .cart-drawer .cart-drawer-panel {
+    transition-duration: 0.01ms;
+  }
 }
 
 .cart-drawer .cart-drawer-head {

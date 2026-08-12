@@ -343,6 +343,18 @@
   color: rgba(39, 36, 67, 0.76);
 }
 
+.start-date-warning {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid #c96f24;
+  border-radius: 8px;
+  background: rgba(201, 111, 36, 0.09);
+  color: rgba(39, 36, 67, 0.86);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 .terms-review-container {
   margin-top: 24px;
 }
@@ -593,4 +605,124 @@
   .terms-review-copy h3 {
     font-size: 19px;
   }
+}
+
+.cart-drawer .cart-drawer-panel {
+  width: min(100%, 780px);
+  overflow: hidden;
+}
+
+.cart-drawer .is-hidden {
+  display: none !important;
+}
+
+.cart-drawer .cart-checkout-drawer-content {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.cart-drawer .result-section,
+.cart-drawer .cart-summary-section {
+  padding: 28px;
+}
+
+.cart-drawer .result-section + .result-section {
+  padding-top: 0;
+}
+
+.cart-drawer .result-shell {
+  width: 100%;
+}
+
+.cart-drawer .section-head {
+  margin-bottom: 20px;
+}
+
+.cart-drawer-steps {
+  display: flex;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.cart-drawer-steps span {
+  padding: 4px 9px;
+  border: 1px solid rgba(17, 17, 17, 0.3);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.55;
+}
+
+.cart-drawer-steps span.is-active {
+  background: #111;
+  color: #fff;
+  opacity: 1;
+}
+
+.cart-step-primary {
+  margin-top: 22px;
+}
+
+.cart-step-toolbar {
+  padding: 20px 28px 0;
+}
+
+.cart-step-back {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.embedded-checkout-frame {
+  display: block;
+  width: 100%;
+  height: 0;
+  border: 0;
+  background: #fff;
+}
+
+.cart-drawer .cart-summary-top {
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 18px;
+  padding: 20px;
+}
+
+.cart-drawer .cart-summary-bottom {
+  padding: 0 20px 20px;
+}
+
+.cart-drawer .cart-summary-logo {
+  min-height: 96px;
+}
+
+.cart-drawer .cart-summary-main h3 {
+  font-size: 24px;
+}
+
+.cart-drawer .cart-checkout-total-card {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 680px) {
+  .cart-drawer .result-section,
+  .cart-drawer .cart-summary-section {
+    padding: 20px;
+  }
+
+  .cart-drawer .cart-summary-top,
+  .cart-drawer .cart-summary-bottom {
+    grid-template-columns: 1fr;
+  }
+
 }

@@ -1,5 +1,6 @@
 (() => {
   const params = new URLSearchParams(window.location.search);
+  document.body.classList.toggle('bestallning-embedded', params.get('embedded') === '1');
   const currency = new Intl.NumberFormat('sv-SE');
   const nowIso = () => new Date().toISOString();
 
@@ -966,9 +967,27 @@
       });
     });
 
+    const checkAllAgreements = document.querySelector('[data-check-all-agreements]');
+    let syncingAllAgreements = false;
+    checkAllAgreements?.addEventListener('change', () => {
+      const shouldCheckAll = checkAllAgreements.checked;
+      syncingAllAgreements = true;
+      document.querySelectorAll('#checkoutForm input[type="checkbox"]:not([data-check-all-agreements])').forEach((input) => {
+        if (input.checked === shouldCheckAll) return;
+        input.checked = shouldCheckAll;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      syncingAllAgreements = false;
+      checkAllAgreements.checked = shouldCheckAll;
+    });
+
     document.querySelectorAll('input[type="checkbox"]').forEach((input) => {
       input.addEventListener('change', () => {
         confirmationTimestamps[input.name] = input.checked ? nowIso() : null;
+        if (!syncingAllAgreements && input !== checkAllAgreements && checkAllAgreements) {
+          checkAllAgreements.checked = [...document.querySelectorAll('#checkoutForm input[type="checkbox"]:not([data-check-all-agreements])')]
+            .every((agreementInput) => agreementInput.checked);
+        }
         saveCheckoutDraft();
         setMessage('');
         updateSubmitState();

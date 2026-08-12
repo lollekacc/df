@@ -1,6 +1,7 @@
 (() => {
   const els = {
     cartSummaryContainer: document.querySelector('#cartSummaryContainer'),
+    cartCheckoutBtn: document.querySelector('#cartCheckoutBtn'),
     contactSection: document.querySelector('#contactSection'),
     contactEmail: document.querySelector('#contactEmail'),
     contactPhone: document.querySelector('#contactPhone'),
@@ -14,6 +15,7 @@
     startDateOptions: document.querySelector('#startDateOptions'),
     startDateText: document.querySelector('#startDateText'),
     startDateValue: document.querySelector('#startDateValue'),
+    startDateWarning: document.querySelector('#startDateWarning'),
     termsReviewContainer: document.querySelector('#termsReviewContainer'),
     goToSignBtn: document.querySelector('#goToSignBtn'),
     signMessage: document.querySelector('#signMessage')
@@ -419,6 +421,8 @@
   const renderCartSummary = () => {
     if (!els.cartSummaryContainer) return;
 
+    if (els.cartCheckoutBtn) els.cartCheckoutBtn.disabled = !cart.length;
+
     if (!cart.length) {
       renderEmptyCart();
       return;
@@ -426,7 +430,7 @@
 
     els.cartSummaryContainer.innerHTML = [
       ...cart.map(renderSummaryCard),
-      renderCheckoutTotals()
+      ...(cart.length > 1 ? [renderCheckoutTotals()] : [])
     ].join('');
   };
 
@@ -467,6 +471,11 @@
   };
 
   const refreshCheckoutAfterCartChange = () => {
+    const embeddedSection = document.querySelector('#embeddedCheckoutSection');
+    const embeddedFrame = document.querySelector('#embeddedCheckoutFrame');
+    embeddedSection?.classList.add('is-hidden');
+    embeddedFrame?.removeAttribute('src');
+
     if (!cart.length) {
       els.contactSection?.classList.add('is-hidden');
       els.numberSection?.classList.add('is-hidden');
@@ -518,7 +527,7 @@
 
       const label = document.createElement('label');
       label.setAttribute('for', `transferPhone${index}`);
-      label.textContent = `Nummer ${index}`;
+      label.textContent = index === 1 ? 'Huvudabonnemangets nummer' : `Nummer ${index}`;
 
       const input = document.createElement('input');
       input.id = `transferPhone${index}`;
@@ -526,6 +535,7 @@
       input.placeholder = '07XXXXXXXX';
       input.autocomplete = 'tel';
       input.inputMode = 'tel';
+      if (index === 1) input.value = getContact().phone;
 
       field.append(label, input);
       fragment.append(field);
@@ -573,6 +583,14 @@
       els.startDateValue.textContent = label;
       els.startDateText.classList.remove('is-hidden');
     }
+
+    const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(selectedStartDate)
+      ? new Date(`${selectedStartDate}T12:00:00`)
+      : null;
+    els.startDateWarning?.classList.toggle(
+      'is-hidden',
+      !selectedDate || selectedDate < addDays(14)
+    );
   };
 
   const renderStartDates = () => {
@@ -622,7 +640,7 @@
     els.termsReviewContainer.innerHTML = [
       '<section class="terms-review" aria-labelledby="termsReviewTitle">',
       '  <div class="terms-review-compact">',
-      '    <img src="./images/Dealett.png" alt="Dealett" loading="lazy" decoding="async" />',
+      '    <img src="./images/Dealett2.png" alt="Dealett" loading="lazy" decoding="async" />',
       '    <div class="terms-review-copy">',
       '      <h3 id="termsReviewTitle">Avtal och villkor</h3>',
       '      <p>L\u00e4s och godk\u00e4nn Dealetts villkor f\u00f6r f\u00f6rmedling och presentkort innan BankID.</p>',
@@ -742,7 +760,7 @@
 
     els.goToSignBtn.disabled = !selectedStartDate;
     els.goToSignBtn.textContent = selectedStartDate
-      ? 'Forts\u00e4tt till granskning'
+      ? 'Forts\u00e4tt till avtal och signering'
       : 'V\u00e4lj startdatum f\u00f6rst';
   };
 
@@ -874,7 +892,7 @@
       readyForSigning: false,
       legalAcceptance: null,
     });
-    window.location.assign('bestallning.html');
+    window.DealettCart?.showCheckoutAgreement();
   };
 
   const bindEvents = () => {
@@ -917,5 +935,19 @@
     bindEvents();
   };
 
+  window.addEventListener('dealett:cart-updated', (event) => {
+    cart = window.DealettCart?.normalizeCart(event.detail?.cart || []) || event.detail?.cart || [];
+    renderCartSummary();
+    updateSignButtonState();
+    refreshCheckoutAfterCartChange();
+  });
+
+  window.addEventListener('dealett:cart-drawer-opened', (event) => {
+    cart = window.DealettCart?.normalizeCart(event.detail?.cart || loadCart()) || event.detail?.cart || loadCart();
+    renderCartSummary();
+    updateSignButtonState();
+  });
+
   init();
+  window.DEALETT_CART_CHECKOUT_READY = true;
 })();

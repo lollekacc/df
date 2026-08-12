@@ -27,12 +27,28 @@
     telenor: 'Telenor',
     tre: 'Tre',
   };
-  const networkStyles = {
-    '4g': { fill: '#22c875', opacity: 0.42 },
-    '4gPlus': { fill: '#264655', opacity: 0.46 },
-    '5g': { fill: '#a847ed', opacity: 0.48 },
-    '5gPlus': { fill: '#263d49', opacity: 0.52 },
+  const coverageQualityColors = {
+    excellent: '#57597f',
+    good: '#4f9d9e',
+    basic: '#f3b04a',
   };
+  const coverageFillColor = [
+    'match',
+    ['get', 'quality'],
+    'excellent', coverageQualityColors.excellent,
+    'good', coverageQualityColors.good,
+    coverageQualityColors.basic,
+  ];
+  const coverageFillOpacity = [
+    '*',
+    ['coalesce', ['get', 'opacity'], 0.5],
+    ['interpolate', ['linear'], ['zoom'], 3.4, 0.88, 8, 1, 14, 0.82],
+  ];
+  const coverageLineOpacity = [
+    '*',
+    ['match', ['get', 'detail'], 'boundary', 0.82, 'city', 0.3, 'corridor', 0.24, 0.13],
+    ['interpolate', ['linear'], ['zoom'], 3.4, 0.82, 9, 1, 15, 0.72],
+  ];
 
   const swedenBounds = [10.4, 55.0, 24.5, 69.3];
   const swedenFitBounds = [[10.4, 55.0], [24.5, 69.3]];
@@ -40,6 +56,7 @@
   const swedenBoundaryUrl = 'assets/geo/sweden-boundary.geojson';
   const emptyFeatureCollection = { type: 'FeatureCollection', features: [] };
   let swedenBoundaryFeature = null;
+  let swedenContainmentPolygons = [];
   let coverageData = null;
   const swedenCameraBase = {
     pitch: 18,
@@ -417,13 +434,33 @@
       return null;
     }
 
-    return {
+    const normalizedFeature = {
       type: 'Feature',
       properties: { id: 'sweden' },
       geometry: geometry.type === 'MultiPolygon'
         ? geometry
         : { type: 'MultiPolygon', coordinates: [geometry.coordinates] },
     };
+
+    swedenContainmentPolygons = normalizedFeature.geometry.coordinates.map((polygon) => {
+      const simplifyRing = (ring) => {
+        const stride = Math.max(1, Math.floor((ring.length - 1) / 320));
+        const simplified = ring.filter((point, index) => index < ring.length - 1 && index % stride === 0);
+        simplified.push(simplified[0]);
+        return simplified;
+      };
+      const [outerRing, ...holes] = polygon;
+      const longitudes = outerRing.map(([longitude]) => longitude);
+      const latitudes = outerRing.map(([, latitude]) => latitude);
+
+      return {
+        bounds: [Math.min(...longitudes), Math.min(...latitudes), Math.max(...longitudes), Math.max(...latitudes)],
+        outerRing: simplifyRing(outerRing),
+        holes: holes.map(simplifyRing),
+      };
+    });
+
+    return normalizedFeature;
   };
 
   const ringContainsPoint = (ring, point) => {
@@ -444,10 +481,12 @@
   };
 
   const isPointInSweden = (point) => {
-    const polygons = swedenBoundaryFeature?.geometry?.coordinates || [];
+    const [longitude, latitude] = point;
 
-    return polygons.some((polygon) => {
-      const [outerRing, ...holes] = polygon;
+    return swedenContainmentPolygons.some(({ bounds, outerRing, holes }) => {
+      if (longitude < bounds[0] || latitude < bounds[1] || longitude > bounds[2] || latitude > bounds[3]) {
+        return false;
+      }
 
       if (!ringContainsPoint(outerRing, point)) {
         return false;
@@ -497,20 +536,20 @@
   ];
 
   const operatorProfiles = {
-    telia: { seed: 'telia', extent: 1.08, north: 1.06, west: 0.95 },
-    tele2: { seed: 'tele2', extent: 0.96, north: 0.82, west: 1.04 },
-    telenor: { seed: 'telenor', extent: 0.98, north: 0.86, west: 1.1 },
-    tre: { seed: 'tre', extent: 0.82, north: 0.62, west: 0.92 },
+    telia: { seed: 'telia', extent: 1.08, north: 1.06, west: 0.95, qualityBias: 0.06 },
+    tele2: { seed: 'tele2', extent: 0.96, north: 0.82, west: 1.04, qualityBias: 0.01 },
+    telenor: { seed: 'telenor', extent: 0.98, north: 0.86, west: 1.1, qualityBias: 0.02 },
+    tre: { seed: 'tre', extent: 0.82, north: 0.62, west: 0.92, qualityBias: -0.04 },
   };
 
   const networkProfiles = {
-    '4g': { radius: 0.42, count: 10, corridorRadius: 0.22, corridorSteps: 11, northFactor: 0.92 },
-    '4gPlus': { radius: 0.28, count: 6, corridorRadius: 0.15, corridorSteps: 8, northFactor: 0.72 },
-    '5g': { radius: 0.23, count: 5, corridorRadius: 0.12, corridorSteps: 7, northFactor: 0.48 },
-    '5gPlus': { radius: 0.16, count: 3, corridorRadius: 0.08, corridorSteps: 4, northFactor: 0.28 },
+    '4g': { radius: 0.34, count: 9, corridorRadius: 0.2, corridorSteps: 11, northFactor: 0.96, gridStep: 0.22, inclusion: 0.98, baseOpacity: 0.25, qualityBias: 0.13 },
+    '4gPlus': { radius: 0.28, count: 7, corridorRadius: 0.16, corridorSteps: 9, northFactor: 0.84, gridStep: 0.24, inclusion: 0.94, baseOpacity: 0.23, qualityBias: 0.08 },
+    '5g': { radius: 0.24, count: 6, corridorRadius: 0.13, corridorSteps: 8, northFactor: 0.68, gridStep: 0.26, inclusion: 0.9, baseOpacity: 0.21, qualityBias: 0.02 },
+    '5gPlus': { radius: 0.2, count: 4, corridorRadius: 0.1, corridorSteps: 6, northFactor: 0.5, gridStep: 0.28, inclusion: 0.84, baseOpacity: 0.19, qualityBias: -0.04 },
   };
 
-  const createIrregularBlob = (center, radius, random) => {
+  const createIrregularBlob = (center, radius, random, properties = {}) => {
     const pointCount = 13 + Math.floor(random() * 7);
     const ring = [];
     const latScale = Math.max(0.35, Math.cos(center[1] * Math.PI / 180));
@@ -525,22 +564,127 @@
 
     ring.push(ring[0]);
 
-    if (!ring.every((point) => isPointInSweden(point))) {
+    if (!ring.every((point, index) => index % 3 !== 0 || isPointInSweden(point))) {
       return null;
     }
 
     return {
       type: 'Feature',
-      properties: {},
+      properties,
       geometry: { type: 'Polygon', coordinates: [ring] },
     };
+  };
+
+  const getUrbanInfluence = ([longitude, latitude]) => {
+    const latitudeScale = Math.max(0.35, Math.cos(latitude * Math.PI / 180));
+
+    return weightedCitySeeds.reduce((strongest, [cityLongitude, cityLatitude, weight]) => {
+      const longitudeDistance = (longitude - cityLongitude) * latitudeScale;
+      const latitudeDistance = latitude - cityLatitude;
+      const distance = Math.sqrt(longitudeDistance ** 2 + latitudeDistance ** 2);
+      const influence = weight * Math.exp(-distance / 1.25);
+      return Math.max(strongest, influence);
+    }, 0);
+  };
+
+  const getMockCoverageQuality = (point, operatorProfile, networkProfile, random, bonus = 0) => {
+    const northness = Math.min(1, Math.max(0, (point[1] - 55.2) / 13.8));
+    const urbanInfluence = Math.min(1, getUrbanInfluence(point));
+    const score = 0.34
+      + ((1 - northness) * 0.2)
+      + (urbanInfluence * 0.28)
+      + operatorProfile.qualityBias
+      + networkProfile.qualityBias
+      + bonus
+      + ((random() - 0.5) * 0.34);
+
+    if (score >= 0.7) {
+      return 'excellent';
+    }
+
+    if (score >= 0.47) {
+      return 'good';
+    }
+
+    return 'basic';
+  };
+
+  const createNationwideTexture = (features, operatorProfile, networkProfile, random) => {
+    const latStep = networkProfile.gridStep;
+
+    for (let latitude = 55.18; latitude <= 69.08; latitude += latStep) {
+      const latitudeScale = Math.max(0.35, Math.cos(latitude * Math.PI / 180));
+      const lngStep = latStep / latitudeScale;
+      const rowOffset = Math.floor((latitude - 55.18) / latStep) % 2 ? lngStep * 0.5 : 0;
+
+      for (let longitude = 10.75 + rowOffset; longitude <= 24.25; longitude += lngStep) {
+        const center = [
+          longitude + ((random() - 0.5) * lngStep * 0.42),
+          latitude + ((random() - 0.5) * latStep * 0.42),
+        ];
+
+        if (!isPointInSweden(center)) {
+          continue;
+        }
+
+        const northness = Math.min(1, Math.max(0, (center[1] - 61.5) / 7.5));
+        const northCoverage = 1 - (northness * (1 - (networkProfile.northFactor * operatorProfile.north)));
+        const inclusionChance = Math.min(0.995, networkProfile.inclusion * operatorProfile.extent * northCoverage);
+
+        if (random() > inclusionChance) {
+          continue;
+        }
+
+        const quality = getMockCoverageQuality(center, operatorProfile, networkProfile, random);
+        const blob = createIrregularBlob(
+          center,
+          latStep * (0.58 + random() * 0.34),
+          random,
+          { quality, detail: 'texture', opacity: 0.42 + random() * 0.16 },
+        );
+
+        if (blob) {
+          features.push(blob);
+        }
+
+        if (blob && random() < 0.42) {
+          const microCenter = [
+            center[0] + ((random() - 0.5) * lngStep * 0.58),
+            center[1] + ((random() - 0.5) * latStep * 0.58),
+          ];
+
+          if (isPointInSweden(microCenter)) {
+            const microBlob = createIrregularBlob(
+              microCenter,
+              latStep * (0.18 + random() * 0.18),
+              random,
+              {
+                quality: getMockCoverageQuality(microCenter, operatorProfile, networkProfile, random, (random() - 0.5) * 0.16),
+                detail: 'texture',
+                opacity: 0.5 + random() * 0.16,
+              },
+            );
+
+            if (microBlob) {
+              features.push(microBlob);
+            }
+          }
+        }
+      }
+    }
   };
 
   const buildCoverageCollection = (operator, networkKey) => {
     const operatorProfile = operatorProfiles[operator];
     const networkProfile = networkProfiles[networkKey];
     const random = createSeededRandom(`${operatorProfile.seed}-${networkKey}-coverage`);
-    const features = [];
+    const features = [{
+      type: 'Feature',
+      properties: { quality: 'basic', detail: 'boundary', opacity: networkProfile.baseOpacity },
+      geometry: swedenBoundaryFeature.geometry,
+    }];
+
+    createNationwideTexture(features, operatorProfile, networkProfile, random);
 
     weightedCitySeeds.forEach(([lng, lat, weight]) => {
       const northPenalty = lat > 62 ? networkProfile.northFactor * operatorProfile.north : 1;
@@ -556,7 +700,11 @@
           continue;
         }
 
-        const blob = createIrregularBlob(center, radius, random);
+        const blob = createIrregularBlob(center, radius, random, {
+          quality: getMockCoverageQuality(center, operatorProfile, networkProfile, random, 0.18),
+          detail: 'city',
+          opacity: 0.55 + random() * 0.13,
+        });
 
         if (blob) {
           features.push(blob);
@@ -580,7 +728,12 @@
           continue;
         }
 
-        const blob = createIrregularBlob([lng, lat], networkProfile.corridorRadius * (0.72 + random() * 0.7), random);
+        const point = [lng, lat];
+        const blob = createIrregularBlob(point, networkProfile.corridorRadius * (0.72 + random() * 0.7), random, {
+          quality: getMockCoverageQuality(point, operatorProfile, networkProfile, random, 0.1),
+          detail: 'corridor',
+          opacity: 0.5 + random() * 0.12,
+        });
 
         if (blob) {
           features.push(blob);
@@ -837,24 +990,14 @@
     }
 
     const networkText = networkLabelsByKey[state.selectedNetwork] || '4G';
-    layerStatus.innerHTML = `${operatorLabels[state.activeOperator]} valt: ${networkText}. F&auml;rgerna visar demo-t&auml;ckning f&ouml;r valda n&auml;t tills verklig operat&ouml;rsdata kopplas in. <a href="jamfor-tackning.html">L&auml;s mer &rarr;</a>`;
+    layerStatus.innerHTML = `${operatorLabels[state.activeOperator]} valt: ${networkText}. Indigo visar mycket god, turkos god och gul bas-t&auml;ckning i denna detaljerade demo. <a href="jamfor-tackning.html">L&auml;s mer &rarr;</a>`;
   };
 
   const updateCoverageLayer = () => {
     const source = map.getSource('mobile-coverage');
-    const style = networkStyles[state.selectedNetwork] || networkStyles['4g'];
 
     if (source) {
       source.setData(coverageData?.[state.activeOperator]?.[state.selectedNetwork] || emptyFeatureCollection);
-    }
-
-    if (map.getLayer('mobile-coverage-fill')) {
-      map.setPaintProperty('mobile-coverage-fill', 'fill-color', style.fill);
-      map.setPaintProperty('mobile-coverage-fill', 'fill-opacity', style.opacity);
-    }
-
-    if (map.getLayer('mobile-coverage-outline')) {
-      map.setPaintProperty('mobile-coverage-outline', 'line-color', style.fill);
     }
 
     state.coverageSignature = '';
@@ -1410,8 +1553,8 @@
         type: 'fill',
         source: 'mobile-coverage',
         paint: {
-          'fill-color': networkStyles[state.selectedNetwork].fill,
-          'fill-opacity': networkStyles[state.selectedNetwork].opacity,
+          'fill-color': coverageFillColor,
+          'fill-opacity': coverageFillOpacity,
           'fill-antialias': true,
         },
       }, coverageBeforeLayer);
@@ -1423,9 +1566,13 @@
         type: 'line',
         source: 'mobile-coverage',
         paint: {
-          'line-color': networkStyles[state.selectedNetwork].fill,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 4, 0.18, 10, 0.36, 15, 0.58],
-          'line-opacity': ['interpolate', ['linear'], ['zoom'], 4, 0.2, 10, 0.28, 15, 0.34],
+          'line-color': coverageFillColor,
+          'line-width': [
+            '*',
+            ['match', ['get', 'detail'], 'boundary', 2.1, 1],
+            ['interpolate', ['linear'], ['zoom'], 4, 0.22, 10, 0.38, 15, 0.58],
+          ],
+          'line-opacity': coverageLineOpacity,
         },
       }, coverageBeforeLayer);
     }
@@ -2171,7 +2318,7 @@
       console.error(error);
       coverageData = operators.reduce((operatorResult, operator) => ({
         ...operatorResult,
-        [operator]: Object.keys(networkStyles).reduce((networkResult, networkKey) => ({
+        [operator]: Object.keys(networkProfiles).reduce((networkResult, networkKey) => ({
           ...networkResult,
           [networkKey]: emptyFeatureCollection,
         }), {}),

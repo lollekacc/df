@@ -76,6 +76,7 @@ function createIndexQuiz() {
   let recommendationsRequestId = 0;
   let lastOfferCalculation = null;
   let pendingAdvanceTimer = null;
+  let quizWasHidden = false;
 
   function init() {
     if (!dom.wrapper || !dom.stack || !steps.length) return;
@@ -145,15 +146,46 @@ function createIndexQuiz() {
       const card = step.querySelector(".quiz-card");
       if (!card || card.querySelector("[data-quiz-ai-actions]")) return;
 
+      const backButton = card.querySelector(".quiz-back-inline");
+      if (backButton) {
+        const existingOrbit = backButton.querySelector(":scope > .dealett-button-orbit");
+        backButton.setAttribute("aria-label", "Tillbaka");
+        backButton.setAttribute("title", "Tillbaka");
+        backButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5" /><path d="m10 7-5 5 5 5" /></svg>';
+        if (existingOrbit) backButton.append(existingOrbit);
+      }
+
       const actions = document.createElement("div");
       actions.className = "quiz-ai-actions";
       actions.dataset.quizAiActions = "";
       actions.innerHTML = '<button type="button" class="quiz-ai-button" data-quiz-ai-action="continue" aria-label="Fortsätt härifrån med Dealett AI"><span>Fortsätt härifrån med</span><strong>Dealett AI</strong></button>';
       card.append(actions);
+
+      const popupActions = document.createElement("div");
+      popupActions.className = "quiz-popup-actions";
+      popupActions.innerHTML = [
+        '<button type="button" class="quiz-popup-restart" data-quiz-popup-action="restart" aria-label="Starta om quizet" title="Starta om quizet">',
+        '  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8a8 8 0 1 0 1 6" /><path d="M19 3v5h-5" /></svg>',
+        '</button>',
+        '<button type="button" class="quiz-popup-minimize" data-quiz-popup-action="hide" aria-label="Dölj quizet" title="Dölj quizet">',
+        '  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 17h14" /></svg>',
+        '</button>'
+      ].join("");
+      card.append(popupActions);
     });
   }
 
   function handleWrapperClick(event) {
+    const popupAction = event.target.closest("[data-quiz-popup-action]");
+    if (popupAction) {
+      if (popupAction.dataset.quizPopupAction === "restart") {
+        restartQuiz();
+      } else {
+        hideQuizPopup();
+      }
+      return;
+    }
+
     const aiButton = event.target.closest("[data-quiz-ai-action]");
     if (aiButton) {
       handleQuizAiClick(aiButton);
@@ -169,7 +201,13 @@ function createIndexQuiz() {
     const refinementToggle = event.target.closest("[data-refinement-toggle]");
     if (refinementToggle) {
       const panel = refinementToggle.closest(".quiz-refinement-panel");
-      state.refinementPromptCollapsed = refinementToggle.dataset.refinementToggle !== "open";
+      const toggleAction = refinementToggle.dataset.refinementToggle;
+      const shouldOpen = toggleAction === "open"
+        ? true
+        : toggleAction === "close"
+          ? false
+          : panel?.classList.contains("is-collapsed");
+      state.refinementPromptCollapsed = !shouldOpen;
       panel?.classList.toggle("is-collapsed", state.refinementPromptCollapsed);
       refinementToggle.setAttribute("aria-expanded", String(!state.refinementPromptCollapsed));
       syncStackHeight();
@@ -1097,8 +1135,8 @@ function createIndexQuiz() {
     if (!dom.customerOperatorQuestion) return;
 
     dom.customerOperatorQuestion.textContent = count === 1
-      ? "Vilken operatör har du? Välj datum för bindningstiden också."
-      : "Vilka operatörer har ni? Välj datum för bindningstiderna också.";
+      ? "Vilken operatör har du? Och vilket datum upphör bindningstiden?"
+      : "Vilka operatörer har ni? Och vilka datum upphör bindningstiderna?";
   }
 
   function mountQuizInHero() {
@@ -1127,6 +1165,31 @@ function createIndexQuiz() {
     document.body.classList.remove("quiz-overlay-open");
   }
 
+  function hideQuizPopup() {
+    quizWasHidden = true;
+    mountQuizInSection();
+    dom.wrapper?.classList.add("hidden", "opacity-0");
+    dom.intro?.classList.remove("hidden");
+    document.getElementById("analys")?.classList.remove("quiz-running");
+
+    if (dom.heroStartButton) {
+      dom.heroStartButton.classList.add("is-quiz-resume");
+      const labelNode = Array.from(dom.heroStartButton.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+      if (labelNode) {
+        labelNode.nodeValue = "Fortsätt analys ";
+      } else {
+        dom.heroStartButton.prepend(document.createTextNode("Fortsätt analys "));
+      }
+      dom.heroStartButton.setAttribute("aria-label", "Fortsätt analys");
+    }
+  }
+
+  function restartQuiz() {
+    const restartUrl = new URL(window.location.href);
+    restartUrl.searchParams.set("start", "quiz");
+    window.location.assign(restartUrl.toString());
+  }
+
   function startQuiz(options = {}) {
     const preserveScroll = options.inHero
       ? { x: window.scrollX || 0, y: window.scrollY || 0 }
@@ -1143,9 +1206,12 @@ function createIndexQuiz() {
     dom.wrapper?.classList.remove("opacity-0");
     document.getElementById("analys")?.classList.add("quiz-running");
 
+    const stepToShow = quizWasHidden ? state.currentStep : 0;
+    quizWasHidden = false;
+
     requestAnimationFrame(() => {
       dom.wrapper?.classList.remove("opacity-0");
-      showStep(0);
+      showStep(stepToShow);
       if (preserveScroll) {
         window.scrollTo(preserveScroll.x, preserveScroll.y);
         window.setTimeout(() => window.scrollTo(preserveScroll.x, preserveScroll.y), 0);
@@ -1472,11 +1538,9 @@ function createIndexQuiz() {
     };
 
     [
-      { plan: lastOfferCalculation?.bestValue, label: "Bäst värde" },
-      { plan: lastOfferCalculation?.bestTravelFit, label: "Bäst för utlandet" },
-      { plan: lastOfferCalculation?.bestStreamingFit, label: "Bäst för streaming" },
+      { plan: lastOfferCalculation?.bestValue, label: "Bäst matchning" },
       { plan: lastOfferCalculation?.lowestMonthlyPrice, label: "Lägst månadspris" }
-    ].forEach(entry => addFeaturedPlan(entry.plan, entry.label));
+    ].forEach(entry => addFeaturedPlan(entry.plan, entry.label, { mergeLabel: false }));
 
     [...plans]
       .sort((left, right) => (
@@ -1484,7 +1548,7 @@ function createIndexQuiz() {
         (Number(right?.planMonthlyPrice ?? right?.finalPrice) || Number.POSITIVE_INFINITY)
       ))
       .forEach(plan => {
-        if (featuredByKey.size < 2) addFeaturedPlan(plan, "Annat starkt alternativ", { mergeLabel: false });
+        if (featuredByKey.size < 2) addFeaturedPlan(plan, "Rekommenderat", { mergeLabel: false });
       });
 
     return [...featuredByKey.values()].slice(0, 2).map(entry => ({
@@ -1556,19 +1620,20 @@ function createIndexQuiz() {
       : "Vi väger in streaming, resor och användning utanför EU innan vi räknar om dina erbjudanden.";
 
     panel.innerHTML = [
-      '<button class="quiz-refinement-tab" type="button" data-refinement-toggle="open" aria-expanded="false">',
-      '  <span>3 frågor för bättre resultat</span>',
-      '  <span aria-hidden="true">⌄</span>',
+      `<button class="quiz-refinement-tab" type="button" data-refinement-toggle="toggle" aria-expanded="${String(!state.refinementPromptCollapsed)}">`,
+      '  <span class="quiz-refinement-tab-icon" aria-hidden="true">◎</span>',
+      '  <span class="quiz-refinement-tab-label">Bättre matchning</span>',
+      '  <span class="quiz-refinement-tab-chevron" aria-hidden="true">⌃</span>',
       '</button>',
       '<div class="quiz-refinement-blind">',
+      '  <div class="quiz-refinement-target" aria-hidden="true">◎</div>',
       '  <div class="quiz-refinement-copy">',
       `    <p class="quiz-refinement-kicker">${isRefined ? 'Fördjupad matchning' : 'Bättre matchning'}</p>`,
       `    <h4>${escapeHtml(title)}</h4>`,
       `    <p>${escapeHtml(copy)}</p>`,
       '  </div>',
       '  <div class="quiz-refinement-actions">',
-      '    <button class="quiz-next-button" type="button" data-refinement-start>Svara på frågorna</button>',
-      '    <button class="quiz-refinement-link" type="button" data-refinement-skip data-refinement-toggle="close" aria-expanded="true">Stäng</button>',
+      '    <button class="quiz-next-button" type="button" data-refinement-start>Förbättra min matchning <span aria-hidden="true">→</span></button>',
       '  </div>',
       '</div>',
     ].join("");
@@ -1956,49 +2021,61 @@ function createIndexQuiz() {
     const topLabel = label || `Operatör ${index + 1}`;
     const isMulti = state.persons && state.persons > 1;
     const planMonthlyPrice = Number(plan.planMonthlyPrice ?? plan.finalPrice) || 0;
-    const priceMain = `${planMonthlyPrice} kr/mån`;
+    const priceMain = new Intl.NumberFormat("sv-SE").format(planMonthlyPrice);
     const priceSub  = isMulti ? `${plan.pricePerPerson} kr per användare` : null;
     const dataText  = plan.dataAmount >= 999 ? "Obegränsad" : `${plan.dataAmount} GB`;
     const reasonText = buildRecommendationReason(plan);
+    const giftCardValue = Math.max(Number(plan.giftCardValue ?? plan.offerCalculation?.giftCardValue) || 0, 0);
+    const giftCardText = giftCardValue ? formatMoney(giftCardValue) : "XXX kr";
+    const contractMonths = Math.max(Number(plan.bindingMonths ?? plan.offerCalculation?.bindingMonths) || 0, 0);
+    const featureItems = [
+      ...(Array.isArray(plan.benefits) ? plan.benefits : []),
+      ...(Array.isArray(plan.offerCalculation?.benefits) ? plan.offerCalculation.benefits : []),
+    ].map(item => String(item || "").trim()).filter(Boolean);
+    const highlights = [...new Set([
+      featureItems.find(item => /EU|EES/i.test(item)) || "EU/EES inkluderat",
+      contractMonths ? `${contractMonths} mån bindningstid` : "Ingen bindningstid",
+    ])].slice(0, 2);
+    const labelIcon = /lägst/i.test(topLabel) ? "fa-tag" : "fa-star";
 
     article.innerHTML = [
       '<div class="offer-card__accent"></div>',
       '<div class="offer-card__inner">',
       '  <div class="offer-card__top">',
-      `    <span class="offer-card__label">${escapeHtml(topLabel)}</span>`,
+      `    <span class="offer-card__label"><i class="fa-solid ${labelIcon}" aria-hidden="true"></i>${escapeHtml(topLabel)}</span>`,
       '  </div>',
       '  <div class="offer-card__head">',
       `    <img src="${escapeHtml(plan.logo)}" alt="${escapeHtml(plan.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ""}" />`,
-      '    <span class="offer-card__gift-badge" aria-label="Presentkort XXX kr"><strong>XXX kr</strong><span>Presentkort</span></span>',
+      `    <span class="offer-card__gift-badge" aria-label="Presentkort ${escapeHtml(giftCardText)}"><span>Presentkort</span><strong>${escapeHtml(giftCardText)}</strong></span>`,
       '  </div>',
-      plan.text ? `  <p class="offer-card__desc">${escapeHtml(plan.text)}</p>` : '',
-      '  <div class="offer-card__stats">',
-      '    <div class="offer-card__stat">',
-      '      <span class="offer-card__stat-icon"><i class="fa-solid fa-signal"></i></span>',
-      '      <div>',
-      '        <p class="offer-card__stat-label">Surf</p>',
-      `        <p class="offer-card__stat-value">${escapeHtml(dataText)}</p>`,
-      '      </div>',
+      '  <div class="offer-card__offer-row">',
+      '    <div class="offer-card__data">',
+      `      <strong>${escapeHtml(dataText)}</strong>`,
+      '      <span>surf</span>',
       '    </div>',
-      '    <div class="offer-card__stat">',
-      '      <span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span>',
-      '      <div>',
-      '        <p class="offer-card__stat-label">Månadskostnad</p>',
-      `        <p class="offer-card__stat-value">${escapeHtml(priceMain)}</p>`,
-      priceSub ? `        <p class="offer-card__stat-sub">${escapeHtml(priceSub)}</p>` : '',
-      '      </div>',
+      '    <div class="offer-card__price">',
+      `      <strong>${escapeHtml(priceMain)} <small>kr</small></strong>`,
+      `      <span>${priceSub ? escapeHtml(priceSub) : "/mån"}</span>`,
       '    </div>',
       '  </div>',
-      `  <p class="offer-card__reason">${escapeHtml(reasonText)}</p>`,
-      Array.isArray(plan.benefits) && plan.benefits.length ? `  <ul class="offer-card__benefits">${plan.benefits.map(benefit => `<li>${escapeHtml(benefit)}</li>`).join("")}</ul>` : '',
-      '  <div class="offer-card__actions"></div>',
-      '  <a href="varukorg.html" class="offer-card__cta" data-recommendation-cart>Till varukorg <i class="fa-solid fa-cart-shopping"></i></a>',
+      `  <ul class="offer-card__highlights">${highlights.map(item => `<li><i class="fa-regular fa-circle-check" aria-hidden="true"></i>${escapeHtml(item)}</li>`).join("")}</ul>`,
+      `  <a href="varukorg.html" class="offer-card__cta" data-recommendation-cart>Välj ${escapeHtml(plan.operator)} <span aria-hidden="true">→</span></a>`,
+      '  <button class="offer-card__details" type="button" aria-expanded="false">Se detaljer <span aria-hidden="true">›</span></button>',
+      `  <div class="offer-card__details-panel" hidden><p>${escapeHtml(reasonText)}</p>${featureItems.length ? `<ul>${featureItems.map(benefit => `<li>${escapeHtml(benefit)}</li>`).join("")}</ul>` : ""}<div class="offer-card__actions"></div></div>`,
       '</div>'
     ].join("\n");
 
     article.querySelector("[data-recommendation-cart]")?.addEventListener("click", event => {
       event.preventDefault();
       saveRecommendationAndNavigate(plan);
+    });
+
+    article.querySelector(".offer-card__details")?.addEventListener("click", event => {
+      const button = event.currentTarget;
+      const detailsPanel = article.querySelector(".offer-card__details-panel");
+      const expanded = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", String(!expanded));
+      if (detailsPanel) detailsPanel.hidden = expanded;
     });
 
     const compareButton = createCompareButton(buildRecommendationCompareItem(plan, index), { compact: false });

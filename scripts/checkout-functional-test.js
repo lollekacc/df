@@ -155,12 +155,12 @@ const main = async () => {
   try {
     await waitForJson(`${debugBase}/json/version`);
 
-    await test('cart preparation hands the real checkout state to the final page', async () => {
+    await test('cart preparation reveals agreement and signing inside the drawer', async () => {
       const page = await createPage(debugBase, {
-        pathName: 'varukorg.html',
+        pathName: 'index.html',
+        query: '?openCart=1',
         item: makeItem(),
       });
-      const navigated = page.waitForEvent('Page.loadEventFired');
       await page.evaluate(`(() => {
         const email = document.querySelector('#contactEmail');
         const phone = document.querySelector('#contactPhone');
@@ -172,13 +172,14 @@ const main = async () => {
         document.querySelector('#confirmNumbersBtn').click();
         document.querySelector('#goToSignBtn').click();
       })()`);
-      await navigated;
       await delay(250);
       const state = await page.evaluate(`({
         path: window.location.pathname,
+        embeddedCheckout: document.querySelector('#embeddedCheckoutFrame')?.getAttribute('src') || '',
         checkout: JSON.parse(sessionStorage.getItem('dealettCheckout') || '{}'),
       })`);
-      assert(state.path.endsWith('/bestallning.html'), 'The flow did not open the final checkout.');
+      assert(state.path.endsWith('/index.html'), 'The drawer flow unexpectedly navigated away from the current page.');
+      assert(state.embeddedCheckout.includes('bestallning.html?embedded=1'), 'Agreement and signing did not open inside the drawer.');
       assert(
         state.checkout.readyForReview,
         `The checkout was not marked ready for review: ${JSON.stringify(state.checkout)}`

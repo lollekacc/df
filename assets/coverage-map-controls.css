@@ -1,0 +1,179 @@
+.coverage-maplibre-section .coverage-maplibre-search {
+  height: 52px !important;
+  max-height: 52px !important;
+}
+
+.coverage-maplibre-section .coverage-maplibre-search .coverage-maplibre-live-suggestions {
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  right: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+body:has(.home-intro) .coverage-maplibre-section .coverage-maplibre-sidebar .coverage-maplibre-networks {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+body:has(.home-intro) .coverage-maplibre-heading {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr);
+  grid-template-rows: auto 1fr;
+  gap: 12px 42px;
+  width: min(calc(100% - 36px), 1480px);
+  max-width: 1480px;
+  margin: clamp(34px, 4vw, 58px) auto 18px;
+  padding: 30px 34px;
+  overflow: hidden;
+  border: 1px solid rgba(13, 23, 38, .12);
+  border-radius: 20px;
+  background:
+    linear-gradient(115deg, rgba(201, 111, 36, .1), transparent 44%),
+    #f8f7f4;
+  color: #0d1726;
+  box-shadow: 0 16px 44px rgba(13, 23, 38, .08);
+}
+
+body:has(.home-intro) .coverage-maplibre-heading::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 118px;
+  height: 5px;
+  background: linear-gradient(90deg, #57597f 0 34%, #4f9d9e 34% 67%, #f3b04a 67%);
+  content: "";
+}
+
+body:has(.home-intro) .coverage-maplibre-heading__eyebrow {
+  grid-column: 1;
+  width: max-content;
+  margin: 0;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(201, 111, 36, .12);
+  color: #9b4c14;
+  font: 750 10px/1 var(--dui-font-body, Arial, sans-serif);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+body:has(.home-intro) .coverage-maplibre-heading h2 {
+  grid-column: 1;
+  max-width: 720px;
+  margin: 0;
+  color: #0d1726;
+  font: 650 clamp(36px, 3.4vw, 52px)/.98 var(--dui-font-heading, Arial, sans-serif);
+  letter-spacing: -.04em;
+}
+
+body:has(.home-intro) .coverage-maplibre-heading__intro {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: end;
+  max-width: 430px;
+  margin: 0;
+  padding: 3px 0 3px 22px;
+  border-left: 2px solid #c96f24;
+  color: rgba(13, 23, 38, .65);
+  font: 500 15px/1.55 var(--dui-font-body, Arial, sans-serif);
+}
+
+.coverage-maplibre-section .coverage-maplibre-quality-key {
+  position: absolute;
+  z-index: 11;
+  top: 218px;
+  right: 18px;
+  display: grid;
+  width: 142px;
+  gap: 8px;
+  padding: 13px 14px;
+  border: 1px solid rgba(13, 23, 38, .12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .95);
+  color: #172331;
+  box-shadow: 0 10px 30px rgba(13, 23, 38, .14);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.coverage-maplibre-section .coverage-maplibre-quality-key p {
+  margin: 0 0 1px;
+  color: rgba(13, 23, 38, .52);
+  font: 750 9px/1 var(--dui-font-body, Arial, sans-serif);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.coverage-maplibre-section .coverage-maplibre-quality-key span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font: 650 10px/1.2 var(--dui-font-body, Arial, sans-serif);
+}
+
+.coverage-maplibre-section .coverage-maplibre-quality-key i {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border: 1px solid rgba(13, 23, 38, .12);
+  border-radius: 4px 6px 5px 7px;
+  box-shadow: 0 1px 3px rgba(13, 23, 38, .14);
+}
+
+.coverage-maplibre-section .coverage-maplibre-quality-key .is-excellent {
+  background: #57597f;
+}
+
+.coverage-maplibre-section .coverage-maplibre-quality-key .is-good {
+  background: #4f9d9e;
+}
+
+.coverage-maplibre-section .coverage-maplibre-quality-key .is-basic {
+  background: #f3b04a;
+}
+
+@media (max-width: 760px) {
+  body:has(.home-intro) .coverage-maplibre-heading {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 12px;
+    width: calc(100% - 24px);
+    margin: 28px auto 14px;
+    padding: 22px 20px;
+    border-radius: 16px;
+  }
+
+  body:has(.home-intro) .coverage-maplibre-heading__eyebrow,
+  body:has(.home-intro) .coverage-maplibre-heading h2,
+  body:has(.home-intro) .coverage-maplibre-heading__intro {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  body:has(.home-intro) .coverage-maplibre-heading h2 {
+    font-size: clamp(32px, 10vw, 43px);
+  }
+
+  body:has(.home-intro) .coverage-maplibre-heading__intro {
+    max-width: none;
+    padding: 12px 0 0;
+    border-top: 1px solid rgba(13, 23, 38, .12);
+    border-left: 0;
+    font-size: 14px;
+  }
+
+  body:has(.home-intro) .coverage-maplibre-section .coverage-maplibre-sidebar .coverage-maplibre-networks {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .coverage-maplibre-section .coverage-maplibre-quality-key {
+    top: 350px;
+    right: 12px;
+    width: 128px;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+}

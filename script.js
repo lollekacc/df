@@ -2587,12 +2587,145 @@
     });
   };
 
+  const initButtonOrbitEffects = () => {
+    const buttonSelector = 'button, a.button, [role="button"]:not(input)';
+    let orbitId = 0;
+
+    const syncOrbitGeometry = button => {
+      const orbit = button.querySelector(':scope > .dealett-button-orbit');
+      const tracks = Array.from(orbit?.querySelectorAll('.dealett-button-orbit__track') || []);
+      const coreTrack = orbit?.querySelector('.dealett-button-orbit__track--core');
+      if (!orbit || !coreTrack || !tracks.length) return;
+
+      const bounds = button.getBoundingClientRect();
+      const width = Math.max(Math.round(bounds.width * 10) / 10, 4);
+      const height = Math.max(Math.round(bounds.height * 10) / 10, 4);
+      const trackInset = 1.5;
+      const trackWidth = Math.max(width - (trackInset * 2), 1);
+      const trackHeight = Math.max(height - (trackInset * 2), 1);
+      const computedStyle = getComputedStyle(button);
+      const radii = [
+        computedStyle.borderTopLeftRadius,
+        computedStyle.borderTopRightRadius,
+        computedStyle.borderBottomRightRadius,
+        computedStyle.borderBottomLeftRadius
+      ].map(value => Math.max(Math.min(Number.parseFloat(value) || 0, trackWidth / 2, trackHeight / 2) - trackInset, 0));
+      const [topLeft, topRight, bottomRight, bottomLeft] = radii;
+      const left = trackInset;
+      const top = trackInset;
+      const right = left + trackWidth;
+      const bottom = top + trackHeight;
+
+      const pathData = [
+        `M ${left + topLeft} ${top}`,
+        `H ${right - topRight}`,
+        topRight ? `Q ${right} ${top} ${right} ${top + topRight}` : `L ${right} ${top}`,
+        `V ${bottom - bottomRight}`,
+        bottomRight ? `Q ${right} ${bottom} ${right - bottomRight} ${bottom}` : `L ${right} ${bottom}`,
+        `H ${left + bottomLeft}`,
+        bottomLeft ? `Q ${left} ${bottom} ${left} ${bottom - bottomLeft}` : `L ${left} ${bottom}`,
+        `V ${top + topLeft}`,
+        topLeft ? `Q ${left} ${top} ${left + topLeft} ${top}` : `L ${left} ${top}`,
+        'Z'
+      ].join(' ');
+
+      tracks.forEach(track => track.setAttribute('d', pathData));
+
+      const perimeter = Math.max(coreTrack.getTotalLength(), 24);
+
+      orbit.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      const trailRatios = { glow: .18, soft: .13, core: .07 };
+
+      tracks.forEach(track => {
+        const layer = track.dataset.orbitLayer;
+        const trailLength = perimeter * trailRatios[layer];
+
+        track.style.setProperty('--dealett-orbit-length', `${perimeter}px`);
+        track.style.setProperty('--dealett-orbit-end', `${-perimeter}px`);
+        track.style.setProperty('--dealett-orbit-trail', `${trailLength}px`);
+        track.style.setProperty('--dealett-orbit-gap', `${Math.max(perimeter - trailLength, 1)}px`);
+      });
+    };
+
+    const resizeObserver = new ResizeObserver(entries => {
+      entries.forEach(entry => syncOrbitGeometry(entry.target));
+    });
+
+    const enhanceButton = button => {
+      if (!(button instanceof HTMLElement) || button.classList.contains('dealett-orbit-ready')) return;
+
+      const gradientId = `dealett-button-orbit-${orbitId += 1}`;
+      const orbit = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      orbit.classList.add('dealett-button-orbit');
+      orbit.setAttribute('aria-hidden', 'true');
+      orbit.setAttribute('focusable', 'false');
+      orbit.innerHTML = [
+        '<defs>',
+        `  <linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1">`,
+        '    <stop offset="0" stop-color="#fff3cf" />',
+        '    <stop offset=".48" stop-color="#e9a34f" />',
+        '    <stop offset="1" stop-color="#c8792b" />',
+        '  </linearGradient>',
+        '</defs>',
+        '<path class="dealett-button-orbit__track dealett-button-orbit__track--glow" data-orbit-layer="glow" fill="none" />',
+        `<path class="dealett-button-orbit__track dealett-button-orbit__track--soft" data-orbit-layer="soft" fill="none" stroke="url(#${gradientId})" />`,
+        `<path class="dealett-button-orbit__track dealett-button-orbit__track--core" data-orbit-layer="core" fill="none" stroke="url(#${gradientId})" />`
+      ].join('');
+      button.classList.add('dealett-orbit-ready');
+      button.appendChild(orbit);
+      resizeObserver.observe(button);
+      syncOrbitGeometry(button);
+
+      button.addEventListener('click', () => {
+        button.classList.remove('dealett-orbit-once');
+        button.classList.add('dealett-orbit-suppress-hover');
+        void button.offsetWidth;
+        button.classList.add('dealett-orbit-once');
+      });
+
+      button.addEventListener('pointerleave', () => {
+        button.classList.remove('dealett-orbit-suppress-hover');
+      });
+
+      button.addEventListener('blur', () => {
+        button.classList.remove('dealett-orbit-suppress-hover');
+      });
+
+      orbit.addEventListener('animationend', event => {
+        if (event.animationName === 'dealettButtonOrbitClick' && event.target.classList.contains('dealett-button-orbit__track--core')) {
+          button.classList.remove('dealett-orbit-once');
+        }
+      });
+    };
+
+    const enhanceWithin = root => {
+      if (root instanceof Element && root.matches(buttonSelector)) {
+        enhanceButton(root);
+      }
+
+      root.querySelectorAll?.(buttonSelector).forEach(enhanceButton);
+    };
+
+    enhanceWithin(document);
+
+    const observer = new MutationObserver(records => {
+      records.forEach(record => {
+        record.addedNodes.forEach(node => {
+          if (node instanceof Element) enhanceWithin(node);
+        });
+      });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  };
+
   const initGlobalBehaviors = () => {
     updateCartCount();
     initDropdowns();
     initCoveragePreview();
     initDealettChat();
     initTranslations();
+    initButtonOrbitEffects();
   };
 
   window.addEventListener('storage', (event) => {

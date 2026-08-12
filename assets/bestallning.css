@@ -1137,6 +1137,38 @@
   }
 }
 
+.bestallning-embedded {
+  background: #fff;
+  overflow: hidden;
+}
+
+.bestallning-embedded [data-include],
+.bestallning-embedded .site-header,
+.bestallning-embedded .footer,
+.bestallning-embedded .checkout-summary-panel,
+.bestallning-embedded .checkout-progress,
+.bestallning-embedded .checkout-heading,
+.bestallning-embedded .contact-information,
+.bestallning-embedded .checkout-secondary-button,
+.bestallning-embedded .dealett-chat {
+  display: none !important;
+}
+
+.bestallning-embedded .checkout-layout {
+  display: block;
+  min-height: 0;
+}
+
+.bestallning-embedded .checkout-main-inner {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+
+.bestallning-embedded .checkout-action-row {
+  justify-content: flex-end;
+}
+
 .legal-document-page {
   background: var(--checkout-warm);
   color: var(--checkout-ink);

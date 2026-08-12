@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
     <link rel="stylesheet" href="./assets/dealett-ui.css" />
+    <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
   </head>
   <body>
     <div data-include="header"></div>
@@ -598,12 +599,56 @@
 
       <section class="coverage-main coverage-maplibre-section section-space" id="coverageApp" data-coverage-map="real" data-map-engine="maplibre">
         <div class="coverage-maplibre-heading">
+          <p class="coverage-maplibre-heading__eyebrow">T&auml;ckning d&auml;r du bor</p>
           <h2>V&auml;lj operat&ouml;r och utforska kartan</h2>
+          <p class="coverage-maplibre-heading__intro">S&ouml;k p&aring; din adress och v&auml;xla mellan operat&ouml;rer och n&auml;t f&ouml;r att se skillnaden direkt.</p>
         </div>
 
         <div class="coverage-maplibre-shell">
           <div id="coverageMapLibre" class="coverage-maplibre-canvas" aria-label="Interaktiv t&auml;ckningskarta"></div>
           <div class="coverage-maplibre-scrim" aria-hidden="true"></div>
+
+          <aside class="coverage-maplibre-sidebar" aria-label="T&auml;ckningsfilter">
+            <div class="coverage-maplibre-copy">
+              <p class="coverage-maplibre-kicker">Snabbkoll</p>
+              <h2>J&auml;mf&ouml;r n&auml;t p&aring; din adress</h2>
+              <p>V&auml;lj operat&ouml;r och n&auml;t, eller s&ouml;k p&aring; en plats f&ouml;r en tydligare lokal bild.</p>
+            </div>
+
+            <div class="coverage-maplibre-operators" aria-label="V&auml;lj operat&ouml;r">
+              <button class="coverage-maplibre-operator is-active" data-operator="telia" type="button" aria-pressed="true">
+                <span>Telia</span>
+              </button>
+              <button class="coverage-maplibre-operator" data-operator="tele2" type="button" aria-pressed="false">
+                <span>Tele2</span>
+              </button>
+              <button class="coverage-maplibre-operator" data-operator="telenor" type="button" aria-pressed="false">
+                <span>Telenor</span>
+              </button>
+              <button class="coverage-maplibre-operator" data-operator="tre" type="button" aria-pressed="false">
+                <span>Tre</span>
+              </button>
+            </div>
+
+            <div class="coverage-maplibre-networks" aria-label="V&auml;lj n&auml;t">
+              <button class="coverage-maplibre-network is-active" data-network="4G" type="button" aria-pressed="true">4G</button>
+              <button class="coverage-maplibre-network" data-network="4G+" type="button" aria-pressed="false">4G+</button>
+              <button class="coverage-maplibre-network" data-network="5G" type="button" aria-pressed="false">5G</button>
+              <button class="coverage-maplibre-network" data-network="5G+" type="button" aria-pressed="false">5G+</button>
+            </div>
+
+            <div class="coverage-maplibre-note">
+              <span class="coverage-maplibre-note__icon">i</span>
+              <p id="coverageLayerStatus">Telia valt: 4G. Indigo visar mycket god, turkos god och gul bas-t&auml;ckning i denna detaljerade demo. <a href="jamfor-tackning.html">L&auml;s mer &rarr;</a></p>
+            </div>
+          </aside>
+
+          <div class="coverage-maplibre-quality-key" aria-label="F&auml;rgf&ouml;rklaring f&ouml;r t&auml;ckningsniv&aring;">
+            <p>T&auml;ckningsniv&aring;</p>
+            <span><i class="is-excellent" aria-hidden="true"></i>Mycket god</span>
+            <span><i class="is-good" aria-hidden="true"></i>God</span>
+            <span><i class="is-basic" aria-hidden="true"></i>Bas</span>
+          </div>
 
           <div class="coverage-maplibre-search" id="coverageGeocoder" role="search" aria-label="S&ouml;k adress eller plats"></div>
 
@@ -619,28 +664,6 @@
             <button data-map-theme="dark" type="button" aria-pressed="false">Dark</button>
           </div>
 
-          <div class="coverage-maplibre-operators" aria-label="V&auml;lj operat&ouml;r">
-            <button class="coverage-maplibre-operator is-active" data-operator="telia" type="button" aria-pressed="true">
-              <span>Telia</span>
-            </button>
-            <button class="coverage-maplibre-operator" data-operator="tele2" type="button" aria-pressed="false">
-              <span>Tele2</span>
-            </button>
-            <button class="coverage-maplibre-operator" data-operator="telenor" type="button" aria-pressed="false">
-              <span>Telenor</span>
-            </button>
-            <button class="coverage-maplibre-operator" data-operator="tre" type="button" aria-pressed="false">
-              <span>Tre</span>
-            </button>
-          </div>
-
-          <div class="coverage-maplibre-networks" aria-label="V&auml;lj n&auml;t">
-            <button class="coverage-maplibre-network is-active" data-network="4G" type="button" aria-pressed="true">4G</button>
-            <button class="coverage-maplibre-network" data-network="4G+" type="button" aria-pressed="false">4G+</button>
-            <button class="coverage-maplibre-network" data-network="5G" type="button" aria-pressed="false">5G</button>
-            <button class="coverage-maplibre-network" data-network="5G+" type="button" aria-pressed="false">5G+</button>
-          </div>
-
           <div class="coverage-maplibre-zoom" aria-label="Kartzoom">
             <button id="coverageMapZoomIn" type="button" aria-label="Zooma in">+</button>
             <button id="coverageMapZoomOut" type="button" aria-label="Zooma ut">&minus;</button>
@@ -648,10 +671,6 @@
             <button id="coverageMapPerspective" class="coverage-maplibre-perspective is-active" type="button" aria-label="V&auml;xla mellan 2D och 3D" aria-pressed="true">3D</button>
           </div>
 
-          <div class="coverage-maplibre-note">
-            <span class="coverage-maplibre-note__icon">i</span>
-            <p id="coverageLayerStatus">Telia valt: 4G. F&auml;rgerna visar demo-t&auml;ckning f&ouml;r valda n&auml;t tills verklig operat&ouml;rsdata kopplas in. <a href="jamfor-tackning.html">L&auml;s mer &rarr;</a></p>
-          </div>
         </div>
       </section>
     </main>

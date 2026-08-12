@@ -3,102 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="./assets/language-bootstrap.js"></script>
-  <link rel="icon" href="./images/favicon.png" type="image/png" />
-  <title>Dealett - Förbered beställningen</title>
-
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link rel="stylesheet" href="./assets/mobilabonnemang.css" />
-  <link rel="stylesheet" href="./assets/varukorg.css" />
-    <link rel="stylesheet" href="styles-redesign.css" />
-    <link rel="stylesheet" href="styles-editorial.css" />
-  <link rel="stylesheet" href="./assets/dealett-ui.css" />
-  </head>
-<body class="abon-page varukorg-page">
-  <div data-include="header"></div>
-
-  <main class="abon-main cart-main">
-    <section id="cartSummarySection" class="result-section cart-summary-section">
-      <div class="result-shell result-medium">
-        <div class="section-head center reveal">
-          <span class="section-kicker">Varukorg</span>
-          <h2>Din best&auml;llning</h2>
-          <p>Kontrollera abonnemang och presentkort innan du forts&auml;tter.</p>
-        </div>
-        <div id="cartSummaryContainer" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <section id="contactSection" class="result-section">
-      <div class="result-shell result-medium">
-        <div class="pro-card contact-card reveal">
-          <div class="section-head left-tight">
-            <span class="section-kicker">Leverans</span>
-            <h2>Leverans och bekr&auml;ftelse</h2>
-            <p>Mejl anv&auml;nds f&ouml;r orderbekr&auml;ftelse och mobilnummer f&ouml;r sms-avisering.</p>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-field">
-              <label for="contactEmail">Mejladress</label>
-              <input type="email" id="contactEmail" placeholder="din@email.se" autocomplete="email" />
-            </div>
-
-            <div class="form-field">
-              <label for="contactPhone">Mobilnummer</label>
-              <input type="tel" id="contactPhone" placeholder="07XXXXXXXX" autocomplete="tel" />
-            </div>
-          </div>
-
-          <p id="contactMessage" class="form-message" aria-live="polite"></p>
-          <button id="contactContinueBtn" class="primary-btn full-btn" type="button">G&aring; vidare</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="numberSection" class="result-section is-hidden">
-      <div class="result-shell result-medium">
-        <div class="pro-card checkout-card reveal">
-          <div class="section-head left-tight">
-            <span class="section-kicker">Nummerflytt</span>
-            <h2 id="numberFlowTitle">Fyll i numren som ska flyttas</h2>
-            <p id="numberFlowText">Vi g&aring;r igenom en person i taget.</p>
-          </div>
-
-          <div id="phoneInputsContainer" class="phone-inputs"></div>
-          <p id="numberMessage" class="form-message" aria-live="polite"></p>
-          <button id="confirmNumbersBtn" class="primary-btn full-btn is-hidden" type="button">Bekr&auml;fta</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="startDateSection" class="result-section is-hidden">
-      <div class="result-shell result-medium">
-        <div class="pro-card checkout-card reveal">
-          <div class="section-head left-tight">
-            <span class="section-kicker">Startdatum</span>
-            <h2>N&auml;r vill du b&ouml;rja abonnemanget?</h2>
-            <p>V&auml;lj n&auml;r abonnemanget ska aktiveras.</p>
-          </div>
-
-          <div id="startDateOptions" class="start-date-options"></div>
-          <p id="startDateText" class="start-date-text is-hidden">Startdatum: <strong id="startDateValue"></strong></p>
-
-          <button id="goToSignBtn" class="primary-btn full-btn" type="button">
-            Forts&auml;tt till granskning
-          </button>
-          <p id="signMessage" class="form-message success-message" aria-live="polite"></p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <div data-include="footer"></div>
-
-  <script src="./assets/cart-helpers.js"></script>
-  <script src="./assets/network-utils.js"></script>
-  <script src="script.js"></script>
-  <script src="./assets/varukorg.js"></script>
+  <meta http-equiv="refresh" content="0; url=index.html?openCart=1" />
+  <title>Dealett - Varukorg</title>
+  <script>window.location.replace('index.html?openCart=1');</script>
+</head>
+<body>
+  <p>Varukorgen öppnas. <a href="index.html?openCart=1">Fortsätt till Dealett</a>.</p>
 </body>
 </html>

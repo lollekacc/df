@@ -324,15 +324,34 @@
 
     return {
       cartDrawer,
-      cartItems: cartDrawer?.querySelector('#cartItems') || document.querySelector('#cartItems'),
-      summaryArea: cartDrawer?.querySelector('#summaryArea') || document.querySelector('#summaryArea'),
-      totalPrice: cartDrawer?.querySelector('#totalPrice') || document.querySelector('#totalPrice'),
-      cartOverlay: cartDrawer?.querySelector('#cartOverlay') || document.querySelector('#cartOverlay'),
-      closeCart: cartDrawer?.querySelector('#closeCart') || document.querySelector('#closeCart'),
-      continueButton:
-        cartDrawer?.querySelector('#cartContinueBtn, #cartBankIdButton') ||
-        document.querySelector('#cartContinueBtn, #cartBankIdButton'),
+      closeCart: cartDrawer?.querySelector('#closeCart') || null,
+      content: cartDrawer?.querySelector('.cart-checkout-drawer-content') || null,
     };
+  };
+
+  let checkoutAssetsPromise = null;
+
+  const ensureCheckoutAssets = () => {
+    if (!document.querySelector('#dealettCartCheckoutStyles')) {
+      const stylesheet = document.createElement('link');
+      stylesheet.id = 'dealettCartCheckoutStyles';
+      stylesheet.rel = 'stylesheet';
+      stylesheet.href = new URL('assets/varukorg.css', document.baseURI).href;
+      document.head.append(stylesheet);
+    }
+
+    if (window.DEALETT_CART_CHECKOUT_READY) return Promise.resolve();
+    if (checkoutAssetsPromise) return checkoutAssetsPromise;
+
+    checkoutAssetsPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = new URL('assets/varukorg.js', document.baseURI).href;
+      script.addEventListener('load', resolve, { once: true });
+      script.addEventListener('error', reject, { once: true });
+      document.body.append(script);
+    });
+
+    return checkoutAssetsPromise;
   };
 
   const ensureDrawer = () => {
@@ -344,19 +363,73 @@
     drawer.setAttribute('aria-hidden', 'true');
     drawer.innerHTML = [
       '<div id="cartOverlay" class="cart-drawer-overlay"></div>',
-      '<aside class="cart-drawer-panel" aria-label="Din varukorg">',
+      '<aside class="cart-drawer-panel varukorg-page" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle">',
       '  <div class="cart-drawer-head">',
-      '    <h2>Din varukorg</h2>',
+      '    <div><h2 id="cartDrawerTitle">Din varukorg</h2><div class="cart-drawer-steps" aria-label="Kassasteg"><span data-cart-step-indicator="offers">1. Erbjudanden</span><span data-cart-step-indicator="checkout">2. Kassa</span></div></div>',
       '    <button id="closeCart" class="cart-drawer-close" type="button" aria-label="Stäng varukorg">&times;</button>',
       '  </div>',
-      '  <div id="cartItems" class="cart-drawer-items"></div>',
-      '  <div class="cart-drawer-footer">',
-      '    <div id="summaryArea" class="cart-drawer-summary"></div>',
-      '    <div class="cart-drawer-total-row">',
-      '      <span>Totalt</span>',
-      '      <strong id="totalPrice">0 kr/mån</strong>',
-      '    </div>',
-      '    <button id="cartContinueBtn" class="adeala-btn full-btn" type="button">Fortsätt till varukorg</button>',
+      '  <div class="cart-checkout-drawer-content abon-main cart-main" data-cart-checkout-root>',
+      '   <div id="cartOffersStep" data-cart-step="offers">',
+      '    <section id="cartSummarySection" class="result-section cart-summary-section">',
+      '      <div class="result-shell result-medium">',
+      '        <div class="section-head left-tight">',
+      '          <span class="section-kicker">Varukorg</span>',
+      '          <h2>Din beställning</h2>',
+      '          <p>Kontrollera abonnemang och presentkort innan du fortsätter.</p>',
+      '        </div>',
+      '        <div id="cartSummaryContainer" aria-live="polite"></div>',
+      '        <button id="cartCheckoutBtn" class="primary-btn full-btn cart-step-primary" type="button">Gå till kassan</button>',
+      '      </div>',
+      '    </section>',
+      '   </div>',
+      '   <div id="cartCheckoutStep" class="is-hidden" data-cart-step="checkout">',
+      '    <div class="cart-step-toolbar"><button id="cartOffersBackBtn" class="cart-step-back" type="button"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Tillbaka till erbjudanden</button></div>',
+      '    <section id="contactSection" class="result-section">',
+      '      <div class="result-shell result-medium">',
+      '        <div class="pro-card contact-card">',
+      '          <div class="section-head left-tight">',
+      '            <span class="section-kicker">Leverans</span>',
+      '            <h2>Leverans och bekräftelse</h2>',
+      '            <p>Mejl används för orderbekräftelse och mobilnummer för sms-avisering.</p>',
+      '          </div>',
+      '          <div class="form-grid">',
+      '            <div class="form-field"><label for="contactEmail">Mejladress</label><input type="email" id="contactEmail" placeholder="din@email.se" autocomplete="email" /></div>',
+      '            <div class="form-field"><label for="contactPhone">Mobilnummer</label><input type="tel" id="contactPhone" placeholder="07XXXXXXXX" autocomplete="tel" /></div>',
+      '          </div>',
+      '          <p id="contactMessage" class="form-message" aria-live="polite"></p>',
+      '          <button id="contactContinueBtn" class="primary-btn full-btn" type="button">Gå vidare</button>',
+      '        </div>',
+      '      </div>',
+      '    </section>',
+      '    <section id="numberSection" class="result-section is-hidden">',
+      '      <div class="result-shell result-medium">',
+      '        <div class="pro-card checkout-card">',
+      '          <div class="section-head left-tight"><span class="section-kicker">Nummerflytt</span><h2>Fyll i numren som ska flyttas</h2><p>Vi går igenom en person i taget.</p></div>',
+      '          <div id="phoneInputsContainer" class="phone-inputs"></div>',
+      '          <p id="numberMessage" class="form-message" aria-live="polite"></p>',
+      '          <button id="confirmNumbersBtn" class="primary-btn full-btn is-hidden" type="button">Bekräfta</button>',
+      '        </div>',
+      '      </div>',
+      '    </section>',
+      '    <section id="startDateSection" class="result-section is-hidden">',
+      '      <div class="result-shell result-medium">',
+      '        <div class="pro-card checkout-card">',
+      '          <div class="section-head left-tight"><span class="section-kicker">Startdatum</span><h2>När vill du börja abonnemanget?</h2><p>Välj när abonnemanget ska aktiveras.</p></div>',
+      '          <div id="startDateOptions" class="start-date-options"></div>',
+      '          <p id="startDateText" class="start-date-text is-hidden">Startdatum: <strong id="startDateValue"></strong></p>',
+      '          <p id="startDateWarning" class="start-date-warning is-hidden">Med återköp: Tänk på att ångerrätten hinner löpa ut innan abonnemanget startas.</p>',
+      '          <button id="goToSignBtn" class="primary-btn full-btn" type="button">Fortsätt till avtal och signering</button>',
+      '          <p id="signMessage" class="form-message success-message" aria-live="polite"></p>',
+      '        </div>',
+      '      </div>',
+      '    </section>',
+      '    <section id="embeddedCheckoutSection" class="result-section is-hidden" aria-labelledby="embeddedCheckoutTitle">',
+      '      <div class="result-shell result-medium">',
+      '        <div class="section-head left-tight"><span class="section-kicker">Avtal och signering</span><h2 id="embeddedCheckoutTitle">Granska och signera</h2><p>Kontrollera avtalen och slutför beställningen med BankID.</p></div>',
+      '        <iframe id="embeddedCheckoutFrame" class="embedded-checkout-frame" title="Avtal och signering"></iframe>',
+      '      </div>',
+      '    </section>',
+      '   </div>',
       '  </div>',
       '</aside>',
     ].join('');
@@ -365,97 +438,109 @@
     return getDrawerElements();
   };
 
-  const renderDrawerLine = (item, index) => {
-    const dataLabel = item.productType === 'broadband'
-      ? item.speed || item.data || item.title
-      : item.data || item.title;
-    const rewardLabel = 'Presentkort: XXX kr';
-    const countLabel = `${item.persons} ${getUnitLabel(item)}`;
-    const priceLabel = `${formatCurrency(item.price)} kr/mån`;
-    const features = (item.features || []).slice(0, 3);
-
-    return `
-      <div class="cart-line" style="--cart-accent: ${getAccent(item.operator)}">
-        <div class="cart-line-top">
-          ${item.logo ? `<span class="cart-line-logo"><img src="${escapeHtml(item.logo)}" alt="${escapeHtml(item.operator)}" loading="lazy" decoding="async" /></span>` : ''}
-          <div class="cart-line-main">
-            <strong>${index + 1}. ${escapeHtml(item.operator)} ${escapeHtml(item.title)}</strong>
-            <span>${escapeHtml(dataLabel)}</span>
-          </div>
-        </div>
-        <div class="cart-line-meta">
-          <span>${escapeHtml(countLabel)}</span>
-          <span>${escapeHtml(priceLabel)}</span>
-          ${rewardLabel ? `<span>${escapeHtml(rewardLabel)}</span>` : ''}
-        </div>
-        ${features.length ? `<ul class="cart-line-features">${features.map((feature) => `<li>${escapeHtml(feature)}</li>`).join('')}</ul>` : ''}
-      </div>
-    `;
-  };
-
-  const renderDrawer = (elementsOrCart, maybeCart) => {
-    const elements = Array.isArray(elementsOrCart) || !elementsOrCart
-      ? getDrawerElements()
-      : elementsOrCart;
-    const cart = normalizeCart(Array.isArray(elementsOrCart) ? elementsOrCart : maybeCart || readCart());
-    const { cartItems, summaryArea, totalPrice } = elements;
-
-    if (!cartItems || !summaryArea || !totalPrice) return;
-
-    const totals = getTotals(cart);
-
-    if (!cart.length) {
-      cartItems.innerHTML = '<div class="cart-line cart-line-empty"><strong>Varukorgen är tom</strong><span>Välj ett erbjudande för att fortsätta.</span></div>';
-    } else {
-      cartItems.innerHTML = cart.map(renderDrawerLine).join('');
-    }
-
-    summaryArea.innerHTML = [
-      `<div><span>Varor</span><strong>${cart.length}</strong></div>`,
-      `<div><span>Telefonlinjer</span><strong>${totals.phoneLines}</strong></div>`,
-      '<div><span>Presentkort</span><strong>XXX kr</strong></div>',
-    ].join('');
-    totalPrice.textContent = `${formatCurrency(totals.price)} kr/mån`;
-  };
-
   const closeDrawer = () => {
     const { cartDrawer } = getDrawerElements();
     cartDrawer?.classList.add('hidden');
     cartDrawer?.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('cart-drawer-open');
+    document.body.style.removeProperty('--cart-scrollbar-width');
+  };
+
+  const setDrawerStep = (step) => {
+    const { cartDrawer } = ensureDrawer();
+    const showCheckout = step === 'checkout';
+
+    cartDrawer?.querySelector('[data-cart-step="offers"]')?.classList.toggle('is-hidden', showCheckout);
+    cartDrawer?.querySelector('[data-cart-step="checkout"]')?.classList.toggle('is-hidden', !showCheckout);
+    cartDrawer?.querySelectorAll('[data-cart-step-indicator]').forEach((indicator) => {
+      indicator.classList.toggle('is-active', indicator.dataset.cartStepIndicator === step);
+    });
+    cartDrawer?.querySelector('.cart-checkout-drawer-content')?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const showCheckoutAgreement = () => {
+    const { cartDrawer } = ensureDrawer();
+    const section = cartDrawer?.querySelector('#embeddedCheckoutSection');
+    const frame = cartDrawer?.querySelector('#embeddedCheckoutFrame');
+    if (!section || !frame) return;
+
+    section.classList.remove('is-hidden');
+    if (frame.dataset.autoResizeBound !== 'true') {
+      frame.dataset.autoResizeBound = 'true';
+      frame.addEventListener('load', () => {
+        frame._dealettResizeObserver?.disconnect();
+
+        const frameDocument = frame.contentDocument;
+        if (!frameDocument) return;
+
+        const resizeFrame = () => {
+          frame.style.height = '0px';
+          frame.style.height = `${Math.max(frameDocument.body?.scrollHeight || 0, frameDocument.documentElement?.scrollHeight || 0)}px`;
+        };
+
+        const resizeObserver = new ResizeObserver(resizeFrame);
+        if (frameDocument.body) resizeObserver.observe(frameDocument.body);
+        resizeObserver.observe(frameDocument.documentElement);
+        frame._dealettResizeObserver = resizeObserver;
+        resizeFrame();
+      });
+    }
+    if (!frame.getAttribute('src')) {
+      frame.setAttribute('src', new URL('bestallning.html?embedded=1', document.baseURI).href);
+    }
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const openDrawer = (cart = readCart()) => {
     const elements = ensureDrawer();
-    renderDrawer(elements, cart);
+    bindDrawerEvents(elements);
+    void elements.cartDrawer?.offsetWidth;
     elements.cartDrawer?.classList.remove('hidden');
     elements.cartDrawer?.setAttribute('aria-hidden', 'false');
+    document.body.style.setProperty('--cart-scrollbar-width', `${window.innerWidth - document.documentElement.clientWidth}px`);
     document.body.classList.add('cart-drawer-open');
-    elements.continueButton?.focus();
+    setDrawerStep('offers');
+    elements.closeCart?.focus();
+
+    ensureCheckoutAssets()
+      .then(() => window.dispatchEvent(new CustomEvent('dealett:cart-drawer-opened', {
+        detail: { cart: normalizeCart(cart) },
+      })))
+      .catch(() => {
+        if (elements.content) {
+          elements.content.innerHTML = '<div class="empty-cart-card"><h3>Varukorgen kunde inte laddas</h3><p>Stäng varukorgen och försök igen.</p></div>';
+        }
+      });
   };
 
-  const bindDrawerEvents = () => {
-    const elements = ensureDrawer();
-    const { cartDrawer, cartOverlay, closeCart, continueButton } = elements;
+  const bindDrawerEvents = (drawerElements = null) => {
+    const elements = drawerElements || ensureDrawer();
+    const { cartDrawer } = elements;
 
     if (!cartDrawer || cartDrawer.dataset.cartDrawerBound === 'true') return;
 
     cartDrawer.dataset.cartDrawerBound = 'true';
-    cartOverlay?.addEventListener('click', closeDrawer);
-    closeCart?.addEventListener('click', closeDrawer);
-    continueButton?.addEventListener('click', () => {
-      window.location.href = 'varukorg.html';
+    cartDrawer.addEventListener('click', (event) => {
+      const target = event.target.closest('#closeCart, #cartOverlay');
+      if (target && cartDrawer.contains(target)) {
+        closeDrawer();
+        return;
+      }
+
+      if (event.target.closest('#cartCheckoutBtn') && readCart().length) {
+        setDrawerStep('checkout');
+        cartDrawer.querySelector('#contactEmail')?.focus();
+        return;
+      }
+
+      if (event.target.closest('#cartOffersBackBtn')) {
+        setDrawerStep('offers');
+      }
     });
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         closeDrawer();
-      }
-    });
-
-    window.addEventListener('dealett:cart-updated', (event) => {
-      if (!cartDrawer.classList.contains('hidden')) {
-        renderDrawer(elements, event.detail?.cart || readCart());
       }
     });
   };
@@ -482,7 +567,23 @@
     openDrawer,
     readCart,
     removeItem,
-    renderDrawer,
     setCart,
+    setDrawerStep,
+    showCheckoutAgreement,
   };
+
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href]');
+    if (!link) return;
+
+    const targetUrl = new URL(link.href, window.location.href);
+    if (!targetUrl.pathname.endsWith('/varukorg.html')) return;
+
+    event.preventDefault();
+    openDrawer();
+  });
+
+  if (new URLSearchParams(window.location.search).get('openCart') === '1') {
+    window.setTimeout(() => openDrawer(), 0);
+  }
 })();
