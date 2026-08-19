@@ -42,7 +42,7 @@
   const coverageFillOpacity = [
     '*',
     ['coalesce', ['get', 'opacity'], 0.5],
-    ['interpolate', ['linear'], ['zoom'], 3.4, 0.88, 8, 1, 14, 0.82],
+    ['interpolate', ['linear'], ['zoom'], 3.4, 0.88, 8, 0.82, 12, 0.46, 16, 0.18],
   ];
   const coverageLineOpacity = [
     '*',
@@ -88,8 +88,8 @@
       localLabel: '#42494e',
       roadLabel: '#30363b',
       halo: '#f7f4eb',
-      coverageVeinOpacity: ['interpolate', ['linear'], ['zoom'], 3.4, 0.08, 7, 0.16, 10, 0.08, 13, 0],
-      coveragePointOpacity: ['interpolate', ['linear'], ['zoom'], 3.4, 0.08, 8, 0.18, 12, 0.26, 16, 0.12],
+      coverageVeinOpacity: 0,
+      coverageStreetOpacity: ['interpolate', ['linear'], ['zoom'], 3.4, 0.38, 8, 0.54, 12, 0.7, 16, 0.82],
       nightRoadLineOpacity: 0,
       nightRoadPointOpacity: 0,
       nightCarPointOpacity: 0,
@@ -115,8 +115,8 @@
       localLabel: '#d7d1c6',
       roadLabel: '#e9e3d7',
       halo: '#071018',
-      coverageVeinOpacity: ['interpolate', ['linear'], ['zoom'], 3.4, 0.14, 7, 0.26, 10, 0.16, 13, 0],
-      coveragePointOpacity: ['interpolate', ['linear'], ['zoom'], 3.4, 0.1, 8, 0.22, 12, 0.3, 16, 0.14],
+      coverageVeinOpacity: 0,
+      coverageStreetOpacity: ['interpolate', ['linear'], ['zoom'], 3.4, 0.44, 8, 0.6, 12, 0.76, 16, 0.86],
       nightRoadLineOpacity: ['interpolate', ['linear'], ['zoom'], 5, 0, 7, 0.1, 9, 0.16, 11.5, 0.08, 13.5, 0],
       nightRoadPointOpacity: ['interpolate', ['linear'], ['zoom'], 10, 0, 12, 0.12, 15, 0.18, 17, 0.1],
       nightCarPointOpacity: ['interpolate', ['linear'], ['zoom'], 12, 0, 14, 0.055, 16, 0.08],
@@ -628,8 +628,15 @@
         }
 
         const northness = Math.min(1, Math.max(0, (center[1] - 61.5) / 7.5));
-        const northCoverage = 1 - (northness * (1 - (networkProfile.northFactor * operatorProfile.north)));
-        const inclusionChance = Math.min(0.995, networkProfile.inclusion * operatorProfile.extent * northCoverage);
+        const northCoverage = 1 - (
+          northness
+          * (1 - (networkProfile.northFactor * operatorProfile.north))
+          * 0.2
+        );
+        const inclusionChance = Math.min(
+          0.998,
+          (0.91 + networkProfile.inclusion * operatorProfile.extent * 0.07) * northCoverage,
+        );
 
         if (random() > inclusionChance) {
           continue;
@@ -638,7 +645,7 @@
         const quality = getMockCoverageQuality(center, operatorProfile, networkProfile, random);
         const blob = createIrregularBlob(
           center,
-          latStep * (0.58 + random() * 0.34),
+          latStep * (0.62 + random() * 0.38),
           random,
           { quality, detail: 'texture', opacity: 0.42 + random() * 0.16 },
         );
@@ -828,7 +835,7 @@
 
   const state = {
     activeOperator: 'telia',
-    selectedNetwork: '4g',
+    selectedNetworks: ['4g'],
     mapTheme: getStoredMapTheme(),
     isPerspectiveMode: true,
     coverageSignature: '',
@@ -840,6 +847,43 @@
   const selectedPlace = app.querySelector('#coverageSelectedPlace');
   const layerStatus = app.querySelector('#coverageLayerStatus');
   const perspectiveButton = app.querySelector('#coverageMapPerspective');
+
+  const getSelectedCoverageData = () => ({
+    type: 'FeatureCollection',
+    features: state.selectedNetworks.flatMap((networkKey) => (
+      coverageData?.[state.activeOperator]?.[networkKey]?.features || []
+    )),
+  });
+
+  const getSelectedLandCoverageData = () => ({
+    type: 'FeatureCollection',
+    features: state.selectedNetworks.flatMap((networkKey) => (
+      coverageData?.[state.activeOperator]?.[networkKey]?.features || []
+    ).flatMap((feature) => {
+      if (feature.properties?.detail === 'boundary') {
+        return [];
+      }
+
+      const coordinates = getPolygonCentroid(feature.geometry);
+
+      if (!coordinates) {
+        return [];
+      }
+
+      return [{
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates,
+        },
+        properties: {
+          ...feature.properties,
+          operator: state.activeOperator,
+          network: networkKey,
+        },
+      }];
+    })),
+  });
 
   const setPaintIfLayerExists = (layerId, property, value) => {
     if (map.getLayer(layerId)) {
@@ -918,7 +962,7 @@
     setPaintIfLayerExists('dealett-night-road-points', 'circle-opacity', paint.nightRoadPointOpacity);
     setPaintIfLayerExists('dealett-night-car-points', 'circle-opacity', paint.nightCarPointOpacity);
     setPaintIfLayerExists('dealett-night-building-points', 'circle-opacity', paint.nightBuildingPointOpacity);
-    setPaintIfLayerExists('dealett-coverage-measurement-points', 'circle-opacity', paint.coveragePointOpacity);
+    setPaintIfLayerExists('dealett-coverage-street-lines', 'line-opacity', paint.coverageStreetOpacity);
     setTerrainForTheme(paint);
     updateMapThemeButtons();
     window.requestAnimationFrame(updateCoverageMeasurements);
@@ -989,19 +1033,28 @@
       return;
     }
 
-    const networkText = networkLabelsByKey[state.selectedNetwork] || '4G';
+    const networkText = state.selectedNetworks
+      .map((networkKey) => networkLabelsByKey[networkKey])
+      .filter(Boolean)
+      .join(', ');
     layerStatus.innerHTML = `${operatorLabels[state.activeOperator]} valt: ${networkText}. Indigo visar mycket god, turkos god och gul bas-t&auml;ckning i denna detaljerade demo. <a href="jamfor-tackning.html">L&auml;s mer &rarr;</a>`;
   };
 
   const updateCoverageLayer = () => {
     const source = map.getSource('mobile-coverage');
+    const landTextureSource = map.getSource('dealett-land-coverage-texture');
 
     if (source) {
-      source.setData(coverageData?.[state.activeOperator]?.[state.selectedNetwork] || emptyFeatureCollection);
+      source.setData(getSelectedCoverageData());
+    }
+
+    if (landTextureSource) {
+      landTextureSource.setData(getSelectedLandCoverageData());
     }
 
     state.coverageSignature = '';
     window.requestAnimationFrame(updateCoverageMeasurements);
+    map.triggerRepaint();
     updateLayerStatus();
   };
 
@@ -1098,23 +1151,38 @@
   }, 0);
 
   const getRoadCoverageFactor = (roadClass) => ({
-    motorway: 1.35,
-    trunk: 1.25,
+    motorway: 1.18,
+    trunk: 1.14,
     primary: 1.08,
-    secondary: 0.9,
-    tertiary: 0.72,
-    minor: 0.5,
-    service: 0.36,
-  }[roadClass] ?? 0.58);
+    secondary: 1,
+    tertiary: 0.94,
+    minor: 0.86,
+    service: 0.72,
+    track: 0.48,
+  }[roadClass] ?? 0.8);
 
-  const getSelectedNetworkProfile = () => {
-    const networkProfile = networkCoverageProfiles[networkLabelsByKey[state.selectedNetwork]];
+  const getSelectedNetworkProfiles = () => state.selectedNetworks
+    .map((networkKey) => {
+      const networkLabel = networkLabelsByKey[networkKey];
+      const networkProfile = networkCoverageProfiles[networkLabel];
 
-    if (!networkProfile) {
-      return null;
-    }
+      return networkProfile
+        ? { ...networkProfile, networkKey, networkLabel }
+        : null;
+    })
+    .filter(Boolean);
 
-    return { ...networkProfile, count: 1 };
+  const clampCoverageValue = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
+
+  const getStreetKey = (line, roadClass) => {
+    const firstPoint = line[0];
+    const middlePoint = line[Math.floor(line.length / 2)];
+    const lastPoint = line[line.length - 1];
+
+    return [roadClass, firstPoint, middlePoint, lastPoint]
+      .flat()
+      .map((value) => typeof value === 'number' ? value.toFixed(5) : value)
+      .join('|');
   };
 
   const getCoverageQuality = (score) => {
@@ -1129,82 +1197,74 @@
     return 'fair';
   };
 
-  const createCoverageMeasurementFeature = (coordinates, quality) => ({
+  const createStreetCoverageFeature = (coordinates, quality, operator, networkKey, roadClass, strength) => ({
     type: 'Feature',
     geometry: {
-      type: 'Point',
+      type: 'LineString',
       coordinates,
     },
     properties: {
       quality,
+      operator,
+      network: networkKey,
+      roadClass,
+      strength: Number(strength.toFixed(3)),
     },
   });
 
-  const countCoverageFeatures = (features) => features.length;
-
-  const sampleCoverageMeasurements = (feature, features, usedKeys, zoom, operatorProfile, networkProfile) => {
+  const sampleStreetCoverage = (feature, features, usedKeys, operatorProfile, networkProfile, featureLimit) => {
     const roadClass = feature.properties?.class;
     const roadFactor = getRoadCoverageFactor(roadClass);
-    const maxFeatures = zoom < 7 ? 900 : zoom < 12 ? 1500 : 950;
 
-    if (roadFactor < 0.5 || countCoverageFeatures(features) >= maxFeatures) {
+    if (roadFactor < 0.48 || features.length >= featureLimit) {
       return;
     }
 
-    const networkCount = Math.max(1, networkProfile.count);
-    const averagedNetwork = {
-      density: networkProfile.density / networkCount,
-      urbanBoost: networkProfile.urbanBoost / networkCount,
-      remotePenalty: networkProfile.remotePenalty / networkCount,
-      salt: networkProfile.salt,
-    };
-    const spacing = zoom < 7 ? 0.05 : zoom < 11 ? 0.032 : 0.014;
-
     for (const line of getLineStrings(feature.geometry)) {
-      for (let index = 1; index < line.length; index += 1) {
-        if (countCoverageFeatures(features) >= maxFeatures) {
-          return;
-        }
-
-        const point = line[index];
-        const segmentStart = line[index - 1];
-        const segmentLength = Math.hypot(point[0] - segmentStart[0], point[1] - segmentStart[1]);
-        const steps = Math.min(18, Math.max(1, Math.floor(segmentLength / spacing)));
-
-        for (let step = 1; step <= steps; step += 1) {
-          if (countCoverageFeatures(features) >= maxFeatures) {
-            return;
-          }
-
-          const t = step / (steps + 1);
-          const longitude = segmentStart[0] + (point[0] - segmentStart[0]) * t;
-          const latitude = segmentStart[1] + (point[1] - segmentStart[1]) * t;
-
-          if (!isPointInSweden([longitude, latitude])) {
-            continue;
-          }
-
-          const cityInfluence = getCoverageCityInfluence(longitude, latitude);
-          const northness = Math.max(0, Math.min(1, (latitude - 60.5) / 8.2));
-          const remoteFactor = 1 - (northness * averagedNetwork.remotePenalty * (1 - operatorProfile.northReliability));
-          const density = operatorProfile.density * averagedNetwork.density * roadFactor * remoteFactor * (0.7 + cityInfluence * (operatorProfile.urbanBias + averagedNetwork.urbanBoost + 0.35));
-          const seed = createNightLightSeed(longitude, latitude, operatorProfile.salt + averagedNetwork.salt + step);
-          const threshold = Math.max(0.05, Math.min(0.58, density * 0.24));
-
-          if (seed > threshold) {
-            continue;
-          }
-
-          const key = `coverage-${longitude.toFixed(4)}-${latitude.toFixed(4)}`;
-
-          if (usedKeys.has(key)) {
-            continue;
-          }
-
-          usedKeys.add(key);
-          features.push(createCoverageMeasurementFeature([longitude, latitude], getCoverageQuality(density)));
-        }
+      if (line.length < 2 || features.length >= featureLimit) {
+        continue;
       }
+
+      const middlePoint = line[Math.floor(line.length / 2)];
+      const [longitude, latitude] = middlePoint;
+
+      if (!isPointInSweden(middlePoint)) {
+        continue;
+      }
+
+      const streetKey = getStreetKey(line, roadClass);
+
+      if (usedKeys.has(streetKey)) {
+        continue;
+      }
+
+      usedKeys.add(streetKey);
+      const cityInfluence = getCoverageCityInfluence(longitude, latitude);
+      const northness = clampCoverageValue((latitude - 60.5) / 8.2, 0, 1);
+      const remoteFactor = 1 - (northness * networkProfile.remotePenalty * (1 - operatorProfile.northReliability));
+      const coverageStrength = operatorProfile.density
+        * networkProfile.density
+        * roadFactor
+        * remoteFactor
+        * (0.78 + cityInfluence * (operatorProfile.urbanBias + networkProfile.urbanBoost + 0.45));
+      const combinationSalt = (operatorProfile.salt * 17) + (networkProfile.salt * 31);
+      const availabilitySeed = createNightLightSeed(longitude, latitude, combinationSalt + line.length);
+      const availabilityThreshold = clampCoverageValue(0.68 + coverageStrength * 0.22, 0.08, 0.98);
+
+      if (availabilitySeed > availabilityThreshold) {
+        continue;
+      }
+
+      const qualitySeed = createNightLightSeed(longitude, latitude, combinationSalt + 997);
+      const qualityStrength = coverageStrength * (0.82 + qualitySeed * 0.36);
+      features.push(createStreetCoverageFeature(
+        line,
+        getCoverageQuality(qualityStrength),
+        state.activeOperator,
+        networkProfile.networkKey,
+        roadClass,
+        qualityStrength,
+      ));
     }
   };
 
@@ -1215,29 +1275,9 @@
       return;
     }
 
-    const networkProfile = getSelectedNetworkProfile();
+    const selectedNetworkProfiles = getSelectedNetworkProfiles();
     const zoom = map.getZoom();
     const bounds = map.getBounds();
-    const signature = [
-      state.activeOperator,
-      state.selectedNetwork,
-      zoom.toFixed(1),
-      bounds.getWest().toFixed(2),
-      bounds.getSouth().toFixed(2),
-      bounds.getEast().toFixed(2),
-      bounds.getNorth().toFixed(2),
-    ].join('|');
-
-    if (signature === state.coverageSignature) {
-      return;
-    }
-
-    if (!networkProfile) {
-      state.coverageSignature = signature;
-      source.setData({ type: 'FeatureCollection', features: [] });
-      return;
-    }
-
     const roadLayers = [
       'dealett-road-major',
       'dealett-road-minor',
@@ -1248,6 +1288,26 @@
     const roadFeatures = roadLayers.length
       ? map.queryRenderedFeatures({ layers: roadLayers })
       : [];
+    const signature = [
+      state.activeOperator,
+      state.selectedNetworks.join(','),
+      zoom.toFixed(1),
+      bounds.getWest().toFixed(2),
+      bounds.getSouth().toFixed(2),
+      bounds.getEast().toFixed(2),
+      bounds.getNorth().toFixed(2),
+      roadFeatures.length,
+    ].join('|');
+
+    if (signature === state.coverageSignature) {
+      return;
+    }
+
+    if (!selectedNetworkProfiles.length) {
+      state.coverageSignature = signature;
+      source.setData({ type: 'FeatureCollection', features: [] });
+      return;
+    }
 
     if (!roadFeatures.length) {
       source.setData({ type: 'FeatureCollection', features: [] });
@@ -1255,11 +1315,25 @@
     }
 
     const features = [];
-    const usedKeys = new Set();
     const operatorProfile = operatorCoverageProfiles[state.activeOperator] ?? operatorCoverageProfiles.telia;
+    const totalFeatureLimit = zoom < 7 ? 2800 : zoom < 12 ? 4800 : 6800;
+    const perNetworkFeatureLimit = Math.max(600, Math.floor(totalFeatureLimit / selectedNetworkProfiles.length));
 
-    roadFeatures.forEach((feature) => {
-      sampleCoverageMeasurements(feature, features, usedKeys, zoom, operatorProfile, networkProfile);
+    selectedNetworkProfiles.forEach((networkProfile) => {
+      const networkFeatures = [];
+      const usedKeys = new Set();
+
+      roadFeatures.forEach((feature) => {
+        sampleStreetCoverage(
+          feature,
+          networkFeatures,
+          usedKeys,
+          operatorProfile,
+          networkProfile,
+          perNetworkFeatureLimit,
+        );
+      });
+      features.push(...networkFeatures);
     });
 
     source.setData({
@@ -1267,6 +1341,12 @@
       features,
     });
     state.coverageSignature = signature;
+  };
+
+  const refreshCoverageRendering = () => {
+    state.coverageSignature = '';
+    updateCoverageMeasurements();
+    map.triggerRepaint();
   };
 
   const sampleNightRoadLights = (feature, features, usedKeys, zoom) => {
@@ -1457,14 +1537,18 @@
       });
     }
 
-    if (!map.getLayer('dealett-coverage-measurement-points')) {
+    if (!map.getLayer('dealett-coverage-street-lines')) {
       map.addLayer({
-        id: 'dealett-coverage-measurement-points',
-        type: 'circle',
+        id: 'dealett-coverage-street-lines',
+        type: 'line',
         source: 'dealett-coverage-measurements',
         filter: ['match', ['get', 'quality'], ['fair', 'good', 'excellent'], true, false],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+        },
         paint: {
-          'circle-color': [
+          'line-color': [
             'match',
             ['get', 'quality'],
             'excellent',
@@ -1475,9 +1559,9 @@
             '#f4ad48',
             '#f4ad48',
           ],
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 0.42, 8, 0.58, 12, 0.74, 16, 0.46],
-          'circle-opacity': 0.18,
-          'circle-blur': 0,
+          'line-width': ['interpolate', ['exponential', 1.2], ['zoom'], 4, 0.48, 8, 1.05, 12, 2.4, 16, 5.8],
+          'line-opacity': 0.62,
+          'line-blur': ['interpolate', ['linear'], ['zoom'], 4, 0, 12, 0.16, 16, 0.28],
         },
       }, coverageBeforeLayer);
     }
@@ -1543,7 +1627,14 @@
     if (!map.getSource('mobile-coverage')) {
       map.addSource('mobile-coverage', {
         type: 'geojson',
-        data: coverageData?.[state.activeOperator]?.[state.selectedNetwork] || emptyFeatureCollection,
+        data: getSelectedCoverageData(),
+      });
+    }
+
+    if (!map.getSource('dealett-land-coverage-texture')) {
+      map.addSource('dealett-land-coverage-texture', {
+        type: 'geojson',
+        data: getSelectedLandCoverageData(),
       });
     }
 
@@ -1556,6 +1647,27 @@
           'fill-color': coverageFillColor,
           'fill-opacity': coverageFillOpacity,
           'fill-antialias': true,
+        },
+      }, coverageBeforeLayer);
+    }
+
+    if (!map.getLayer('dealett-land-coverage-texture')) {
+      map.addLayer({
+        id: 'dealett-land-coverage-texture',
+        type: 'circle',
+        source: 'dealett-land-coverage-texture',
+        paint: {
+          'circle-color': coverageFillColor,
+          'circle-radius': [
+            '*',
+            ['match', ['get', 'detail'], 'city', 1.2, 'corridor', 1, 0.82],
+            ['interpolate', ['linear'], ['zoom'], 3.4, 0.8, 7, 1.25, 11, 2.2, 15, 3.6],
+          ],
+          'circle-opacity': ['interpolate', ['linear'], ['zoom'], 3.4, 0.56, 8, 0.68, 12, 0.52, 16, 0.2],
+          'circle-blur': ['interpolate', ['linear'], ['zoom'], 3.4, 0, 12, 0.12, 16, 0.22],
+          'circle-stroke-color': coverageFillColor,
+          'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 3.4, 0.15, 10, 0.35, 15, 0.65],
+          'circle-stroke-opacity': 0.34,
         },
       }, coverageBeforeLayer);
     }
@@ -1577,6 +1689,10 @@
       }, coverageBeforeLayer);
     }
 
+    if (map.getLayer('dealett-coverage-street-lines') && coverageBeforeLayer) {
+      map.moveLayer('dealett-coverage-street-lines', coverageBeforeLayer);
+    }
+
     applyMapTheme();
   };
 
@@ -1591,7 +1707,7 @@
     minZoom: 3,
     maxZoom: 18,
     renderWorldCopies: false,
-    attributionControl: true,
+    attributionControl: false,
     antialias: true,
     maxPitch: 25,
     cooperativeGestures: true,
@@ -2332,8 +2448,18 @@
     resetToSweden(false);
     syncPerspectiveButton();
     updateMapScaleMode();
-    updateCoverageMeasurements();
+    refreshCoverageRendering();
     updateNightLightPoints();
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(refreshCoverageRendering);
+    });
+    map.once('idle', refreshCoverageRendering);
+  });
+
+  map.on('sourcedata', (event) => {
+    if (event.sourceId === 'openmaptiles' && event.isSourceLoaded) {
+      window.requestAnimationFrame(refreshCoverageRendering);
+    }
   });
 
   app.querySelector('#coverageMapZoomIn')?.addEventListener('click', () => {
@@ -2429,9 +2555,21 @@
         return;
       }
 
-      state.selectedNetwork = networkKeys[network];
+      const networkKey = networkKeys[network];
+      const isSelected = state.selectedNetworks.includes(networkKey);
+
+      if (isSelected && state.selectedNetworks.length === 1) {
+        return;
+      }
+
+      state.selectedNetworks = isSelected
+        ? state.selectedNetworks.filter((selectedNetworkKey) => selectedNetworkKey !== networkKey)
+        : Object.keys(networkProfiles).filter((candidateNetwork) => (
+          [...state.selectedNetworks, networkKey].includes(candidateNetwork)
+        ));
+
       app.querySelectorAll('.coverage-maplibre-network').forEach((networkButton) => {
-        const isActive = networkButton === button;
+        const isActive = state.selectedNetworks.includes(networkKeys[networkButton.dataset.network]);
         networkButton.classList.toggle('is-active', isActive);
         networkButton.setAttribute('aria-pressed', String(isActive));
       });
@@ -2456,7 +2594,8 @@
     resetToSweden,
     getActiveCoverageFilters: () => ({
       operator: state.activeOperator,
-      network: state.selectedNetwork,
+      network: state.selectedNetworks[0],
+      networks: [...state.selectedNetworks],
     }),
   };
 })();

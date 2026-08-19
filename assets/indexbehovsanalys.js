@@ -43,6 +43,7 @@ function createIndexQuiz() {
     stack: document.getElementById("quiz-card-stack"),
     startButton: document.getElementById("quiz-start"),
     heroStartButton: document.getElementById("hero-start-analysis"),
+    analysisStartButtons: document.querySelectorAll("[data-analysis-start-action]"),
     heroOfferButtons: document.querySelectorAll("[data-hero-offer-persons]"),
     hero: document.querySelector(".hero"),
     heroVisual: document.querySelector(".hero-visual"),
@@ -77,6 +78,7 @@ function createIndexQuiz() {
   let lastOfferCalculation = null;
   let pendingAdvanceTimer = null;
   let quizWasHidden = false;
+  let quizHasStarted = false;
 
   function init() {
     if (!dom.wrapper || !dom.stack || !steps.length) return;
@@ -148,11 +150,9 @@ function createIndexQuiz() {
 
       const backButton = card.querySelector(".quiz-back-inline");
       if (backButton) {
-        const existingOrbit = backButton.querySelector(":scope > .dealett-button-orbit");
         backButton.setAttribute("aria-label", "Tillbaka");
         backButton.setAttribute("title", "Tillbaka");
         backButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5" /><path d="m10 7-5 5 5 5" /></svg>';
-        if (existingOrbit) backButton.append(existingOrbit);
       }
 
       const actions = document.createElement("div");
@@ -1172,16 +1172,17 @@ function createIndexQuiz() {
     dom.intro?.classList.remove("hidden");
     document.getElementById("analys")?.classList.remove("quiz-running");
 
-    if (dom.heroStartButton) {
-      dom.heroStartButton.classList.add("is-quiz-resume");
-      const labelNode = Array.from(dom.heroStartButton.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
-      if (labelNode) {
-        labelNode.nodeValue = "Fortsätt analys ";
-      } else {
-        dom.heroStartButton.prepend(document.createTextNode("Fortsätt analys "));
-      }
-      dom.heroStartButton.setAttribute("aria-label", "Fortsätt analys");
-    }
+    syncAnalysisStartButtons();
+  }
+
+  function syncAnalysisStartButtons() {
+    dom.analysisStartButtons?.forEach(button => {
+      const label = quizHasStarted ? "Fortsätt analys" : "Starta analysen";
+      const labelNode = button.querySelector("[data-analysis-start-label]");
+      if (labelNode) labelNode.textContent = label;
+      button.classList.toggle("is-quiz-resume", quizHasStarted);
+      button.setAttribute("aria-label", label);
+    });
   }
 
   function restartQuiz() {
@@ -1191,6 +1192,9 @@ function createIndexQuiz() {
   }
 
   function startQuiz(options = {}) {
+    quizHasStarted = true;
+    syncAnalysisStartButtons();
+
     const preserveScroll = options.inHero
       ? { x: window.scrollX || 0, y: window.scrollY || 0 }
       : null;

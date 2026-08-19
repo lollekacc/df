@@ -16,8 +16,7 @@ html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image {
 
 html body #dealettChat .dealett-chat-toggle--image::before,
 html body #dealettChat .dealett-chat-toggle--image::after,
-html body #dealettChat .dealett-chat-toggle--image > i,
-html body #dealettChat .dealett-chat-toggle--image > .dealett-button-orbit {
+html body #dealettChat .dealett-chat-toggle--image > i {
   display: none !important;
   content: none !important;
 }

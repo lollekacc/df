@@ -9,24 +9,24 @@
 
 :root {
   color-scheme: light;
-  --dui-bg-deep: #0F1728;
-  --dui-bg: #FAF9F7;
+  --dui-bg-deep: #0D1726;
+  --dui-bg: #F8F5F0;
   --dui-surface: #FFFFFF;
-  --dui-surface-soft: #F4F1EC;
-  --dui-surface-muted: #EEEAE3;
-  --dui-text: #121212;
-  --dui-muted: #6B7280;
-  --dui-muted-2: #8B929E;
-  --dui-line: rgba(15, 23, 40, .11);
-  --dui-line-strong: rgba(15, 23, 40, .18);
-  --dui-accent: #C9792B;
-  --dui-accent-soft: rgba(201, 121, 43, .12);
+  --dui-surface-soft: #F8F5F0;
+  --dui-surface-muted: #F8F5F0;
+  --dui-text: #0D1726;
+  --dui-muted: #777777;
+  --dui-muted-2: #AAAAAA;
+  --dui-line: rgba(13, 23, 38, .11);
+  --dui-line-strong: rgba(13, 23, 38, .18);
+  --dui-accent: #C8792B;
+  --dui-accent-soft: rgba(200, 121, 43, .12);
   --dui-success: #256E52;
   --dui-danger: #B63D32;
   --dui-radius: 8px;
   --dui-radius-pill: 999px;
-  --dui-shadow: 0 18px 48px rgba(15, 23, 40, .08);
-  --dui-shadow-soft: 0 10px 30px rgba(15, 23, 40, .06);
+  --dui-shadow: 0 18px 48px rgba(13, 23, 38, .08);
+  --dui-shadow-soft: 0 10px 30px rgba(13, 23, 38, .06);
   --dui-font-heading: "General Sans", Inter, Arial, sans-serif;
   --dui-font-body: Inter, Arial, sans-serif;
   --dui-ease: cubic-bezier(.2, .8, .2, 1);
@@ -2099,7 +2099,7 @@ html body:has(.home-intro) .hero-bottom .hero-eyebrow {
 
 html body:has(.home-intro) .hero-bottom h1,
 html body:has(.home-intro) .hero-bottom .hero-eyebrow {
-  text-shadow: 0 2px 18px rgba(0, 0, 0, .42) !important;
+  text-shadow: 0 2px 18px rgba(13, 23, 38, .42) !important;
 }
 
 html body:has(.home-intro) .hero-bottom .hero-eyebrow span {
@@ -2109,13 +2109,13 @@ html body:has(.home-intro) .hero-bottom .hero-eyebrow span {
 html body:has(.home-intro) .hero-bottom .button {
   border-color: rgba(255, 255, 255, .92) !important;
   background: #fff !important;
-  color: #111 !important;
+  color: #0D1726 !important;
 }
 
 html body:has(.home-intro) .hero-bottom .button:hover,
 html body:has(.home-intro) .hero-bottom .button:focus-visible {
   background: var(--deal-blue) !important;
-  color: #111 !important;
+  color: #0D1726 !important;
 }
 
 html body:has(.home-intro) .hero-proof strong {
@@ -2415,7 +2415,7 @@ html body:has(.home-intro) .site-header .brand-logo-crop img {
   height: 175px !important;
   max-width: none !important;
   object-fit: contain !important;
-  filter: brightness(0) invert(1) contrast(1.8) drop-shadow(0 3px 12px rgba(0, 0, 0, .5)) !important;
+  filter: brightness(0) invert(1) contrast(1.8) drop-shadow(0 3px 12px rgba(13, 23, 38, .5)) !important;
 }
 
 html body:has(.home-intro) .site-header .site-nav {
@@ -2439,7 +2439,7 @@ html body:has(.home-intro) .site-header .nav-item a {
   color: rgba(255, 255, 255, .92) !important;
   font-size: 15px !important;
   font-weight: 600 !important;
-  text-shadow: 0 2px 15px rgba(0, 0, 0, .58) !important;
+  text-shadow: 0 2px 15px rgba(13, 23, 38, .58) !important;
 }
 
 html body:has(.home-intro) .site-header .nav-item--active > .nav-link,
@@ -2480,7 +2480,7 @@ html body:has(.home-intro) .site-header .header-account-link {
   color: #fff !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .22),
-    0 14px 32px rgba(0, 0, 0, .32) !important;
+    0 14px 32px rgba(13, 23, 38, .32) !important;
   backdrop-filter: blur(14px) saturate(1.1) !important;
   -webkit-backdrop-filter: blur(14px) saturate(1.1) !important;
   font-size: 16px !important;
@@ -2515,8 +2515,8 @@ html body:has(.home-intro) .hero:not(.quiz-in-hero) {
   padding: 145px 64px 20px !important;
   overflow: hidden !important;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, .66) 0%, rgba(0, 0, 0, .28) 31%, rgba(0, 0, 0, .08) 63%, rgba(0, 0, 0, .32) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, .04) 46%, rgba(0, 0, 0, .54) 100%),
+    linear-gradient(90deg, rgba(13, 23, 38, .66) 0%, rgba(13, 23, 38, .28) 31%, rgba(13, 23, 38, .08) 63%, rgba(13, 23, 38, .32) 100%),
+    linear-gradient(180deg, rgba(13, 23, 38, .2) 0%, rgba(13, 23, 38, .04) 46%, rgba(13, 23, 38, .54) 100%),
     url("../images/hherro.png") right center / auto 118% no-repeat !important;
 }
 
@@ -2526,7 +2526,7 @@ html body:has(.home-intro) .hero:not(.quiz-in-hero)::after {
   inset: auto 0 0;
   z-index: -1;
   height: 45%;
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .58));
+  background: linear-gradient(180deg, transparent, rgba(13, 23, 38, .58));
   pointer-events: none;
 }
 
@@ -2556,7 +2556,7 @@ html body:has(.home-intro) .hero-bottom .hero-eyebrow {
   letter-spacing: .14em !important;
   line-height: 1 !important;
   text-transform: uppercase !important;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, .58) !important;
+  text-shadow: 0 2px 18px rgba(13, 23, 38, .58) !important;
 }
 
 html body:has(.home-intro) .hero-bottom .hero-eyebrow span {
@@ -2571,7 +2571,7 @@ html body:has(.home-intro) .hero-bottom h1 {
   font-size: 62px !important;
   font-weight: 800 !important;
   line-height: 1.04 !important;
-  text-shadow: 0 4px 28px rgba(0, 0, 0, .56) !important;
+  text-shadow: 0 4px 28px rgba(13, 23, 38, .56) !important;
 }
 
 html body:has(.home-intro) .hero-bottom h1 em {
@@ -2589,7 +2589,7 @@ html body:has(.home-intro) .hero-lead {
   font-size: 21px !important;
   font-weight: 500 !important;
   line-height: 1.26 !important;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, .62) !important;
+  text-shadow: 0 2px 16px rgba(13, 23, 38, .62) !important;
 }
 
 html body:has(.home-intro) .hero-bottom-actions {
@@ -2612,7 +2612,7 @@ html body:has(.home-intro) .hero-bottom .button {
   padding: 0 28px 0 36px !important;
   background: #c8792b !important;
   color: #fff !important;
-  box-shadow: 0 18px 38px rgba(0, 0, 0, .34) !important;
+  box-shadow: 0 18px 38px rgba(13, 23, 38, .34) !important;
   font-size: 18px !important;
   font-weight: 800 !important;
   line-height: 1 !important;
@@ -2652,7 +2652,7 @@ html body:has(.home-intro) .hero-proof strong {
   font-size: 16px !important;
   font-weight: 600 !important;
   line-height: 1 !important;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, .58) !important;
+  text-shadow: 0 2px 16px rgba(13, 23, 38, .58) !important;
   white-space: nowrap !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -2700,7 +2700,7 @@ html body:has(.home-intro) .hero-showcase {
   border-radius: 10px !important;
   overflow: hidden !important;
   background: rgba(255, 255, 255, .87) !important;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, .38) !important;
+  box-shadow: 0 24px 64px rgba(13, 23, 38, .38) !important;
   backdrop-filter: blur(12px) saturate(1.12) !important;
   -webkit-backdrop-filter: blur(12px) saturate(1.12) !important;
 }
@@ -2738,9 +2738,9 @@ html body:has(.home-intro) .hero-offer-kicker {
   align-items: center !important;
   justify-content: center !important;
   padding: 0 16px !important;
-  border: 1.5px solid #222 !important;
+  border: 1.5px solid #0D1726 !important;
   border-radius: 999px !important;
-  color: #111 !important;
+  color: #0D1726 !important;
   font-size: 11px !important;
   font-weight: 900 !important;
   letter-spacing: .12em !important;
@@ -2822,7 +2822,7 @@ html body:has(.home-intro) .hero-partners {
   border-radius: 10px !important;
   background: rgba(46, 31, 21, .74) !important;
   color: rgba(255, 255, 255, .95) !important;
-  box-shadow: 0 22px 58px rgba(0, 0, 0, .32) !important;
+  box-shadow: 0 22px 58px rgba(13, 23, 38, .32) !important;
   backdrop-filter: blur(14px) saturate(1.1) !important;
   -webkit-backdrop-filter: blur(14px) saturate(1.1) !important;
 }
@@ -3213,6 +3213,38 @@ html body:has(.home-intro) .hero > .home-marquee {
 
 }
 
+html body {
+  background-color: #F8F5F0;
+  color: #0D1726;
+}
+
+html body :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, label, legend, summary) {
+  color: inherit;
+}
+
+html body :where(input, select, textarea) {
+  border-color: rgba(13, 23, 38, .22);
+  background-color: #FFFFFF;
+  color: #0D1726;
+}
+
+html body :where(input, textarea)::placeholder {
+  color: #777777;
+}
+
+html body :where(button, .button, [type="button"], [type="submit"]) {
+  border-color: #0D1726;
+  color: #0D1726;
+}
+
+html body :where(:disabled, [aria-disabled="true"]) {
+  color: #777777;
+}
+
+html body :where(:focus-visible) {
+  outline-color: #C8792B;
+}
+
 /* Proof row must never sit under the offer cards or run off-screen. */
 html body:has(.home-intro) .hero-bottom {
   position: relative !important;
@@ -3292,7 +3324,7 @@ html body:has(.home-intro) .hero-proof-mobile {
     gap: 10px !important;
     margin-top: 16px !important;
     color: rgba(255, 255, 255, .96) !important;
-    text-shadow: 0 2px 16px rgba(0, 0, 0, .6) !important;
+    text-shadow: 0 2px 16px rgba(13, 23, 38, .6) !important;
   }
 
   html body:has(.home-intro) .hero-proof-mobile span {
@@ -3432,7 +3464,7 @@ html body:has(.home-intro) .hero-proof-mobile {
   gap: 28px !important;
   margin-top: 0 !important;
   color: rgba(255, 255, 255, .96) !important;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, .6) !important;
+  text-shadow: 0 2px 16px rgba(13, 23, 38, .6) !important;
 }
 
 html body:has(.home-intro) .hero-proof-mobile span {
@@ -3688,7 +3720,7 @@ html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-bottom-actions > .hero
   gap: 28px !important;
   margin: 0 !important;
   color: rgba(255, 255, 255, .96) !important;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, .6) !important;
+  text-shadow: 0 2px 16px rgba(13, 23, 38, .6) !important;
 }
 
 html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-bottom-actions > .hero-proof-mobile span {
@@ -3925,8 +3957,8 @@ html body:has(.home-intro) .hero.quiz-in-hero {
   padding: 145px 64px 20px !important;
   overflow: hidden !important;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, .66) 0%, rgba(0, 0, 0, .28) 31%, rgba(0, 0, 0, .08) 63%, rgba(0, 0, 0, .32) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, .04) 46%, rgba(0, 0, 0, .54) 100%),
+    linear-gradient(90deg, rgba(13, 23, 38, .66) 0%, rgba(13, 23, 38, .28) 31%, rgba(13, 23, 38, .08) 63%, rgba(13, 23, 38, .32) 100%),
+    linear-gradient(180deg, rgba(13, 23, 38, .2) 0%, rgba(13, 23, 38, .04) 46%, rgba(13, 23, 38, .54) 100%),
     url("../images/hherro.png") right center / auto 118% no-repeat !important;
 }
 
@@ -3941,7 +3973,7 @@ html body:has(.home-intro) .hero.quiz-in-hero::after {
   z-index: -1 !important;
   display: block !important;
   height: 45% !important;
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .58)) !important;
+  background: linear-gradient(180deg, transparent, rgba(13, 23, 38, .58)) !important;
   pointer-events: none !important;
 }
 
@@ -4022,8 +4054,8 @@ html body:has(.home-intro) .hero.quiz-in-hero .quiz-card {
   border: 1px solid rgba(255, 255, 255, .35) !important;
   border-radius: 18px !important;
   background: rgba(255, 252, 246, .82) !important;
-  box-shadow: 0 28px 80px rgba(0, 0, 0, .44) !important;
-  color: #111 !important;
+  box-shadow: 0 28px 80px rgba(13, 23, 38, .44) !important;
+  color: #0D1726 !important;
   overflow: hidden !important;
   backdrop-filter: blur(18px) saturate(1.16) !important;
   -webkit-backdrop-filter: blur(18px) saturate(1.16) !important;
@@ -4230,7 +4262,7 @@ html body .hero.quiz-in-hero .offers-recommendation-grid > .quiz-refinement-pane
   border: 1px solid rgba(17, 17, 17, .22) !important;
   border-radius: 18px !important;
   background: rgba(255, 252, 246, .94) !important;
-  box-shadow: 0 20px 54px rgba(0, 0, 0, .24) !important;
+  box-shadow: 0 20px 54px rgba(13, 23, 38, .24) !important;
 }
 
 html body .hero.quiz-in-hero .quiz-refinement-panel--blind .quiz-refinement-tab {
@@ -4242,7 +4274,7 @@ html body .hero.quiz-in-hero .quiz-refinement-panel--blind .quiz-refinement-tab 
   gap: 14px !important;
   padding: 0 18px !important;
   border: 0 !important;
-  background: #111 !important;
+  background: #0D1726 !important;
   color: #fff !important;
   font-size: 14px !important;
   font-weight: 900 !important;
@@ -4300,7 +4332,7 @@ html body .hero.quiz-in-hero .quiz-refinement-panel--blind .quiz-refinement-kick
 
 html body .hero.quiz-in-hero .quiz-refinement-panel--blind .quiz-refinement-copy h4 {
   margin: 0 !important;
-  color: #111 !important;
+  color: #0D1726 !important;
   font-size: clamp(24px, 2.1vw, 32px) !important;
   font-weight: 900 !important;
   line-height: 1.02 !important;
@@ -4333,7 +4365,7 @@ html body .hero.quiz-in-hero .quiz-refinement-panel--blind .quiz-refinement-link
 html body .hero.quiz-in-hero .quiz-refinement-panel--blind .quiz-refinement-link {
   border: 1px solid rgba(17, 17, 17, .24) !important;
   background: transparent !important;
-  color: #111 !important;
+  color: #0D1726 !important;
 }
 
 html body .hero.quiz-in-hero .streaming-checkbox input[type="checkbox"] {
@@ -4527,7 +4559,7 @@ html body .site-header .brand--logo {
 .coverage-maplibre-section .coverage-maplibre-sidebar .coverage-maplibre-network[aria-pressed="true"] {
   outline: 0 !important;
   border-color: #b9601d !important;
-  background: #c96f24 !important;
+  background-color: #c96f24 !important;
   color: #fff !important;
   box-shadow: 0 6px 14px rgba(201, 111, 36, .2) !important;
 }
@@ -4709,7 +4741,7 @@ html body .site-header .brand--logo {
 
 .coverage-maplibre-section .coverage-maplibre-perspective.is-active {
   outline: 0 !important;
-  background: #c96f24 !important;
+  background-color: #c96f24 !important;
   color: #fff !important;
 }
 
@@ -5101,7 +5133,7 @@ html body:has(.home-intro) .site-header .header-cart-link {
   color: #fff !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .22),
-    0 14px 32px rgba(0, 0, 0, .32) !important;
+    0 14px 32px rgba(13, 23, 38, .32) !important;
   backdrop-filter: blur(14px) saturate(1.1) !important;
   -webkit-backdrop-filter: blur(14px) saturate(1.1) !important;
   font-size: 17px !important;
@@ -5167,29 +5199,18 @@ html body .site-header .audience-switch__link {
   align-items: center !important;
   justify-content: center !important;
   padding: 0 7px !important;
-  border: 1px solid rgba(255, 255, 255, .22) !important;
-  border-radius: 999px !important;
-  background: rgba(0, 0, 0, .1) !important;
-  color: rgba(255, 255, 255, .76) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #0D1726 !important;
   font-size: 10px !important;
   font-weight: 750 !important;
   line-height: 1 !important;
   text-decoration: none !important;
   text-transform: uppercase !important;
   letter-spacing: .05em !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-html body .site-header .audience-switch__link--active {
-  background: rgba(255, 255, 255, .18) !important;
-  color: #fff !important;
-}
-
-html body .site-header .audience-switch__link:hover,
-html body .site-header .audience-switch__link:focus-visible {
-  background: rgba(255, 255, 255, .24) !important;
-  color: #fff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 @media (max-width: 760px) {
@@ -5233,8 +5254,8 @@ html body.quiz-overlay-open .hero.quiz-in-hero {
   padding: 145px 64px 20px !important;
   overflow: hidden !important;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, .66) 0%, rgba(0, 0, 0, .28) 31%, rgba(0, 0, 0, .08) 63%, rgba(0, 0, 0, .32) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, .04) 46%, rgba(0, 0, 0, .54) 100%),
+    linear-gradient(90deg, rgba(13, 23, 38, .66) 0%, rgba(13, 23, 38, .28) 31%, rgba(13, 23, 38, .08) 63%, rgba(13, 23, 38, .32) 100%),
+    linear-gradient(180deg, rgba(13, 23, 38, .2) 0%, rgba(13, 23, 38, .04) 46%, rgba(13, 23, 38, .54) 100%),
     url("../images/hherro.png") right center / auto 118% no-repeat !important;
 }
 
@@ -5249,7 +5270,7 @@ html body.quiz-overlay-open .hero.quiz-in-hero::after {
   z-index: -1 !important;
   display: block !important;
   height: 45% !important;
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .58)) !important;
+  background: linear-gradient(180deg, transparent, rgba(13, 23, 38, .58)) !important;
   pointer-events: none !important;
 }
 
@@ -5395,7 +5416,7 @@ html body.quiz-overlay-open .hero.quiz-in-hero .quiz-card {
   border: 1px solid rgba(255, 255, 255, .45) !important;
   border-radius: 18px !important;
   background: rgba(255, 252, 246, .92) !important;
-  box-shadow: 0 22px 72px rgba(0, 0, 0, .34) !important;
+  box-shadow: 0 22px 72px rgba(13, 23, 38, .34) !important;
   overflow: hidden !important;
   backdrop-filter: blur(12px) saturate(1.1) !important;
   -webkit-backdrop-filter: blur(12px) saturate(1.1) !important;
@@ -5560,7 +5581,7 @@ html body.quiz-overlay-open .quiz-modal-layer .quiz-card {
   border-radius: 18px !important;
   background: rgba(255, 252, 246, .94) !important;
   color: #141414 !important;
-  box-shadow: 0 26px 80px rgba(0, 0, 0, .34) !important;
+  box-shadow: 0 26px 80px rgba(13, 23, 38, .34) !important;
   overflow: hidden !important;
   backdrop-filter: blur(9px) saturate(1.08) !important;
   -webkit-backdrop-filter: blur(9px) saturate(1.08) !important;
@@ -5656,9 +5677,9 @@ html body.quiz-overlay-open .quiz-modal-layer .quiz-popup-minimize {
   place-items: center !important;
 }
 
-html body.quiz-overlay-open .quiz-modal-layer .quiz-back-inline svg:not(.dealett-button-orbit),
-html body.quiz-overlay-open .quiz-modal-layer .quiz-popup-restart svg:not(.dealett-button-orbit),
-html body.quiz-overlay-open .quiz-modal-layer .quiz-popup-minimize svg:not(.dealett-button-orbit) {
+html body.quiz-overlay-open .quiz-modal-layer .quiz-back-inline svg,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-popup-restart svg,
+html body.quiz-overlay-open .quiz-modal-layer .quiz-popup-minimize svg {
   width: 22px !important;
   height: 22px !important;
   fill: none !important;
@@ -6425,7 +6446,7 @@ html body.quiz-overlay-open .quiz-modal-layer #step7 .offers-recommendation-grid
   width: 100% !important;
   border-radius: 14px !important;
   background: rgba(255, 252, 246, .74) !important;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, .12) !important;
+  box-shadow: 0 14px 34px rgba(13, 23, 38, .12) !important;
 }
 
 html body.quiz-overlay-open .quiz-modal-layer #step7 .quiz-refinement-panel--blind .quiz-refinement-blind {
@@ -6660,7 +6681,7 @@ html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-inline-action {
   border-radius: 7px !important;
   background: #c8792b !important;
   color: #fff !important;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, .3) !important;
+  box-shadow: 0 10px 24px rgba(13, 23, 38, .3) !important;
   font: inherit !important;
   font-size: .86em !important;
   font-weight: 800 !important;
@@ -6686,6 +6707,77 @@ html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-inline-action:focus-vi
   color: #fff !important;
   text-decoration: none !important;
   transform: translateY(-1px) !important;
+}
+
+html body:has(.home-intro) .analysis-start-action,
+html body:has(.home-intro) .hero:not(.quiz-in-hero) .analysis-start-action,
+html body:has(.home-intro) .home-how .analysis-start-action {
+  display: inline-flex !important;
+  width: 250px !important;
+  min-width: 250px !important;
+  min-height: 62px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 30px !important;
+  margin: 0 !important;
+  padding: 0 38px !important;
+  border: 0 !important;
+  border-left: 5px solid #0d1726 !important;
+  border-radius: 0 !important;
+  background: #c96f24 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+
+html body:has(.home-intro) .analysis-start-action > span,
+html body:has(.home-intro) .hero:not(.quiz-in-hero) .analysis-start-action > span,
+html body:has(.home-intro) .home-how .analysis-start-action > span {
+  margin: 0 !important;
+  color: inherit !important;
+  font: inherit !important;
+  line-height: 1 !important;
+}
+
+html body:has(.home-intro) .analysis-start-action > span[aria-hidden="true"] {
+  font-size: 24px !important;
+  font-weight: 300 !important;
+}
+
+html body:has(.home-intro) .analysis-start-action:hover,
+html body:has(.home-intro) .analysis-start-action:focus-visible {
+  background: #c96f24 !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  transform: none !important;
+}
+
+html body:has(.home-intro) .hero:not(.quiz-in-hero) #hero-start-analysis.analysis-start-action {
+  width: 174px !important;
+  min-width: 174px !important;
+  min-height: 42px !important;
+  gap: 12px !important;
+  padding: 0 17px !important;
+  font-size: 13px !important;
+}
+
+html body:has(.home-intro) .hero:not(.quiz-in-hero) #hero-start-analysis.analysis-start-action > span[aria-hidden="true"] {
+  font-size: 19px !important;
+}
+
+@media (max-width: 420px) {
+  html body:has(.home-intro) .analysis-start-action,
+  html body:has(.home-intro) .hero:not(.quiz-in-hero) .analysis-start-action,
+  html body:has(.home-intro) .home-how .analysis-start-action {
+    width: min(250px, 100%) !important;
+    min-width: 0 !important;
+  }
 }
 
 /* Compact page introductions: keep route context without delaying primary content. */
@@ -6906,104 +6998,6 @@ html body:has(.home-intro) .newsletter-panel .newsletter-status {
 @media (prefers-reduced-motion: reduce) {
   html body:has(.home-intro) .newsletter-panel .codex-bg-canvas {
     opacity: .72 !important;
-  }
-}
-
-.dealett-orbit-ready {
-  position: relative !important;
-  isolation: isolate !important;
-}
-
-.dealett-button-orbit {
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 10 !important;
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  overflow: visible !important;
-  opacity: 0;
-  pointer-events: none !important;
-}
-
-.dealett-button-orbit__track {
-  stroke-linecap: round !important;
-  stroke-linejoin: round !important;
-  stroke-opacity: 0;
-  stroke-dasharray: var(--dealett-orbit-trail) var(--dealett-orbit-gap) !important;
-  vector-effect: non-scaling-stroke !important;
-}
-
-.dealett-button-orbit__track--glow {
-  stroke: #d98935 !important;
-  stroke-width: 3.5px !important;
-  opacity: .18 !important;
-  filter: blur(1.4px) !important;
-}
-
-.dealett-button-orbit__track--soft {
-  stroke-width: 2px !important;
-  opacity: .38 !important;
-  filter: blur(.35px) !important;
-}
-
-.dealett-button-orbit__track--core {
-  stroke-width: 1.1px !important;
-  opacity: .88 !important;
-}
-
-.dealett-orbit-ready:not(:disabled):is(:hover, :focus-visible):not(.dealett-orbit-once):not(.dealett-orbit-suppress-hover):not(.is-quiz-resume) > .dealett-button-orbit,
-.dealett-orbit-ready.dealett-orbit-once:not(.is-quiz-resume) > .dealett-button-orbit,
-.dealett-orbit-ready.is-quiz-resume > .dealett-button-orbit {
-  opacity: 1 !important;
-  filter: drop-shadow(0 0 2px rgba(233, 163, 79, .34)) !important;
-}
-
-.dealett-orbit-ready:not(:disabled):is(:hover, :focus-visible):not(.dealett-orbit-once):not(.dealett-orbit-suppress-hover):not(.is-quiz-resume) > .dealett-button-orbit .dealett-button-orbit__track {
-  animation: dealettButtonOrbitHover 1s linear 1 !important;
-}
-
-.dealett-orbit-ready.dealett-orbit-once:not(.is-quiz-resume) > .dealett-button-orbit .dealett-button-orbit__track {
-  animation: dealettButtonOrbitClick 1s linear 1 !important;
-}
-
-.dealett-orbit-ready.is-quiz-resume > .dealett-button-orbit .dealett-button-orbit__track {
-  animation: dealettButtonOrbitContinuous 2s linear infinite !important;
-}
-
-@keyframes dealettButtonOrbitHover {
-  0%, 88% {
-    stroke-opacity: 1;
-  }
-  to {
-    stroke-dashoffset: var(--dealett-orbit-end);
-    stroke-opacity: 0;
-  }
-}
-
-@keyframes dealettButtonOrbitClick {
-  0%, 88% {
-    stroke-opacity: 1;
-  }
-  to {
-    stroke-dashoffset: var(--dealett-orbit-end);
-    stroke-opacity: 0;
-  }
-}
-
-@keyframes dealettButtonOrbitContinuous {
-  from {
-    stroke-opacity: 1;
-  }
-  to {
-    stroke-dashoffset: var(--dealett-orbit-end);
-    stroke-opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dealett-orbit-ready > .dealett-button-orbit {
-    animation: none !important;
   }
 }
 
@@ -7645,7 +7639,7 @@ html body .site-header .header-cart-link i {
     height: 42px !important;
     min-height: 42px !important;
     padding: 0 !important;
-    background: rgba(0, 0, 0, .10) !important;
+    background: rgba(13, 23, 38, .10) !important;
     box-shadow: none !important;
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
@@ -7695,6 +7689,14 @@ html body .site-header .header-cart-link i {
   }
 }
 
+/* Window-control geometry for the two top-corner utility groups. */
+html body .site-header .audience-switch,
+html body:has(.home-intro) .site-header .audience-switch,
+html body .site-header .header-topbar-group--right,
+html body:has(.home-intro) .site-header .header-topbar-group--right {
+  gap: 0 !important;
+}
+
 /* Native language menus use a light popup even when the landing header is dark. */
 html body .site-header .language-switcher select option,
 html body .site-header .language-switcher select optgroup {
@@ -7724,7 +7726,8 @@ html body .site-header .header-inner,
 html body:has(.home-intro) .site-header .header-inner {
   display: flex !important;
   width: 100% !important;
-  min-height: 60px !important;
+  height: 43px !important;
+  min-height: 43px !important;
   align-items: center !important;
   margin: 0 !important;
   padding: 0 clamp(18px, 3.2vw, 58px) !important;
@@ -7741,7 +7744,7 @@ html body .site-header .brand--logo,
 html body:has(.home-intro) .site-header .brand--logo {
   position: relative !important;
   display: inline-flex !important;
-  width: clamp(170px, 13vw, 220px) !important;
+  width: clamp(150px, 11vw, 180px) !important;
   height: auto !important;
   aspect-ratio: auto !important;
   min-height: 0 !important;
@@ -7811,37 +7814,6 @@ html body:has(.home-intro) .site-header .nav-item a {
   text-shadow: none !important;
 }
 
-html body .site-header .nav-link::after,
-html body:has(.home-intro) .site-header .nav-link::after {
-  bottom: 0 !important;
-  height: 2px !important;
-  background: #C96F24 !important;
-}
-
-html body .site-header .nav-link:hover,
-html body .site-header .nav-link:focus-visible,
-html body .site-header .nav-item--active > .nav-link,
-html body:has(.home-intro) .site-header .nav-link:hover,
-html body:has(.home-intro) .site-header .nav-link:focus-visible,
-html body:has(.home-intro) .site-header .nav-item--active > .nav-link {
-  color: #C96F24 !important;
-}
-
-html body .site-header .audience-switch__link,
-html body:has(.home-intro) .site-header .audience-switch__link {
-  border-color: rgba(13, 23, 38, .22) !important;
-  background: rgba(13, 23, 38, .06) !important;
-  color: rgba(13, 23, 38, .72) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-html body .site-header .audience-switch__link--active,
-html body:has(.home-intro) .site-header .audience-switch__link--active {
-  background: #0D1726 !important;
-  color: #fff !important;
-}
-
 html body .site-header .language-switcher select,
 html body:has(.home-intro) .site-header .language-switcher select,
 html body .site-header .header-account-link,
@@ -7858,6 +7830,20 @@ html body:has(.home-intro) .site-header .header-cart-link {
 }
 
 @media (min-width: 901px) {
+  html body .site-header .audience-switch,
+  html body:has(.home-intro) .site-header .audience-switch {
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1002 !important;
+  }
+
+  html body .site-header .header-topbar-group--right,
+  html body:has(.home-intro) .site-header .header-topbar-group--right {
+    top: 0 !important;
+    right: 0 !important;
+    z-index: 1002 !important;
+  }
+
   html body .site-header .brand--logo,
   html body:has(.home-intro) .site-header .brand--logo {
     margin-left: 102px !important;
@@ -7869,14 +7855,23 @@ html body:has(.home-intro) .site-header .header-cart-link {
   html body:has(.home-intro) .site-header .header-cart-link {
     width: 42px !important;
     min-width: 42px !important;
-    height: 42px !important;
-    min-height: 42px !important;
+    height: 43px !important;
+    min-height: 43px !important;
+    box-sizing: border-box !important;
   }
 
   html body .site-header .language-switcher select,
   html body:has(.home-intro) .site-header .language-switcher select {
-    height: 42px !important;
-    min-height: 42px !important;
+    height: 43px !important;
+    min-height: 43px !important;
+    box-sizing: border-box !important;
+  }
+
+  html body .site-header .audience-switch__link,
+  html body:has(.home-intro) .site-header .audience-switch__link {
+    height: 43px !important;
+    min-height: 43px !important;
+    box-sizing: border-box !important;
   }
 }
 
@@ -7894,6 +7889,7 @@ html body:has(.home-intro) .site-header .header-cart-link {
 
   html body .site-header .header-inner,
   html body:has(.home-intro) .site-header .header-inner {
+    height: 58px !important;
     min-height: 58px !important;
     padding: 0 16px !important;
     background: rgba(248, 245, 240, .97) !important;
@@ -7910,6 +7906,166 @@ html body:has(.home-intro) .site-header .header-cart-link {
   html body:has(.home-intro) .site-header .mobile-nav-toggle span {
     background: #0D1726 !important;
   }
+}
+
+/* Borderless corner controls. */
+html body .site-header,
+html body:has(.home-intro) .site-header {
+  border-bottom: 0 !important;
+}
+
+html body .site-header .audience-switch__link,
+html body:has(.home-intro) .site-header .audience-switch__link,
+html body .site-header .language-switcher select,
+html body:has(.home-intro) .site-header .language-switcher select,
+html body .site-header .header-cart-link,
+html body .site-header .header-account-link,
+html body:has(.home-intro) .site-header .header-cart-link,
+html body:has(.home-intro) .site-header .header-account-link {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (min-width: 901px) {
+  html body .site-header .nav-link,
+  html body .site-header .nav-item a,
+  html body:has(.home-intro) .site-header .nav-link,
+  html body:has(.home-intro) .site-header .nav-item a {
+    display: inline-flex !important;
+    height: 43px !important;
+    align-items: center !important;
+    padding: 0 8px !important;
+    box-sizing: border-box !important;
+  }
+
+}
+
+/* Header interaction: copper line draws left-to-right; current choices keep it. */
+html body .site-header .audience-switch__link,
+html body:has(.home-intro) .site-header .audience-switch__link,
+html body .site-header .audience-switch__link--active,
+html body:has(.home-intro) .site-header .audience-switch__link--active,
+html body .site-header .language-switcher select,
+html body:has(.home-intro) .site-header .language-switcher select,
+html body .site-header .header-cart-link,
+html body .site-header .header-account-link,
+html body:has(.home-intro) .site-header .header-cart-link,
+html body:has(.home-intro) .site-header .header-account-link,
+html body .site-header .nav-link,
+html body .site-header .nav-item a,
+html body:has(.home-intro) .site-header .nav-link,
+html body:has(.home-intro) .site-header .nav-item a,
+html body .site-header .nav-item--active > .nav-link,
+html body:has(.home-intro) .site-header .nav-item--active > .nav-link {
+  background: transparent !important;
+  color: #0D1726 !important;
+}
+
+html body .site-header .audience-switch__link,
+html body .site-header .nav-link,
+html body .site-header .nav-item a,
+html body .site-header .header-cart-link,
+html body .site-header .header-account-link,
+html body:has(.home-intro) .site-header .audience-switch__link,
+html body:has(.home-intro) .site-header .nav-link,
+html body:has(.home-intro) .site-header .nav-item a,
+html body:has(.home-intro) .site-header .header-cart-link,
+html body:has(.home-intro) .site-header .header-account-link {
+  position: relative !important;
+}
+
+html body .site-header .audience-switch__link:hover,
+html body .site-header .audience-switch__link:focus-visible,
+html body:has(.home-intro) .site-header .audience-switch__link:hover,
+html body:has(.home-intro) .site-header .audience-switch__link:focus-visible,
+html body .site-header .language-switcher select:hover,
+html body .site-header .language-switcher select:focus-visible,
+html body:has(.home-intro) .site-header .language-switcher select:hover,
+html body:has(.home-intro) .site-header .language-switcher select:focus-visible,
+html body .site-header .header-cart-link:hover,
+html body .site-header .header-cart-link:focus-visible,
+html body .site-header .header-account-link:hover,
+html body .site-header .header-account-link:focus-visible,
+html body:has(.home-intro) .site-header .header-cart-link:hover,
+html body:has(.home-intro) .site-header .header-cart-link:focus-visible,
+html body:has(.home-intro) .site-header .header-account-link:hover,
+html body:has(.home-intro) .site-header .header-account-link:focus-visible,
+html body .site-header .nav-link:hover,
+html body .site-header .nav-link:focus-visible,
+html body .site-header .nav-item a:hover,
+html body .site-header .nav-item a:focus-visible,
+html body:has(.home-intro) .site-header .nav-link:hover,
+html body:has(.home-intro) .site-header .nav-link:focus-visible,
+html body:has(.home-intro) .site-header .nav-item a:hover,
+html body:has(.home-intro) .site-header .nav-item a:focus-visible {
+  background: transparent !important;
+  color: #0D1726 !important;
+}
+
+html body .site-header .language-switcher,
+html body:has(.home-intro) .site-header .language-switcher {
+  position: relative !important;
+}
+
+html body .site-header .audience-switch__link::after,
+html body:has(.home-intro) .site-header .audience-switch__link::after,
+html body .site-header .nav-link::after,
+html body .site-header .nav-item a::after,
+html body:has(.home-intro) .site-header .nav-link::after,
+html body:has(.home-intro) .site-header .nav-item a::after,
+html body .site-header .header-cart-link::after,
+html body .site-header .header-account-link::after,
+html body:has(.home-intro) .site-header .header-cart-link::after,
+html body:has(.home-intro) .site-header .header-account-link::after,
+html body .site-header .language-switcher::after,
+html body:has(.home-intro) .site-header .language-switcher::after {
+  position: absolute !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  display: block !important;
+  height: 2px !important;
+  content: "" !important;
+  background: #C96F24 !important;
+  transform: scaleX(0) !important;
+  transform-origin: left center !important;
+  transition: transform .24s ease !important;
+  pointer-events: none !important;
+}
+
+html body .site-header .audience-switch__link:hover::after,
+html body .site-header .audience-switch__link:focus-visible::after,
+html body:has(.home-intro) .site-header .audience-switch__link:hover::after,
+html body:has(.home-intro) .site-header .audience-switch__link:focus-visible::after,
+html body .site-header .nav-link:hover::after,
+html body .site-header .nav-link:focus-visible::after,
+html body .site-header .nav-item a:hover::after,
+html body .site-header .nav-item a:focus-visible::after,
+html body:has(.home-intro) .site-header .nav-link:hover::after,
+html body:has(.home-intro) .site-header .nav-link:focus-visible::after,
+html body:has(.home-intro) .site-header .nav-item a:hover::after,
+html body:has(.home-intro) .site-header .nav-item a:focus-visible::after,
+html body .site-header .header-cart-link:hover::after,
+html body .site-header .header-cart-link:focus-visible::after,
+html body .site-header .header-account-link:hover::after,
+html body .site-header .header-account-link:focus-visible::after,
+html body:has(.home-intro) .site-header .header-cart-link:hover::after,
+html body:has(.home-intro) .site-header .header-cart-link:focus-visible::after,
+html body:has(.home-intro) .site-header .header-account-link:hover::after,
+html body:has(.home-intro) .site-header .header-account-link:focus-visible::after,
+html body .site-header .language-switcher:hover::after,
+html body .site-header .language-switcher:focus-within::after,
+html body:has(.home-intro) .site-header .language-switcher:hover::after,
+html body:has(.home-intro) .site-header .language-switcher:focus-within::after,
+html body .site-header .audience-switch__link--active::after,
+html body:has(.home-intro) .site-header .audience-switch__link--active::after,
+html body .site-header .nav-item--active > .nav-link::after,
+html body:has(.home-intro) .site-header .nav-item--active > .nav-link::after,
+html body .site-header .header-cart-link[aria-current="page"]::after,
+html body .site-header .header-account-link[aria-current="page"]::after,
+html body:has(.home-intro) .site-header .header-cart-link[aria-current="page"]::after,
+html body:has(.home-intro) .site-header .header-account-link[aria-current="page"]::after {
+  transform: scaleX(1) !important;
 }
 
 /* Inactive first map-control draft retained to preserve the surrounding dirty worktree.
@@ -7975,7 +8131,7 @@ html body:has(.home-intro) .site-header .header-cart-link {
   border: 1px solid rgba(255, 255, 255, .14);
   border-radius: 22px;
   background: rgba(10, 21, 31, .86);
-  box-shadow: 0 18px 52px rgba(0, 0, 0, .26);
+  box-shadow: 0 18px 52px rgba(13, 23, 38, .26);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
   pointer-events: none;
@@ -8043,14 +8199,14 @@ html body:has(.home-intro) .site-header .header-cart-link {
   border: 1px solid rgba(255, 255, 255, .2) !important;
   border-radius: 16px !important;
   background: rgba(10, 21, 31, .9) !important;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, .24) !important;
+  box-shadow: 0 14px 36px rgba(13, 23, 38, .24) !important;
   backdrop-filter: blur(18px) !important;
   -webkit-backdrop-filter: blur(18px) !important;
 }
 
 .coverage-maplibre-section .coverage-maplibre-search:focus-within {
   border-color: #efad73 !important;
-  box-shadow: 0 0 0 4px rgba(201, 111, 36, .22), 0 18px 42px rgba(0, 0, 0, .28) !important;
+  box-shadow: 0 0 0 4px rgba(201, 111, 36, .22), 0 18px 42px rgba(13, 23, 38, .28) !important;
 }
 
 .coverage-maplibre-section .coverage-maplibre-search .maplibregl-ctrl-geocoder {
@@ -8097,7 +8253,7 @@ html body:has(.home-intro) .site-header .header-cart-link {
   background: rgba(10, 21, 31, .9) !important;
   color: #fff !important;
   font: 700 12px/1 var(--dui-font-body, Arial, sans-serif) !important;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, .24) !important;
+  box-shadow: 0 14px 36px rgba(13, 23, 38, .24) !important;
 }
 
 .coverage-maplibre-section .coverage-maplibre-action::before {
@@ -8253,7 +8409,7 @@ html body:has(.home-intro) .site-header .header-cart-link {
   border: 1px solid rgba(255, 255, 255, .16) !important;
   border-radius: 14px !important;
   background: rgba(10, 21, 31, .86) !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, .2) !important;
+  box-shadow: 0 12px 32px rgba(13, 23, 38, .2) !important;
   transform: translateX(-50%) !important;
   backdrop-filter: blur(18px) !important;
 }
@@ -8283,7 +8439,7 @@ html body:has(.home-intro) .site-header .header-cart-link {
   border: 1px solid rgba(255, 255, 255, .18) !important;
   border-radius: 16px !important;
   background: rgba(10, 21, 31, .9) !important;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, .24) !important;
+  box-shadow: 0 14px 36px rgba(13, 23, 38, .24) !important;
   backdrop-filter: blur(18px) !important;
 }
 

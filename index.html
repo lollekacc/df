@@ -29,7 +29,7 @@
             <small>Välj erbjudande</small>
           </button>
           <button class="hero-offer-tile hero-offer-tile--group" type="button" data-hero-offer-persons="3">
-            <span class="hero-offer-kicker">Hushåll</span>
+            <span class="hero-offer-kicker">Familj</span>
             <strong><span class="hero-offer-count">3</span><span class="hero-offer-subscriptions">abonnemang</span></strong>
             <span class="hero-offer-gift">3000 kr</span>
             <span class="hero-offer-copy">Presentkort</span>
@@ -60,7 +60,7 @@
             </h1>
             <p class="hero-lead">
               Vi analyserar och rekomenderar
-              <button type="button" id="hero-start-analysis" class="hero-inline-action">Starta analys <span aria-hidden="true">→</span></button>
+              <button type="button" id="hero-start-analysis" class="button button--primary hero-inline-action analysis-start-action" data-analysis-start-action><span data-analysis-start-label>Starta analysen</span><span aria-hidden="true">→</span></button>
             </p>
           </div>
           <div class="hero-bottom-actions">
@@ -541,7 +541,7 @@
         <div class="home-how__copy">
           <h2>Osäker på vilket abonnemang som passar dig?</h2>
           <p>* Svar direkt * Tar cirka 2 minuter </p>
-          <a href="#quiz-steps-wrapper" class="button button--primary" data-home-quiz-link>Starta analysen<span>→</span></a>
+          <a href="#quiz-steps-wrapper" class="button button--primary analysis-start-action" data-home-quiz-link data-analysis-start-action><span data-analysis-start-label>Starta analysen</span><span aria-hidden="true">→</span></a>
         </div>
         <ol class="home-how__steps">
           <li><span>01</span><div><h3>Berätta vad du behöver</h3><p>Surf, antal personer och ungefärlig budget.</p></div></li>
@@ -599,9 +599,9 @@
 
       <section class="coverage-main coverage-maplibre-section section-space" id="coverageApp" data-coverage-map="real" data-map-engine="maplibre">
         <div class="coverage-maplibre-heading">
-          <p class="coverage-maplibre-heading__eyebrow">T&auml;ckning d&auml;r du bor</p>
-          <h2>V&auml;lj operat&ouml;r och utforska kartan</h2>
-          <p class="coverage-maplibre-heading__intro">S&ouml;k p&aring; din adress och v&auml;xla mellan operat&ouml;rer och n&auml;t f&ouml;r att se skillnaden direkt.</p>
+          <p class="coverage-maplibre-heading__eyebrow">T&auml;ckning &ouml;ver hela Sverige</p>
+          <h2>Hitta n&auml;tet som fungerar d&auml;r du bor</h2>
+          <p class="coverage-maplibre-heading__intro">S&ouml;k p&aring; din adress och j&auml;mf&ouml;r operat&ouml;rernas 4G- och 5G-t&auml;ckning direkt p&aring; kartan.</p>
         </div>
 
         <div class="coverage-maplibre-shell">
@@ -610,37 +610,32 @@
 
           <aside class="coverage-maplibre-sidebar" aria-label="T&auml;ckningsfilter">
             <div class="coverage-maplibre-copy">
-              <p class="coverage-maplibre-kicker">Snabbkoll</p>
               <h2>J&auml;mf&ouml;r n&auml;t p&aring; din adress</h2>
               <p>V&auml;lj operat&ouml;r och n&auml;t, eller s&ouml;k p&aring; en plats f&ouml;r en tydligare lokal bild.</p>
             </div>
 
             <div class="coverage-maplibre-operators" aria-label="V&auml;lj operat&ouml;r">
-              <button class="coverage-maplibre-operator is-active" data-operator="telia" type="button" aria-pressed="true">
-                <span>Telia</span>
+              <button class="coverage-maplibre-operator is-active" data-operator="telia" type="button" aria-label="Telia" aria-pressed="true">
+                <img src="images/telia.png" alt="" aria-hidden="true" />
               </button>
-              <button class="coverage-maplibre-operator" data-operator="tele2" type="button" aria-pressed="false">
-                <span>Tele2</span>
+              <button class="coverage-maplibre-operator" data-operator="tele2" type="button" aria-label="Tele2" aria-pressed="false">
+                <img src="images/tele2.png" alt="" aria-hidden="true" />
               </button>
-              <button class="coverage-maplibre-operator" data-operator="telenor" type="button" aria-pressed="false">
-                <span>Telenor</span>
+              <button class="coverage-maplibre-operator" data-operator="telenor" type="button" aria-label="Telenor" aria-pressed="false">
+                <img src="images/telenor.jpg" alt="" aria-hidden="true" />
               </button>
-              <button class="coverage-maplibre-operator" data-operator="tre" type="button" aria-pressed="false">
-                <span>Tre</span>
+              <button class="coverage-maplibre-operator" data-operator="tre" type="button" aria-label="Tre" aria-pressed="false">
+                <img src="images/tre.jpg" alt="" aria-hidden="true" />
               </button>
             </div>
 
-            <div class="coverage-maplibre-networks" aria-label="V&auml;lj n&auml;t">
+            <div class="coverage-maplibre-networks" aria-label="V&auml;lj ett eller flera n&auml;t">
               <button class="coverage-maplibre-network is-active" data-network="4G" type="button" aria-pressed="true">4G</button>
               <button class="coverage-maplibre-network" data-network="4G+" type="button" aria-pressed="false">4G+</button>
               <button class="coverage-maplibre-network" data-network="5G" type="button" aria-pressed="false">5G</button>
               <button class="coverage-maplibre-network" data-network="5G+" type="button" aria-pressed="false">5G+</button>
             </div>
 
-            <div class="coverage-maplibre-note">
-              <span class="coverage-maplibre-note__icon">i</span>
-              <p id="coverageLayerStatus">Telia valt: 4G. Indigo visar mycket god, turkos god och gul bas-t&auml;ckning i denna detaljerade demo. <a href="jamfor-tackning.html">L&auml;s mer &rarr;</a></p>
-            </div>
           </aside>
 
           <div class="coverage-maplibre-quality-key" aria-label="F&auml;rgf&ouml;rklaring f&ouml;r t&auml;ckningsniv&aring;">
@@ -664,10 +659,10 @@
             <button data-map-theme="dark" type="button" aria-pressed="false">Dark</button>
           </div>
 
-          <div class="coverage-maplibre-zoom" aria-label="Kartzoom">
+          <div class="coverage-maplibre-zoom" aria-label="Kartverktyg">
             <button id="coverageMapZoomIn" type="button" aria-label="Zooma in">+</button>
             <button id="coverageMapZoomOut" type="button" aria-label="Zooma ut">&minus;</button>
-            <button id="coverageMapCompass" class="coverage-maplibre-compass" type="button" aria-label="Rotera kartan mot norr">N</button>
+            <button id="coverageMapCompass" class="coverage-maplibre-compass" type="button" aria-label="Rotera kartan mot norr"></button>
             <button id="coverageMapPerspective" class="coverage-maplibre-perspective is-active" type="button" aria-label="V&auml;xla mellan 2D och 3D" aria-pressed="true">3D</button>
           </div>
 

@@ -89,7 +89,7 @@
   const maxStoredTranslations = 2500;
   const attemptedRemoteTranslations = new Set();
   const remoteTranslationFailures = new Map();
-  const configuredApiBase = 'https://db-qtmd.onrender.com';
+  const configuredApiBase = window.DEALETT_API_BASE || 'https://db-qtmd.onrender.com';
   const translationEndpoint = `${configuredApiBase}/api/translate`;
   const queuedRemoteTranslations = new Set();
   let activeLanguage = 'sv';
@@ -1179,6 +1179,40 @@
     }));
   };
 
+  const initAudienceSwitch = () => {
+    const links = [...document.querySelectorAll('.audience-switch__link')];
+    if (!links.length) return;
+
+    const isBusinessPage = document.body.classList.contains('business-page')
+      || /(?:^|\/)foretag\.html$/i.test(window.location.pathname);
+
+    links.forEach((link) => {
+      const destination = new URL(link.href, window.location.href).pathname;
+      const isBusinessLink = /(?:^|\/)foretag\.html$/i.test(destination);
+      const isActive = isBusinessPage === isBusinessLink;
+
+      link.classList.toggle('audience-switch__link--active', isActive);
+      if (isActive) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+
+    const currentPath = window.location.pathname.replace(/\/+$/, '');
+    document.querySelectorAll('.site-nav .nav-link, .header-cart-link, .header-account-link').forEach((link) => {
+      const linkPath = new URL(link.href, window.location.href).pathname.replace(/\/+$/, '');
+      const isCurrent = linkPath === currentPath;
+
+      link.closest('.nav-item')?.classList.toggle('nav-item--active', isCurrent);
+      if (isCurrent) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+  };
+
   const initDropdowns = () => {
     const dropdowns = document.querySelectorAll('.nav-item--dropdown');
     const header = document.querySelector('.site-header');
@@ -1329,13 +1363,13 @@
         typing: 'Dealett assistant skriver...',
         queued: 'Ditt tillägg är köat...',
         error: 'Jag kunde inte svara just nu. Kontrollera att AI-tjänsten är konfigurerad och försök igen.',
-        feedbackQuestion: 'Var svaret hjälpsamt?',
-        feedbackYes: 'Ja',
-        feedbackNo: 'Nej',
-        feedbackWhy: 'Vill du berätta varför?',
-        feedbackSend: 'Skicka feedback',
-        feedbackSkip: 'Hoppa över',
-        feedbackThanks: 'Tack för feedbacken.',
+        greeting: 'Hej! Vad kan jag hjälpa dig med idag?',
+        greetingChoices: [
+          'Jämför mobilabonnemang',
+          'Jämför bredband',
+          'Hjälp med ett befintligt abonnemang',
+          'Något annat',
+        ],
       },
       en: {
         open: 'Open Dealett assistant',
@@ -1347,13 +1381,13 @@
         typing: 'Dealett assistant is typing...',
         queued: 'Your follow-up is queued...',
         error: 'I could not answer right now. Check that the AI service is configured and try again.',
-        feedbackQuestion: 'Was this helpful?',
-        feedbackYes: 'Yes',
-        feedbackNo: 'No',
-        feedbackWhy: 'Want to tell us why?',
-        feedbackSend: 'Send feedback',
-        feedbackSkip: 'Skip',
-        feedbackThanks: 'Thanks for the feedback.',
+        greeting: 'Hi! What can I help you with today?',
+        greetingChoices: [
+          'Compare mobile plans',
+          'Compare broadband',
+          'Help with an existing subscription',
+          'Something else',
+        ],
       },
     };
 
@@ -1365,7 +1399,9 @@
     const offerCalculationKey = 'dealettChatOfferCalculation';
     const chatSessionKey = 'dealettChatSessionId';
     let isSending = false;
+    let typingIndicator = null;
     let lastAssistantResponse = null;
+    const renderedOfferIds = new Set();
     let offerClickedInSession = false;
     let hasUserStartedChat = false;
     let activeQuizContext = null;
@@ -1472,6 +1508,7 @@
       bindingEnds: [],
       mobileUsage: null,
       priceRange: null,
+      familyPriceRange: null,
       exactMonthlyPrice: null,
       exactMonthlyPrices: [],
       readyForOffer: false,
@@ -1592,18 +1629,22 @@
       const mapped = patchMap.find((item) => item.test.test(label));
       if (mapped) return { label, qualificationPatch: mapped.patch };
       if (/ingen bindningstid/i.test(label)) {
+        const peopleCount = Number(readQualification().peopleCount) || 1;
         return {
           label,
           qualificationPatch: {
-            bindingEnds: [...readQualification().bindingEnds, 'Ingen bindningstid'],
+            bindingEnds: Array.from({ length: peopleCount }, () => 'Ingen bindningstid'),
+            bindingAppliesToAll: true,
           },
         };
       }
       if (/vet inte/i.test(label)) {
+        const peopleCount = Number(readQualification().peopleCount) || 1;
         return {
           label,
           qualificationPatch: {
-            bindingEnds: [...readQualification().bindingEnds, 'Vet inte'],
+            bindingEnds: Array.from({ length: peopleCount }, () => 'Vet inte'),
+            bindingAppliesToAll: true,
           },
         };
       }
@@ -1643,6 +1684,56 @@
 
     const scrollMessages = () => {
       messageList.scrollTop = messageList.scrollHeight;
+    };
+
+    const showTypingIndicator = () => {
+      if (typingIndicator?.isConnected) return;
+
+      const item = document.createElement('article');
+      item.className = 'dealett-chat-message dealett-chat-message--assistant dealett-chat-message--typing';
+      item.innerHTML = [
+        `<div class="dealett-chat-bubble" role="status" aria-label="${escapeChatText(text.typing)}">`,
+        '  <span class="dealett-chat-typing-dots" aria-hidden="true"><i></i><i></i><i></i></span>',
+        '</div>',
+      ].join('');
+      typingIndicator = item;
+      messageList.append(item);
+      scrollMessages();
+    };
+
+    const hideTypingIndicator = () => {
+      typingIndicator?.remove();
+      typingIndicator = null;
+    };
+
+    const positionCompletedTurn = (assistantItem) => {
+      if (!assistantItem) return;
+
+      let userItem = assistantItem.previousElementSibling;
+      while (userItem && !userItem.classList.contains('dealett-chat-message--user')) {
+        userItem = userItem.previousElementSibling;
+      }
+
+      window.requestAnimationFrame(() => {
+        if (!userItem || !userItem.isConnected || !assistantItem.isConnected) {
+          scrollMessages();
+          return;
+        }
+
+        const listRect = messageList.getBoundingClientRect();
+        const userRect = userItem.getBoundingClientRect();
+        const assistantRect = assistantItem.getBoundingClientRect();
+        const turnHeight = assistantRect.bottom - userRect.top;
+        const availableHeight = Math.max(0, messageList.clientHeight - 24);
+
+        if (turnHeight > availableHeight) {
+          const userTop = messageList.scrollTop + userRect.top - listRect.top;
+          messageList.scrollTop = Math.max(0, userTop - 12);
+          return;
+        }
+
+        scrollMessages();
+      });
     };
 
     const hasOfferOptions = (offerCalculation) => Boolean(
@@ -1692,7 +1783,7 @@
     const sendChatFeedback = (payload) => {
       if (!window.DealettNetwork?.fetchJson) return Promise.resolve(null);
 
-      return window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/chat-feedback', {
+      return window.DealettNetwork.fetchJson(`${configuredApiBase}/api/chat-feedback`, {
         label: 'Dealett chat feedback',
         method: 'POST',
         timeoutMs: 8000,
@@ -1707,104 +1798,26 @@
       return url;
     };
 
-    const renderFeedbackPrompt = (messageItem, response) => {
-      if (!messageItem || !response?.reply) return;
+    const mergeQuickReplyPatches = (suggestions) => suggestions.reduce((result, suggestion) => {
+      const patch = suggestion?.qualificationPatch;
+      if (!patch || typeof patch !== 'object') return result;
+      Object.entries(patch).forEach(([field, value]) => {
+        if (Array.isArray(value)) {
+          result[field] = [...new Set([...(result[field] || []), ...value])];
+        } else {
+          result[field] = value;
+        }
+      });
+      return result;
+    }, {});
 
-      const feedback = document.createElement('div');
-      feedback.className = 'dealett-chat-feedback';
-
-      const question = document.createElement('span');
-      question.className = 'dealett-chat-feedback__question';
-      question.textContent = text.feedbackQuestion;
-
-      const actions = document.createElement('div');
-      actions.className = 'dealett-chat-feedback__actions';
-
-      const yesButton = document.createElement('button');
-      yesButton.type = 'button';
-      yesButton.className = 'dealett-chat-feedback__button';
-      yesButton.textContent = text.feedbackYes;
-
-      const noButton = document.createElement('button');
-      noButton.type = 'button';
-      noButton.className = 'dealett-chat-feedback__button';
-      noButton.textContent = text.feedbackNo;
-
-      actions.append(yesButton, noButton);
-
-      const details = document.createElement('div');
-      details.className = 'dealett-chat-feedback__details';
-      details.hidden = true;
-
-      const textarea = document.createElement('textarea');
-      textarea.className = 'dealett-chat-feedback__text';
-      textarea.rows = 2;
-      textarea.maxLength = 1000;
-      textarea.placeholder = text.feedbackWhy;
-
-      const detailActions = document.createElement('div');
-      detailActions.className = 'dealett-chat-feedback__actions';
-
-      const sendButton = document.createElement('button');
-      sendButton.type = 'button';
-      sendButton.className = 'dealett-chat-feedback__button dealett-chat-feedback__button--primary';
-      sendButton.textContent = text.feedbackSend;
-
-      const skipButton = document.createElement('button');
-      skipButton.type = 'button';
-      skipButton.className = 'dealett-chat-feedback__button';
-      skipButton.textContent = text.feedbackSkip;
-
-      detailActions.append(sendButton, skipButton);
-      details.append(textarea, detailActions);
-      feedback.append(question, actions, details);
-      messageItem.append(feedback);
-
-      let selectedThumb = null;
-      const setSubmitted = () => {
-        feedback.replaceChildren();
-        const thanks = document.createElement('span');
-        thanks.className = 'dealett-chat-feedback__thanks';
-        thanks.textContent = text.feedbackThanks;
-        feedback.append(thanks);
-        scrollMessages();
-      };
-
-      const submitFeedback = async (includeText) => {
-        if (!selectedThumb || feedback.dataset.submitted === 'true') return;
-        feedback.dataset.submitted = 'true';
-        yesButton.disabled = true;
-        noButton.disabled = true;
-        sendButton.disabled = true;
-        skipButton.disabled = true;
-        await sendChatFeedback(buildFeedbackPayload({
-          response,
-          thumb: selectedThumb,
-          feedbackText: includeText ? textarea.value : '',
-        }));
-        setSubmitted();
-      };
-
-      const chooseThumb = (thumb) => {
-        selectedThumb = thumb;
-        yesButton.classList.toggle('is-selected', thumb === 'up');
-        noButton.classList.toggle('is-selected', thumb === 'down');
-        details.hidden = false;
-        scrollMessages();
-        textarea.focus();
-      };
-
-      yesButton.addEventListener('click', () => chooseThumb('up'));
-      noButton.addEventListener('click', () => chooseThumb('down'));
-      sendButton.addEventListener('click', () => submitFeedback(true));
-      skipButton.addEventListener('click', () => submitFeedback(false));
-    };
-
-    const renderQuickReplies = (messageItem, quickReplies) => {
+    const renderQuickReplies = (messageItem, quickReplies, options = {}) => {
       if (!messageItem || !Array.isArray(quickReplies) || !quickReplies.length) return;
 
       const wrap = document.createElement('div');
       wrap.className = 'dealett-chat-quick-replies';
+      const multiple = options.mode === 'multiple';
+      const selectedReplies = new Map();
 
       quickReplies.slice(0, 5).forEach((reply) => {
         const label = String(reply?.label || reply || '').trim();
@@ -1816,7 +1829,18 @@
         button.className = 'dealett-chat-quick-reply';
         button.textContent = label;
         button.setAttribute('data-translation-complete', '');
+        if (multiple) button.setAttribute('aria-pressed', 'false');
         button.addEventListener('click', () => {
+          if (multiple) {
+            const selected = !selectedReplies.has(label);
+            if (selected) selectedReplies.set(label, suggestion);
+            else selectedReplies.delete(label);
+            button.classList.toggle('is-selected', selected);
+            button.setAttribute('aria-pressed', String(selected));
+            const submitButton = wrap.querySelector('[data-chat-multi-submit]');
+            if (submitButton) submitButton.disabled = selectedReplies.size === 0;
+            return;
+          }
           if (suggestion.qualificationPatch) {
             mergeQualification(suggestion.qualificationPatch);
           }
@@ -1833,6 +1857,36 @@
         });
         wrap.append(button);
       });
+
+      if (multiple && wrap.children.length) {
+        const submitButton = document.createElement('button');
+        submitButton.type = 'button';
+        submitButton.className = 'dealett-chat-quick-reply dealett-chat-quick-reply--submit';
+        submitButton.textContent = options.submitLabel || (chatLanguage === 'en' ? 'Send choices' : 'Skicka val');
+        submitButton.setAttribute('data-chat-multi-submit', '');
+        submitButton.setAttribute('data-translation-complete', '');
+        submitButton.disabled = true;
+        submitButton.addEventListener('click', () => {
+          const selected = [...selectedReplies.values()];
+          if (!selected.length) return;
+          const selectedLabels = selected.map((reply) => reply.label);
+          const qualificationPatch = mergeQuickReplyPatches(selected);
+          if (Object.keys(qualificationPatch).length) mergeQualification(qualificationPatch);
+          wrap.querySelectorAll('button').forEach((item) => {
+            item.disabled = true;
+          });
+          const message = selectedLabels.join(', ');
+          input.value = message;
+          sendMessage(message, {
+            context: {
+              quickReply: true,
+              multiSelect: true,
+              qualificationPatch: Object.keys(qualificationPatch).length ? qualificationPatch : null,
+            },
+          });
+        });
+        wrap.append(submitButton);
+      }
 
       if (wrap.children.length) {
         messageItem.append(wrap);
@@ -1954,7 +2008,6 @@
         options.contentLanguage ? `lang="${escapeChatText(options.contentLanguage)}" data-translation-complete` : '',
       ].filter(Boolean).join(' ');
       item.innerHTML = [
-        isUser ? '' : '<span class="dealett-chat-avatar dealett-chat-avatar--bot" aria-hidden="true"><span><b></b></span></span>',
         '<div class="dealett-chat-bubble">',
         `  <p${contentAttributes ? ` ${contentAttributes}` : ''}>${escapeChatText(content)}</p>`,
         `  <time class="dealett-chat-time">${escapeChatText(getChatTimeLabel())}</time>`,
@@ -1973,6 +2026,33 @@
       }
       scrollMessages();
       return item;
+    };
+
+    const isGreetingOnly = (value) => {
+      const normalized = String(value || '')
+        .trim()
+        .toLocaleLowerCase(chatLanguage)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[!?.,:;]+$/g, '')
+        .trim();
+      return /^(hej|hejsan|halla|tjena|god morgon|god dag|hello|hi|hey|good morning|good afternoon|good evening)( dar| igen)?$/.test(normalized);
+    };
+
+    const renderConversationGreeting = () => {
+      const greetingText = text.greeting || copy.sv.greeting;
+      const quickReplies = text.greetingChoices || copy.sv.greetingChoices;
+      lastAssistantResponse = {
+        reply: greetingText,
+        source: 'conversation-greeting',
+        interactionStage: 'greeting',
+      };
+      const assistantItem = addMessage('assistant', greetingText, {
+        contentLanguage: chatLanguage,
+      });
+      renderQuickReplies(assistantItem, quickReplies);
+      positionCompletedTurn(assistantItem);
+      return assistantItem;
     };
 
     const renderSuggestions = (suggestions) => {
@@ -2060,7 +2140,7 @@
 
     const addCalculatedOfferToCart = async (planId, options = {}) => {
       const { announce = true, openDrawer = true } = options;
-      const response = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/offers/cart-item', {
+      const response = await window.DealettNetwork.fetchJson(`${configuredApiBase}/api/offers/cart-item`, {
         label: 'Dealett erbjudande till varukorg',
         method: 'POST',
         timeoutMs: 10000,
@@ -2083,12 +2163,12 @@
       return response;
     };
 
-    const renderAssistantResponse = (response, options = {}) => {
-      const { showFeedback = true } = options;
+    const renderAssistantResponse = (response) => {
       const assistantText = typeof response?.reply === 'string' ? response.reply.trim() : '';
       if (response?.source !== 'openai' || !assistantText) {
         throw new Error('Chat response was not generated by OpenAI');
       }
+      hideTypingIndicator();
       lastAssistantResponse = {
         ...response,
         reply: assistantText,
@@ -2097,14 +2177,29 @@
         contentLanguage: chatLanguage,
         before: pendingMessages[0]?.item,
       });
-      renderQuickReplies(assistantItem, response.quickReplies);
-      renderChatOfferCards(assistantItem, response.offerCards);
-      renderEmbeddedWidget(assistantItem, response.embeddedWidget);
-      if (showFeedback) {
-        renderFeedbackPrompt(assistantItem, lastAssistantResponse);
+      const quickReplyLabels = Array.isArray(response.quickReplies)
+        ? response.quickReplies.map((reply) => String(reply?.label || reply || '').toLowerCase())
+        : [];
+      const streamingChoiceCount = quickReplyLabels.filter((label) => (
+        /netflix|disney|hbo|max|tv4|amazon|prime/.test(label)
+      )).length;
+      const inferredMultiSelect = /streaming|streamingtjänst|streamingtjanst/i.test(assistantText) &&
+        streamingChoiceCount >= 2;
+      renderQuickReplies(assistantItem, response.quickReplies, {
+        mode: response.quickReplyMode === 'multiple' || inferredMultiSelect ? 'multiple' : 'single',
+        submitLabel: response.quickReplySubmitLabel,
+      });
+      const offerIds = Array.isArray(response.offerCards)
+        ? response.offerCards.map((card) => String(card.planId || card.id || '')).filter(Boolean)
+        : [];
+      if (offerIds.some((offerId) => !renderedOfferIds.has(offerId))) {
+        renderChatOfferCards(assistantItem, response.offerCards);
+        offerIds.forEach((offerId) => renderedOfferIds.add(offerId));
       }
+      renderEmbeddedWidget(assistantItem, response.embeddedWidget);
       writeQualification(response.qualification);
       writeOfferCalculation(response.offerCalculation);
+      positionCompletedTurn(assistantItem);
       return assistantItem;
     };
 
@@ -2119,46 +2214,12 @@
       void processMessage(nextMessage.message, nextMessage.options);
     };
 
-    const loadInitialGreeting = async () => {
+    const loadInitialGreeting = () => {
       if (messages.length || isSending) return;
 
       suggestionArea.replaceChildren();
-      setSending(true);
-      let requestFailed = false;
-
-      try {
-        const response = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/chat', {
-          label: 'Dealett assistant',
-          method: 'POST',
-          timeoutMs: 60000,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId: chatSessionId,
-            message: chatLanguage === 'sv' ? 'hej' : 'hello',
-            language: chatLanguage,
-            messages: [],
-            qualification: createEmptyQualification(),
-            cart: readCartContext(),
-            page: {
-              title: document.title,
-              path: window.location.pathname.split('/').pop() || 'index.html',
-            },
-            context: {
-              initialGreeting: true,
-            },
-          }),
-        });
-
-        renderAssistantResponse(response, { showFeedback: false });
-      } catch {
-        requestFailed = true;
-      } finally {
-        setSending(false);
-        if (requestFailed) {
-          status.textContent = text.error;
-        }
-        continuePendingMessage();
-      }
+      renderConversationGreeting();
+      continuePendingMessage();
     };
 
     const renderChatOfferCards = (messageItem, offerCards) => {
@@ -2252,12 +2313,20 @@
 
     const setSending = (nextValue) => {
       isSending = nextValue;
+      if (nextValue) showTypingIndicator();
+      else hideTypingIndicator();
       status.textContent = nextValue
         ? (pendingMessages.length ? text.queued : text.typing)
         : text.status;
     };
 
     const processMessage = async (message, options = {}) => {
+      if (isGreetingOnly(message)) {
+        renderConversationGreeting();
+        continuePendingMessage();
+        return;
+      }
+
       const requestContext = {
         ...(getQuizContext() || {}),
         ...(options.context || {}),
@@ -2267,7 +2336,7 @@
       let requestFailed = false;
 
       try {
-        const response = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/chat', {
+        const response = await window.DealettNetwork.fetchJson(`${configuredApiBase}/api/chat`, {
           label: 'Dealett assistant',
           method: 'POST',
           timeoutMs: 60000,
@@ -2308,6 +2377,7 @@
         sessionStorage.removeItem(offerCalculationKey);
         activeQuizContext = null;
         ignoreQuizContext = true;
+        renderedOfferIds.clear();
       }
 
       hasUserStartedChat = true;
@@ -2383,6 +2453,7 @@
       sessionStorage.removeItem(offerCalculationKey);
       chatSessionId = persistChatSessionId(createChatSessionId());
       lastAssistantResponse = null;
+      renderedOfferIds.clear();
       offerClickedInSession = false;
       hasUserStartedChat = false;
       activeQuizContext = null;
@@ -2587,145 +2658,13 @@
     });
   };
 
-  const initButtonOrbitEffects = () => {
-    const buttonSelector = 'button, a.button, [role="button"]:not(input)';
-    let orbitId = 0;
-
-    const syncOrbitGeometry = button => {
-      const orbit = button.querySelector(':scope > .dealett-button-orbit');
-      const tracks = Array.from(orbit?.querySelectorAll('.dealett-button-orbit__track') || []);
-      const coreTrack = orbit?.querySelector('.dealett-button-orbit__track--core');
-      if (!orbit || !coreTrack || !tracks.length) return;
-
-      const bounds = button.getBoundingClientRect();
-      const width = Math.max(Math.round(bounds.width * 10) / 10, 4);
-      const height = Math.max(Math.round(bounds.height * 10) / 10, 4);
-      const trackInset = 1.5;
-      const trackWidth = Math.max(width - (trackInset * 2), 1);
-      const trackHeight = Math.max(height - (trackInset * 2), 1);
-      const computedStyle = getComputedStyle(button);
-      const radii = [
-        computedStyle.borderTopLeftRadius,
-        computedStyle.borderTopRightRadius,
-        computedStyle.borderBottomRightRadius,
-        computedStyle.borderBottomLeftRadius
-      ].map(value => Math.max(Math.min(Number.parseFloat(value) || 0, trackWidth / 2, trackHeight / 2) - trackInset, 0));
-      const [topLeft, topRight, bottomRight, bottomLeft] = radii;
-      const left = trackInset;
-      const top = trackInset;
-      const right = left + trackWidth;
-      const bottom = top + trackHeight;
-
-      const pathData = [
-        `M ${left + topLeft} ${top}`,
-        `H ${right - topRight}`,
-        topRight ? `Q ${right} ${top} ${right} ${top + topRight}` : `L ${right} ${top}`,
-        `V ${bottom - bottomRight}`,
-        bottomRight ? `Q ${right} ${bottom} ${right - bottomRight} ${bottom}` : `L ${right} ${bottom}`,
-        `H ${left + bottomLeft}`,
-        bottomLeft ? `Q ${left} ${bottom} ${left} ${bottom - bottomLeft}` : `L ${left} ${bottom}`,
-        `V ${top + topLeft}`,
-        topLeft ? `Q ${left} ${top} ${left + topLeft} ${top}` : `L ${left} ${top}`,
-        'Z'
-      ].join(' ');
-
-      tracks.forEach(track => track.setAttribute('d', pathData));
-
-      const perimeter = Math.max(coreTrack.getTotalLength(), 24);
-
-      orbit.setAttribute('viewBox', `0 0 ${width} ${height}`);
-      const trailRatios = { glow: .18, soft: .13, core: .07 };
-
-      tracks.forEach(track => {
-        const layer = track.dataset.orbitLayer;
-        const trailLength = perimeter * trailRatios[layer];
-
-        track.style.setProperty('--dealett-orbit-length', `${perimeter}px`);
-        track.style.setProperty('--dealett-orbit-end', `${-perimeter}px`);
-        track.style.setProperty('--dealett-orbit-trail', `${trailLength}px`);
-        track.style.setProperty('--dealett-orbit-gap', `${Math.max(perimeter - trailLength, 1)}px`);
-      });
-    };
-
-    const resizeObserver = new ResizeObserver(entries => {
-      entries.forEach(entry => syncOrbitGeometry(entry.target));
-    });
-
-    const enhanceButton = button => {
-      if (!(button instanceof HTMLElement) || button.classList.contains('dealett-orbit-ready')) return;
-
-      const gradientId = `dealett-button-orbit-${orbitId += 1}`;
-      const orbit = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      orbit.classList.add('dealett-button-orbit');
-      orbit.setAttribute('aria-hidden', 'true');
-      orbit.setAttribute('focusable', 'false');
-      orbit.innerHTML = [
-        '<defs>',
-        `  <linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1">`,
-        '    <stop offset="0" stop-color="#fff3cf" />',
-        '    <stop offset=".48" stop-color="#e9a34f" />',
-        '    <stop offset="1" stop-color="#c8792b" />',
-        '  </linearGradient>',
-        '</defs>',
-        '<path class="dealett-button-orbit__track dealett-button-orbit__track--glow" data-orbit-layer="glow" fill="none" />',
-        `<path class="dealett-button-orbit__track dealett-button-orbit__track--soft" data-orbit-layer="soft" fill="none" stroke="url(#${gradientId})" />`,
-        `<path class="dealett-button-orbit__track dealett-button-orbit__track--core" data-orbit-layer="core" fill="none" stroke="url(#${gradientId})" />`
-      ].join('');
-      button.classList.add('dealett-orbit-ready');
-      button.appendChild(orbit);
-      resizeObserver.observe(button);
-      syncOrbitGeometry(button);
-
-      button.addEventListener('click', () => {
-        button.classList.remove('dealett-orbit-once');
-        button.classList.add('dealett-orbit-suppress-hover');
-        void button.offsetWidth;
-        button.classList.add('dealett-orbit-once');
-      });
-
-      button.addEventListener('pointerleave', () => {
-        button.classList.remove('dealett-orbit-suppress-hover');
-      });
-
-      button.addEventListener('blur', () => {
-        button.classList.remove('dealett-orbit-suppress-hover');
-      });
-
-      orbit.addEventListener('animationend', event => {
-        if (event.animationName === 'dealettButtonOrbitClick' && event.target.classList.contains('dealett-button-orbit__track--core')) {
-          button.classList.remove('dealett-orbit-once');
-        }
-      });
-    };
-
-    const enhanceWithin = root => {
-      if (root instanceof Element && root.matches(buttonSelector)) {
-        enhanceButton(root);
-      }
-
-      root.querySelectorAll?.(buttonSelector).forEach(enhanceButton);
-    };
-
-    enhanceWithin(document);
-
-    const observer = new MutationObserver(records => {
-      records.forEach(record => {
-        record.addedNodes.forEach(node => {
-          if (node instanceof Element) enhanceWithin(node);
-        });
-      });
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-  };
-
   const initGlobalBehaviors = () => {
     updateCartCount();
+    initAudienceSwitch();
     initDropdowns();
     initCoveragePreview();
     initDealettChat();
     initTranslations();
-    initButtonOrbitEffects();
   };
 
   window.addEventListener('storage', (event) => {
