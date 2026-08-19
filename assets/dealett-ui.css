@@ -1642,7 +1642,7 @@ html body .hero.quiz-in-hero #step1 .operator-per-person[data-operator-count="10
     width: 42px !important;
     min-width: 42px !important;
     height: 42px !important;
-    padding: 0 !important;
+    padding: 0 11px 0 6px !important;
     border-radius: 50% !important;
     overflow: hidden !important;
     white-space: nowrap !important;
@@ -7608,8 +7608,8 @@ html body .site-header .header-cart-link i {
     background: transparent !important;
     color: inherit !important;
     box-shadow: none !important;
-    text-align: center !important;
-    text-align-last: center !important;
+    text-align: left !important;
+    text-align-last: left !important;
     appearance: none !important;
     -webkit-appearance: none !important;
     font-size: 11px !important;
@@ -7629,7 +7629,7 @@ html body .site-header .header-cart-link i {
     min-width: 42px !important;
     height: 42px !important;
     min-height: 42px !important;
-    padding: 0 !important;
+    padding: 0 10px 0 4px !important;
     background: rgba(13, 23, 38, .10) !important;
     box-shadow: none !important;
     backdrop-filter: blur(8px) !important;
@@ -7664,8 +7664,8 @@ html body .site-header .header-cart-link i {
     padding: 0 !important;
     border: 0 !important;
     background: transparent !important;
-    text-align: center !important;
-    text-align-last: center !important;
+    text-align: left !important;
+    text-align-last: left !important;
     appearance: none !important;
     -webkit-appearance: none !important;
     font-size: 10px !important;
@@ -7680,7 +7680,7 @@ html body .site-header .header-cart-link i {
     min-width: 30px !important;
     height: 30px !important;
     min-height: 30px !important;
-    padding: 0 !important;
+    padding: 0 12px 0 7px !important;
     color: #0D1726 !important;
   }
 }
@@ -7864,8 +7864,8 @@ html body:has(.home-intro) .site-header .header-cart-link {
     min-height: 43px !important;
     padding: 0 !important;
     box-sizing: border-box !important;
-    text-align: center !important;
-    text-align-last: center !important;
+    text-align: left !important;
+    text-align-last: left !important;
     appearance: none !important;
     -webkit-appearance: none !important;
   }
@@ -8021,16 +8021,17 @@ html body:has(.home-intro) .site-header .nav-item a:focus-visible {
   html body:has(.home-intro) .site-header .language-switcher::before {
     position: absolute !important;
     top: 50% !important;
-    right: 5px !important;
+    right: 10px !important;
     z-index: 2 !important;
     display: block !important;
-    content: "\f107" !important;
+    width: 4px !important;
+    height: 4px !important;
+    border-right: 1.25px solid currentColor !important;
+    border-bottom: 1.25px solid currentColor !important;
     color: currentColor !important;
-    font-family: "Font Awesome 6 Free" !important;
-    font-size: 9px !important;
-    font-weight: 900 !important;
-    line-height: 1 !important;
-    transform: translateY(-50%) !important;
+    content: "" !important;
+    opacity: .58 !important;
+    transform: translateY(-65%) rotate(45deg) !important;
     pointer-events: none !important;
   }
 
@@ -8054,8 +8055,16 @@ html body:has(.home-intro) .site-header .nav-item a:focus-visible {
 
   html body .site-header .language-switcher::before,
   html body:has(.home-intro) .site-header .language-switcher::before {
-    right: 3px !important;
-    font-size: 8px !important;
+    right: 4px !important;
+    width: 3.5px !important;
+    height: 3.5px !important;
+    border-width: 1px !important;
+  }
+
+  html body .site-header .language-switcher select,
+  html body:has(.home-intro) .site-header .language-switcher select {
+    padding: 0 9px 0 3px !important;
+    font-size: 9px !important;
   }
 }
 
@@ -9492,4 +9501,29 @@ html body #dealettChat .dealett-chat-send:hover {
   html body #dealettChat .dealett-chat-form {
     padding: 10px 12px 12px !important;
   }
+}
+
+/* Allow every active quiz stage to reveal tall content instead of clipping it. */
+html body:not(.quiz-overlay-open) .hero.quiz-in-hero,
+html body:not(.quiz-overlay-open) .hero.quiz-in-hero .hero-quiz-mount,
+html body:not(.quiz-overlay-open) .hero.quiz-in-hero #quiz-steps-wrapper,
+html body:not(.quiz-overlay-open) .hero.quiz-in-hero #quiz-card-stack,
+html body:not(.quiz-overlay-open) .hero.quiz-in-hero .quiz-step-card.active-step,
+html body:not(.quiz-overlay-open) .hero.quiz-in-hero .quiz-step-card.active-step .quiz-card {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer .quiz-step-card.active-step .quiz-card {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin !important;
+}
+
+html body.quiz-overlay-open .quiz-modal-layer #step7 .offers-recommendation-grid {
+  max-height: none !important;
+  overflow: visible !important;
 }
