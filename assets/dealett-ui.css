@@ -7598,16 +7598,20 @@ html body .site-header .header-cart-link i {
 
   html body .site-header .language-switcher select,
   html body:has(.home-intro) .site-header .language-switcher select {
-    width: 58px !important;
-    min-width: 58px !important;
+    width: 30px !important;
+    min-width: 30px !important;
     height: 30px !important;
     min-height: 30px !important;
-    padding: 0 5px !important;
+    padding: 0 !important;
     border: 1px solid currentColor !important;
     border-radius: 999px !important;
     background: transparent !important;
     color: inherit !important;
     box-shadow: none !important;
+    text-align: center !important;
+    text-align-last: center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
     font-size: 11px !important;
     font-weight: 800 !important;
   }
@@ -7653,12 +7657,17 @@ html body .site-header .header-cart-link i {
 
   html body .site-header .language-switcher select,
   html body:has(.home-intro) .site-header .language-switcher select {
-    width: 48px !important;
-    min-width: 48px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
     min-height: 30px !important;
-    padding: 0 3px !important;
+    padding: 0 !important;
     border: 0 !important;
     background: transparent !important;
+    text-align: center !important;
+    text-align-last: center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
     font-size: 10px !important;
     font-weight: 800 !important;
   }
@@ -7849,9 +7858,16 @@ html body:has(.home-intro) .site-header .header-cart-link {
 
   html body .site-header .language-switcher select,
   html body:has(.home-intro) .site-header .language-switcher select {
+    width: 42px !important;
+    min-width: 42px !important;
     height: 43px !important;
     min-height: 43px !important;
+    padding: 0 !important;
     box-sizing: border-box !important;
+    text-align: center !important;
+    text-align-last: center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
   }
 
   html body .site-header .audience-switch__link,
@@ -7989,9 +8005,58 @@ html body:has(.home-intro) .site-header .nav-item a:focus-visible {
   color: #0D1726 !important;
 }
 
-html body .site-header .language-switcher,
-html body:has(.home-intro) .site-header .language-switcher {
-  position: relative !important;
+  html body .site-header .language-switcher,
+  html body:has(.home-intro) .site-header .language-switcher {
+    position: relative !important;
+    display: inline-flex !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 43px !important;
+    min-height: 43px !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  html body .site-header .language-switcher::before,
+  html body:has(.home-intro) .site-header .language-switcher::before {
+    position: absolute !important;
+    top: 50% !important;
+    right: 5px !important;
+    z-index: 2 !important;
+    display: block !important;
+    content: "\f107" !important;
+    color: currentColor !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    transform: translateY(-50%) !important;
+    pointer-events: none !important;
+  }
+
+  html body .site-header .language-switcher select,
+  html body:has(.home-intro) .site-header .language-switcher select {
+    overflow: hidden !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+  }
+
+@media (max-width: 900px) {
+  html body .site-header .language-switcher,
+  html body:has(.home-intro) .site-header .language-switcher,
+  html body .site-header .language-switcher select,
+  html body:has(.home-intro) .site-header .language-switcher select {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+  }
+
+  html body .site-header .language-switcher::before,
+  html body:has(.home-intro) .site-header .language-switcher::before {
+    right: 3px !important;
+    font-size: 8px !important;
+  }
 }
 
 html body .site-header .audience-switch__link::after,
@@ -9045,5 +9110,386 @@ body:has(.home-intro) .coverage-maplibre-section {
   .coverage-maplibre-section .coverage-maplibre-themes {
     right: 12px !important;
     bottom: 12px !important;
+  }
+}
+
+/* Open chat: professional, simple panel treatment. */
+html body #dealettChat .dealett-chat-panel {
+  right: 0 !important;
+  bottom: 66px !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) auto auto !important;
+  width: min(420px, calc(100vw - 32px)) !important;
+  height: min(640px, calc(100vh - 96px)) !important;
+  max-height: min(640px, calc(100vh - 96px)) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(13, 23, 38, .14) !important;
+  border-radius: 12px !important;
+  background: #FFFFFF !important;
+  color: #0D1726 !important;
+  box-shadow: 0 20px 48px rgba(13, 23, 38, .18) !important;
+}
+
+html body #dealettChat .dealett-chat-panel[hidden] {
+  display: none !important;
+}
+
+html body #dealettChat .dealett-chat-header {
+  position: static !important;
+  display: flex !important;
+  min-height: 58px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 12px 14px !important;
+  border-bottom: 1px solid rgba(13, 23, 38, .10) !important;
+  background: #FFFFFF !important;
+  color: #0D1726 !important;
+}
+
+html body #dealettChat .dealett-chat-header > div {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+html body #dealettChat .dealett-chat-header strong {
+  display: block !important;
+  margin: 0 !important;
+  color: #0D1726 !important;
+  font: 700 14px/1.2 var(--dui-font-body) !important;
+}
+
+html body #dealettChat .dealett-chat-header span {
+  display: block !important;
+  margin-top: 2px !important;
+  color: rgba(13, 23, 38, .58) !important;
+  font: 500 12px/1.25 var(--dui-font-body) !important;
+}
+
+html body #dealettChat .dealett-chat-reset,
+html body #dealettChat .dealett-chat-close {
+  flex: 0 0 auto !important;
+  display: inline-grid !important;
+  width: 34px !important;
+  height: 34px !important;
+  place-items: center !important;
+  margin: 0 !important;
+  border: 1px solid rgba(13, 23, 38, .14) !important;
+  border-radius: 8px !important;
+  background: #FFFFFF !important;
+  color: #0D1726 !important;
+  box-shadow: none !important;
+}
+
+html body #dealettChat .dealett-chat-reset {
+  margin-left: auto !important;
+}
+
+html body #dealettChat .dealett-chat-reset:hover,
+html body #dealettChat .dealett-chat-close:hover {
+  border-color: rgba(201, 111, 36, .44) !important;
+  background: #F8F5F0 !important;
+  color: #0D1726 !important;
+}
+
+html body #dealettChat .dealett-chat-messages {
+  min-height: 0 !important;
+  padding: 16px !important;
+  gap: 12px !important;
+  overflow-y: auto !important;
+  background: #F8F5F0 !important;
+}
+
+html body #dealettChat .dealett-chat-message {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: none !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #0D1726 !important;
+  font: 400 14px/1.48 var(--dui-font-body) !important;
+}
+
+html body #dealettChat .dealett-chat-message--assistant {
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}
+
+html body #dealettChat .dealett-chat-message--user {
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+}
+
+html body #dealettChat .dealett-chat-avatar {
+  display: none !important;
+}
+
+html body #dealettChat .dealett-chat-bubble {
+  width: auto !important;
+  max-width: min(86%, 330px) !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgba(13, 23, 38, .10) !important;
+  border-radius: 10px !important;
+  background: #FFFFFF !important;
+  color: #0D1726 !important;
+  box-shadow: none !important;
+}
+
+html body #dealettChat .dealett-chat-message--assistant .dealett-chat-bubble {
+  min-width: min(230px, 86%) !important;
+  border-bottom-left-radius: 4px !important;
+}
+
+html body #dealettChat .dealett-chat-message--user .dealett-chat-bubble {
+  justify-self: auto !important;
+  max-width: min(86%, 330px) !important;
+  padding: 10px 30px 10px 12px !important;
+  border-color: #0D1726 !important;
+  border-bottom-right-radius: 4px !important;
+  background: #0D1726 !important;
+  color: #FFFFFF !important;
+}
+
+html body #dealettChat .dealett-chat-message p {
+  margin: 0 !important;
+  color: inherit !important;
+  white-space: pre-wrap !important;
+}
+
+html body #dealettChat .dealett-chat-time {
+  display: block !important;
+  margin-top: 6px !important;
+  color: rgba(13, 23, 38, .46) !important;
+  font: 500 11px/1 var(--dui-font-body) !important;
+}
+
+html body #dealettChat .dealett-chat-message--user .dealett-chat-time {
+  color: rgba(255, 255, 255, .66) !important;
+}
+
+html body #dealettChat .dealett-chat-check {
+  right: 12px !important;
+  bottom: 11px !important;
+  width: 10px !important;
+  height: 6px !important;
+  border-color: rgba(255, 255, 255, .76) !important;
+}
+
+html body #dealettChat .dealett-chat-typing-dots {
+  height: 14px !important;
+  gap: 5px !important;
+}
+
+html body #dealettChat .dealett-chat-typing-dots i {
+  width: 6px !important;
+  height: 6px !important;
+  background: rgba(13, 23, 38, .46) !important;
+}
+
+html body #dealettChat .dealett-chat-quick-replies,
+html body #dealettChat .dealett-chat-widget-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+html body #dealettChat .dealett-chat-quick-replies {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+html body #dealettChat .dealett-chat-quick-reply,
+html body #dealettChat .dealett-chat-widget-button,
+html body #dealettChat .dealett-chat-chip {
+  min-height: 34px !important;
+  padding: 7px 11px !important;
+  border: 1px solid rgba(13, 23, 38, .16) !important;
+  border-radius: 999px !important;
+  background: #FFFFFF !important;
+  color: #0D1726 !important;
+  box-shadow: none !important;
+  font: 700 12px/1.2 var(--dui-font-body) !important;
+}
+
+html body #dealettChat .dealett-chat-quick-reply:hover,
+html body #dealettChat .dealett-chat-widget-button:hover,
+html body #dealettChat .dealett-chat-chip:hover {
+  border-color: rgba(201, 111, 36, .48) !important;
+  background: #FFF8F1 !important;
+  color: #0D1726 !important;
+}
+
+html body #dealettChat .dealett-chat-quick-reply.is-selected,
+html body #dealettChat .dealett-chat-quick-reply--submit,
+html body #dealettChat .dealett-chat-widget-button--primary {
+  border-color: #0D1726 !important;
+  background: #0D1726 !important;
+  color: #FFFFFF !important;
+}
+
+html body #dealettChat .dealett-chat-embedded-widget {
+  width: min(100%, 330px) !important;
+  margin-top: 10px !important;
+  padding: 12px !important;
+  border: 1px solid rgba(13, 23, 38, .10) !important;
+  border-radius: 10px !important;
+  background: #FFFFFF !important;
+  box-shadow: none !important;
+}
+
+html body #dealettChat .dealett-chat-widget-title {
+  color: #0D1726 !important;
+  font: 700 13px/1.3 var(--dui-font-body) !important;
+}
+
+html body #dealettChat .dealett-chat-widget-description,
+html body #dealettChat .dealett-chat-widget-status {
+  color: rgba(13, 23, 38, .62) !important;
+  font: 400 12px/1.45 var(--dui-font-body) !important;
+}
+
+html body #dealettChat .dealett-chat-address-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 8px !important;
+}
+
+html body #dealettChat .dealett-chat-address-input,
+html body #dealettChat .dealett-chat-input {
+  border: 1px solid rgba(13, 23, 38, .14) !important;
+  border-radius: 8px !important;
+  background: #FFFFFF !important;
+  color: #0D1726 !important;
+  box-shadow: none !important;
+  font: 400 14px/1.2 var(--dui-font-body) !important;
+}
+
+html body #dealettChat .dealett-chat-address-input {
+  height: 36px !important;
+  padding: 0 10px !important;
+}
+
+html body #dealettChat .dealett-chat-address-input:focus,
+html body #dealettChat .dealett-chat-input:focus {
+  border-color: #C96F24 !important;
+  outline: 3px solid rgba(201, 111, 36, .14) !important;
+}
+
+html body #dealettChat .dealett-chat-offers {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 10px !important;
+  gap: 10px !important;
+}
+
+html body #dealettChat .dealett-chat-offer-card {
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+html body #dealettChat .dealett-chat-suggestions {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  min-height: 48px !important;
+  padding: 10px 14px !important;
+  overflow-x: auto !important;
+  border-top: 1px solid rgba(13, 23, 38, .08) !important;
+  background: #FFFFFF !important;
+}
+
+html body #dealettChat .dealett-chat-suggestions:empty {
+  display: none !important;
+}
+
+html body #dealettChat .dealett-chat-chip {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+html body #dealettChat .dealett-chat-form {
+  position: static !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 42px !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 12px 14px 14px !important;
+  border: 0 !important;
+  border-top: 1px solid rgba(13, 23, 38, .10) !important;
+  border-radius: 0 !important;
+  background: #FFFFFF !important;
+  box-shadow: none !important;
+}
+
+html body #dealettChat .dealett-chat-form::before {
+  content: none !important;
+}
+
+html body #dealettChat .dealett-chat-input {
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 42px !important;
+  padding: 0 12px !important;
+}
+
+html body #dealettChat .dealett-chat-send {
+  display: inline-grid !important;
+  width: 42px !important;
+  height: 42px !important;
+  place-items: center !important;
+  border: 1px solid #0D1726 !important;
+  border-radius: 8px !important;
+  background: #0D1726 !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+}
+
+html body #dealettChat .dealett-chat-send:hover {
+  border-color: #C96F24 !important;
+  background: #C96F24 !important;
+  color: #FFFFFF !important;
+}
+
+@media (max-width: 680px) {
+  html body #dealettChat .dealett-chat-panel {
+    right: -2px !important;
+    bottom: 62px !important;
+    width: calc(100vw - 24px) !important;
+    height: min(620px, calc(100vh - 84px)) !important;
+    max-height: calc(100vh - 84px) !important;
+    border-radius: 12px !important;
+  }
+
+  html body #dealettChat .dealett-chat-header {
+    min-height: 56px !important;
+    padding: 11px 12px !important;
+  }
+
+  html body #dealettChat .dealett-chat-messages {
+    padding: 12px !important;
+  }
+
+  html body #dealettChat .dealett-chat-bubble,
+  html body #dealettChat .dealett-chat-message--user .dealett-chat-bubble {
+    max-width: 90% !important;
+  }
+
+  html body #dealettChat .dealett-chat-suggestions {
+    padding: 9px 12px !important;
+  }
+
+  html body #dealettChat .dealett-chat-form {
+    padding: 10px 12px 12px !important;
   }
 }

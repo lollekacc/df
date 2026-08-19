@@ -1043,7 +1043,9 @@
       languages.forEach(([code, name]) => {
         const option = document.createElement('option');
         option.value = code;
-        option.textContent = `${code.toUpperCase()} - ${name}`;
+        option.textContent = code.toUpperCase();
+        option.setAttribute('aria-label', `${code.toUpperCase()} - ${name}`);
+        option.title = `${code.toUpperCase()} - ${name}`;
         group.append(option);
       });
       options.append(group);
