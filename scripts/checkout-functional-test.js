@@ -67,8 +67,8 @@ const makeStorageScript = ({ item, checkout } = {}) => `(() => {
 const createPage = async (debugBase, {
   pathName = 'bestallning.html',
   query = '',
-  item,
-  checkout,
+  item = makeItem(),
+  checkout = { startDate: 'snarast', phoneNumbers: [] },
   width = 1280,
   height = 800,
 } = {}) => {
@@ -154,6 +154,19 @@ const main = async () => {
 
   try {
     await waitForJson(`${debugBase}/json/version`);
+
+    await test('empty checkout returns to the empty cart', async () => {
+      const page = await createPage(debugBase, { item: null });
+      const state = await page.evaluate(`({
+        path: window.location.pathname,
+        openCart: new URLSearchParams(window.location.search).get('openCart'),
+        cart: JSON.parse(localStorage.getItem('dealettCart') || '[]'),
+      })`);
+      assert(state.path.endsWith('/index.html'), 'Empty checkout did not return to the storefront.');
+      assert(state.openCart === '1', 'Empty checkout did not open the cart.');
+      assert(state.cart.length === 0, 'Empty checkout unexpectedly created a cart item.');
+      return page;
+    });
 
     await test('cart preparation reveals agreement and signing inside the drawer', async () => {
       const page = await createPage(debugBase, {
@@ -548,7 +561,12 @@ const main = async () => {
     if (failures.length) process.exitCode = 1;
   } finally {
     chrome.kill();
-    fs.rmSync(userDataDir, { recursive: true, force: true });
+    fs.rmSync(userDataDir, {
+      recursive: true,
+      force: true,
+      maxRetries: 8,
+      retryDelay: 150,
+    });
   }
 };
 

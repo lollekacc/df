@@ -2310,9 +2310,6 @@ input:focus,select:focus,textarea:focus,.bredband-input-wrap:focus-within { bord
   .site-header .nav-item a,.site-header .nav-link { min-height:48px; font-size:18px; }
 
   .hero { min-height:900px; background-position:58% center; }
-  .hero::before {
-    background: url('./images/testhero.png') 53% center / cover no-repeat;
-  }
   .hero .hero-eyebrow { top:105px; }
   .hero h1 { top:155px; width:calc(100% - 36px); font-size:clamp(44px,13vw,58px); }
   .hero .hero-lead { top:292px; right:auto; bottom:auto; left:18px; width:min(330px, calc(100vw - 36px)); max-width:none; box-sizing:border-box; padding:0; overflow-wrap:anywhere; white-space:normal; background:transparent; font-size:13px; line-height:1.35; }

@@ -1,4 +1,4 @@
-# Rdealett
+# Dealett frontend
 
 Static frontend for Dealett.
 

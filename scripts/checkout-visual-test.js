@@ -12,6 +12,30 @@ const OUTPUT_DIR = process.env.CHECKOUT_SCREENSHOT_DIR ||
   fs.mkdtempSync(path.join(os.tmpdir(), 'dealett-checkout-visual-'));
 const CHROME = process.env.CHROME_BIN ||
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const checkoutFixture = {
+  cartItemId: 'visual-test-item',
+  offerId: 'visual-test-offer',
+  operator: 'Telenor',
+  title: 'Obegränsat Plus',
+  logo: 'images/telenor.jpg',
+  data: 'Obegränsad surf',
+  price: 629,
+  monthlyPrice: 629,
+  regularMonthlyPrice: 629,
+  bindingMonths: 24,
+  noticePeriodMonths: 1,
+  minimumTotalCost: 15096,
+  productType: 'mobile',
+  persons: 1,
+  rewards: { 'ICA Maxi': 4000 },
+  rewardTotal: 4000,
+  operatorDocuments: {
+    agreementSummaryUrl: 'documents/telenor/avtalssammanfattning-test.pdf',
+    fullAgreementUrl: 'documents/telenor/avtalssammanfattning-test.pdf',
+    version: 'visual-test',
+    documentId: 'visual-test-document',
+  },
+};
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -154,6 +178,12 @@ const runViewport = async (debugBase, viewport) => {
     height: viewport.height,
     deviceScaleFactor: 1,
     mobile: viewport.width <= 768,
+  });
+  await page.send('Page.addScriptToEvaluateOnNewDocument', {
+    source: `(() => {
+      localStorage.setItem('dealettCart', JSON.stringify([${JSON.stringify(checkoutFixture)}]));
+      sessionStorage.setItem('dealettCheckout', JSON.stringify({ startDate: 'snarast', phoneNumbers: [] }));
+    })()`,
   });
 
   const loaded = page.waitForEvent('Page.loadEventFired');

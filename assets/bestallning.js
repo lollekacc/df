@@ -72,30 +72,6 @@
     withdrawalVersion: '2026-07-28',
   };
 
-  const developmentFixture = {
-    cartItemId: 'telenor-reference-order',
-    offerId: 'telenor-obegansat-plus-reference',
-    operator: 'Telenor',
-    title: 'Obegränsat Plus',
-    logo: 'images/telenor.jpg',
-    data: 'Obegränsad surf',
-    price: 629,
-    monthlyPrice: 629,
-    regularMonthlyPrice: 629,
-    bindingMonths: 24,
-    noticePeriodMonths: 1,
-    startFee: 0,
-    invoiceFee: 59,
-    invoiceFeeOptional: true,
-    minimumTotalCost: 15096,
-    productType: 'mobile',
-    persons: 1,
-    phoneLines: 1,
-    deliveryType: 'SIM-kort',
-    rewards: { 'ICA Maxi': 4000 },
-    rewardTotal: 4000,
-  };
-
   const readJson = (storage, key, fallback) => {
     try {
       const raw = storage.getItem(key);
@@ -139,11 +115,21 @@
   const storedCart = Array.isArray(rawCart)
     ? (window.DealettCart?.normalizeCart?.(rawCart) || rawCart)
     : [];
+
+  if (storedCart.length === 0) {
+    const cartUrl = 'index.html?openCart=1';
+    if (params.get('embedded') === '1' && window.top !== window) {
+      window.top.location.replace(cartUrl);
+    } else {
+      window.location.replace(cartUrl);
+    }
+    return;
+  }
+
   const checkout = readJson(sessionStorage, 'dealettCheckout',
     readJson(localStorage, 'dealettCheckout', {}));
-  const usesDevelopmentFixture = storedCart.length === 0;
-  const cart = usesDevelopmentFixture ? [developmentFixture] : storedCart;
-  const primaryItem = cart[cart.length - 1] || developmentFixture;
+  const cart = storedCart;
+  const primaryItem = cart[cart.length - 1];
 
   const numericValue = (...values) => {
     const match = values.find((value) => value !== null && value !== undefined && Number.isFinite(Number(value)));
@@ -201,7 +187,7 @@
       giftCards: getGiftCards(item),
       giftCardValue: getGiftCards(item).reduce((total, gift) => total + gift.value, 0),
       deliveryType: item.deliveryType || (item.esim ? 'eSIM' : 'SIM-kort'),
-      startDate: checkout.startDate || (usesDevelopmentFixture ? 'snarast' : ''),
+      startDate: checkout.startDate || '',
       numberHandling,
       transferredNumberCount: phoneNumbers.length,
       persons: Math.max(numericValue(item.persons), 1),
@@ -226,30 +212,17 @@
   let orderSubmitted = Boolean(checkout.finalSubmissionTimestamp);
   let contactTouched = false;
 
-  const isReferenceOrder = usesDevelopmentFixture &&
-    order.operatorSlug === 'telenor' &&
-    order.subscription.toLowerCase().includes('obegränsat plus');
-
   const buildOperatorDocuments = () => {
     const configured = operatorDocumentDefaults[order.operatorSlug] || {};
     const supplied = order.item.operatorDocuments || {};
-    const referenceDocuments = isReferenceOrder ? {
-      agreementSummaryUrl: 'documents/telenor/avtalssammanfattning-test.pdf',
-      fullAgreementUrl: 'documents/telenor/avtalssammanfattning-test.pdf',
-      version: '2026-07-28-test',
-      documentId: 'telenor-reference-summary-2026-07-28',
-    } : {};
 
     const documents = {
       ...configured,
-      ...referenceDocuments,
       ...supplied,
-      agreementSummaryUrl: supplied.agreementSummaryUrl || supplied.summaryUrl ||
-        referenceDocuments.agreementSummaryUrl || '',
-      fullAgreementUrl: supplied.fullAgreementUrl ||
-        referenceDocuments.fullAgreementUrl || '',
-      version: supplied.version || referenceDocuments.version || '',
-      documentId: supplied.documentId || referenceDocuments.documentId || '',
+      agreementSummaryUrl: supplied.agreementSummaryUrl || supplied.summaryUrl || '',
+      fullAgreementUrl: supplied.fullAgreementUrl || '',
+      version: supplied.version || '',
+      documentId: supplied.documentId || '',
     };
 
     if (params.get('test') === 'missing-pdf') {
@@ -656,7 +629,7 @@
   const saveCheckoutDraft = (extra = {}) => {
     writeSessionJson('dealettCheckout', {
       ...checkout,
-      cart: storedCart.length ? storedCart : cart,
+      cart,
       contact: {
         email: els.email.value.trim(),
         phone: els.phone.value.trim(),
@@ -666,7 +639,6 @@
       startDate: order.startDate,
       numberHandling: order.numberHandling,
       updatedAt: nowIso(),
-      developmentFixture: usesDevelopmentFixture,
       ...extra,
     });
   };
@@ -748,7 +720,7 @@
         recordedAt: confirmationTimestamps.marketingConsent,
       },
       finalSubmissionTimestamp: submittedAt,
-      testMode: usesDevelopmentFixture,
+      testMode: false,
     };
   };
 
@@ -887,7 +859,7 @@
       const simulated = Boolean(bankIdResult?.simulated);
       const storedOrder = await postOrder({
         status: simulated ? 'development_signed' : 'submitted',
-        testMode: simulated || usesDevelopmentFixture,
+        testMode: simulated,
         agreement: agreementPayload,
         bankId: {
           simulated,
@@ -1037,12 +1009,6 @@
     updateSubmitState();
     verifyDocuments();
 
-    if (usesDevelopmentFixture) {
-      setMessage(
-        'Utvecklingsorder: fyll i testuppgifter för att prova flödet. Ingen riktig operatörsbeställning skickas.',
-        { type: 'info' }
-      );
-    }
   };
 
   initialize();
