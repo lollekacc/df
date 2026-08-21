@@ -2082,17 +2082,6 @@
       return item;
     };
 
-    const isGreetingOnly = (value) => {
-      const normalized = String(value || '')
-        .trim()
-        .toLocaleLowerCase(chatLanguage)
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[!?.,:;]+$/g, '')
-        .trim();
-      return /^(hej|hejsan|halla|tjena|god morgon|god dag|hello|hi|hey|good morning|good afternoon|good evening)( dar| igen)?$/.test(normalized);
-    };
-
     const renderConversationGreeting = () => {
       const greetingParagraphs = text.welcomeMessages || copy.sv.welcomeMessages;
       const greetingText = greetingParagraphs.join('\n\n');
@@ -2389,17 +2378,49 @@
         : text.status;
     };
 
-    const processMessage = async (message, options = {}) => {
-      if (isGreetingOnly(message)) {
-        renderConversationGreeting();
-        continuePendingMessage();
-        return;
-      }
+    const normalizeConversationText = (value) => String(value || '')
+      .trim()
+      .toLocaleLowerCase('sv')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
 
+    const isAnswerToPendingQualification = (message) => {
+      const previousAssistant = [...messages]
+        .reverse()
+        .find((item) => item?.role === 'assistant' && item?.content)?.content || '';
+      const question = normalizeConversationText(previousAssistant);
+      const answer = normalizeConversationText(message);
+      if (!question || !answer) return null;
+
+      if (/hur manga abonnemang|how many subscriptions/.test(question)) {
+        return /^(?:[1-9]|10)(?:\+)?(?:\s|$)|\b(?:ett|en|tva|tre|fyra|fem|sex|sju|atta|nio|tio)\b|\babonnemang\b/.test(answer);
+      }
+      if (/operator|operator/.test(question)) {
+        return /\b(telia|tele2|telenor|tre|samma|olika|same|different)\b/.test(answer);
+      }
+      if (/bindningstid|binding time|end date|slutdatum/.test(question)) {
+        return /^(ja|nej|yes|no|ingen|vet inte|i do not know|don't know)\b|\b\d{4}-\d{2}-\d{2}\b/.test(answer);
+      }
+      if (/hur mycket surf|mobile data|data do you need/.test(question)) {
+        return /\b(wifi|normal|mycket|obegransat|unlimited|\d+\s*gb)\b/.test(answer);
+      }
+      if (/betalar.*(?:idag|manad)|kostar.*(?:totalt|idag)|pay.*(?:today|month|total)/.test(question)) {
+        return /\d|under|over|vet inte|do not know|don't know/.test(answer);
+      }
+      return null;
+    };
+
+    const processMessage = async (message, options = {}) => {
       const requestContext = {
         ...(getQuizContext() || {}),
         ...(options.context || {}),
       };
+      const qualificationAnswer = isAnswerToPendingQualification(message);
+      const openConversationTurn = qualificationAnswer === false;
+      if (openConversationTurn) {
+        requestContext.quizHandoff = false;
+        requestContext.openConversationTurn = true;
+      }
 
       setSending(true);
       let requestFailed = false;
@@ -2414,7 +2435,7 @@
             sessionId: chatSessionId,
             message,
             language: chatLanguage,
-            messages: messages.slice(0, -1),
+            messages: openConversationTurn ? [] : messages.slice(0, -1),
             qualification: readQualification(),
             cart: readCartContext(),
             page: {
