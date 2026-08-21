@@ -436,6 +436,21 @@ html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply
   font-size: 12px !important;
   font-weight: 700 !important;
   text-align: left !important;
+  cursor: pointer !important;
+  transition: transform .16s ease, border-color .16s ease, background-color .16s ease, box-shadow .16s ease !important;
+}
+
+html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply:hover,
+html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply:focus-visible {
+  border-color: rgba(232, 121, 32, .38) !important;
+  background: #fffaf5 !important;
+  box-shadow: 0 8px 20px rgba(13, 23, 38, .1) !important;
+  transform: translateY(-2px) !important;
+}
+
+html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply:focus-visible {
+  outline: 2px solid rgba(232, 121, 32, .55) !important;
+  outline-offset: 2px !important;
 }
 
 html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply::before {
@@ -474,6 +489,12 @@ html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply
   font-size: 11px;
   font-weight: 900;
   transform: translateY(-50%);
+  transition: transform .16s ease;
+}
+
+html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply:hover::after,
+html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply:focus-visible::after {
+  transform: translate(3px, -50%);
 }
 
 html body #dealettChat .dealett-chat-form {
@@ -510,5 +531,12 @@ html body #dealettChat .dealett-chat-send:hover {
 @media (max-width: 680px) {
   html body #dealettChat .dealett-chat-panel {
     width: calc(100vw - 20px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply,
+  html body #dealettChat .dealett-chat-message--greeting .dealett-chat-quick-reply::after {
+    transition: none !important;
   }
 }
