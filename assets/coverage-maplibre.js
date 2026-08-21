@@ -40,14 +40,17 @@
     coverageQualityColors.basic,
   ];
   const coverageFillOpacity = [
-    '*',
-    ['coalesce', ['get', 'opacity'], 0.5],
-    ['interpolate', ['linear'], ['zoom'], 3.4, 0.88, 8, 0.82, 12, 0.46, 16, 0.18],
+    'interpolate', ['linear'], ['zoom'],
+    3.4, ['*', ['coalesce', ['get', 'opacity'], 0.5], 0.88],
+    8, ['*', ['coalesce', ['get', 'opacity'], 0.5], 0.82],
+    12, ['*', ['coalesce', ['get', 'opacity'], 0.5], 0.46],
+    16, ['*', ['coalesce', ['get', 'opacity'], 0.5], 0.18],
   ];
   const coverageLineOpacity = [
-    '*',
-    ['match', ['get', 'detail'], 'boundary', 0.82, 'city', 0.3, 'corridor', 0.24, 0.13],
-    ['interpolate', ['linear'], ['zoom'], 3.4, 0.82, 9, 1, 15, 0.72],
+    'interpolate', ['linear'], ['zoom'],
+    3.4, ['*', ['match', ['get', 'detail'], 'boundary', 0.82, 'city', 0.3, 'corridor', 0.24, 0.13], 0.82],
+    9, ['match', ['get', 'detail'], 'boundary', 0.82, 'city', 0.3, 'corridor', 0.24, 0.13],
+    15, ['*', ['match', ['get', 'detail'], 'boundary', 0.82, 'city', 0.3, 'corridor', 0.24, 0.13], 0.72],
   ];
 
   const swedenBounds = [10.4, 55.0, 24.5, 69.3];
@@ -1659,9 +1662,11 @@
         paint: {
           'circle-color': coverageFillColor,
           'circle-radius': [
-            '*',
-            ['match', ['get', 'detail'], 'city', 1.2, 'corridor', 1, 0.82],
-            ['interpolate', ['linear'], ['zoom'], 3.4, 0.8, 7, 1.25, 11, 2.2, 15, 3.6],
+            'interpolate', ['linear'], ['zoom'],
+            3.4, ['*', ['match', ['get', 'detail'], 'city', 1.2, 'corridor', 1, 0.82], 0.8],
+            7, ['*', ['match', ['get', 'detail'], 'city', 1.2, 'corridor', 1, 0.82], 1.25],
+            11, ['*', ['match', ['get', 'detail'], 'city', 1.2, 'corridor', 1, 0.82], 2.2],
+            15, ['*', ['match', ['get', 'detail'], 'city', 1.2, 'corridor', 1, 0.82], 3.6],
           ],
           'circle-opacity': ['interpolate', ['linear'], ['zoom'], 3.4, 0.56, 8, 0.68, 12, 0.52, 16, 0.2],
           'circle-blur': ['interpolate', ['linear'], ['zoom'], 3.4, 0, 12, 0.12, 16, 0.22],
@@ -1680,9 +1685,10 @@
         paint: {
           'line-color': coverageFillColor,
           'line-width': [
-            '*',
-            ['match', ['get', 'detail'], 'boundary', 2.1, 1],
-            ['interpolate', ['linear'], ['zoom'], 4, 0.22, 10, 0.38, 15, 0.58],
+            'interpolate', ['linear'], ['zoom'],
+            4, ['*', ['match', ['get', 'detail'], 'boundary', 2.1, 1], 0.22],
+            10, ['*', ['match', ['get', 'detail'], 'boundary', 2.1, 1], 0.38],
+            15, ['*', ['match', ['get', 'detail'], 'boundary', 2.1, 1], 0.58],
           ],
           'line-opacity': coverageLineOpacity,
         },
