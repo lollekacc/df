@@ -201,6 +201,14 @@ const buildFamilyPlanOffer = (basePlan, addonPlan, offer, answers) => {
   };
 };
 
+const getFamilyMonthlyPrice = (basePlan, addonPlan, persons) => {
+  const basePrice = Number(basePlan?.price);
+  if (!Number.isFinite(basePrice)) return Number.POSITIVE_INFINITY;
+
+  const addonPrice = Number(addonPlan?.addonPrice ?? addonPlan?.price) || 0;
+  return basePrice + Math.max(Number(persons) - 1, 0) * addonPrice;
+};
+
 const getFamilyCustomerStatusLabel = (answers) => {
   if (answers.customerStatus === 'none') return 'Alla blir nya kunder';
   if (answers.customerStatus === 'all') return 'Alla har redan abonnemang';
@@ -850,23 +858,24 @@ const renderOffers = async () => {
     const persons = Number(familySize?.value) || 2;
     const plans = await loadPlans();
     renderDataFilter(plans);
-    const visiblePlans = plans
-      .filter((plan) => isMobilePlan(plan) && !plan.isFamilyPlan)
-      .filter((plan) => plan.runtimeSellable !== false)
-      .filter((plan) => activeOperator === 'Alla' || plan.operator === activeOperator)
-      .filter((plan) => activeData === 'all' || getPlanDataValue(plan) === activeData)
-      .sort((left, right) => (
-        offers.findIndex((offer) => offer.provider === left.operator) -
-        offers.findIndex((offer) => offer.provider === right.operator) ||
-        (left.dataAmount || 0) - (right.dataAmount || 0) ||
-        (left.price || 0) - (right.price || 0)
-      ));
     const addons = new Map(
       plans
         .filter((plan) => isMobilePlan(plan) && plan.isFamilyPlan && plan.familyPriceType === 'addon')
         .filter((plan) => plan.runtimeSellable !== false)
         .map((plan) => [plan.operator, plan])
     );
+    const visiblePlans = plans
+      .filter((plan) => isMobilePlan(plan) && !plan.isFamilyPlan)
+      .filter((plan) => plan.runtimeSellable !== false)
+      .filter((plan) => addons.has(plan.operator))
+      .filter((plan) => activeOperator === 'Alla' || plan.operator === activeOperator)
+      .filter((plan) => activeData === 'all' || getPlanDataValue(plan) === activeData)
+      .sort((left, right) => (
+        getFamilyMonthlyPrice(left, addons.get(left.operator), persons) -
+        getFamilyMonthlyPrice(right, addons.get(right.operator), persons) ||
+        (left.dataAmount || 0) - (right.dataAmount || 0) ||
+        String(left.operator).localeCompare(String(right.operator), 'sv')
+      ));
     const fragment = document.createDocumentFragment();
     visiblePlans.forEach((plan) => {
       const offer = offers.find((item) => item.provider === plan.operator);

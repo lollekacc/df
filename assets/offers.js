@@ -718,10 +718,10 @@ const renderOffers = async () => {
       .filter((plan) => activeOperator === 'Alla' || plan.operator === activeOperator)
       .filter((plan) => activeData === 'all' || getPlanDataValue(plan) === activeData)
       .sort((left, right) => (
-        offers.findIndex((offer) => offer.provider === left.operator) -
-        offers.findIndex((offer) => offer.provider === right.operator) ||
+        (Number(left.price) || Number.POSITIVE_INFINITY) -
+        (Number(right.price) || Number.POSITIVE_INFINITY) ||
         (left.dataAmount || 0) - (right.dataAmount || 0) ||
-        (left.price || 0) - (right.price || 0)
+        String(left.operator).localeCompare(String(right.operator), 'sv')
       ));
 
     const fragment = document.createDocumentFragment();

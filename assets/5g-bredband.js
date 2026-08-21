@@ -38,7 +38,6 @@ const els = {
   addressInput: document.querySelector('#addressInput'),
   searchMsg: document.querySelector('#searchMsg'),
   offers: document.querySelector('#offers'),
-  resultsCount: document.querySelector('#resultsCount'),
   techFilter: document.querySelector('#techFilter'),
   speedFilter: document.querySelector('#speedFilter'),
   sortSelect: document.querySelector('#sortSelect'),
@@ -120,7 +119,11 @@ const getFilteredOffers = () => {
   }
 
   if (sort === 'price') {
-    offers.sort((a, b) => a.price - b.price);
+    offers.sort((a, b) => {
+      const priceDifference = (Number(a.price) || Number.POSITIVE_INFINITY) -
+        (Number(b.price) || Number.POSITIVE_INFINITY);
+      return priceDifference || (Number(b.speedMbps) || 0) - (Number(a.speedMbps) || 0);
+    });
   } else if (sort === 'speed') {
     offers.sort((a, b) => b.speedMbps - a.speedMbps);
   } else {
@@ -141,10 +144,6 @@ const renderOffers = () => {
 
   const offers = getFilteredOffers();
   const recommended = getRecommendedPlan(offers);
-
-  if (els.resultsCount) {
-    els.resultsCount.textContent = `${offers.length} erbjudanden`;
-  }
 
   if (!offers.length) {
     setSearchMessage('Vi hittade inga bredband som matchar filtren.', 'error');
@@ -625,6 +624,10 @@ window.DealettBroadband = {
   focusAddressSearch,
   openCoverageModal,
 };
+
+if (els.sortSelect) {
+  els.sortSelect.value = 'price';
+}
 
 bindEvents();
 loadPlans();

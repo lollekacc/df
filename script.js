@@ -1358,9 +1358,9 @@
       sv: {
         open: 'Öppna Dealett assistant',
         close: 'Stäng chatten',
-        title: 'Dealett assistant',
-        status: 'AI-rådgivare',
-        placeholder: 'Fråga AI om vad som helst...',
+        title: 'Dealett AI',
+        status: 'Online',
+        placeholder: 'Skriv din fråga...',
         send: 'Skicka',
         typing: 'Dealett assistant skriver...',
         queued: 'Ditt tillägg är köat...',
@@ -1373,18 +1373,17 @@
         ],
         welcomeDismiss: 'Fäll ihop välkomstmeddelandet',
         greetingChoices: [
-          'Jämför mobilabonnemang',
-          'Jämför bredband',
-          'Hjälp med ett befintligt abonnemang',
-          'Något annat',
+          'Hitta rätt abonnemang',
+          'Familjeabonnemang',
+          'Fråga mig något',
         ],
       },
       en: {
         open: 'Open Dealett assistant',
         close: 'Close chat',
-        title: 'Dealett assistant',
-        status: 'AI advisor',
-        placeholder: 'Ask AI anything...',
+        title: 'Dealett AI',
+        status: 'Online',
+        placeholder: 'Write your question...',
         send: 'Send',
         typing: 'Dealett assistant is typing...',
         queued: 'Your follow-up is queued...',
@@ -1397,10 +1396,9 @@
         ],
         welcomeDismiss: 'Collapse the welcome message',
         greetingChoices: [
-          'Compare mobile plans',
-          'Compare broadband',
-          'Help with an existing subscription',
-          'Something else',
+          'Find the right subscription',
+          'Family subscriptions',
+          'Ask me anything',
         ],
       },
     };
@@ -1412,7 +1410,7 @@
     const qualificationKey = 'dealettChatQualification';
     const offerCalculationKey = 'dealettChatOfferCalculation';
     const chatSessionKey = 'dealettChatSessionId';
-    const welcomeSeenKey = 'dealettChatWelcomeSeen';
+    const autoOpenKey = 'dealettChatAutoOpenedV2';
     let isSending = false;
     let typingIndicator = null;
     let lastAssistantResponse = null;
@@ -1430,16 +1428,9 @@
       `<button class="dealett-chat-toggle dealett-chat-toggle--image" type="button" aria-label="${text.open}" aria-expanded="false">`,
       '  <img class="dealett-chat-toggle__image" src="images/chaticon.png" alt="" aria-hidden="true" draggable="false">',
       '</button>',
-      '<aside class="dealett-chat-welcome" aria-live="polite" hidden>',
-      `  <button class="dealett-chat-welcome__close" type="button" aria-label="${text.welcomeDismiss}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`,
-      `  <div class="dealett-chat-welcome__copy" data-welcome-message>${text.welcomeMessages.map(message => `<p>${message}</p>`).join('')}</div>`,
-      '</aside>',
-      '<div class="dealett-chat-panel" role="dialog" aria-modal="false" aria-labelledby="dealettChatTitle" hidden>',
+      `<div class="dealett-chat-panel" role="dialog" aria-modal="false" aria-label="${text.title}" hidden>`,
       '  <header class="dealett-chat-header">',
-      '    <div>',
-      `      <strong id="dealettChatTitle">${text.title}</strong>`,
-      `      <span data-chat-status>${text.status}</span>`,
-      '    </div>',
+      `    <span class="dealett-chat-status-accessible" data-chat-status aria-live="polite">${text.status}</span>`,
       '    <button class="dealett-chat-reset" type="button" aria-label="Starta om chatten"><i class="fa-solid fa-rotate-left"></i></button>',
       `    <button class="dealett-chat-close" type="button" aria-label="${text.close}"><i class="fa-solid fa-xmark"></i></button>`,
       '  </header>',
@@ -1455,8 +1446,6 @@
     document.body.append(root);
 
     const toggle = root.querySelector('.dealett-chat-toggle');
-    const welcome = root.querySelector('.dealett-chat-welcome');
-    const welcomeClose = root.querySelector('.dealett-chat-welcome__close');
     const panel = root.querySelector('.dealett-chat-panel');
     const resetButton = root.querySelector('.dealett-chat-reset');
     const closeButton = root.querySelector('.dealett-chat-close');
@@ -1466,38 +1455,21 @@
     const input = root.querySelector('.dealett-chat-input');
     const status = root.querySelector('[data-chat-status]');
 
-    let hasSeenWelcome = false;
-
-    const markWelcomeSeen = () => {
-      hasSeenWelcome = true;
-      try {
-        sessionStorage.setItem(welcomeSeenKey, 'true');
-      } catch {
-        // The welcome can still be dismissed for this page view.
-      }
-    };
-
-    const hideWelcome = ({ remember = true } = {}) => {
-      welcome.classList.remove('is-visible');
-      if (remember) markWelcomeSeen();
-      window.setTimeout(() => {
-        if (!welcome.classList.contains('is-visible')) welcome.hidden = true;
-      }, 220);
-    };
-
-    const showWelcome = () => {
-      if (hasSeenWelcome || !panel.hidden || root.classList.contains('is-open')) return;
-      welcome.hidden = false;
-      window.requestAnimationFrame(() => welcome.classList.add('is-visible'));
-    };
-
+    let autoOpenHandled = false;
     try {
-      hasSeenWelcome = sessionStorage.getItem(welcomeSeenKey) === 'true';
+      autoOpenHandled = sessionStorage.getItem(autoOpenKey) === 'true';
     } catch {
-      // Show the welcome when storage is unavailable.
+      // Auto-open once for this page view when storage is unavailable.
     }
 
-    if (!hasSeenWelcome) window.setTimeout(showWelcome, 2500);
+    const markAutoOpenHandled = () => {
+      autoOpenHandled = true;
+      try {
+        sessionStorage.setItem(autoOpenKey, 'true');
+      } catch {
+        // The in-memory flag still prevents another automatic opening.
+      }
+    };
 
     const escapeChatText = (value) => String(value ?? '')
       .replace(/&/g, '&amp;')
@@ -1722,11 +1694,8 @@
       status.textContent = text.status;
       input.placeholder = text.placeholder;
       toggle.setAttribute('aria-label', text.open);
+      panel.setAttribute('aria-label', text.title);
       closeButton.setAttribute('aria-label', text.close);
-      welcomeClose.setAttribute('aria-label', text.welcomeDismiss);
-      root.querySelector('[data-welcome-message]').innerHTML = text.welcomeMessages
-        .map(message => `<p>${escapeChatText(message)}</p>`)
-        .join('');
       root.querySelector('.dealett-chat-send')?.setAttribute('aria-label', text.send);
 
       if (
@@ -2081,14 +2050,20 @@
     const addMessage = (role, content, options = {}) => {
       const item = document.createElement('article');
       item.className = `dealett-chat-message dealett-chat-message--${role}`;
+      if (options.greeting) item.classList.add('dealett-chat-message--greeting');
       const isUser = role === 'user';
       const contentAttributes = [
         isUser ? 'data-no-translate' : '',
         options.contentLanguage ? `lang="${escapeChatText(options.contentLanguage)}" data-translation-complete` : '',
       ].filter(Boolean).join(' ');
+      const contentMarkup = Array.isArray(options.paragraphs)
+        ? options.paragraphs.map((paragraph, index) => (
+          `  <p class="${index === 0 ? 'dealett-chat-greeting__lead' : 'dealett-chat-greeting__body'}"${contentAttributes ? ` ${contentAttributes}` : ''}>${escapeChatText(paragraph)}</p>`
+        )).join('')
+        : `  <p${contentAttributes ? ` ${contentAttributes}` : ''}>${escapeChatText(content)}</p>`;
       item.innerHTML = [
         '<div class="dealett-chat-bubble">',
-        `  <p${contentAttributes ? ` ${contentAttributes}` : ''}>${escapeChatText(content)}</p>`,
+        contentMarkup,
         `  <time class="dealett-chat-time">${escapeChatText(getChatTimeLabel())}</time>`,
         isUser ? '  <span class="dealett-chat-check" aria-hidden="true"></span>' : '',
         '</div>',
@@ -2119,7 +2094,8 @@
     };
 
     const renderConversationGreeting = () => {
-      const greetingText = text.greeting || copy.sv.greeting;
+      const greetingParagraphs = text.welcomeMessages || copy.sv.welcomeMessages;
+      const greetingText = greetingParagraphs.join('\n\n');
       const quickReplies = text.greetingChoices || copy.sv.greetingChoices;
       lastAssistantResponse = {
         reply: greetingText,
@@ -2128,6 +2104,8 @@
       };
       const assistantItem = addMessage('assistant', greetingText, {
         contentLanguage: chatLanguage,
+        greeting: true,
+        paragraphs: greetingParagraphs,
       });
       renderQuickReplies(assistantItem, quickReplies);
       positionCompletedTurn(assistantItem);
@@ -2489,7 +2467,7 @@
 
     const openPanel = (options = {}) => {
       syncLanguage();
-      hideWelcome();
+      markAutoOpenHandled();
       panel.hidden = false;
       root.classList.add('is-open');
       toggle.setAttribute('aria-expanded', 'true');
@@ -2511,10 +2489,11 @@
       else closePanel();
     });
 
-    welcomeClose.addEventListener('click', () => {
-      hideWelcome();
-      toggle.focus();
-    });
+    if (!autoOpenHandled) {
+      window.setTimeout(() => {
+        if (!autoOpenHandled && panel.hidden) openPanel();
+      }, 2500);
+    }
 
     window.DealettChat = {
       ...(window.DealettChat || {}),
