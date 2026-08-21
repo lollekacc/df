@@ -800,13 +800,12 @@ const createFamilyPlanCard = (plan, addonPlan, offer, persons) => {
   card.dataset.operator = plan.operator;
   card.style.setProperty('--offer-accent', offer.accent);
 
-  const logoWrap = createElement('div', 'offer-card-logo');
-  const logo = document.createElement('img');
-  logo.src = plan.logo || offer.logo;
-  logo.alt = plan.operator;
-  logo.loading = 'lazy';
-  logo.decoding = 'async';
-  logoWrap.append(logo, createCompareButton(buildFamilyCompareItem(selectedPlan, plan, answers)));
+  const logoBackground = createElement('div', 'offer-card-logo-background');
+  const logoStage = createElement('div', 'offer-card-logo-stage');
+  const logoSource = plan.logo || offer.logo;
+  logoBackground.style.backgroundImage = `url("${String(logoSource).replace(/"/g, '\\"')}")`;
+  logoBackground.setAttribute('aria-hidden', 'true');
+  logoStage.append(logoBackground);
 
   const details = createElement('div', 'offer-card-details');
   const heading = createElement('div', 'offer-card-copy');
@@ -829,8 +828,14 @@ const createFamilyPlanCard = (plan, addonPlan, offer, persons) => {
   button.type = 'button';
   button.addEventListener('click', () => selectOffer(selectedPlan, card));
 
-  details.append(heading, price, perPerson, meta, button);
-  card.append(createGiftCardHeader(), logoWrap, details);
+  const actions = createElement('div', 'offer-card-actions');
+  actions.append(
+    createCompareButton(buildFamilyCompareItem(selectedPlan, plan, answers), { compact: false }),
+    button
+  );
+
+  details.append(heading, price, perPerson, meta, actions);
+  card.append(createGiftCardHeader(), logoStage, details);
   return card;
 };
 

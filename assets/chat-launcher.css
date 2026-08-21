@@ -1,5 +1,6 @@
 html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image {
   position: relative !important;
+  z-index: 2;
   width: min(170px, calc(100vw - 24px)) !important;
   min-width: 0 !important;
   height: auto !important;
@@ -16,18 +17,17 @@ html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image {
 
 html body #dealettChat .dealett-chat-welcome {
   position: absolute;
+  z-index: 1;
   right: 0;
-  bottom: calc(100% - 1px);
+  bottom: calc(50% - 1px);
   width: min(360px, calc(100vw - 24px));
-  padding: 18px 52px 18px 18px;
-  overflow: hidden;
+  padding: 16px 16px 48px;
+  overflow: visible;
   border: 1px solid rgba(255, 255, 255, .45);
   border-radius: 20px 20px 0 20px;
-  background: rgba(255, 248, 255, .15);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-  backdrop-filter: blur(14px) saturate(1.15);
+  background: rgba(255, 248, 255, .95);
   color: #25202a;
-  box-shadow: 0 16px 42px rgba(31, 18, 38, .2);
+  box-shadow: none;
   opacity: 0;
   transform: translateY(12px) scale(.96);
   transform-origin: bottom right;
@@ -51,26 +51,36 @@ html body #dealettChat .dealett-chat-panel {
 
 html body #dealettChat .dealett-chat-welcome__close {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: -10px;
+  right: -10px;
   display: grid;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   place-items: center;
-  border: 2px solid #25202a;
+  border: 1px solid rgba(37, 32, 42, .42);
   border-radius: 50%;
-  background: #fff;
-  color: #25202a;
+  background: rgba(255, 255, 255, .72);
+  color: rgba(37, 32, 42, .62);
   cursor: pointer;
+  font-size: 11px;
+  opacity: .72;
 }
 
-html body #dealettChat .dealett-chat-welcome > p {
+html body #dealettChat .dealett-chat-welcome__close:hover {
+  opacity: 1;
+}
+
+html body #dealettChat .dealett-chat-welcome__copy {
+  display: grid;
+  gap: 7px;
+}
+
+html body #dealettChat .dealett-chat-welcome__copy p {
   margin: 0;
   color: #241f27;
   font-size: 14px;
   line-height: 1.45;
-  text-shadow: 0 1px 10px rgba(255, 255, 255, .9);
 }
 html body #dealettChat .dealett-chat-welcome__close:focus-visible {
   outline: 3px solid #ff7a00;
@@ -108,12 +118,155 @@ html body #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image:focus-vis
 @media (max-width: 520px) {
   html body #dealettChat .dealett-chat-welcome {
     width: min(340px, calc(100vw - 24px));
-    padding: 16px 50px 16px 16px;
+    padding: 14px 14px 46px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html body #dealettChat .dealett-chat-welcome {
     transition: none;
+  }
+}
+
+/* Compact chat layout: keep every function while removing unused air. */
+html body #dealettChat .dealett-chat-panel {
+  width: min(370px, calc(100vw - 24px)) !important;
+  height: auto !important;
+  max-height: min(540px, calc(100vh - 108px)) !important;
+  border-radius: 10px !important;
+}
+
+html body #dealettChat .dealett-chat-header {
+  min-height: 44px !important;
+  gap: 6px !important;
+  padding: 7px 9px 7px 11px !important;
+}
+
+html body #dealettChat .dealett-chat-header > div {
+  display: flex !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+html body #dealettChat .dealett-chat-header strong {
+  font-size: 13px !important;
+  white-space: nowrap !important;
+}
+
+html body #dealettChat .dealett-chat-header span {
+  margin: 0 !important;
+  overflow: hidden !important;
+  font-size: 11px !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body #dealettChat .dealett-chat-reset,
+html body #dealettChat .dealett-chat-close {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+}
+
+html body #dealettChat .dealett-chat-messages {
+  gap: 7px !important;
+  max-height: min(410px, calc(100vh - 238px)) !important;
+  padding: 9px 10px !important;
+}
+
+html body #dealettChat .dealett-chat-message {
+  gap: 4px !important;
+  font-size: 13px !important;
+  line-height: 1.38 !important;
+}
+
+html body #dealettChat .dealett-chat-bubble,
+html body #dealettChat .dealett-chat-message--user .dealett-chat-bubble {
+  max-width: 91% !important;
+  padding: 7px 9px !important;
+  border-radius: 8px !important;
+}
+
+html body #dealettChat .dealett-chat-message--assistant .dealett-chat-bubble {
+  min-width: 0 !important;
+}
+
+html body #dealettChat .dealett-chat-message--user .dealett-chat-bubble {
+  padding-right: 25px !important;
+}
+
+html body #dealettChat .dealett-chat-time {
+  margin-top: 3px !important;
+  font-size: 10px !important;
+}
+
+html body #dealettChat .dealett-chat-check {
+  right: 9px !important;
+  bottom: 8px !important;
+}
+
+html body #dealettChat .dealett-chat-quick-replies,
+html body #dealettChat .dealett-chat-widget-actions {
+  gap: 5px !important;
+  margin-top: 6px !important;
+}
+
+html body #dealettChat .dealett-chat-quick-reply,
+html body #dealettChat .dealett-chat-widget-button,
+html body #dealettChat .dealett-chat-chip {
+  min-height: 29px !important;
+  padding: 5px 8px !important;
+  font-size: 11px !important;
+  line-height: 1.15 !important;
+}
+
+html body #dealettChat .dealett-chat-embedded-widget {
+  margin-top: 6px !important;
+  padding: 9px !important;
+}
+
+html body #dealettChat .dealett-chat-offers {
+  margin-top: 6px !important;
+  gap: 7px !important;
+}
+
+html body #dealettChat .dealett-chat-suggestions {
+  min-height: 0 !important;
+  gap: 5px !important;
+  padding: 6px 9px !important;
+  scrollbar-width: thin !important;
+}
+
+html body #dealettChat .dealett-chat-form {
+  grid-template-columns: minmax(0, 1fr) 36px !important;
+  gap: 6px !important;
+  padding: 7px 9px 9px !important;
+}
+
+html body #dealettChat .dealett-chat-input {
+  height: 36px !important;
+  padding: 0 10px !important;
+  font-size: 13px !important;
+}
+
+html body #dealettChat .dealett-chat-send {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 7px !important;
+  font-size: 13px !important;
+}
+
+@media (max-width: 680px) {
+  html body #dealettChat .dealett-chat-panel {
+    right: 0 !important;
+    width: calc(100vw - 20px) !important;
+    height: auto !important;
+    max-height: calc(100vh - 100px) !important;
+  }
+
+  html body #dealettChat .dealett-chat-messages {
+    max-height: calc(100vh - 230px) !important;
   }
 }

@@ -664,13 +664,12 @@ const createPlanCard = (plan) => {
   card.dataset.operator = plan.operator;
   card.style.setProperty('--offer-accent', operatorOffer.accent || 'var(--accent)');
 
-  const logoWrap = createElement('div', 'offer-card-logo');
-  const logo = document.createElement('img');
-  logo.src = plan.logo || operatorOffer.logo;
-  logo.alt = plan.operator;
-  logo.loading = 'lazy';
-  logo.decoding = 'async';
-  logoWrap.append(logo, createCompareButton(buildPlanCompareItem(selectedPlan, plan, {})));
+  const logoBackground = createElement('div', 'offer-card-logo-background');
+  const logoStage = createElement('div', 'offer-card-logo-stage');
+  const logoSource = plan.logo || operatorOffer.logo;
+  logoBackground.style.backgroundImage = `url("${String(logoSource).replace(/"/g, '\\"')}")`;
+  logoBackground.setAttribute('aria-hidden', 'true');
+  logoStage.append(logoBackground);
 
   const details = createElement('div', 'offer-card-details');
   const heading = createElement('div', 'offer-card-copy');
@@ -691,8 +690,14 @@ const createPlanCard = (plan) => {
   button.type = 'button';
   button.addEventListener('click', () => selectOffer(selectedPlan, card));
 
-  details.append(heading, price, meta, button);
-  card.append(createGiftCardHeader(), logoWrap, details);
+  const actions = createElement('div', 'offer-card-actions');
+  actions.append(
+    createCompareButton(buildPlanCompareItem(selectedPlan, plan, {}), { compact: false }),
+    button
+  );
+
+  details.append(heading, price, meta, actions);
+  card.append(createGiftCardHeader(), logoStage, details);
   return card;
 };
 

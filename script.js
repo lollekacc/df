@@ -1366,7 +1366,11 @@
         queued: 'Ditt tillägg är köat...',
         error: 'Jag kunde inte svara just nu. Kontrollera att AI-tjänsten är konfigurerad och försök igen.',
         greeting: 'Hej! Vad kan jag hjälpa dig med idag?',
-        welcomeMessage: 'Hej och varmt välkommen till Dealett. Vi hjälper dig hitta rätt lösning och skräddarsyr den efter dina behov – och du får självklart ett presentkort hos våra partners. Mig kan du fråga om allt som rör abonnemang – jag har koll på detaljerna…',
+        welcomeMessages: [
+          'Hej och varmt välkommen till Dealett.',
+          'Vi hjälper dig hitta rätt lösning och skräddarsyr den efter dina behov – och du får självklart ett presentkort hos våra partners.',
+          'Mig kan du fråga om allt som rör abonnemang – jag har koll på detaljerna…',
+        ],
         welcomeDismiss: 'Fäll ihop välkomstmeddelandet',
         greetingChoices: [
           'Jämför mobilabonnemang',
@@ -1386,7 +1390,11 @@
         queued: 'Your follow-up is queued...',
         error: 'I could not answer right now. Check that the AI service is configured and try again.',
         greeting: 'Hi! What can I help you with today?',
-        welcomeMessage: 'Hi and a warm welcome to Dealett. We help you find the right solution and tailor it to your needs – and of course you receive a gift card from one of our partners. You can ask me anything about subscriptions – I know the details…',
+        welcomeMessages: [
+          'Hi and a warm welcome to Dealett.',
+          'We help you find the right solution and tailor it to your needs – and of course you receive a gift card from one of our partners.',
+          'You can ask me anything about subscriptions – I know the details…',
+        ],
         welcomeDismiss: 'Collapse the welcome message',
         greetingChoices: [
           'Compare mobile plans',
@@ -1424,7 +1432,7 @@
       '</button>',
       '<aside class="dealett-chat-welcome" aria-live="polite" hidden>',
       `  <button class="dealett-chat-welcome__close" type="button" aria-label="${text.welcomeDismiss}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`,
-      `  <p data-welcome-message>${text.welcomeMessage}</p>`,
+      `  <div class="dealett-chat-welcome__copy" data-welcome-message>${text.welcomeMessages.map(message => `<p>${message}</p>`).join('')}</div>`,
       '</aside>',
       '<div class="dealett-chat-panel" role="dialog" aria-modal="false" aria-labelledby="dealettChatTitle" hidden>',
       '  <header class="dealett-chat-header">',
@@ -1612,15 +1620,18 @@
 
     const getQuizContext = () => {
       if (ignoreQuizContext) return null;
+      if (activeQuizContext?.quizHandoff === true) return activeQuizContext;
       const liveContext = window.DealettQuiz?.getChatContext?.() || null;
-      if (liveContext) {
-        activeQuizContext = {
-          ...activeQuizContext,
-          ...liveContext,
-          quizHandoff: true,
-        };
-      }
-      return activeQuizContext;
+      if (!liveContext) return null;
+      return {
+        quizHandoff: false,
+        quizAnswersStatus: 'unconfirmed',
+        source: liveContext.source || 'homepage_mobile_quiz',
+        currentStage: liveContext.currentStage || null,
+        currentStep: liveContext.currentStep ?? null,
+        answers: liveContext.answers || {},
+        historicalQuizQualification: liveContext.qualification || null,
+      };
     };
 
     const inferSuggestion = (suggestion) => {
@@ -1713,7 +1724,9 @@
       toggle.setAttribute('aria-label', text.open);
       closeButton.setAttribute('aria-label', text.close);
       welcomeClose.setAttribute('aria-label', text.welcomeDismiss);
-      root.querySelector('[data-welcome-message]').textContent = text.welcomeMessage;
+      root.querySelector('[data-welcome-message]').innerHTML = text.welcomeMessages
+        .map(message => `<p>${escapeChatText(message)}</p>`)
+        .join('');
       root.querySelector('.dealett-chat-send')?.setAttribute('aria-label', text.send);
 
       if (
@@ -1870,7 +1883,7 @@
       quickReplies.slice(0, 5).forEach((reply) => {
         const label = String(reply?.label || reply || '').trim();
         if (!label) return;
-        const suggestion = inferSuggestion(label);
+        const suggestion = inferSuggestion(reply);
 
         const button = document.createElement('button');
         button.type = 'button';
@@ -1888,6 +1901,24 @@
             const submitButton = wrap.querySelector('[data-chat-multi-submit]');
             if (submitButton) submitButton.disabled = selectedReplies.size === 0;
             return;
+          }
+          if (suggestion.action === 'useHistoricalQuizAnswers') {
+            const historicalContext = getQuizContext() || {};
+            const historicalQualification = historicalContext.historicalQuizQualification || {};
+            writeQualification(historicalQualification);
+            activeQuizContext = {
+              ...historicalContext,
+              quizHandoff: true,
+              quizAnswersStatus: 'confirmed',
+              qualification: historicalQualification,
+            };
+            ignoreQuizContext = false;
+          }
+          if (suggestion.action === 'startFreshWithoutQuiz') {
+            sessionStorage.removeItem(qualificationKey);
+            sessionStorage.removeItem(offerCalculationKey);
+            activeQuizContext = null;
+            ignoreQuizContext = true;
           }
           if (suggestion.qualificationPatch) {
             mergeQualification(suggestion.qualificationPatch);
@@ -2247,6 +2278,18 @@
       renderEmbeddedWidget(assistantItem, response.embeddedWidget);
       writeQualification(response.qualification);
       writeOfferCalculation(response.offerCalculation);
+      if (response.quizAnswersStatus === 'confirmed' && !activeQuizContext?.quizHandoff) {
+        const historicalContext = getQuizContext() || {};
+        activeQuizContext = {
+          ...historicalContext,
+          quizHandoff: true,
+          quizAnswersStatus: 'confirmed',
+          qualification: response.qualification,
+        };
+      } else if (response.quizAnswersStatus === 'ignored') {
+        activeQuizContext = null;
+        ignoreQuizContext = true;
+      }
       positionCompletedTurn(assistantItem);
       return assistantItem;
     };
@@ -2420,7 +2463,7 @@
       const message = String(rawMessage || '').trim();
       if (!message) return;
 
-      if (/\b(starta om|börja om|börja från början|start over|start again|restart)\b/i.test(message)) {
+      if (/\b(starta om|börja om|börja från början|börja med nya svar|start fresh|start over|start again|restart)\b/i.test(message)) {
         sessionStorage.removeItem(qualificationKey);
         sessionStorage.removeItem(offerCalculationKey);
         activeQuizContext = null;
@@ -2486,6 +2529,7 @@
         activeQuizContext = {
           ...(payload.context || {}),
           quizHandoff: true,
+          quizAnswersStatus: 'confirmed',
           source: 'homepage_mobile_quiz',
           currentStage: payload.currentStage || null,
           currentStep: payload.currentStep ?? null,

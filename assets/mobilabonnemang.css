@@ -490,7 +490,7 @@
   margin: -22px -22px 0;
   border-bottom: 1px solid color-mix(in srgb, var(--offer-accent, var(--accent)) 20%, #d8d5dc);
   border-radius: 7px 7px 0 0;
-  background: color-mix(in srgb, var(--offer-accent, var(--accent)) 6%, #fff);
+  background: rgba(255, 255, 255, 0.48);
 }
 
 .offer-card-gift-column {
@@ -502,6 +502,14 @@
   min-width: 0;
   padding: 13px 10px 12px;
   text-align: center;
+}
+
+.offer-card-gift-column:first-child {
+  background: color-mix(in srgb, var(--offer-accent, var(--accent)) 14%, rgba(255, 255, 255, 0.82));
+}
+
+.offer-card-gift-column:last-child {
+  background: color-mix(in srgb, var(--offer-accent, var(--accent)) 5%, rgba(246, 244, 240, 0.88));
 }
 
 .offer-card-gift-column + .offer-card-gift-column {
@@ -560,6 +568,81 @@
   max-width: 150px;
   max-height: 52px;
   object-fit: contain;
+}
+
+.offer-card-logo-background {
+  position: absolute;
+  inset: 22px 24px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: none;
+  opacity: 1;
+  pointer-events: none;
+  transition: transform 0.35s ease;
+}
+
+.offer-card-logo-stage {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 170px;
+  min-height: 170px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.plan-card[data-operator="Telia"] .offer-card-logo-background {
+  inset: 30px 18px;
+}
+
+.plan-card[data-operator="Tele2"] .offer-card-logo-background {
+  inset: 34px 16px;
+}
+
+.plan-card[data-operator="Tre"] .offer-card-logo-background,
+.plan-card[data-operator="Telenor"] .offer-card-logo-background {
+  inset: 8px 0;
+}
+
+.offer-card:hover .offer-card-logo-background,
+.offer-card.is-selected .offer-card-logo-background {
+  transform: scale(1.02);
+}
+
+.offer-card > .offer-card-gift-header,
+.offer-card > .offer-card-details {
+  position: relative;
+  z-index: 2;
+}
+
+.offer-card > .offer-card-details {
+  background: transparent;
+}
+
+html body.mobile-plans-page .plan-card,
+html body.family-page .plan-card {
+  background: color-mix(in srgb, var(--offer-accent, var(--accent)) 8%, #fff) !important;
+}
+
+html body.mobile-plans-page .plan-card > .offer-card-details,
+html body.family-page .plan-card > .offer-card-details {
+  background: transparent !important;
+}
+
+.family-page .plan-card {
+  gap: 0;
+  padding: 0;
+}
+
+.family-page .offer-card-logo-stage {
+  flex-basis: 164px;
+  min-height: 164px;
+}
+
+.family-page .offer-card > .offer-card-gift-header {
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
 }
 
 .offer-card-details {
