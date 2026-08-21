@@ -1,0 +1,189 @@
+/* Borderless offer-list presentation shared by mobile, family and 5G broadband. */
+
+html body.mobile-plans-page .offers-strip,
+html body.family-page .offers-strip {
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body.mobile-plans-page .plan-toolbar,
+html body.family-page .plan-toolbar {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  align-items: end !important;
+  gap: 24px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body.family-page .plan-toolbar {
+  grid-template-columns: minmax(280px, 1.15fr) minmax(220px, .72fr) minmax(250px, .82fr);
+}
+
+html body.mobile-plans-page .operator-filter,
+html body.family-page .operator-filter {
+  gap: 8px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body.mobile-plans-page .operator-filter-button,
+html body.family-page .operator-filter-button {
+  min-height: 42px;
+  padding-inline: 18px;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(15, 23, 40, .065) !important;
+  color: #0d1726 !important;
+  box-shadow: none !important;
+}
+
+html body.mobile-plans-page .operator-filter-button:hover,
+html body.family-page .operator-filter-button:hover {
+  background: rgba(15, 23, 40, .11) !important;
+  transform: translateY(-1px);
+}
+
+html body.mobile-plans-page .operator-filter-button.is-active {
+  background: var(--mobile-orange, #c96f24) !important;
+  color: #fff !important;
+}
+
+html body.family-page .operator-filter-button.is-active {
+  background: var(--family-green, #2f7d6a) !important;
+  color: #fff !important;
+}
+
+html body.mobile-plans-page .range-filter,
+html body.family-page .range-filter {
+  min-width: 0;
+  min-height: 112px;
+  padding: 16px 18px 12px !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  background: rgba(255, 255, 255, .82) !important;
+  box-shadow: 0 14px 34px rgba(13, 23, 38, .07) !important;
+}
+
+html body.mobile-plans-page .offers-inner,
+html body.family-page .offers-inner {
+  padding: 30px 0 0 !important;
+}
+
+html body.mobile-plans-page .offers-container,
+html body.family-page .offers-container {
+  gap: 22px !important;
+}
+
+html body.mobile-plans-page .offer-card,
+html body.family-page .offer-card {
+  border: 0 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 16px 38px rgba(13, 23, 38, .09) !important;
+}
+
+html body.mobile-plans-page .offer-card:hover,
+html body.family-page .offer-card:hover {
+  border: 0 !important;
+  box-shadow: 0 24px 50px rgba(13, 23, 38, .14) !important;
+}
+
+html body.bredband-page .bredband-filters {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px !important;
+  margin-bottom: 30px;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body.bredband-page .bredband-results-count {
+  width: fit-content !important;
+  justify-self: start;
+}
+
+html body.bredband-page .bredband-filter-group {
+  gap: 7px;
+  padding: 14px 16px 16px;
+  border: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .82);
+  box-shadow: 0 12px 30px rgba(13, 23, 38, .065);
+}
+
+html body.bredband-page .bredband-filter-group label {
+  color: rgba(13, 23, 38, .62);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+html body.bredband-page .bredband-filter-group select {
+  min-height: 48px;
+  padding: 0 42px 0 14px;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background-color: rgba(246, 244, 240, .92) !important;
+  color: #0d1726 !important;
+  box-shadow: none !important;
+  font-weight: 700;
+}
+
+html body.bredband-page .bredband-filter-group select:focus {
+  box-shadow: 0 0 0 4px rgba(201, 111, 36, .14) !important;
+}
+
+html body.bredband-page .bredband-offers-grid {
+  gap: 24px !important;
+}
+
+html body.bredband-page .bredband-offer-card {
+  border: 0 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 16px 38px rgba(13, 23, 38, .09) !important;
+}
+
+html body.bredband-page .bredband-offer-card:hover,
+html body.bredband-page .bredband-offer-card.active {
+  border: 0 !important;
+  box-shadow: 0 24px 50px rgba(13, 23, 38, .14) !important;
+}
+
+@media (max-width: 980px) {
+  html body.mobile-plans-page .plan-toolbar,
+  html body.family-page .plan-toolbar {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body.bredband-page .bredband-filters {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 680px) {
+  html body.mobile-plans-page .operator-filter,
+  html body.family-page .operator-filter {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html body.mobile-plans-page .operator-filter-button,
+  html body.family-page .operator-filter-button {
+    width: 100%;
+    padding-inline: 12px;
+  }
+}
