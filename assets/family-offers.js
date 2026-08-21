@@ -61,7 +61,7 @@ const giftCards = ['Apollo', 'H&M', 'Hotel', 'ICA Maxi', 'Mio', 'Zalando', 'Elgi
 let selectedOffer = null;
 let plansCache = null;
 let activeOperator = 'Alla';
-let activeData = null;
+let activeData = 'all';
 let dataSteps = [];
 
 const formatCurrency = (value) => currency.format(Math.max(Number(value) || 0, 0));
@@ -119,6 +119,22 @@ const createElement = (tag, className, text) => {
   }
 
   return element;
+};
+
+const createGiftCardHeader = () => {
+  const header = createElement('div', 'offer-card-gift-header');
+  header.setAttribute('aria-label', 'Presentkort');
+
+  ['Ny kund', 'Redan kund'].forEach((customerType) => {
+    const column = createElement('div', 'offer-card-gift-column');
+    column.append(
+      createElement('span', '', customerType),
+      createElement('strong', '', 'XXX kr')
+    );
+    header.append(column);
+  });
+
+  return header;
 };
 
 const openCartDrawer = (cart) => {
@@ -483,7 +499,6 @@ const renderPlanOffers = async (offer, answers, card) => {
           ? `Avräknat tjänstevärde: ${formatCurrency(selectedPlan.includedServiceValue)} kr/mån`
           : '',
         selectedPlan.internationalTravel ? getTravelLabel(selectedPlan.internationalTravel) : '',
-        giftCardPlaceholder,
         addonPlan ? `Extra: ${formatCurrency(selectedPlan.addonPrice)} kr/st` : '',
       ].filter(Boolean).forEach((item) => {
         meta.append(createElement('li', '', item));
@@ -499,7 +514,7 @@ const renderPlanOffers = async (offer, answers, card) => {
       const actions = createElement('div', 'offer-card-actions');
       actions.append(compareButton, button);
 
-      row.append(copy, meta, reason, actions);
+      row.append(createGiftCardHeader(), copy, meta, reason, actions);
       fragment.append(row);
     });
 
@@ -746,7 +761,10 @@ const renderDataFilter = (plans) => {
     }));
   }
   updateRangeProgress(dataFilter);
-  updateDataFilterValue();
+  activeData = 'all';
+  if (dataFilterValue) dataFilterValue.textContent = 'Alla';
+  dataFilterAll?.classList.add('is-active');
+  dataFilterAll?.setAttribute('aria-pressed', 'true');
 };
 
 const updateDataFilterValue = () => {
@@ -805,7 +823,6 @@ const createFamilyPlanCard = (plan, addonPlan, offer, persons) => {
   const meta = createElement('ul', 'offer-card-meta');
   [
     `${formatCurrency(selectedPlan.addonPrice)} kr per extra abonnemang`,
-    giftCardPlaceholder,
   ].forEach((item) => meta.append(createElement('li', '', item)));
 
   const button = createElement('button', 'offer-card-action', 'Välj familjeabonnemang');
@@ -813,7 +830,7 @@ const createFamilyPlanCard = (plan, addonPlan, offer, persons) => {
   button.addEventListener('click', () => selectOffer(selectedPlan, card));
 
   details.append(heading, price, perPerson, meta, button);
-  card.append(logoWrap, details);
+  card.append(createGiftCardHeader(), logoWrap, details);
   return card;
 };
 

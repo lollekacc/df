@@ -481,6 +481,60 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
+.offer-card-gift-header {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  min-height: 68px;
+  overflow: hidden;
+  margin: -22px -22px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--offer-accent, var(--accent)) 20%, #d8d5dc);
+  border-radius: 7px 7px 0 0;
+  background: color-mix(in srgb, var(--offer-accent, var(--accent)) 6%, #fff);
+}
+
+.offer-card-gift-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 13px 10px 12px;
+  text-align: center;
+}
+
+.offer-card-gift-column + .offer-card-gift-column {
+  border-left: 1px solid color-mix(in srgb, var(--offer-accent, var(--accent)) 20%, #d8d5dc);
+}
+
+.offer-card-gift-column span {
+  display: block;
+  color: rgba(39, 36, 67, 0.64);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.offer-card-gift-column strong {
+  display: block;
+  color: var(--offer-accent, var(--accent));
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+/* Editorial mobile cards have zero inner padding; keep the header inside the clipped card edge. */
+.mobile-plans-page .offer-card > .offer-card-gift-header {
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
 .offer-card:hover,
 .offer-card.is-selected {
   transform: translateY(-5px);
@@ -812,6 +866,14 @@
   border-left: 4px solid var(--offer-accent, var(--accent));
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.86);
+}
+
+.operator-plan-row .offer-card-gift-header {
+  grid-column: 1 / -1;
+  width: auto;
+  min-height: 62px;
+  margin: 0 0 4px;
+  border-radius: 6px;
 }
 
 .operator-plan-row .offer-compare-button--icon {
