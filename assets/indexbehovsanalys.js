@@ -285,11 +285,8 @@ function createIndexQuiz() {
 
   function handleQuizAiClick(button) {
     const context = buildQuizChatContext();
-    const message = "Fortsätt härifrån med Dealett AI";
-
     if (window.DealettChat?.continueFromQuiz) {
       window.DealettChat.continueFromQuiz({
-        message,
         qualification: context.qualification,
         currentStage: context.currentStage,
         currentStep: context.currentStep,

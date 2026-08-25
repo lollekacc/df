@@ -50,7 +50,6 @@
     'BankID',
     'Dealett',
     'Disney+',
-    'Elgiganten',
     'Facebook',
     'Google',
     'H&M',
@@ -1365,17 +1364,10 @@
         typing: 'Dealett assistant skriver...',
         queued: 'Ditt tillägg är köat...',
         error: 'Jag kunde inte svara just nu. Kontrollera att AI-tjänsten är konfigurerad och försök igen.',
-        greeting: 'Hej! Vad kan jag hjälpa dig med idag?',
         welcomeMessages: [
           'Hej och varmt välkommen till Dealett.',
           'Vi hjälper dig hitta rätt lösning och skräddarsyr den efter dina behov – och du får självklart ett presentkort hos våra partners.',
           'Mig kan du fråga om allt som rör abonnemang – jag har koll på detaljerna…',
-        ],
-        welcomeDismiss: 'Fäll ihop välkomstmeddelandet',
-        greetingChoices: [
-          'Hitta rätt abonnemang',
-          'Familjeabonnemang',
-          'Fråga mig något',
         ],
       },
       en: {
@@ -1388,17 +1380,10 @@
         typing: 'Dealett assistant is typing...',
         queued: 'Your follow-up is queued...',
         error: 'I could not answer right now. Check that the AI service is configured and try again.',
-        greeting: 'Hi! What can I help you with today?',
         welcomeMessages: [
           'Hi and a warm welcome to Dealett.',
           'We help you find the right solution and tailor it to your needs – and of course you receive a gift card from one of our partners.',
           'You can ask me anything about subscriptions – I know the details…',
-        ],
-        welcomeDismiss: 'Collapse the welcome message',
-        greetingChoices: [
-          'Find the right subscription',
-          'Family subscriptions',
-          'Ask me anything',
         ],
       },
     };
@@ -1582,14 +1567,6 @@
       }
     };
 
-    const mergeQualification = (patch) => {
-      if (!patch || typeof patch !== 'object') return;
-      writeQualification({
-        ...readQualification(),
-        ...patch,
-      });
-    };
-
     const getQuizContext = () => {
       if (ignoreQuizContext) return null;
       if (activeQuizContext?.quizHandoff === true) return activeQuizContext;
@@ -1604,87 +1581,6 @@
         answers: liveContext.answers || {},
         historicalQuizQualification: liveContext.qualification || null,
       };
-    };
-
-    const inferSuggestion = (suggestion) => {
-      const getActionFromLabel = (label, action) => {
-        if (action) return action;
-        if (/skriv adress|ange adress|sök adress|enter address|search address/i.test(label)) return 'openBroadbandAddress';
-        if (/öppna täckningskarta|coverage map/i.test(label)) return 'openCoverageMap';
-        if (/öppna 5g|5g-bredband|broadband/i.test(label)) return 'openBroadbandPage';
-        if (/öppna varukorg|open cart|my cart|min varukorg/i.test(label)) return 'openCart';
-        if (/mina sidor|konto|account/i.test(label)) return 'openAccount';
-        if (/kontakt|support|kundservice|contact/i.test(label)) return 'openContact';
-        return null;
-      };
-
-      if (suggestion && typeof suggestion === 'object') {
-        const label = String(suggestion.label || '').trim();
-        return {
-          ...suggestion,
-          label,
-          action: getActionFromLabel(label, suggestion.action),
-        };
-      }
-
-      const label = String(suggestion || '').trim();
-      const normalized = label.toLowerCase();
-      const patchMap = [
-        { test: /^1(?:\s|$)/, patch: { peopleCount: 1 } },
-        { test: /^2(?:\s|$)/, patch: { peopleCount: 2 } },
-        { test: /^3(?:\s|$)/, patch: { peopleCount: 3 } },
-        { test: /4 eller fler|4 or more|5\+/, patch: { peopleCount: 5 } },
-        { test: /^4(?:\s+abonnemang|\s+subscriptions?)?$/i, patch: { peopleCount: 4 } },
-        { test: /lite surf|wifi|social/i, patch: { mobileUsage: 'low' } },
-        { test: /streaming|video/i, patch: { mobileUsage: 'medium' } },
-        { test: /max surf|obegränsad|unlimited/i, patch: { mobileUsage: 'high' } },
-        { test: /under 300/i, patch: { priceRange: 'under300' } },
-        { test: /300.?400/i, patch: { priceRange: '300-400' } },
-        { test: /400.?500/i, patch: { priceRange: '400-500' } },
-        { test: /spelar ingen roll|ingen prisgräns|utan prisgräns|no limit|no preference/i, patch: { priceRange: 'no_limit' } },
-      ];
-      const operator = ['Telia', 'Tele2', 'Telenor', 'Tre']
-        .find((item) => item.toLowerCase() === normalized);
-
-      if (operator) {
-        return {
-          label,
-          qualificationPatch: {
-            operators: [...readQualification().operators, operator],
-          },
-        };
-      }
-
-      const mapped = patchMap.find((item) => item.test.test(label));
-      if (mapped) return { label, qualificationPatch: mapped.patch };
-      if (/ingen bindningstid/i.test(label)) {
-        const peopleCount = Number(readQualification().peopleCount) || 1;
-        return {
-          label,
-          qualificationPatch: {
-            bindingEnds: Array.from({ length: peopleCount }, () => 'Ingen bindningstid'),
-            bindingAppliesToAll: true,
-          },
-        };
-      }
-      if (/vet inte/i.test(label)) {
-        const peopleCount = Number(readQualification().peopleCount) || 1;
-        return {
-          label,
-          qualificationPatch: {
-            bindingEnds: Array.from({ length: peopleCount }, () => 'Vet inte'),
-            bindingAppliesToAll: true,
-          },
-        };
-      }
-      if (/öppna täckningskarta|coverage map/i.test(label)) {
-        return { label, action: 'openCoverageMap' };
-      }
-      if (/öppna 5g|broadband/i.test(label)) {
-        return { label, action: 'openBroadbandPage' };
-      }
-
-      return { label };
     };
 
     const syncLanguage = (event) => {
@@ -1828,222 +1724,77 @@
       return url;
     };
 
-    const mergeQuickReplyPatches = (suggestions) => suggestions.reduce((result, suggestion) => {
-      const patch = suggestion?.qualificationPatch;
-      if (!patch || typeof patch !== 'object') return result;
-      Object.entries(patch).forEach(([field, value]) => {
-        if (Array.isArray(value)) {
-          result[field] = [...new Set([...(result[field] || []), ...value])];
+    const runQuickReplyAction = (action) => {
+      if (action === 'open_coverage_map') {
+        if (window.location.pathname.endsWith('/5g-bredband.html')) {
+          document.querySelector('#openCoverageModal')?.click();
         } else {
-          result[field] = value;
+          window.location.href = '5g-bredband.html';
         }
-      });
-      return result;
-    }, {});
+        return true;
+      }
+      if (action === 'open_broadband_page') {
+        window.location.href = '5g-bredband.html#offersSection';
+        return true;
+      }
+      if (action === 'open_broadband_address') {
+        if (window.location.pathname.endsWith('/5g-bredband.html')) {
+          window.DealettBroadband?.focusAddressSearch?.();
+          document.querySelector('#addressSearchForm')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          document.querySelector('#addressInput')?.focus();
+        } else {
+          sessionStorage.setItem('dealettFocusBroadbandAddress', 'true');
+          window.location.href = '5g-bredband.html#addressSearchForm';
+        }
+        return true;
+      }
+      if (action === 'open_cart') {
+        const cart = window.DealettCart?.readCart?.() || [];
+        if (window.DealettCart?.openDrawer) window.DealettCart.openDrawer(cart);
+        else window.location.href = 'varukorg.html';
+        return true;
+      }
+      if (action === 'open_account') {
+        window.location.href = 'account.html';
+        return true;
+      }
+      if (action === 'open_contact') {
+        window.location.href = 'kontakt.html';
+        return true;
+      }
+      return false;
+    };
 
-    const renderQuickReplies = (messageItem, quickReplies, options = {}) => {
+    const renderQuickReplies = (messageItem, quickReplies) => {
       if (!messageItem || !Array.isArray(quickReplies) || !quickReplies.length) return;
 
       const wrap = document.createElement('div');
       wrap.className = 'dealett-chat-quick-replies';
-      const multiple = options.mode === 'multiple';
-      const selectedReplies = new Map();
 
       quickReplies.slice(0, 5).forEach((reply) => {
         const label = String(reply?.label || reply || '').trim();
         if (!label) return;
-        const suggestion = inferSuggestion(reply);
+        const action = String(reply?.action || 'send_message');
 
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'dealett-chat-quick-reply';
         button.textContent = label;
         button.setAttribute('data-translation-complete', '');
-        if (multiple) button.setAttribute('aria-pressed', 'false');
         button.addEventListener('click', () => {
-          if (multiple) {
-            const selected = !selectedReplies.has(label);
-            if (selected) selectedReplies.set(label, suggestion);
-            else selectedReplies.delete(label);
-            button.classList.toggle('is-selected', selected);
-            button.setAttribute('aria-pressed', String(selected));
-            const submitButton = wrap.querySelector('[data-chat-multi-submit]');
-            if (submitButton) submitButton.disabled = selectedReplies.size === 0;
-            return;
-          }
-          if (suggestion.action === 'useHistoricalQuizAnswers') {
-            const historicalContext = getQuizContext() || {};
-            const historicalQualification = historicalContext.historicalQuizQualification || {};
-            writeQualification(historicalQualification);
-            activeQuizContext = {
-              ...historicalContext,
-              quizHandoff: true,
-              quizAnswersStatus: 'confirmed',
-              qualification: historicalQualification,
-            };
-            ignoreQuizContext = false;
-          }
-          if (suggestion.action === 'startFreshWithoutQuiz') {
-            sessionStorage.removeItem(qualificationKey);
-            sessionStorage.removeItem(offerCalculationKey);
-            activeQuizContext = null;
-            ignoreQuizContext = true;
-          }
-          if (suggestion.qualificationPatch) {
-            mergeQualification(suggestion.qualificationPatch);
-          }
           wrap.querySelectorAll('button').forEach((item) => {
             item.disabled = true;
           });
+          if (runQuickReplyAction(action)) return;
           input.value = label;
-          sendMessage(label, {
-            context: {
-              quickReply: true,
-              qualificationPatch: suggestion.qualificationPatch || null,
-            },
-          });
+          sendMessage(label, { context: { quickReply: true } });
         });
         wrap.append(button);
       });
 
-      if (multiple && wrap.children.length) {
-        const submitButton = document.createElement('button');
-        submitButton.type = 'button';
-        submitButton.className = 'dealett-chat-quick-reply dealett-chat-quick-reply--submit';
-        submitButton.textContent = options.submitLabel || (chatLanguage === 'en' ? 'Send choices' : 'Skicka val');
-        submitButton.setAttribute('data-chat-multi-submit', '');
-        submitButton.setAttribute('data-translation-complete', '');
-        submitButton.disabled = true;
-        submitButton.addEventListener('click', () => {
-          const selected = [...selectedReplies.values()];
-          if (!selected.length) return;
-          const selectedLabels = selected.map((reply) => reply.label);
-          const qualificationPatch = mergeQuickReplyPatches(selected);
-          if (Object.keys(qualificationPatch).length) mergeQualification(qualificationPatch);
-          wrap.querySelectorAll('button').forEach((item) => {
-            item.disabled = true;
-          });
-          const message = selectedLabels.join(', ');
-          input.value = message;
-          sendMessage(message, {
-            context: {
-              quickReply: true,
-              multiSelect: true,
-              qualificationPatch: Object.keys(qualificationPatch).length ? qualificationPatch : null,
-            },
-          });
-        });
-        wrap.append(submitButton);
-      }
-
       if (wrap.children.length) {
         messageItem.append(wrap);
         scrollMessages();
-      }
-    };
-
-    const renderCoverageSelector = (messageItem, widget) => {
-      if (!messageItem || widget?.type !== 'coverage_selector') return;
-
-      const card = document.createElement('div');
-      card.className = 'dealett-chat-embedded-widget dealett-chat-coverage-selector';
-      card.innerHTML = [
-        `<strong class="dealett-chat-widget-title"${widget.title ? ' data-translation-complete' : ''}>${escapeChatText(widget.title || 'Kontrollera täckning')}</strong>`,
-        widget.description ? `<p class="dealett-chat-widget-description" data-translation-complete>${escapeChatText(widget.description)}</p>` : '',
-        '<div class="dealett-chat-widget-actions"></div>',
-        '<div class="dealett-chat-address-row" hidden>',
-        '  <input class="dealett-chat-address-input" type="text" autocomplete="street-address" placeholder="Skriv adress" />',
-        '  <button class="dealett-chat-widget-button dealett-chat-widget-button--primary" type="button">Skicka</button>',
-        '</div>',
-        '<p class="dealett-chat-widget-status" hidden></p>',
-      ].join('');
-
-      const actions = card.querySelector('.dealett-chat-widget-actions');
-      const addressRow = card.querySelector('.dealett-chat-address-row');
-      const addressInput = card.querySelector('.dealett-chat-address-input');
-      const addressSubmit = addressRow.querySelector('button');
-      const statusText = card.querySelector('.dealett-chat-widget-status');
-
-      const showStatus = (message) => {
-        statusText.textContent = message;
-        statusText.hidden = false;
-        scrollMessages();
-      };
-
-      const sendAddress = () => {
-        const address = String(addressInput.value || '').trim();
-        if (!address) {
-          addressInput.focus();
-          return;
-        }
-        sendMessage(`Kontrollera täckning för: ${address}`);
-      };
-
-      const handleAction = (actionId, button) => {
-        if (actionId === 'use_location') {
-          if (!navigator.geolocation) {
-            showStatus('Skriv adressen istället.');
-            addressRow.hidden = false;
-            addressInput.focus();
-            return;
-          }
-
-          button.disabled = true;
-          button.textContent = 'Hämtar position...';
-          navigator.geolocation.getCurrentPosition(
-            () => {
-              sendMessage('Använd min position för täckning');
-            },
-            () => {
-              button.disabled = false;
-              button.textContent = widget.actions.find((action) => action.id === 'use_location')?.label || 'Använd min position';
-              showStatus('Skriv adressen istället.');
-              addressRow.hidden = false;
-              addressInput.focus();
-            },
-            { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
-          );
-          return;
-        }
-
-        if (actionId === 'enter_address') {
-          addressRow.hidden = false;
-          statusText.hidden = true;
-          addressInput.focus();
-          scrollMessages();
-          return;
-        }
-
-        if (actionId === 'compare_operators') {
-          sendMessage('Jämför täckning mellan operatörer');
-        }
-      };
-
-      (widget.actions || []).slice(0, 3).forEach((action) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'dealett-chat-widget-button';
-        button.textContent = action.label;
-        button.setAttribute('data-translation-complete', '');
-        button.addEventListener('click', () => handleAction(action.id, button));
-        actions.append(button);
-      });
-
-      addressSubmit.addEventListener('click', sendAddress);
-      addressInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          sendAddress();
-        }
-      });
-
-      messageItem.append(card);
-      scrollMessages();
-    };
-
-    const renderEmbeddedWidget = (messageItem, embeddedWidget) => {
-      if (embeddedWidget?.type === 'coverage_selector') {
-        renderCoverageSelector(messageItem, embeddedWidget);
       }
     };
 
@@ -2085,7 +1836,6 @@
     const renderConversationGreeting = () => {
       const greetingParagraphs = text.welcomeMessages || copy.sv.welcomeMessages;
       const greetingText = greetingParagraphs.join('\n\n');
-      const quickReplies = text.greetingChoices || copy.sv.greetingChoices;
       lastAssistantResponse = {
         reply: greetingText,
         source: 'conversation-greeting',
@@ -2096,79 +1846,8 @@
         greeting: true,
         paragraphs: greetingParagraphs,
       });
-      renderQuickReplies(assistantItem, quickReplies);
       positionCompletedTurn(assistantItem);
       return assistantItem;
-    };
-
-    const renderSuggestions = (suggestions) => {
-      suggestionArea.replaceChildren();
-      if (hasUserStartedChat) return;
-
-      suggestions.slice(0, 5).map(inferSuggestion).forEach((suggestion) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'dealett-chat-chip';
-        button.textContent = suggestion.label;
-        button.addEventListener('click', () => {
-          if (suggestion.qualificationPatch) {
-            mergeQualification(suggestion.qualificationPatch);
-          }
-
-          if (suggestion.action === 'openCoverageMap') {
-            if (window.location.pathname.endsWith('/5g-bredband.html')) {
-              document.querySelector('#openCoverageModal')?.click();
-            } else {
-              window.location.href = '5g-bredband.html';
-            }
-            return;
-          }
-
-          if (suggestion.action === 'openBroadbandPage') {
-            window.location.href = '5g-bredband.html#offersSection';
-            return;
-          }
-
-          if (suggestion.action === 'openBroadbandAddress') {
-            if (window.location.pathname.endsWith('/5g-bredband.html')) {
-              window.DealettBroadband?.focusAddressSearch?.();
-              document.querySelector('#addressSearchForm')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              document.querySelector('#addressInput')?.focus();
-            } else {
-              try {
-                sessionStorage.setItem('dealettFocusBroadbandAddress', 'true');
-              } catch {
-                // Keep navigation usable if session storage is unavailable.
-              }
-              window.location.href = '5g-bredband.html#addressSearchForm';
-            }
-            return;
-          }
-
-          if (suggestion.action === 'openCart') {
-            const cart = window.DealettCart?.readCart?.() || [];
-            if (window.DealettCart?.openDrawer) {
-              window.DealettCart.openDrawer(cart);
-            } else {
-              window.location.href = 'varukorg.html';
-            }
-            return;
-          }
-
-          if (suggestion.action === 'openAccount') {
-            window.location.href = 'account.html';
-            return;
-          }
-
-          if (suggestion.action === 'openContact') {
-            window.location.href = 'kontakt.html';
-            return;
-          }
-
-          sendMessage(suggestion.label);
-        });
-        suggestionArea.append(button);
-      });
     };
 
     const getProviderClass = (operator) => String(operator || '')
@@ -2204,7 +1883,6 @@
       }
       if (announce) {
         status.textContent = `${response.cartItem.operator} ${response.cartItem.title}`;
-        renderSuggestions([{ label: 'Öppna varukorg', action: 'openCart' }]);
       }
       return response;
     };
@@ -2223,18 +1901,7 @@
         contentLanguage: chatLanguage,
         before: pendingMessages[0]?.item,
       });
-      const quickReplyLabels = Array.isArray(response.quickReplies)
-        ? response.quickReplies.map((reply) => String(reply?.label || reply || '').toLowerCase())
-        : [];
-      const streamingChoiceCount = quickReplyLabels.filter((label) => (
-        /netflix|disney|hbo|max|tv4|amazon|prime/.test(label)
-      )).length;
-      const inferredMultiSelect = /streaming|streamingtjänst|streamingtjanst/i.test(assistantText) &&
-        streamingChoiceCount >= 2;
-      renderQuickReplies(assistantItem, response.quickReplies, {
-        mode: response.quickReplyMode === 'multiple' || inferredMultiSelect ? 'multiple' : 'single',
-        submitLabel: response.quickReplySubmitLabel,
-      });
+      renderQuickReplies(assistantItem, response.quickReplies);
       const offerIds = Array.isArray(response.offerCards)
         ? response.offerCards.map((card) => String(card.planId || card.id || '')).filter(Boolean)
         : [];
@@ -2242,7 +1909,6 @@
         renderChatOfferCards(assistantItem, response.offerCards);
         offerIds.forEach((offerId) => renderedOfferIds.add(offerId));
       }
-      renderEmbeddedWidget(assistantItem, response.embeddedWidget);
       writeQualification(response.qualification);
       writeOfferCalculation(response.offerCalculation);
       if (response.quizAnswersStatus === 'confirmed' && !activeQuizContext?.quizHandoff) {
@@ -2267,8 +1933,10 @@
         input.focus();
         return;
       }
-      messages.push({ role: 'user', content: nextMessage.message });
-      if (messages.length > 10) messages.splice(0, messages.length - 10);
+      if (!nextMessage.options?.silent) {
+        messages.push({ role: 'user', content: nextMessage.message });
+        if (messages.length > 10) messages.splice(0, messages.length - 10);
+      }
       void processMessage(nextMessage.message, nextMessage.options);
     };
 
@@ -2299,22 +1967,22 @@
         article.innerHTML = [
           '<div class="offer-card__accent"></div>',
           '<div class="offer-card__inner">',
-          `  <span class="offer-card__label">${escapeChatText(card.resultLabel || (index === 0 ? 'Bäst värde' : 'Lägst månadspris'))}</span>`,
+          `  <span class="offer-card__label">${escapeChatText(card.resultLabel)}</span>`,
           logo ? [
             '  <div class="offer-card__head">',
             `    <img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ''}" />`,
-            '    <span class="offer-card__gift-badge" aria-label="Presentkort XXX kr"><strong>XXX kr</strong><span>Presentkort</span></span>',
+            `    <span class="offer-card__gift-badge"><span>${escapeChatText(card.rewardLabel)}</span></span>`,
             '  </div>',
           ].join('') : '',
           `  <h4 class="dealett-chat-offer-title">${escapeChatText(card.operator)} ${escapeChatText(card.planName)}</h4>`,
           '  <div class="offer-card__stats">',
-          card.dataLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-wifi"></i></span><div><p class="offer-card__stat-label">Surf</p><p class="offer-card__stat-value">${escapeChatText(card.dataLabel)}</p></div></div>` : '',
-          card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">Månadskostnad</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p></div></div>` : '',
-          card.bindingLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-file-signature"></i></span><div><p class="offer-card__stat-label">Bindning</p><p class="offer-card__stat-value">${escapeChatText(card.bindingLabel)}</p></div></div>` : '',
+          card.dataLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-wifi"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.dataTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.dataLabel)}</p></div></div>` : '',
+          card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.monthlyPriceTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p></div></div>` : '',
+          card.bindingLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-file-signature"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.bindingTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.bindingLabel)}</p></div></div>` : '',
           '  </div>',
           card.reason ? `  <p class="dealett-chat-offer-note">${escapeChatText(card.reason)}</p>` : '',
           Array.isArray(card.benefits) && card.benefits.length ? `  <ul class="dealett-chat-offer-benefits">${card.benefits.map(benefit => `<li>${escapeChatText(benefit)}</li>`).join('')}</ul>` : '',
-          safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel || 'Välj erbjudande')} <i class="fa-solid fa-cart-shopping"></i></button>` : '',
+          safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel)} <i class="fa-solid fa-cart-shopping"></i></button>` : '',
           '</div>',
         ].join('');
         wrap.append(article);
@@ -2335,7 +2003,7 @@
         const ctaUrl = getSafeChatUrl(button.dataset.chatOfferUrl);
 
         if (!planId && ctaUrl) {
-          button.innerHTML = 'Öppnar... <i class="fa-solid fa-spinner fa-spin"></i>';
+          button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
           clickTracking.finally(() => {
             window.location.href = ctaUrl;
           });
@@ -2348,7 +2016,7 @@
           return;
         }
 
-        button.innerHTML = 'Lägger till... <i class="fa-solid fa-spinner fa-spin"></i>';
+        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         addCalculatedOfferToCart(planId, {
           announce: !ctaUrl,
           openDrawer: !ctaUrl,
@@ -2357,7 +2025,7 @@
             window.location.href = ctaUrl;
             return;
           }
-          button.innerHTML = 'Tillagd i varukorg <i class="fa-solid fa-check"></i>';
+          button.innerHTML = '<i class="fa-solid fa-check"></i>';
         }).catch(() => {
           button.disabled = false;
           button.innerHTML = previousLabel;
@@ -2378,49 +2046,11 @@
         : text.status;
     };
 
-    const normalizeConversationText = (value) => String(value || '')
-      .trim()
-      .toLocaleLowerCase('sv')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    const isAnswerToPendingQualification = (message) => {
-      const previousAssistant = [...messages]
-        .reverse()
-        .find((item) => item?.role === 'assistant' && item?.content)?.content || '';
-      const question = normalizeConversationText(previousAssistant);
-      const answer = normalizeConversationText(message);
-      if (!question || !answer) return null;
-
-      if (/hur manga abonnemang|how many subscriptions/.test(question)) {
-        return /^(?:[1-9]|10)(?:\+)?(?:\s|$)|\b(?:ett|en|tva|tre|fyra|fem|sex|sju|atta|nio|tio)\b|\babonnemang\b/.test(answer);
-      }
-      if (/operator|operator/.test(question)) {
-        return /\b(telia|tele2|telenor|tre|samma|olika|same|different)\b/.test(answer);
-      }
-      if (/bindningstid|binding time|end date|slutdatum/.test(question)) {
-        return /^(ja|nej|yes|no|ingen|vet inte|i do not know|don't know)\b|\b\d{4}-\d{2}-\d{2}\b/.test(answer);
-      }
-      if (/hur mycket surf|mobile data|data do you need/.test(question)) {
-        return /\b(wifi|normal|mycket|obegransat|unlimited|\d+\s*gb)\b/.test(answer);
-      }
-      if (/betalar.*(?:idag|manad)|kostar.*(?:totalt|idag)|pay.*(?:today|month|total)/.test(question)) {
-        return /\d|under|over|vet inte|do not know|don't know/.test(answer);
-      }
-      return null;
-    };
-
     const processMessage = async (message, options = {}) => {
       const requestContext = {
         ...(getQuizContext() || {}),
         ...(options.context || {}),
       };
-      const qualificationAnswer = isAnswerToPendingQualification(message);
-      const openConversationTurn = qualificationAnswer === false;
-      if (openConversationTurn) {
-        requestContext.quizHandoff = false;
-        requestContext.openConversationTurn = true;
-      }
 
       setSending(true);
       let requestFailed = false;
@@ -2435,7 +2065,7 @@
             sessionId: chatSessionId,
             message,
             language: chatLanguage,
-            messages: openConversationTurn ? [] : messages.slice(0, -1),
+            messages: messages.slice(0, -1),
             qualification: readQualification(),
             cart: readCartContext(),
             page: {
@@ -2460,29 +2090,21 @@
 
     const sendMessage = (rawMessage, options = {}) => {
       const message = String(rawMessage || '').trim();
-      if (!message) return;
-
-      if (/\b(starta om|börja om|börja från början|börja med nya svar|start fresh|start over|start again|restart)\b/i.test(message)) {
-        sessionStorage.removeItem(qualificationKey);
-        sessionStorage.removeItem(offerCalculationKey);
-        activeQuizContext = null;
-        ignoreQuizContext = true;
-        renderedOfferIds.clear();
-      }
+      if (!message && !options.silent) return;
 
       hasUserStartedChat = true;
       suggestionArea.replaceChildren();
       input.value = '';
 
       if (isSending) {
-        const item = addMessage('user', message, { persist: false });
+        const item = options.silent ? null : addMessage('user', message, { persist: false });
         pendingMessages.push({ message, options, item });
         status.textContent = text.queued;
         input.focus();
         return;
       }
 
-      addMessage('user', message);
+      if (!options.silent) addMessage('user', message);
       void processMessage(message, options);
     };
 
@@ -2538,7 +2160,8 @@
           missingFields: qualification?.missingFields || [],
         };
         openPanel({ skipGreeting: true });
-        sendMessage(payload.message || 'Fortsätt härifrån med Dealett AI', {
+        sendMessage(payload.message || '', {
+          silent: !payload.message,
           context: activeQuizContext,
         });
       },

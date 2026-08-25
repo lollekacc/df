@@ -1079,6 +1079,18 @@ body {
   font-size: 46px;
   line-height: 1.04;
 }
+.home-how__copy h2 > span {
+  display: block;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .home-how__copy h2 {
+    font-size: clamp(23px, 6.2vw, 42px);
+  }
+}
+.home-how__copy {
+  left: 10px;
+}
 .home-how__copy > p:not(.section-label) {
   max-width: 520px;
   margin: 20px 0 22px;
@@ -3662,6 +3674,10 @@ body:has(.home-intro) .gift-card-copy h2 {
   letter-spacing: -.035em;
 }
 
+body:has(.home-intro) .gift-card-heading-accent {
+  color: #C96F24;
+}
+
 body:has(.home-intro) .gift-card-copy > p:last-child {
   max-width: 660px;
   font-size: 18px;
@@ -3674,9 +3690,26 @@ body:has(.home-intro) .gift-logo-grid {
 
 body:has(.home-intro) .gift-logo {
   min-height: 58px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 12px;
   font-size: 14px;
+}
+
+body:has(.home-intro) .gift-logo img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+body:has(.home-intro) .gift-logo span {
+  color: var(--home-white);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 body:has(.home-intro) .coverage-maplibre-heading {
