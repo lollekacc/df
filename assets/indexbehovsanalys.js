@@ -597,7 +597,9 @@ function createIndexQuiz() {
         plan.offerCalculation?.streamingSavings > 0
           ? `Streaming avräknad ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.streamingSavings)} kr/mån`
           : "",
-        plan.offerCalculation ? `Effektiv kostnad ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.effectiveMonthlyCost)} kr/mån` : "",
+        toOptionalNumber(plan.offerCalculation?.effectiveMonthlyCost) !== null
+          ? `Effektiv kostnad ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.effectiveMonthlyCost)} kr/mån`
+          : "",
         plan.offerCalculation?.total24MonthCost
           ? `24 mån total ${new Intl.NumberFormat("sv-SE").format(plan.offerCalculation.total24MonthCost)} kr`
           : "",
@@ -1539,8 +1541,8 @@ function createIndexQuiz() {
     };
 
     [
-      { plan: lastOfferCalculation?.bestValue, label: "Bäst matchning" },
-      { plan: lastOfferCalculation?.lowestMonthlyPrice, label: "Lägst månadspris" }
+      { plan: lastOfferCalculation?.bestMatch, label: "Bäst matchning" },
+      { plan: lastOfferCalculation?.lowestEffectiveCost, label: "Lägst effektiv kostnad" }
     ].forEach(entry => addFeaturedPlan(entry.plan, entry.label, { mergeLabel: false }));
 
     [...plans]
@@ -1847,6 +1849,12 @@ function createIndexQuiz() {
     return `${new Intl.NumberFormat("sv-SE").format(Math.max(Number(value) || 0, 0))} kr`;
   }
 
+  function toOptionalNumber(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+  }
+
   function createCompareButton(item, options = {}) {
     const button = document.createElement("button");
     button.className = [
@@ -1938,11 +1946,11 @@ function createIndexQuiz() {
     const finalPrice = Number(plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0;
     const pricePerPerson = Number(plan.pricePerPerson) || finalPrice;
     const contractMonths = Number(plan.offerCalculation?.bindingMonths) || null;
-    const savings = Number(plan.offerCalculation?.monthlySavings);
-    const total24MonthCost = Number(plan.offerCalculation?.total24MonthCost);
-    const total24MonthResult = Number(plan.offerCalculation?.total24MonthResult);
+    const savings = toOptionalNumber(plan.offerCalculation?.monthlySavings);
+    const total24MonthCost = toOptionalNumber(plan.offerCalculation?.total24MonthCost);
+    const total24MonthResult = toOptionalNumber(plan.offerCalculation?.total24MonthResult);
     const includedServiceValue = Number(plan.offerCalculation?.streamingSavings) || 0;
-    const effectiveMonthlyCost = Number(plan.offerCalculation?.effectiveMonthlyCost) || finalPrice;
+    const effectiveMonthlyCost = toOptionalNumber(plan.offerCalculation?.effectiveMonthlyCost);
 
     return {
       id: `index-quiz-${plan.id || plan.title || plan.operator}-${persons}-${index}`,
@@ -1960,14 +1968,14 @@ function createIndexQuiz() {
         { label: "Presentkort", value: "XXX kr" },
         isMulti ? { label: "Totalpris", value: `${formatMoney(finalPrice)}/m\u00e5n` } : null,
         contractMonths ? { label: "Bindningstid", value: `${contractMonths} m\u00e5n` } : null,
-        { label: "Effektiv kostnad", value: `${formatMoney(effectiveMonthlyCost)}/mån` },
-        Number.isFinite(total24MonthCost) ? { label: "24 mån total", value: formatMoney(total24MonthCost) } : null,
-        Number.isFinite(total24MonthResult) ? {
+        effectiveMonthlyCost !== null ? { label: "Effektiv kostnad", value: `${formatMoney(effectiveMonthlyCost)}/mån` } : null,
+        total24MonthCost !== null ? { label: "24 mån total", value: formatMoney(total24MonthCost) } : null,
+        total24MonthResult !== null ? {
           label: total24MonthResult >= 0 ? "24 mån resultat" : "24 mån merkostnad",
           value: formatMoney(Math.abs(total24MonthResult)),
         } : null,
         includedServiceValue > 0 ? { label: "Ersatt streaming", value: `${formatMoney(includedServiceValue)}/mån` } : null,
-        Number.isFinite(savings) ? {
+        savings !== null ? {
           label: savings >= 0 ? "Besparing" : "Högre kostnad",
           value: `${formatMoney(Math.abs(savings))}/mån`,
         } : null,
@@ -1980,7 +1988,7 @@ function createIndexQuiz() {
   function buildRecommendationReason(plan) {
     const peopleCount = Number(plan.peopleCount ?? plan.offerCalculation?.peopleCount ?? state.persons) || 1;
     const planMonthlyPrice = Number(plan.planMonthlyPrice ?? plan.finalPrice ?? plan.price) || 0;
-    const total24MonthCost = Number(plan.total24MonthCost ?? plan.offerCalculation?.total24MonthCost);
+    const total24MonthCost = toOptionalNumber(plan.total24MonthCost ?? plan.offerCalculation?.total24MonthCost);
     const remainingOldCosts = Number(plan.remainingOldCosts ?? plan.offerCalculation?.remainingOldCosts) || 0;
     const streamingSavings = Number(plan.streamingSavings ?? plan.offerCalculation?.streamingSavings) || 0;
     const switchAction = plan.switchAction || plan.offerCalculation?.switchAction || "";
@@ -1989,7 +1997,7 @@ function createIndexQuiz() {
     const notes = [
       `Det här passar ${peopleCount === 1 ? "1 användare" : `${peopleCount} användare`} med ${String(dataText).toLowerCase()} hos ${operator}.`,
       planMonthlyPrice > 0 ? `Du betalar ${formatMoney(planMonthlyPrice)}/mån.` : "",
-      Number.isFinite(total24MonthCost)
+      total24MonthCost !== null
         ? `På 24 månader blir helheten cirka ${formatMoney(total24MonthCost)} efter presentkort och valda behov.`
         : "",
       remainingOldCosts > 0

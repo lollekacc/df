@@ -6925,9 +6925,9 @@ html body.package-page .package-hero__copy .primary-btn {
 html body:has(.home-intro) .newsletter-panel {
   isolation: isolate !important;
   background:
-    radial-gradient(circle at 16% 20%, rgba(27, 73, 76, .42), transparent 36%),
-    radial-gradient(circle at 86% 72%, rgba(201, 121, 43, .24), transparent 34%),
-    #05070c !important;
+    radial-gradient(circle at 16% 20%, rgba(69, 112, 201, .56), transparent 38%),
+    radial-gradient(circle at 86% 72%, rgba(116, 80, 190, .38), transparent 36%),
+    #071027 !important;
 }
 
 html body:has(.home-intro) .newsletter-panel::before {
@@ -6953,18 +6953,18 @@ html body:has(.home-intro) .newsletter-panel::after {
   z-index: 0 !important;
   display: block !important;
   background:
-    linear-gradient(90deg, rgba(5, 7, 12, .7) 0%, rgba(5, 7, 12, .28) 48%, rgba(5, 7, 12, .72) 100%),
-    linear-gradient(180deg, rgba(5, 7, 12, .15), rgba(5, 7, 12, .62)) !important;
+    linear-gradient(90deg, rgba(4, 10, 28, .5) 0%, rgba(4, 10, 28, .08) 48%, rgba(4, 10, 28, .44) 100%),
+    linear-gradient(180deg, rgba(4, 10, 28, .04), rgba(4, 10, 28, .32)) !important;
   pointer-events: none !important;
 }
 
 html body:has(.home-intro) .newsletter-panel.codex-bg-fallback::after {
   background:
-    radial-gradient(circle at 28% 38%, rgba(0, 212, 198, .22), transparent 18%),
-    radial-gradient(circle at 70% 58%, rgba(215, 127, 43, .24), transparent 22%),
-    repeating-linear-gradient(110deg, rgba(119, 229, 216, .12) 0 1px, transparent 1px 22px),
-    linear-gradient(90deg, rgba(5, 7, 12, .76) 0%, rgba(5, 7, 12, .34) 48%, rgba(5, 7, 12, .74) 100%),
-    #05070c !important;
+    radial-gradient(circle at 28% 38%, rgba(80, 175, 213, .26), transparent 20%),
+    radial-gradient(circle at 70% 58%, rgba(139, 104, 220, .3), transparent 24%),
+    radial-gradient(circle, rgba(191, 226, 255, .24) 0 1px, transparent 1.5px) 0 0 / 12px 12px,
+    linear-gradient(90deg, rgba(4, 10, 28, .7) 0%, rgba(4, 10, 28, .28) 48%, rgba(4, 10, 28, .7) 100%),
+    #071027 !important;
 }
 
 html body:has(.home-intro) .newsletter-panel > :not(.codex-bg-canvas) {

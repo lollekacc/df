@@ -3712,6 +3712,75 @@ body:has(.home-intro) .gift-logo span {
   line-height: 1;
 }
 
+body:has(.home-intro) [data-gift-logo-slot] {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+body:has(.home-intro) .gift-logo__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 5px 12px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 650ms cubic-bezier(.2, .8, .2, 1), transform 650ms cubic-bezier(.2, .8, .2, 1);
+  will-change: opacity, transform;
+}
+
+body:has(.home-intro) .gift-logo__face.is-current {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body:has(.home-intro) .gift-logo__face.is-leaving {
+  opacity: 0;
+  transform: translateY(-24px);
+}
+
+body:has(.home-intro) .gift-logo__face.is-next {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+body:has(.home-intro) .gift-logo__face > img {
+  flex: 0 0 48px;
+}
+
+body:has(.home-intro) .gift-logo__mark {
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  overflow: hidden;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+body:has(.home-intro) .gift-logo__mark--ikea { border-radius: 50%; background: #0058a3; color: #ffda1a; font-size: 11px; }
+body:has(.home-intro) .gift-logo__mark--amazon { border-radius: 8px; background: #fff; color: #111; font: 700 34px/1 Georgia, serif; }
+body:has(.home-intro) .gift-logo__mark--spotify { grid-template-rows: repeat(3, 3px); gap: 3px; padding: 13px 10px; border-radius: 50%; background: #1ed760; }
+body:has(.home-intro) .gift-logo__mark--spotify i { display: block; width: 100%; height: 2px; border-radius: 50%; background: #08130c; transform: rotate(8deg); }
+body:has(.home-intro) .gift-logo__mark--ahlens { border-radius: 50%; background: #c91832; font-family: Georgia, serif; font-size: 26px; }
+body:has(.home-intro) .gift-logo__mark--stadium { border-radius: 50%; background: #e30613; font-size: 25px; font-style: italic; }
+body:has(.home-intro) .gift-logo__mark--elgiganten { border-radius: 50%; background: #ffd600; color: #111; font-size: 24px; }
+body:has(.home-intro) .gift-logo__mark--foodora { border-radius: 12px; background: #d70f64; font-size: 24px; }
+body:has(.home-intro) .gift-logo__mark--boozt { border: 2px solid #fff; border-radius: 50%; background: #111; font-size: 22px; }
+
+@media (prefers-reduced-motion: reduce) {
+  body:has(.home-intro) .gift-logo__face {
+    transition: none;
+  }
+}
+
 body:has(.home-intro) .coverage-maplibre-heading {
   max-width: 1480px;
   margin: 0 auto;

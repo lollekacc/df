@@ -42,7 +42,7 @@ const offers = [
   },
 ];
 
-const giftCards = ['Apollo', 'H&M', 'Hotel', 'ICA Maxi', 'Mio', 'Zalando', 'Ticketmaster'];
+const giftCards = ['Apollo', 'H&M', 'Hotel', 'ICA Maxi', 'Mio', 'Zalando', 'Ticketmaster', 'Apotea'];
 
 let selectedOffer = null;
 let plansCache = null;

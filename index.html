@@ -565,14 +565,39 @@
               <p>V&auml;lj bland popul&auml;ra varum&auml;rken och f&aring; ett presentkort n&auml;r du hittar r&auml;tt abonnemang via Dealett.</p>
             </div>
 
-            <div class="gift-logo-grid" aria-label="Exempel p&aring; presentkort">
-              <div class="gift-logo gift-logo--apollo"><img src="images/gift-logos/apollo.png" alt="" aria-hidden="true" /><span>Apollo</span></div>
-              <div class="gift-logo gift-logo--hm"><img src="images/gift-logos/hm.png" alt="" aria-hidden="true" /><span>H&amp;M</span></div>
-              <div class="gift-logo gift-logo--hotel"><img src="images/gift-logos/hotels.png" alt="" aria-hidden="true" /><span>Hotels.com</span></div>
-              <div class="gift-logo gift-logo--ica"><img src="images/gift-logos/ica.png" alt="" aria-hidden="true" /><span>ICA Maxi</span></div>
-              <div class="gift-logo gift-logo--mio"><img src="images/gift-logos/mio.png" alt="" aria-hidden="true" /><span>Mio</span></div>
-              <div class="gift-logo gift-logo--zalando"><img src="images/gift-logos/zalando.png" alt="" aria-hidden="true" /><span>Zalando</span></div>
-              <div class="gift-logo gift-logo--ticket"><img src="images/gift-logos/ticketmaster.png" alt="" aria-hidden="true" /><span>Ticketmaster</span></div>
+            <div class="gift-logo-grid" data-gift-logo-switcher aria-label="Exempel p&aring; presentkort">
+              <div class="gift-logo gift-logo--apollo" data-gift-logo-slot>
+                <div class="gift-logo__face is-current" data-company="Apollo"><img src="images/gift-logos/apollo.png" alt="" aria-hidden="true" /><span>Apollo</span></div>
+                <div class="gift-logo__face is-next" data-company="IKEA" aria-hidden="true"><span class="gift-logo__mark gift-logo__mark--ikea" aria-hidden="true">IKEA</span><span>IKEA</span></div>
+              </div>
+              <div class="gift-logo gift-logo--hm" data-gift-logo-slot>
+                <div class="gift-logo__face is-current" data-company="H&amp;M"><img src="images/gift-logos/hm.png" alt="" aria-hidden="true" /><span>H&amp;M</span></div>
+                <div class="gift-logo__face is-next" data-company="Amazon" aria-hidden="true"><span class="gift-logo__mark gift-logo__mark--amazon" aria-hidden="true">a</span><span>Amazon</span></div>
+              </div>
+              <div class="gift-logo gift-logo--hotel" data-gift-logo-slot>
+                <div class="gift-logo__face is-current" data-company="Hotels.com"><img src="images/gift-logos/hotels.png" alt="" aria-hidden="true" /><span>Hotels.com</span></div>
+                <div class="gift-logo__face is-next" data-company="Spotify" aria-hidden="true"><span class="gift-logo__mark gift-logo__mark--spotify" aria-hidden="true"><i></i><i></i><i></i></span><span>Spotify</span></div>
+              </div>
+              <div class="gift-logo gift-logo--ica" data-gift-logo-slot>
+                <div class="gift-logo__face is-current" data-company="ICA Maxi"><img src="images/gift-logos/ica.png" alt="" aria-hidden="true" /><span>ICA Maxi</span></div>
+                <div class="gift-logo__face is-next" data-company="&Aring;hl&eacute;ns" aria-hidden="true"><span class="gift-logo__mark gift-logo__mark--ahlens" aria-hidden="true">&Aring;</span><span>&Aring;hl&eacute;ns</span></div>
+              </div>
+              <div class="gift-logo gift-logo--mio" data-gift-logo-slot>
+                <div class="gift-logo__face is-current" data-company="Mio"><img src="images/gift-logos/mio.png" alt="" aria-hidden="true" /><span>Mio</span></div>
+                <div class="gift-logo__face is-next" data-company="Stadium" aria-hidden="true"><span class="gift-logo__mark gift-logo__mark--stadium" aria-hidden="true">S</span><span>Stadium</span></div>
+              </div>
+              <div class="gift-logo gift-logo--zalando" data-gift-logo-slot>
+                <div class="gift-logo__face is-current" data-company="Zalando"><img src="images/gift-logos/zalando.png" alt="" aria-hidden="true" /><span>Zalando</span></div>
+                <div class="gift-logo__face is-next" data-company="Elgiganten" aria-hidden="true"><span class="gift-logo__mark gift-logo__mark--elgiganten" aria-hidden="true">E</span><span>Elgiganten</span></div>
+              </div>
+              <div class="gift-logo gift-logo--ticket" data-gift-logo-slot>
+                <div class="gift-logo__face is-current" data-company="Ticketmaster"><img src="images/gift-logos/ticketmaster.png" alt="" aria-hidden="true" /><span>Ticketmaster</span></div>
+                <div class="gift-logo__face is-next" data-company="Foodora" aria-hidden="true"><span class="gift-logo__mark gift-logo__mark--foodora" aria-hidden="true">F</span><span>Foodora</span></div>
+              </div>
+              <div class="gift-logo gift-logo--apotea" data-gift-logo-slot>
+                <div class="gift-logo__face is-current" data-company="Apotea"><img src="images/gift-logos/apotea.png" alt="" aria-hidden="true" /><span>Apotea</span></div>
+                <div class="gift-logo__face is-next" data-company="Boozt" aria-hidden="true"><span class="gift-logo__mark gift-logo__mark--boozt" aria-hidden="true">B</span><span>Boozt</span></div>
+              </div>
             </div>
           </div>
         </div>
@@ -681,6 +706,7 @@
     <script src="script.js"></script>
     <script src="./assets/coverage-maplibre.js"></script>
     <script src="./assets/newsletter-codex-background.js"></script>
+    <script src="./assets/gift-logo-switcher.js"></script>
     <script src="assets/indexbehovsanalys.js"></script>
   </body>
 </html>

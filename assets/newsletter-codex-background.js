@@ -75,16 +75,16 @@
     }
 
     vec3 palette(float t) {
-      vec3 ink = vec3(0.018, 0.024, 0.042);
-      vec3 teal = vec3(0.02, 0.42, 0.45);
-      vec3 blue = vec3(0.11, 0.19, 0.44);
-      vec3 copper = vec3(0.98, 0.45, 0.12);
-      vec3 moss = vec3(0.46, 0.72, 0.38);
+      vec3 ink = vec3(0.03, 0.06, 0.16);
+      vec3 indigo = vec3(0.2, 0.29, 0.68);
+      vec3 periwinkle = vec3(0.49, 0.54, 0.95);
+      vec3 cyan = vec3(0.23, 0.66, 0.75);
+      vec3 violet = vec3(0.61, 0.43, 0.86);
 
-      vec3 color = mix(ink, blue, smoothstep(0.1, 1.0, t));
-      color = mix(color, teal, smoothstep(0.34, 0.78, t) * 0.54);
-      color = mix(color, moss, smoothstep(0.58, 0.98, t) * 0.16);
-      color = mix(color, copper, pow(max(t - 0.52, 0.0), 2.0) * 0.42);
+      vec3 color = mix(ink, indigo, smoothstep(0.08, 0.72, t));
+      color = mix(color, periwinkle, smoothstep(0.48, 1.0, t) * 0.62);
+      color = mix(color, cyan, smoothstep(0.62, 0.96, t) * 0.32);
+      color = mix(color, violet, smoothstep(0.76, 1.08, t) * 0.25);
       return color;
     }
 
@@ -101,39 +101,38 @@
       float active = 1.0 - u_reduced;
 
       vec2 toPointer = p - pointer;
-      vec2 swirl = vec2(-toPointer.y, toPointer.x) * exp(-dist * 4.8);
-      float drag = (0.032 + velocity * 0.16) * active;
-      float ripple = sin(pulseDist * 34.0 - u_click * 8.5) * exp(-pulseDist * 5.2) * u_click * 0.085 * active;
-      vec2 warped = p + swirl * drag + normalize(toPointer + 0.0001) * ripple;
+      vec2 swirl = vec2(-toPointer.y, toPointer.x) * exp(-dist * 3.4);
+      float drag = (0.018 + velocity * 0.09) * active;
+      vec2 warped = p + swirl * drag;
 
       float time = u_time * active;
-      float fieldA = fbm(warped * 2.1 + vec2(time * 0.045, -time * 0.026));
-      float fieldB = fbm(warped * 4.4 - vec2(time * 0.034, time * 0.052));
-      float flow = fieldA * 0.62 + fieldB * 0.38;
+      float fieldA = fbm(warped * 1.55 + vec2(time * 0.025, -time * 0.018));
+      float fieldB = fbm(warped * 3.0 - vec2(time * 0.018, time * 0.026));
+      float flow = fieldA * 0.7 + fieldB * 0.3;
 
-      float contour = abs(sin((flow + warped.x * 0.42 - warped.y * 0.18) * 16.0));
-      contour = pow(1.0 - contour, 3.2);
+      float cursorGlow = exp(-dist * (3.8 - velocity * 1.2)) * active;
 
-      float cursorGlow = exp(-dist * (4.8 - velocity * 2.1)) * (0.22 + velocity * 0.72) * active;
-      float clickGlow = exp(-pulseDist * 3.6) * u_click * active;
-      float lineGlow = contour * (0.14 + velocity * 0.34 + u_click * 0.22);
+      vec2 dotCell = fract(gl_FragCoord.xy / 12.0) - 0.5;
+      float dotShape = 1.0 - smoothstep(0.08, 0.18, length(dotCell));
+      float cursorDots = (1.0 - smoothstep(0.08, 0.58, dist)) * active;
 
-      vec2 gridUv = warped * vec2(7.0, 4.2);
-      vec2 grid = abs(fract(gridUv) - 0.5);
-      float mesh = 1.0 - smoothstep(0.0, 0.018, min(grid.x, grid.y));
-      mesh *= 0.032 + velocity * 0.05;
+      float clickActive = step(0.0, u_click) * (1.0 - smoothstep(1.05, 1.42, u_click)) * active;
+      float waveRadius = u_click * 0.92;
+      float wave = 1.0 - smoothstep(0.035, 0.14, abs(pulseDist - waveRadius));
+      float wake = (1.0 - smoothstep(0.0, max(waveRadius, 0.001), pulseDist))
+        * (1.0 - smoothstep(0.0, 1.22, u_click))
+        * 0.52;
+      float dotField = dotShape * clamp(0.035 + cursorDots * 0.94 + (wave + wake) * clickActive, 0.0, 1.0);
 
       float vignette = smoothstep(0.98, 0.18, length((uv - 0.5) * vec2(1.15, 1.0)));
       float depth = smoothstep(-0.7, 0.72, warped.x - warped.y * 0.32);
-      vec3 color = palette(flow + cursorGlow * 0.48 + clickGlow * 0.34);
+      vec3 color = palette(flow + cursorGlow * 0.16);
 
-      color += vec3(0.04, 0.54, 0.54) * cursorGlow;
-      color += vec3(1.0, 0.5, 0.12) * clickGlow * 0.54;
-      color += vec3(0.46, 0.9, 0.86) * lineGlow;
-      color += vec3(0.52, 0.68, 0.92) * mesh;
-      color *= 0.52 + depth * 0.46;
-      color *= vignette;
-      color += vec3(0.006, 0.008, 0.014);
+      color += vec3(0.12, 0.42, 0.62) * cursorGlow * 0.22;
+      color *= 0.72 + depth * 0.32;
+      color *= 0.7 + vignette * 0.3;
+      color += mix(vec3(0.58, 0.9, 1.0), vec3(0.9, 0.8, 1.0), uv.x) * dotField * 1.08;
+      color += vec3(0.008, 0.012, 0.026);
 
       gl_FragColor = vec4(color, 1.0);
     }
@@ -210,7 +209,7 @@
     pulseX: 0.5,
     pulseY: 0.45,
     velocity: 0,
-    click: 0,
+    click: -1,
     visible: true,
     raf: 0,
     lastX: 0,
@@ -252,7 +251,7 @@
     if (shouldPulse) {
       state.pulseX = state.targetX;
       state.pulseY = state.targetY;
-      state.click = Math.min(1, state.click + 0.92);
+      state.click = 0;
       start();
     }
   }
@@ -267,7 +266,10 @@
     state.pointerX += (state.targetX - state.pointerX) * (0.11 + state.velocity * 0.09);
     state.pointerY += (state.targetY - state.pointerY) * (0.11 + state.velocity * 0.09);
     state.velocity *= Math.pow(0.86, dt);
-    state.click *= Math.pow(0.9, dt);
+    if (state.click >= 0) {
+      state.click += dt * 0.01667;
+      if (state.click > 1.45) state.click = -1;
+    }
 
     gl.useProgram(program);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -278,7 +280,7 @@
     gl.uniform2f(uniforms.pulse, state.pulseX, state.pulseY);
     gl.uniform1f(uniforms.time, now * 0.001);
     gl.uniform1f(uniforms.velocity, reduced ? 0 : state.velocity);
-    gl.uniform1f(uniforms.click, reduced ? 0 : state.click);
+    gl.uniform1f(uniforms.click, reduced ? -1 : state.click);
     gl.uniform1f(uniforms.reduced, reduced);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -334,7 +336,7 @@
 
   prefersReducedMotion.addEventListener?.("change", () => {
     state.velocity = 0;
-    state.click = 0;
+    state.click = -1;
     start();
   });
 
