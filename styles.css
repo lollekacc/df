@@ -46,6 +46,14 @@ html, body {
   min-height: 100%;
 }
 
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
 html[data-translation-boot="pending"] body {
   visibility: hidden;
 }
