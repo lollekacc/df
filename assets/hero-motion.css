@@ -3,7 +3,7 @@
 .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-eyebrow.home-reveal {
   --home-hero-copy-x: -86px;
   filter: none;
-  animation: home-hero-copy-in .42s 0s cubic-bezier(.16, 1, .3, 1) both !important;
+  animation: home-hero-copy-in .58s 0s cubic-bezier(.16, 1, .3, 1) both !important;
   transition: none !important;
 }
 
@@ -17,7 +17,7 @@
 .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof-mobile.home-reveal {
   --home-hero-copy-x: -86px;
   filter: none;
-  animation: home-hero-copy-in .42s .5s cubic-bezier(.16, 1, .3, 1) both !important;
+  animation: home-hero-copy-in .58s .5s cubic-bezier(.16, 1, .3, 1) both !important;
   transition: none !important;
 }
 
@@ -32,7 +32,7 @@
 
 .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-showcase {
   filter: none;
-  animation: home-hero-offers-in .52s 1s cubic-bezier(.16, 1, .3, 1) both !important;
+  animation: home-hero-offers-in .68s 1s cubic-bezier(.16, 1, .3, 1) both !important;
   transition: none !important;
 }
 
