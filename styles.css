@@ -451,6 +451,11 @@ img {
   opacity: 0.65;
 }
 
+.dealett-chat-quick-reply.is-selected:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
 .dealett-chat-embedded-widget {
   margin-top: 10px;
   padding: 11px;

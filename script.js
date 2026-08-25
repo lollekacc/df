@@ -1553,7 +1553,7 @@
         version: 1,
         sessionId: chatSessionId,
         updatedAt: Date.now(),
-        messages: messages.slice(-10),
+        messages: [],
         qualification: updates.qualification !== undefined
           ? updates.qualification
           : (storedConversation?.qualification || null),
@@ -1839,13 +1839,18 @@
         button.className = 'dealett-chat-quick-reply';
         button.textContent = label;
         button.setAttribute('data-translation-complete', '');
+        button.setAttribute('aria-pressed', 'false');
         button.addEventListener('click', () => {
+          button.classList.add('is-selected');
+          button.setAttribute('aria-pressed', 'true');
           wrap.querySelectorAll('button').forEach((item) => {
             item.disabled = true;
           });
           if (runQuickReplyAction(action)) return;
-          input.value = label;
-          sendMessage(label, { context: { quickReply: true } });
+          sendMessage(label, {
+            hiddenUserMessage: true,
+            context: { quickReply: true },
+          });
         });
         wrap.append(button);
       });
@@ -2020,46 +2025,6 @@
       renderConversationGreeting();
       continuePendingMessage();
     };
-
-    const restoreStoredMessages = () => {
-      const storedMessages = Array.isArray(storedConversation?.messages)
-        ? storedConversation.messages.slice(-10)
-        : [];
-
-      storedMessages.forEach((storedMessage) => {
-        const role = storedMessage?.role === 'assistant' ? 'assistant' : 'user';
-        const content = String(storedMessage?.content || '').trim();
-        if (!content) return;
-
-        const restoredMessage = {
-          role,
-          content,
-          timestamp: storedMessage.timestamp || null,
-          greeting: storedMessage.greeting === true,
-          contentLanguage: storedMessage.contentLanguage || null,
-        };
-        messages.push(restoredMessage);
-        addMessage(role, content, {
-          persist: false,
-          timestamp: restoredMessage.timestamp,
-          greeting: restoredMessage.greeting,
-          contentLanguage: restoredMessage.contentLanguage || chatLanguage,
-          paragraphs: restoredMessage.greeting ? content.split('\n\n') : undefined,
-        });
-      });
-
-      hasUserStartedChat = messages.some((message) => message.role === 'user');
-      const lastAssistantMessage = [...messages].reverse()
-        .find((message) => message.role === 'assistant');
-      if (lastAssistantMessage) {
-        lastAssistantResponse = {
-          reply: lastAssistantMessage.content,
-          source: 'restored-conversation',
-        };
-      }
-    };
-
-    restoreStoredMessages();
 
     const renderChatOfferCards = (messageItem, offerCards) => {
       if (!messageItem || !Array.isArray(offerCards) || !offerCards.length) return;
@@ -2243,14 +2208,28 @@
       input.value = '';
 
       if (isSending) {
-        const item = options.silent ? null : addMessage('user', message, { persist: false });
+        const item = options.silent || options.hiddenUserMessage
+          ? null
+          : addMessage('user', message, { persist: false });
         pendingMessages.push({ message, options, item });
         status.textContent = text.queued;
         input.focus();
         return;
       }
 
-      if (!options.silent) addMessage('user', message);
+      if (options.hiddenUserMessage) {
+        messages.push({
+          role: 'user',
+          content: message,
+          timestamp: new Date().toISOString(),
+          greeting: false,
+          contentLanguage: null,
+        });
+        if (messages.length > 10) messages.splice(0, messages.length - 10);
+        persistConversation();
+      } else if (!options.silent) {
+        addMessage('user', message);
+      }
       void processMessage(message, options);
     };
 

@@ -1379,7 +1379,7 @@ function createIndexQuiz() {
 
     dom.offersContainer.innerHTML = "";
 
-    if (!recommendedPlans.length) {
+    if (!Array.isArray(recommendedPlans) || !recommendedPlans.length) {
       const noOfferText = lastOfferCalculation?.noOfferReason ||
         "Testa att gå tillbaka och justera prisnivå eller surfbehov så visar vi fler relevanta alternativ.";
       dom.offersContainer.innerHTML = [
@@ -1646,6 +1646,9 @@ function createIndexQuiz() {
 
   function buildQualificationFromState() {
     const peopleCount = Number(state.persons) || null;
+    const isInitialRecommendation = state.resultMode !== "refined";
+    const streamingCalculation = state.streamingCalculation || (isInitialRecommendation ? "none" : null);
+    const internationalTravel = state.internationalTravel || (isInitialRecommendation ? "none" : null);
     const existingCount = Number(state.existingCustomers || 0);
     const operators = Array.from({ length: peopleCount || 0 }, (_, index) => {
       if (state.customerStatus === "none" || index >= existingCount) {
@@ -1701,12 +1704,12 @@ function createIndexQuiz() {
     if (!peopleCount || bindingEnds.length < peopleCount) missingFields.push("bindingEnds");
     if (!state.data) missingFields.push("mobileUsage");
     if (!state.price) missingFields.push("priceRange");
-    if (!state.streamingCalculation) missingFields.push("streamingCalculation");
-    if (state.streamingCalculation === "include" && !state.streamingServices.length) {
+    if (!streamingCalculation) missingFields.push("streamingCalculation");
+    if (streamingCalculation === "include" && !state.streamingServices.length) {
       missingFields.push("streamingServices");
     }
-    if (!state.internationalTravel) missingFields.push("internationalTravel");
-    if (state.internationalTravel === "outside_eu" && !state.internationalUsage) {
+    if (!internationalTravel) missingFields.push("internationalTravel");
+    if (internationalTravel === "outside_eu" && !state.internationalUsage) {
       missingFields.push("internationalUsage");
     }
 
@@ -1718,10 +1721,10 @@ function createIndexQuiz() {
       recommendationMode: state.resultMode === "refined" ? "refined" : "initial",
       mobileUsage: state.data || null,
       priceRange: state.price || null,
-      streamingCalculation: state.streamingCalculation || null,
+      streamingCalculation,
       streamingServices: state.streamingServices,
       streamingMonthlyCosts: state.streamingMonthlyCosts,
-      internationalTravel: state.internationalTravel || null,
+      internationalTravel,
       internationalUsage: state.internationalUsage || null,
       exactMonthlyPrice: null,
       exactMonthlyPrices,
