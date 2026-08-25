@@ -9757,3 +9757,22 @@ html body.quiz-overlay-open .quiz-modal-layer #step7 .offers-recommendation-grid
   max-height: none !important;
   overflow: visible !important;
 }
+
+html body:has(.home-intro) .hero .hero-offer-tile:has(.hero-offer-image) {
+  aspect-ratio: 3 / 2 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+  background: #03080d !important;
+  overflow: hidden !important;
+}
+
+html body:has(.home-intro) .hero .hero-offer-image {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  pointer-events: none !important;
+}

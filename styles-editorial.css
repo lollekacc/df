@@ -3765,15 +3765,23 @@ body:has(.home-intro) .gift-logo__mark {
   line-height: 1;
 }
 
-body:has(.home-intro) .gift-logo__mark--ikea { border-radius: 50%; background: #0058a3; color: #ffda1a; font-size: 11px; }
-body:has(.home-intro) .gift-logo__mark--amazon { border-radius: 8px; background: #fff; color: #111; font: 700 34px/1 Georgia, serif; }
-body:has(.home-intro) .gift-logo__mark--spotify { grid-template-rows: repeat(3, 3px); gap: 3px; padding: 13px 10px; border-radius: 50%; background: #1ed760; }
-body:has(.home-intro) .gift-logo__mark--spotify i { display: block; width: 100%; height: 2px; border-radius: 50%; background: #08130c; transform: rotate(8deg); }
-body:has(.home-intro) .gift-logo__mark--ahlens { border-radius: 50%; background: #c91832; font-family: Georgia, serif; font-size: 26px; }
-body:has(.home-intro) .gift-logo__mark--stadium { border-radius: 50%; background: #e30613; font-size: 25px; font-style: italic; }
-body:has(.home-intro) .gift-logo__mark--elgiganten { border-radius: 50%; background: #ffd600; color: #111; font-size: 24px; }
-body:has(.home-intro) .gift-logo__mark--foodora { border-radius: 12px; background: #d70f64; font-size: 24px; }
-body:has(.home-intro) .gift-logo__mark--boozt { border: 2px solid #fff; border-radius: 50%; background: #111; font-size: 22px; }
+body:has(.home-intro) .gift-logo__mark > img {
+  display: block;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+body:has(.home-intro) .gift-logo .gift-logo__mark--ikea { position: relative; isolation: isolate; border-radius: 5px; background: #0058a3; color: #0058a3; font-size: 9px; letter-spacing: -.04em; }
+body:has(.home-intro) .gift-logo .gift-logo__mark--ikea::before { position: absolute; width: 42px; height: 24px; border-radius: 50%; background: #ffda1a; content: ""; }
+body:has(.home-intro) .gift-logo .gift-logo__mark--ikea::after { position: absolute; z-index: 1; content: "IKEA"; }
+body:has(.home-intro) .gift-logo .gift-logo__mark--amazon { border-radius: 8px; background: #fff; }
+body:has(.home-intro) .gift-logo .gift-logo__mark--spotify { border-radius: 50%; background: #1ed760; color: #08130c; font-size: 31px; }
+body:has(.home-intro) .gift-logo .gift-logo__mark--ahlens { border-radius: 4px; background: #fff; }
+body:has(.home-intro) .gift-logo .gift-logo__mark--stadium { border-radius: 4px; background: #fff; }
+body:has(.home-intro) .gift-logo .gift-logo__mark--apple { border-radius: 8px; background: #fff; }
+body:has(.home-intro) .gift-logo .gift-logo__mark--foodora { border-radius: 8px; background: #d70f64; color: #fff; font-size: 7px; letter-spacing: -.05em; }
+body:has(.home-intro) .gift-logo .gift-logo__mark--boozt { border: 1px solid rgba(17, 17, 17, .15); border-radius: 4px; background: #fff; }
 
 @media (prefers-reduced-motion: reduce) {
   body:has(.home-intro) .gift-logo__face {

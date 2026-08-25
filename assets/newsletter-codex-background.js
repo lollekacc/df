@@ -36,10 +36,10 @@
 
     uniform vec2 u_resolution;
     uniform vec2 u_pointer;
-    uniform vec2 u_pulse;
+    uniform vec3 u_trail[40];
+    uniform vec4 u_clicks[10];
     uniform float u_time;
     uniform float u_velocity;
-    uniform float u_click;
     uniform float u_reduced;
 
     float hash(vec2 p) {
@@ -93,10 +93,8 @@
       vec2 aspect = vec2(u_resolution.x / max(u_resolution.y, 1.0), 1.0);
       vec2 p = (uv - 0.5) * aspect;
       vec2 pointer = (u_pointer - 0.5) * aspect;
-      vec2 pulse = (u_pulse - 0.5) * aspect;
 
       float dist = length(p - pointer);
-      float pulseDist = length(p - pulse);
       float velocity = clamp(u_velocity, 0.0, 1.0);
       float active = 1.0 - u_reduced;
 
@@ -110,19 +108,42 @@
       float fieldB = fbm(warped * 3.0 - vec2(time * 0.018, time * 0.026));
       float flow = fieldA * 0.7 + fieldB * 0.3;
 
-      float cursorGlow = exp(-dist * (3.8 - velocity * 1.2)) * active;
+      float trailDots = 0.0;
+      float trailGlow = 0.0;
+
+      for (int i = 0; i < 40; i++) {
+        vec2 trailPoint = (u_trail[i].xy - 0.5) * aspect;
+        float trailStrength = u_trail[i].z;
+        float trailDist = length(p - trailPoint);
+        trailDots += (1.0 - smoothstep(0.025, 0.2 + velocity * 0.035, trailDist))
+          * trailStrength;
+        trailGlow += exp(-trailDist * 4.2) * trailStrength * 0.12;
+      }
+
+      float cursorGlow = trailGlow * active;
 
       vec2 dotCell = fract(gl_FragCoord.xy / 12.0) - 0.5;
       float dotShape = 1.0 - smoothstep(0.08, 0.18, length(dotCell));
-      float cursorDots = (1.0 - smoothstep(0.08, 0.58, dist)) * active;
+      float cursorDots = trailDots * active;
 
-      float clickActive = step(0.0, u_click) * (1.0 - smoothstep(1.05, 1.42, u_click)) * active;
-      float waveRadius = u_click * 0.92;
-      float wave = 1.0 - smoothstep(0.035, 0.14, abs(pulseDist - waveRadius));
-      float wake = (1.0 - smoothstep(0.0, max(waveRadius, 0.001), pulseDist))
-        * (1.0 - smoothstep(0.0, 1.22, u_click))
-        * 0.52;
-      float dotField = dotShape * clamp(0.035 + cursorDots * 0.94 + (wave + wake) * clickActive, 0.0, 1.0);
+      float clickDots = 0.0;
+
+      for (int i = 0; i < 10; i++) {
+        vec2 clickPoint = (u_clicks[i].xy - 0.5) * aspect;
+        float clickAge = u_clicks[i].z;
+        float clickActive = u_clicks[i].w
+          * (1.0 - smoothstep(1.05, 1.42, clickAge))
+          * active;
+        float clickDistance = length(p - clickPoint);
+        float waveRadius = clickAge * 0.92;
+        float wave = 1.0 - smoothstep(0.035, 0.14, abs(clickDistance - waveRadius));
+        float wake = (1.0 - smoothstep(0.0, max(waveRadius, 0.001), clickDistance))
+          * (1.0 - smoothstep(0.0, 1.22, clickAge))
+          * 0.52;
+        clickDots += (wave + wake) * clickActive;
+      }
+
+      float dotField = dotShape * (cursorDots * 0.94 + clickDots);
 
       float vignette = smoothstep(0.98, 0.18, length((uv - 0.5) * vec2(1.15, 1.0)));
       float depth = smoothstep(-0.7, 0.72, warped.x - warped.y * 0.32);
@@ -194,10 +215,10 @@
   const uniforms = {
     resolution: gl.getUniformLocation(program, "u_resolution"),
     pointer: gl.getUniformLocation(program, "u_pointer"),
-    pulse: gl.getUniformLocation(program, "u_pulse"),
+    trail: gl.getUniformLocation(program, "u_trail[0]"),
+    clicks: gl.getUniformLocation(program, "u_clicks[0]"),
     time: gl.getUniformLocation(program, "u_time"),
     velocity: gl.getUniformLocation(program, "u_velocity"),
-    click: gl.getUniformLocation(program, "u_click"),
     reduced: gl.getUniformLocation(program, "u_reduced"),
   };
 
@@ -206,16 +227,20 @@
     pointerY: 0.45,
     targetX: 0.5,
     targetY: 0.45,
-    pulseX: 0.5,
-    pulseY: 0.45,
     velocity: 0,
-    click: -1,
     visible: true,
     raf: 0,
     lastX: 0,
     lastY: 0,
     lastMoveTime: performance.now(),
     lastFrameTime: performance.now(),
+    lastTrailX: 0.5,
+    lastTrailY: 0.45,
+    trailConnected: false,
+    trail: Array.from({ length: 40 }, () => ({ x: 0.5, y: 0.45, strength: 0 })),
+    trailUniform: new Float32Array(120),
+    clicks: Array.from({ length: 10 }, () => ({ x: 0.5, y: 0.45, age: -1 })),
+    clicksUniform: new Float32Array(40),
   };
 
   function resize() {
@@ -248,10 +273,44 @@
     state.lastY = state.targetY;
     state.lastMoveTime = now;
 
+    if (!state.trailConnected) {
+      state.trail.pop();
+      state.trail.unshift({ x: state.targetX, y: state.targetY, strength: 1 });
+      state.trailConnected = true;
+      state.lastTrailX = state.targetX;
+      state.lastTrailY = state.targetY;
+    } else {
+      const fromX = state.lastTrailX;
+      const fromY = state.lastTrailY;
+      const trailDistance = Math.hypot(state.targetX - fromX, state.targetY - fromY);
+      const segmentCount = Math.floor(trailDistance / 0.035);
+
+      if (segmentCount > 0) {
+        for (let index = 1; index <= segmentCount; index += 1) {
+          const progress = Math.min(1, index * 0.035 / trailDistance);
+          state.trail.pop();
+          state.trail.unshift({
+            x: fromX + (state.targetX - fromX) * progress,
+            y: fromY + (state.targetY - fromY) * progress,
+            strength: 1,
+          });
+        }
+        const coveredProgress = Math.min(1, segmentCount * 0.035 / trailDistance);
+        state.lastTrailX = fromX + (state.targetX - fromX) * coveredProgress;
+        state.lastTrailY = fromY + (state.targetY - fromY) * coveredProgress;
+      }
+
+      state.trail[0].x = state.targetX;
+      state.trail[0].y = state.targetY;
+      state.trail[0].strength = 1;
+    }
+
     if (shouldPulse) {
-      state.pulseX = state.targetX;
-      state.pulseY = state.targetY;
-      state.click = 0;
+      const availableClick = state.clicks.find(click => click.age < 0)
+        || state.clicks.reduce((oldest, click) => click.age > oldest.age ? click : oldest);
+      availableClick.x = state.targetX;
+      availableClick.y = state.targetY;
+      availableClick.age = 0;
       start();
     }
   }
@@ -266,10 +325,25 @@
     state.pointerX += (state.targetX - state.pointerX) * (0.11 + state.velocity * 0.09);
     state.pointerY += (state.targetY - state.pointerY) * (0.11 + state.velocity * 0.09);
     state.velocity *= Math.pow(0.86, dt);
-    if (state.click >= 0) {
-      state.click += dt * 0.01667;
-      if (state.click > 1.45) state.click = -1;
-    }
+    state.trail.forEach((point, index) => {
+      point.strength *= Math.pow(0.98, dt);
+      if (point.strength < 0.001) point.strength = 0;
+      const offset = index * 3;
+      state.trailUniform[offset] = point.x;
+      state.trailUniform[offset + 1] = point.y;
+      state.trailUniform[offset + 2] = point.strength;
+    });
+    state.clicks.forEach((click, index) => {
+      if (click.age >= 0) {
+        click.age += dt * 0.01667;
+        if (click.age > 1.45) click.age = -1;
+      }
+      const offset = index * 4;
+      state.clicksUniform[offset] = click.x;
+      state.clicksUniform[offset + 1] = click.y;
+      state.clicksUniform[offset + 2] = Math.max(click.age, 0);
+      state.clicksUniform[offset + 3] = click.age >= 0 ? 1 : 0;
+    });
 
     gl.useProgram(program);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -277,10 +351,10 @@
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
     gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
     gl.uniform2f(uniforms.pointer, state.pointerX, state.pointerY);
-    gl.uniform2f(uniforms.pulse, state.pulseX, state.pulseY);
+    gl.uniform3fv(uniforms.trail, state.trailUniform);
+    gl.uniform4fv(uniforms.clicks, state.clicksUniform);
     gl.uniform1f(uniforms.time, now * 0.001);
     gl.uniform1f(uniforms.velocity, reduced ? 0 : state.velocity);
-    gl.uniform1f(uniforms.click, reduced ? -1 : state.click);
     gl.uniform1f(uniforms.reduced, reduced);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -327,6 +401,10 @@
     setPointer(event.clientX, event.clientY, true);
   }, { passive: true });
 
+  panel.addEventListener("pointerleave", () => {
+    state.trailConnected = false;
+  }, { passive: true });
+
   panel.addEventListener("touchmove", event => {
     if (prefersReducedMotion.matches || !event.touches.length) return;
     const touch = event.touches[0];
@@ -334,9 +412,22 @@
     start();
   }, { passive: true });
 
+  panel.addEventListener("touchend", () => {
+    state.trailConnected = false;
+  }, { passive: true });
+
+  panel.addEventListener("touchcancel", () => {
+    state.trailConnected = false;
+  }, { passive: true });
+
   prefersReducedMotion.addEventListener?.("change", () => {
     state.velocity = 0;
-    state.click = -1;
+    state.trail.forEach(point => {
+      point.strength = 0;
+    });
+    state.clicks.forEach(click => {
+      click.age = -1;
+    });
     start();
   });
 

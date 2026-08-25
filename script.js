@@ -52,7 +52,6 @@
     'BankID',
     'Dealett',
     'Disney+',
-    'Elgiganten',
     'Facebook',
     'Foodora',
     'Google',
