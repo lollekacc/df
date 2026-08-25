@@ -1367,6 +1367,7 @@
         open: 'Öppna Dealett assistant',
         close: 'Stäng chatten',
         title: 'Dealett AI',
+        reset: 'Starta ny chatt',
         status: 'Online',
         placeholder: 'Skriv din fråga...',
         send: 'Skicka',
@@ -1383,6 +1384,7 @@
         open: 'Open Dealett assistant',
         close: 'Close chat',
         title: 'Dealett AI',
+        reset: 'Start new chat',
         status: 'Online',
         placeholder: 'Write your question...',
         send: 'Send',
@@ -1401,10 +1403,13 @@
     let chatLanguage = getChatLanguage();
     let text = copy[chatLanguage] || copy.sv;
     const messages = [];
-    const qualificationKey = 'dealettChatQualification';
-    const offerCalculationKey = 'dealettChatOfferCalculation';
+    const conversationKey = 'dealettChatConversationV2';
+    const legacyConversationKey = 'dealettChatConversationV1';
+    const legacyQualificationKey = 'dealettChatQualification';
+    const legacyOfferCalculationKey = 'dealettChatOfferCalculation';
     const chatSessionKey = 'dealettChatSessionId';
     const autoOpenKey = 'dealettChatAutoOpenedV2';
+    const conversationTtlMs = 60 * 60 * 1000;
     let isSending = false;
     let typingIndicator = null;
     let lastAssistantResponse = null;
@@ -1425,7 +1430,7 @@
       `<div class="dealett-chat-panel" role="dialog" aria-modal="false" aria-label="${text.title}" hidden>`,
       '  <header class="dealett-chat-header">',
       `    <span class="dealett-chat-status-accessible" data-chat-status aria-live="polite">${text.status}</span>`,
-      '    <button class="dealett-chat-reset" type="button" aria-label="Starta om chatten"><i class="fa-solid fa-rotate-left"></i></button>',
+      `    <button class="dealett-chat-reset" type="button" aria-label="${text.reset}" title="${text.reset}"><i class="fa-solid fa-rotate-left"></i></button>`,
       `    <button class="dealett-chat-close" type="button" aria-label="${text.close}"><i class="fa-solid fa-xmark"></i></button>`,
       '  </header>',
       '  <div class="dealett-chat-messages" role="log" aria-live="polite"></div>',
@@ -1472,10 +1477,48 @@
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
 
-    const getChatTimeLabel = () => new Intl.DateTimeFormat(chatLanguage, {
+    const getChatTimeLabel = (timestamp = Date.now()) => new Intl.DateTimeFormat(chatLanguage, {
       hour: '2-digit',
       minute: '2-digit',
-    }).format(new Date());
+    }).format(new Date(timestamp));
+
+    const clearStoredConversation = () => {
+      try {
+        sessionStorage.removeItem(conversationKey);
+        sessionStorage.removeItem(legacyConversationKey);
+        sessionStorage.removeItem(legacyQualificationKey);
+        sessionStorage.removeItem(legacyOfferCalculationKey);
+        sessionStorage.removeItem(chatSessionKey);
+      } catch {
+        // Keep chat usable if session storage is unavailable.
+      }
+    };
+
+    const readStoredConversation = () => {
+      try {
+        const raw = sessionStorage.getItem(conversationKey);
+        if (!raw) {
+          sessionStorage.removeItem(legacyConversationKey);
+          sessionStorage.removeItem(legacyQualificationKey);
+          sessionStorage.removeItem(legacyOfferCalculationKey);
+          sessionStorage.removeItem(chatSessionKey);
+          return null;
+        }
+
+        const stored = JSON.parse(raw);
+        const updatedAt = Number(stored?.updatedAt);
+        if (!updatedAt || Date.now() - updatedAt >= conversationTtlMs) {
+          clearStoredConversation();
+          return null;
+        }
+        return stored;
+      } catch {
+        clearStoredConversation();
+        return null;
+      }
+    };
+
+    let storedConversation = readStoredConversation();
 
     const createChatSessionId = () => [
       'dealett-chat',
@@ -1493,6 +1536,7 @@
     };
 
     const readChatSessionId = () => {
+      if (storedConversation?.sessionId) return storedConversation.sessionId;
       try {
         const stored = sessionStorage.getItem(chatSessionKey);
         if (stored) return stored;
@@ -1503,6 +1547,32 @@
     };
 
     let chatSessionId = readChatSessionId();
+
+    const persistConversation = (updates = {}) => {
+      storedConversation = {
+        version: 1,
+        sessionId: chatSessionId,
+        updatedAt: Date.now(),
+        messages: messages.slice(-10),
+        qualification: updates.qualification !== undefined
+          ? updates.qualification
+          : (storedConversation?.qualification || null),
+        offerCalculation: updates.offerCalculation !== undefined
+          ? updates.offerCalculation
+          : (storedConversation?.offerCalculation || null),
+      };
+
+      try {
+        sessionStorage.setItem(conversationKey, JSON.stringify(storedConversation));
+        sessionStorage.setItem(chatSessionKey, chatSessionId);
+      } catch {
+        // The in-memory conversation remains available for this page view.
+      }
+    };
+
+    const isConversationExpired = () => Boolean(
+      storedConversation?.updatedAt && Date.now() - storedConversation.updatedAt >= conversationTtlMs
+    );
 
     const readCartContext = () => {
       try {
@@ -1532,35 +1602,32 @@
       exactMonthlyPrice: null,
       exactMonthlyPrices: [],
       readyForOffer: false,
-      missingFields: ['peopleCount', 'operators', 'bindingEnds', 'mobileUsage', 'priceRange'],
+      missingFields: [
+        'peopleCount', 'operators', 'bindingEnds', 'mobileUsage', 'priceRange',
+        'streamingCalculation', 'internationalTravel',
+      ],
     });
 
     const readQualification = () => {
-      try {
-        const raw = sessionStorage.getItem(qualificationKey);
-        return raw ? { ...createEmptyQualification(), ...JSON.parse(raw) } : createEmptyQualification();
-      } catch {
-        return createEmptyQualification();
-      }
+      const qualification = storedConversation?.qualification;
+      return qualification
+        ? { ...createEmptyQualification(), ...qualification }
+        : createEmptyQualification();
     };
 
     const writeQualification = (qualification) => {
       if (!qualification || typeof qualification !== 'object') return;
 
-      try {
-        sessionStorage.setItem(qualificationKey, JSON.stringify({
-          ...createEmptyQualification(),
-          ...qualification,
-        }));
-      } catch {
-        // Keep chat usable if session storage is unavailable.
-      }
+      const nextQualification = {
+        ...createEmptyQualification(),
+        ...qualification,
+      };
+      persistConversation({ qualification: nextQualification });
 
       document.dispatchEvent(new CustomEvent('dealett:chat-qualification-updated', {
         detail: {
           qualification: {
-            ...createEmptyQualification(),
-            ...qualification,
+            ...nextQualification,
           },
         },
       }));
@@ -1569,27 +1636,12 @@
     const writeOfferCalculation = (offerCalculation) => {
       if (!offerCalculation || typeof offerCalculation !== 'object') return;
 
-      try {
-        sessionStorage.setItem(offerCalculationKey, JSON.stringify(offerCalculation));
-      } catch {
-        // Keep chat usable if session storage is unavailable.
-      }
+      persistConversation({ offerCalculation });
     };
 
     const getQuizContext = () => {
       if (ignoreQuizContext) return null;
-      if (activeQuizContext?.quizHandoff === true) return activeQuizContext;
-      const liveContext = window.DealettQuiz?.getChatContext?.() || null;
-      if (!liveContext) return null;
-      return {
-        quizHandoff: false,
-        quizAnswersStatus: 'unconfirmed',
-        source: liveContext.source || 'homepage_mobile_quiz',
-        currentStage: liveContext.currentStage || null,
-        currentStep: liveContext.currentStep ?? null,
-        answers: liveContext.answers || {},
-        historicalQuizQualification: liveContext.qualification || null,
-      };
+      return activeQuizContext?.quizHandoff === true ? activeQuizContext : null;
     };
 
     const syncLanguage = (event) => {
@@ -1601,6 +1653,8 @@
       toggle.setAttribute('aria-label', text.open);
       panel.setAttribute('aria-label', text.title);
       closeButton.setAttribute('aria-label', text.close);
+      resetButton.setAttribute('aria-label', text.reset);
+      resetButton.setAttribute('title', text.reset);
       root.querySelector('.dealett-chat-send')?.setAttribute('aria-label', text.send);
 
       if (
@@ -1608,12 +1662,7 @@
         previousLanguage !== chatLanguage &&
         messages.length
       ) {
-        messages.splice(0, messages.length);
-        messageList.replaceChildren();
-        suggestionArea.replaceChildren();
-        lastAssistantResponse = null;
-        hasUserStartedChat = false;
-        if (!panel.hidden) loadInitialGreeting();
+        resetChatConversation({ greet: !panel.hidden });
       }
     };
 
@@ -1808,6 +1857,7 @@
     };
 
     const addMessage = (role, content, options = {}) => {
+      const timestamp = options.timestamp || new Date().toISOString();
       const item = document.createElement('article');
       item.className = `dealett-chat-message dealett-chat-message--${role}`;
       if (options.greeting) item.classList.add('dealett-chat-message--greeting');
@@ -1824,7 +1874,7 @@
       item.innerHTML = [
         '<div class="dealett-chat-bubble">',
         contentMarkup,
-        `  <time class="dealett-chat-time">${escapeChatText(getChatTimeLabel())}</time>`,
+        `  <time class="dealett-chat-time">${escapeChatText(getChatTimeLabel(timestamp))}</time>`,
         isUser ? '  <span class="dealett-chat-check" aria-hidden="true"></span>' : '',
         '</div>',
         isUser ? '<span class="dealett-chat-avatar dealett-chat-avatar--user" aria-hidden="true"></span>' : '',
@@ -1835,8 +1885,15 @@
         messageList.append(item);
       }
       if (options.persist !== false) {
-        messages.push({ role, content });
+        messages.push({
+          role,
+          content,
+          timestamp,
+          greeting: options.greeting === true,
+          contentLanguage: options.contentLanguage || null,
+        });
         if (messages.length > 10) messages.splice(0, messages.length - 10);
+        persistConversation();
       }
       scrollMessages();
       return item;
@@ -1943,8 +2000,15 @@
         return;
       }
       if (!nextMessage.options?.silent) {
-        messages.push({ role: 'user', content: nextMessage.message });
+        messages.push({
+          role: 'user',
+          content: nextMessage.message,
+          timestamp: new Date().toISOString(),
+          greeting: false,
+          contentLanguage: null,
+        });
         if (messages.length > 10) messages.splice(0, messages.length - 10);
+        persistConversation();
       }
       void processMessage(nextMessage.message, nextMessage.options);
     };
@@ -1957,12 +2021,67 @@
       continuePendingMessage();
     };
 
+    const restoreStoredMessages = () => {
+      const storedMessages = Array.isArray(storedConversation?.messages)
+        ? storedConversation.messages.slice(-10)
+        : [];
+
+      storedMessages.forEach((storedMessage) => {
+        const role = storedMessage?.role === 'assistant' ? 'assistant' : 'user';
+        const content = String(storedMessage?.content || '').trim();
+        if (!content) return;
+
+        const restoredMessage = {
+          role,
+          content,
+          timestamp: storedMessage.timestamp || null,
+          greeting: storedMessage.greeting === true,
+          contentLanguage: storedMessage.contentLanguage || null,
+        };
+        messages.push(restoredMessage);
+        addMessage(role, content, {
+          persist: false,
+          timestamp: restoredMessage.timestamp,
+          greeting: restoredMessage.greeting,
+          contentLanguage: restoredMessage.contentLanguage || chatLanguage,
+          paragraphs: restoredMessage.greeting ? content.split('\n\n') : undefined,
+        });
+      });
+
+      hasUserStartedChat = messages.some((message) => message.role === 'user');
+      const lastAssistantMessage = [...messages].reverse()
+        .find((message) => message.role === 'assistant');
+      if (lastAssistantMessage) {
+        lastAssistantResponse = {
+          reply: lastAssistantMessage.content,
+          source: 'restored-conversation',
+        };
+      }
+    };
+
+    restoreStoredMessages();
+
     const renderChatOfferCards = (messageItem, offerCards) => {
       if (!messageItem || !Array.isArray(offerCards) || !offerCards.length) return;
 
       const wrap = document.createElement('div');
       wrap.className = 'dealett-chat-offers';
       offerCards.slice(0, 3).forEach((card, index) => {
+        const normalizeDataBenefit = value => String(value || '')
+          .trim()
+          .toLocaleLowerCase('sv')
+          .replace(/\s+(surf|data)$/, '');
+        const dataLabel = normalizeDataBenefit(card.dataLabel);
+        const benefits = (Array.isArray(card.benefits) ? card.benefits : [])
+          .map(benefit => String(benefit || '').trim())
+          .filter(benefit => benefit && normalizeDataBenefit(benefit) !== dataLabel);
+        const roamingBenefitIndex = benefits.findIndex(benefit => /^Data och lokala samtal utanför EU$/i.test(benefit));
+        const countryBenefitIndex = benefits.findIndex(benefit => /^Gäller i upp till\s+(\d+)\s+länder$/i.test(benefit));
+        if (roamingBenefitIndex !== -1 && countryBenefitIndex !== -1) {
+          const countryCount = benefits[countryBenefitIndex].match(/\d+/)?.[0];
+          benefits[roamingBenefitIndex] = `Data och lokala samtal utanför EU i ${countryCount} länder`;
+          benefits.splice(countryBenefitIndex, 1);
+        }
         const providerClass = getProviderClass(card.operator);
         const logo = getOperatorLogo(card.operator);
         const safeCtaUrl = getSafeChatUrl(card.ctaUrl);
@@ -1976,21 +2095,18 @@
         article.innerHTML = [
           '<div class="offer-card__accent"></div>',
           '<div class="offer-card__inner">',
-          `  <span class="offer-card__label">${escapeChatText(card.resultLabel)}</span>`,
           logo ? [
             '  <div class="offer-card__head">',
             `    <img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ''}" />`,
             `    <span class="offer-card__gift-badge"><span>${escapeChatText(card.rewardLabel)}</span></span>`,
             '  </div>',
           ].join('') : '',
-          `  <h4 class="dealett-chat-offer-title">${escapeChatText(card.operator)} ${escapeChatText(card.planName)}</h4>`,
           '  <div class="offer-card__stats">',
           card.dataLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-wifi"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.dataTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.dataLabel)}</p></div></div>` : '',
-          card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.monthlyPriceTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p></div></div>` : '',
+          card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.monthlyPriceTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p>${card.monthlyPriceSubLabel ? `<p class="offer-card__stat-sub">${escapeChatText(card.monthlyPriceSubLabel)}</p>` : ''}</div></div>` : '',
           card.bindingLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-file-signature"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.bindingTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.bindingLabel)}</p></div></div>` : '',
           '  </div>',
-          card.reason ? `  <p class="dealett-chat-offer-note">${escapeChatText(card.reason)}</p>` : '',
-          Array.isArray(card.benefits) && card.benefits.length ? `  <ul class="dealett-chat-offer-benefits">${card.benefits.map(benefit => `<li>${escapeChatText(benefit)}</li>`).join('')}</ul>` : '',
+          benefits.length ? `  <ul class="dealett-chat-offer-benefits">${benefits.map(benefit => `<li>${escapeChatText(benefit)}</li>`).join('')}</ul>` : '',
           safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel)} <i class="fa-solid fa-cart-shopping"></i></button>` : '',
           '</div>',
         ].join('');
@@ -2097,9 +2213,30 @@
       }
     };
 
+    const resetChatConversation = ({ greet = true } = {}) => {
+      clearStoredConversation();
+      storedConversation = null;
+      chatSessionId = persistChatSessionId(createChatSessionId());
+      lastAssistantResponse = null;
+      renderedOfferIds.clear();
+      offerClickedInSession = false;
+      hasUserStartedChat = false;
+      activeQuizContext = null;
+      ignoreQuizContext = true;
+      pendingMessages.splice(0, pendingMessages.length);
+      messages.splice(0, messages.length);
+      messageList.replaceChildren();
+      suggestionArea.replaceChildren();
+      if (greet) loadInitialGreeting();
+    };
+
     const sendMessage = (rawMessage, options = {}) => {
       const message = String(rawMessage || '').trim();
       if (!message && !options.silent) return;
+
+      if (isConversationExpired()) {
+        resetChatConversation({ greet: false });
+      }
 
       hasUserStartedChat = true;
       suggestionArea.replaceChildren();
@@ -2118,6 +2255,9 @@
     };
 
     const openPanel = (options = {}) => {
+      if (isConversationExpired()) {
+        resetChatConversation({ greet: false });
+      }
       syncLanguage();
       markAutoOpenHandled();
       panel.hidden = false;
@@ -2179,19 +2319,7 @@
     closeButton.addEventListener('click', closePanel);
 
     resetButton.addEventListener('click', () => {
-      sessionStorage.removeItem(qualificationKey);
-      sessionStorage.removeItem(offerCalculationKey);
-      chatSessionId = persistChatSessionId(createChatSessionId());
-      lastAssistantResponse = null;
-      renderedOfferIds.clear();
-      offerClickedInSession = false;
-      hasUserStartedChat = false;
-      activeQuizContext = null;
-      ignoreQuizContext = true;
-      pendingMessages.splice(0, pendingMessages.length);
-      messages.splice(0, messages.length);
-      messageList.replaceChildren();
-      loadInitialGreeting();
+      resetChatConversation();
     });
 
     form.addEventListener('submit', (event) => {

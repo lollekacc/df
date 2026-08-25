@@ -247,13 +247,6 @@ html body #dealettChat .dealett-chat-offer-card .offer-card__inner {
   padding: 7px !important;
 }
 
-html body #dealettChat .dealett-chat-offer-card .offer-card__label {
-  min-height: 18px !important;
-  padding: 0 6px !important;
-  font-size: 8px !important;
-  line-height: 1.1 !important;
-}
-
 html body #dealettChat .dealett-chat-offer-card .offer-card__head {
   min-height: 48px !important;
   margin-top: 5px !important;
@@ -282,12 +275,6 @@ html body #dealettChat .dealett-chat-offer-card .offer-card__gift-badge span {
   padding: 2px !important;
   font-size: 6px !important;
   line-height: 1.05 !important;
-}
-
-html body #dealettChat .dealett-chat-offer-title {
-  margin-top: 6px !important;
-  font-size: 11px !important;
-  line-height: 1.2 !important;
 }
 
 html body #dealettChat .dealett-chat-offer-card .offer-card__stats {
@@ -326,10 +313,13 @@ html body #dealettChat .dealett-chat-offer-card .offer-card__stat-value {
   white-space: normal !important;
 }
 
-html body #dealettChat .dealett-chat-offer-note {
-  margin-top: 6px !important;
-  font-size: 9px !important;
-  line-height: 1.25 !important;
+html body #dealettChat .dealett-chat-offer-card .offer-card__stat-sub {
+  display: block !important;
+  margin-top: 2px !important;
+  color: rgba(39, 36, 67, .62) !important;
+  font-size: 7px !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
 }
 
 html body #dealettChat .dealett-chat-offer-benefits {

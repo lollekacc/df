@@ -1701,6 +1701,14 @@ function createIndexQuiz() {
     if (!peopleCount || bindingEnds.length < peopleCount) missingFields.push("bindingEnds");
     if (!state.data) missingFields.push("mobileUsage");
     if (!state.price) missingFields.push("priceRange");
+    if (!state.streamingCalculation) missingFields.push("streamingCalculation");
+    if (state.streamingCalculation === "include" && !state.streamingServices.length) {
+      missingFields.push("streamingServices");
+    }
+    if (!state.internationalTravel) missingFields.push("internationalTravel");
+    if (state.internationalTravel === "outside_eu" && !state.internationalUsage) {
+      missingFields.push("internationalUsage");
+    }
 
     return {
       peopleCount,
