@@ -54,6 +54,24 @@ html::-webkit-scrollbar {
   display: none;
 }
 
+body.dealett-smooth-scroll {
+  height: var(--dealett-smooth-height);
+}
+
+.dealett-smooth-wrapper {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.dealett-smooth-content {
+  width: 100%;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
 html[data-translation-boot="pending"] body {
   visibility: hidden;
 }

@@ -2216,11 +2216,6 @@
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const revealSelectors = [
-      '.hero .hero-eyebrow',
-      '.hero h1',
-      '.hero .hero-lead',
-      '.hero .hero-actions',
-      '.hero .hero-proof',
       '.home-marquee__group',
       '.home-intro__head',
       '.home-service-card',
@@ -2397,6 +2392,131 @@
     initTranslations();
   };
 
+  const initLuxuryScroll = () => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = window.matchMedia('(any-hover: hover) and (any-pointer: fine)');
+    const main = document.querySelector('body > main');
+    if (!main) return;
+
+    const initialPageHeight = document.documentElement.scrollHeight;
+    document.documentElement.style.setProperty('--dealett-smooth-height', `${initialPageHeight}px`);
+    document.documentElement.style.scrollBehavior = 'auto';
+    document.body.style.scrollBehavior = 'auto';
+    document.body.classList.add('dealett-smooth-scroll');
+
+    const wrapper = document.createElement('div');
+    const content = document.createElement('div');
+    wrapper.className = 'dealett-smooth-wrapper';
+    content.className = 'dealett-smooth-content';
+    wrapper.setAttribute('aria-hidden', 'true');
+    main.before(wrapper);
+    wrapper.append(content);
+    content.append(main);
+
+    const footer = document.querySelector('body > .footer');
+    if (footer) content.append(footer);
+
+    const header = document.querySelector('body > .site-header');
+    const syncHeaderPlacement = () => {
+      if (!header) return;
+      const shouldStayFixed = window.getComputedStyle(header).position === 'fixed';
+      if (shouldStayFixed && content.contains(header)) wrapper.before(header);
+      if (!shouldStayFixed && !content.contains(header)) content.prepend(header);
+    };
+
+    syncHeaderPlacement();
+
+    wrapper.removeAttribute('aria-hidden');
+
+    let renderedY = window.scrollY;
+    let targetY = renderedY;
+    let lastFrameTime = 0;
+    let lastInputTime = 0;
+    let animationFrame = 0;
+    let resizeFrame = 0;
+
+    const getDuration = () => {
+      if (reducedMotion.matches) return 0;
+      return finePointer.matches ? 1500 : 100;
+    };
+
+    const render = (position) => {
+      renderedY = position;
+      content.style.transform = `translate3d(0, ${(-position).toFixed(3)}px, 0)`;
+      document.documentElement.style.setProperty('--dealett-smooth-y', `${position.toFixed(3)}px`);
+    };
+
+    const animateScroll = (time) => {
+      const duration = getDuration();
+      if (!duration || time - lastInputTime >= duration) {
+        render(targetY);
+        animationFrame = 0;
+        return;
+      }
+
+      const elapsed = Math.max(0, time - lastFrameTime);
+      const decay = Math.exp((-10 * Math.LN2 * elapsed) / duration);
+      lastFrameTime = time;
+      render(targetY + ((renderedY - targetY) * decay));
+
+      if (Math.abs(targetY - renderedY) > 0.01) {
+        animationFrame = window.requestAnimationFrame(animateScroll);
+      } else {
+        render(targetY);
+        animationFrame = 0;
+      }
+    };
+
+    const moveToNativeScroll = () => {
+      targetY = window.scrollY;
+      lastInputTime = window.performance.now();
+
+      if (!getDuration()) {
+        if (animationFrame) window.cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+        render(targetY);
+        return;
+      }
+
+      if (!animationFrame) {
+        lastFrameTime = lastInputTime;
+        animationFrame = window.requestAnimationFrame(animateScroll);
+      }
+    };
+
+    const updatePageHeight = () => {
+      resizeFrame = 0;
+      syncHeaderPlacement();
+      document.documentElement.style.setProperty(
+        '--dealett-smooth-height',
+        `${Math.ceil(content.scrollHeight)}px`
+      );
+      targetY = Math.min(targetY, Math.max(0, content.scrollHeight - window.innerHeight));
+      renderedY = Math.min(renderedY, targetY);
+      render(renderedY);
+    };
+
+    const requestHeightUpdate = () => {
+      if (resizeFrame) return;
+      resizeFrame = window.requestAnimationFrame(updatePageHeight);
+    };
+
+    render(renderedY);
+    updatePageHeight();
+    window.addEventListener('scroll', moveToNativeScroll, { passive: true });
+    window.addEventListener('resize', requestHeightUpdate);
+    window.addEventListener('load', requestHeightUpdate, { once: true });
+    reducedMotion.addEventListener('change', moveToNativeScroll);
+    finePointer.addEventListener('change', moveToNativeScroll);
+
+    if ('ResizeObserver' in window) {
+      const resizeObserver = new ResizeObserver(requestHeightUpdate);
+      resizeObserver.observe(content);
+    }
+
+    document.fonts?.ready.then(requestHeightUpdate);
+  };
+
   window.addEventListener('storage', (event) => {
     if (event.key === 'dealettCart') {
       updateCartCount();
@@ -2407,5 +2527,8 @@
 
   initHomePremiumMotion();
   initMobilePlansPremiumMotion();
-  window.DEALETT_includesReady = includePartials().finally(initGlobalBehaviors);
+  window.DEALETT_includesReady = includePartials().finally(() => {
+    initGlobalBehaviors();
+    initLuxuryScroll();
+  });
 })();

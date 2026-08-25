@@ -1,0 +1,64 @@
+/* Homepage hero entrance sequence: eyebrow, main copy, then offer cards. */
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-eyebrow,
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-eyebrow.home-reveal {
+  --home-hero-copy-x: -86px;
+  filter: none;
+  animation: home-hero-copy-in .42s 0s cubic-bezier(.16, 1, .3, 1) both !important;
+  transition: none !important;
+}
+
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) h1,
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) h1.home-reveal,
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-lead,
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-lead.home-reveal,
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof,
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof.home-reveal,
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof-mobile,
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof-mobile.home-reveal {
+  --home-hero-copy-x: -86px;
+  filter: none;
+  animation: home-hero-copy-in .42s .5s cubic-bezier(.16, 1, .3, 1) both !important;
+  transition: none !important;
+}
+
+/* Prevent the labels inside the synchronized proof group from animating separately. */
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-bottom-actions strong,
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-bottom-actions span {
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-showcase {
+  filter: none;
+  animation: home-hero-offers-in .52s 1s cubic-bezier(.16, 1, .3, 1) both !important;
+  transition: none !important;
+}
+
+@keyframes home-hero-offers-in {
+  from {
+    opacity: 0;
+    transform: translate3d(110px, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-eyebrow,
+  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) h1,
+  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-lead,
+  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof,
+  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof-mobile,
+  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-showcase {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    animation: none !important;
+    transition: none !important;
+  }
+}

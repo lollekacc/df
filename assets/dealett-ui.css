@@ -1298,7 +1298,6 @@ html body:has(.home-intro) .hero-proof {
   justify-content: flex-end !important;
   width: 100% !important;
   max-width: 100% !important;
-  transform: none !important;
 }
 
 html body .hero-bottom h1 em,
@@ -2277,7 +2276,6 @@ html body:has(.home-intro) .hero > .home-marquee .home-marquee__group {
   gap: 18px !important;
   padding: 0 16px !important;
   animation: none !important;
-  transform: none !important;
 }
 
 @media (max-height: 760px) and (min-width: 901px) {
@@ -3280,7 +3278,6 @@ html body:has(.home-intro) .hero-showcase {
     width: 100% !important;
     max-width: 100% !important;
     gap: 10px !important;
-    transform: none !important;
   }
 
   html body:has(.home-intro) .hero-bottom-actions .hero-proof > strong {
@@ -3774,7 +3771,6 @@ html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-bottom-actions > .hero
   html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-bottom-actions > .hero-proof-mobile {
     justify-self: start !important;
     place-self: start !important;
-    transform: none !important;
   }
 }
 
