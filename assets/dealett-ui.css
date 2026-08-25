@@ -9503,6 +9503,236 @@ html body #dealettChat .dealett-chat-send:hover {
   }
 }
 
+/* Shared footer layout */
+html body .footer {
+  padding: 0 !important;
+  border-top: 3px solid var(--dui-accent) !important;
+  background: var(--dui-bg-deep) !important;
+}
+
+html body .footer .footer-inner {
+  width: var(--dui-shell) !important;
+  max-width: 1480px !important;
+  padding: clamp(56px, 6vw, 88px) 0 clamp(76px, 7vw, 100px) !important;
+  overflow: visible !important;
+}
+
+html body .footer .footer-main {
+  display: grid !important;
+  grid-template-columns: minmax(220px, .8fr) minmax(520px, 1.7fr) minmax(190px, .65fr) !important;
+  gap: clamp(40px, 6vw, 96px) !important;
+  align-items: start !important;
+}
+
+html body .footer .footer-brand,
+html body .footer .footer-contact,
+html body .footer .footer-links > div {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+html body .footer .footer-brand {
+  gap: 14px !important;
+}
+
+html body .footer .footer-brand-link {
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font: 650 clamp(44px, 4.5vw, 68px)/.95 var(--dui-font-heading) !important;
+  letter-spacing: -.055em !important;
+}
+
+html body .footer .footer-brand p {
+  max-width: 210px !important;
+  margin: 0 !important;
+  color: rgba(255, 255, 255, .58) !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+}
+
+html body .footer .footer-links {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: clamp(24px, 3vw, 48px) !important;
+}
+
+html body .footer .footer-links > div,
+html body .footer .footer-contact {
+  gap: 11px !important;
+}
+
+html body .footer .footer-links p,
+html body .footer .footer-contact .footer-contact-title {
+  margin: 0 0 8px !important;
+  color: #fff !important;
+  font-family: var(--dui-font-body) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+}
+
+html body .footer .footer-links a,
+html body .footer .footer-contact a,
+html body .footer .footer-contact p:not(.footer-contact-title) {
+  margin: 0 !important;
+  color: rgba(255, 255, 255, .66) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.45 !important;
+  text-decoration: none !important;
+  transition: color var(--dui-fast) !important;
+}
+
+html body .footer .footer-links a:hover,
+html body .footer .footer-contact a:hover {
+  color: #fff !important;
+}
+
+html body .footer .footer-links a:focus-visible,
+html body .footer .footer-contact a:focus-visible,
+html body .footer .footer-social-plate:focus-visible,
+html body .footer .footer-brand-link:focus-visible {
+  outline: 2px solid var(--dui-accent) !important;
+  outline-offset: 4px !important;
+}
+
+html body .footer .footer-bottom {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  gap: 24px !important;
+  align-items: center !important;
+  margin-top: clamp(46px, 6vw, 76px) !important;
+  padding-top: 24px !important;
+  border-top: 1px solid rgba(255, 255, 255, .12) !important;
+}
+
+html body .footer .footer-bottom-label,
+html body .footer .footer-copyright {
+  margin: 0 !important;
+  color: rgba(255, 255, 255, .48) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+}
+
+html body .footer .footer-social-grid {
+  display: flex !important;
+  grid-column: auto !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+}
+
+html body .footer .footer-social-plate {
+  display: inline-flex !important;
+  width: auto !important;
+  min-height: 40px !important;
+  padding: 0 14px 0 0 !important;
+  overflow: visible !important;
+  border: 1px solid rgba(255, 255, 255, .12) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, .04) !important;
+  clip-path: none !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  transition: border-color var(--dui-fast), background var(--dui-fast), transform var(--dui-fast) !important;
+}
+
+html body .footer .footer-social-plate:hover {
+  border-color: rgba(200, 121, 43, .7) !important;
+  background: rgba(200, 121, 43, .12) !important;
+  filter: none !important;
+  transform: translateY(-2px) !important;
+}
+
+html body .footer .footer-social-plate::before,
+html body .footer .footer-social-plate::after,
+html body .footer .footer-social-icon::after {
+  display: none !important;
+}
+
+html body .footer .footer-social-icon {
+  display: grid !important;
+  place-items: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--dui-accent) !important;
+  font-size: 15px !important;
+  text-shadow: none !important;
+}
+
+html body .footer .footer-social-copy {
+  display: block !important;
+  min-width: 0 !important;
+  text-transform: none !important;
+}
+
+html body .footer .footer-social-copy strong {
+  color: rgba(255, 255, 255, .78) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+@media (max-width: 1100px) {
+  html body .footer .footer-main {
+    grid-template-columns: minmax(180px, .7fr) minmax(0, 1.8fr) !important;
+  }
+
+  html body .footer .footer-contact {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .footer .footer-inner {
+    padding-top: 48px !important;
+    padding-bottom: 96px !important;
+  }
+
+  html body .footer .footer-main,
+  html body .footer .footer-links {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .footer .footer-main {
+    gap: 42px !important;
+  }
+
+  html body .footer .footer-links {
+    gap: 34px !important;
+  }
+
+  html body .footer .footer-contact {
+    grid-column: auto !important;
+  }
+
+  html body .footer .footer-bottom {
+    grid-template-columns: 1fr auto !important;
+    align-items: start !important;
+    margin-top: 48px !important;
+  }
+
+  html body .footer .footer-social-grid {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    flex-wrap: wrap !important;
+  }
+
+  html body .footer .footer-copyright {
+    justify-self: end !important;
+  }
+}
+
 /* Allow every active quiz stage to reveal tall content instead of clipping it. */
 html body:not(.quiz-overlay-open) .hero.quiz-in-hero,
 html body:not(.quiz-overlay-open) .hero.quiz-in-hero .hero-quiz-mount,
