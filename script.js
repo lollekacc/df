@@ -1890,9 +1890,16 @@
     const renderStreamingPriceWidget = (messageItem, widget) => {
       if (!messageItem || widget?.type !== 'streaming_prices' || !Array.isArray(widget.services)) return;
 
+      const serviceLogos = {
+        netflix: 'images/streaming/netflix.svg',
+        hbo: 'images/streaming/hbo-max.svg',
+        disney: 'images/streaming/disney-plus.svg',
+      };
+
       const formElement = document.createElement('form');
       formElement.className = 'dealett-chat-streaming-widget';
       formElement.setAttribute('data-chat-streaming-widget', '');
+      formElement.noValidate = true;
 
       const serviceList = document.createElement('div');
       serviceList.className = 'dealett-chat-streaming-services';
@@ -1905,23 +1912,27 @@
         const row = document.createElement('div');
         row.className = 'dealett-chat-streaming-service';
         row.dataset.streamingService = serviceId;
+        row.dataset.streamingLabel = serviceLabel;
 
         const toggleButton = document.createElement('button');
         toggleButton.type = 'button';
         toggleButton.className = 'dealett-chat-streaming-toggle';
         toggleButton.setAttribute('aria-pressed', 'false');
-        toggleButton.setAttribute('aria-expanded', 'false');
-        toggleButton.innerHTML = [
-          `<span>${escapeChatText(serviceLabel)}</span>`,
-          '<i class="fa-solid fa-check" aria-hidden="true"></i>',
-        ].join('');
+        toggleButton.setAttribute('aria-label', serviceLabel);
+        const serviceLogo = document.createElement('img');
+        serviceLogo.className = 'dealett-chat-streaming-logo';
+        serviceLogo.src = serviceLogos[serviceId] || '';
+        serviceLogo.alt = '';
+        serviceLogo.setAttribute('aria-hidden', 'true');
+        const selectedIcon = document.createElement('i');
+        selectedIcon.className = 'fa-solid fa-check';
+        selectedIcon.setAttribute('aria-hidden', 'true');
+        toggleButton.append(serviceLogo, selectedIcon);
 
         const pricePanel = document.createElement('div');
         pricePanel.className = 'dealett-chat-streaming-price-panel';
-        pricePanel.setAttribute('aria-hidden', 'true');
         const priceLabel = document.createElement('label');
         priceLabel.className = 'dealett-chat-streaming-price-label';
-        priceLabel.innerHTML = `<span>${escapeChatText(service.priceLabel)}</span>`;
         const priceInput = document.createElement('input');
         priceInput.className = 'dealett-chat-streaming-price-input';
         priceInput.type = 'number';
@@ -1952,19 +1963,43 @@
       submitButton.disabled = true;
 
       const selectedRows = () => [...serviceList.querySelectorAll('.dealett-chat-streaming-service.is-selected')];
+      const readPrice = (row) => {
+        const input = row.querySelector('.dealett-chat-streaming-price-input');
+        const amount = Number(input?.value);
+        return input?.value.trim() && Number.isInteger(amount) && amount >= 1 && amount <= 2000
+          ? Math.round(amount)
+          : null;
+      };
+      const clearPriceError = (row) => {
+        const input = row.querySelector('.dealett-chat-streaming-price-input');
+        row.classList.remove('has-error', 'is-shaking');
+        input?.setAttribute('aria-invalid', 'false');
+      };
+      const showPriceError = (row) => {
+        const input = row.querySelector('.dealett-chat-streaming-price-input');
+        row.classList.remove('is-shaking');
+        void row.offsetWidth;
+        row.classList.add('has-error', 'is-shaking');
+        input?.setAttribute('aria-invalid', 'true');
+      };
       const updateSubmitState = () => {
         submitButton.disabled = !noneButton.classList.contains('is-selected') && !selectedRows().length;
       };
       const setServiceSelected = (row, selected) => {
         const button = row.querySelector('.dealett-chat-streaming-toggle');
-        const pricePanel = row.querySelector('.dealett-chat-streaming-price-panel');
         const priceInput = row.querySelector('.dealett-chat-streaming-price-input');
         row.classList.toggle('is-selected', selected);
         button.setAttribute('aria-pressed', String(selected));
-        button.setAttribute('aria-expanded', String(selected));
-        pricePanel.setAttribute('aria-hidden', String(!selected));
         priceInput.disabled = !selected;
+        if (!selected) clearPriceError(row);
       };
+
+      serviceList.querySelectorAll('.dealett-chat-streaming-price-input').forEach((priceInput) => {
+        priceInput.addEventListener('input', () => {
+          const row = priceInput.closest('.dealett-chat-streaming-service');
+          if (readPrice(row)) clearPriceError(row);
+        });
+      });
 
       serviceList.addEventListener('click', (event) => {
         const button = event.target.closest('.dealett-chat-streaming-toggle');
@@ -1975,11 +2010,8 @@
         noneButton.setAttribute('aria-pressed', 'false');
         setServiceSelected(row, willSelect);
         updateSubmitState();
+        if (willSelect) row.querySelector('.dealett-chat-streaming-price-input')?.focus();
         scrollMessages();
-        window.setTimeout(() => {
-          if (willSelect) row.querySelector('.dealett-chat-streaming-price-input')?.focus();
-          scrollMessages();
-        }, 240);
       });
 
       noneButton.addEventListener('click', () => {
@@ -1999,23 +2031,26 @@
 
         const noStreaming = noneButton.classList.contains('is-selected');
         const selected = noStreaming ? [] : selectedRows();
+        const invalidRows = selected.filter((row) => !readPrice(row));
+        if (invalidRows.length) {
+          invalidRows.forEach(showPriceError);
+          invalidRows[0].querySelector('.dealett-chat-streaming-price-input')?.focus();
+          scrollMessages();
+          return;
+        }
+
         const streamingServices = selected.map((row) => row.dataset.streamingService);
-        const streamingMonthlyCosts = Object.fromEntries(selected.map((row) => {
-          const amount = Number(row.querySelector('.dealett-chat-streaming-price-input')?.value);
-          return [row.dataset.streamingService, Number.isFinite(amount) && amount > 0 ? Math.round(amount) : null];
-        }).filter(([, amount]) => amount));
+        const streamingMonthlyCosts = Object.fromEntries(selected.map((row) => [
+          row.dataset.streamingService,
+          readPrice(row),
+        ]));
         const monthlyPriceSuffix = chatLanguage.startsWith('sv') ? 'kr/mån' : 'SEK/month';
-        const missingPriceLabel = String(widget.missingPriceLabel || (
-          chatLanguage.startsWith('sv') ? 'Pris saknas' : 'Price missing'
-        ));
         const summary = noStreaming
           ? text.streamingNone
           : selected.map((row) => {
-            const label = row.querySelector('.dealett-chat-streaming-toggle span')?.textContent || row.dataset.streamingService;
+            const label = row.dataset.streamingLabel || row.dataset.streamingService;
             const amount = streamingMonthlyCosts[row.dataset.streamingService];
-            return amount
-              ? `${label}: ${amount} ${monthlyPriceSuffix}`
-              : `${label}: ${missingPriceLabel}`;
+            return `${label}: ${amount} ${monthlyPriceSuffix}`;
           }).join(', ');
 
         formElement.classList.add('is-submitted');

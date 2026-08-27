@@ -391,24 +391,16 @@ html body #dealettChat .dealett-chat-streaming-widget {
 
 html body #dealettChat .dealett-chat-streaming-services {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
 
 html body #dealettChat .dealett-chat-streaming-service {
-  overflow: hidden;
-  border: 1px solid rgba(13, 23, 38, .12);
-  border-radius: 8px;
-  background: #fff;
-  transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+  display: grid;
+  min-width: 0;
+  gap: 5px;
 }
 
-html body #dealettChat .dealett-chat-streaming-service.is-selected {
-  border-color: #da392b;
-  background: rgba(218, 57, 43, .06);
-  box-shadow: inset 0 0 0 1px rgba(218, 57, 43, .12);
-}
-
-html body #dealettChat .dealett-chat-streaming-toggle,
 html body #dealettChat .dealett-chat-streaming-none {
   display: flex;
   width: 100%;
@@ -427,66 +419,129 @@ html body #dealettChat .dealett-chat-streaming-none {
   cursor: pointer;
 }
 
-html body #dealettChat .dealett-chat-streaming-toggle i {
+html body #dealettChat .dealett-chat-streaming-toggle {
+  position: relative;
   display: grid;
-  flex: 0 0 20px;
-  width: 20px;
-  height: 20px;
+  width: 100%;
+  aspect-ratio: 1.45;
+  min-width: 0;
   place-items: center;
-  border: 1px solid rgba(13, 23, 38, .18);
+  padding: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(13, 23, 38, .12);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+html body #dealettChat .dealett-chat-streaming-service[data-streaming-service="netflix"] .dealett-chat-streaming-toggle {
+  background: #101010;
+}
+
+html body #dealettChat .dealett-chat-streaming-service[data-streaming-service="hbo"] .dealett-chat-streaming-toggle {
+  background: #5b27d8;
+}
+
+html body #dealettChat .dealett-chat-streaming-service[data-streaming-service="disney"] .dealett-chat-streaming-toggle {
+  background: #f4f8ff;
+}
+
+html body #dealettChat .dealett-chat-streaming-logo {
+  display: block;
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+}
+
+html body #dealettChat .dealett-chat-streaming-service[data-streaming-service="netflix"] .dealett-chat-streaming-logo {
+  width: 31%;
+  height: 74%;
+}
+
+html body #dealettChat .dealett-chat-streaming-service[data-streaming-service="disney"] .dealett-chat-streaming-logo {
+  width: 78%;
+  height: 78%;
+}
+
+html body #dealettChat .dealett-chat-streaming-toggle i {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: none;
+  width: 18px;
+  height: 18px;
+  place-items: center;
   border-radius: 50%;
-  color: transparent;
+  background: #da392b;
+  color: #fff;
   font-size: 9px;
-  transition: border-color .2s ease, background-color .2s ease, color .2s ease;
+}
+
+html body #dealettChat .dealett-chat-streaming-service.is-selected .dealett-chat-streaming-toggle {
+  border-color: #da392b;
+  box-shadow: 0 0 0 2px rgba(218, 57, 43, .14);
 }
 
 html body #dealettChat .dealett-chat-streaming-service.is-selected .dealett-chat-streaming-toggle i {
-  border-color: #da392b;
-  background: #da392b;
-  color: #fff;
+  display: grid;
 }
 
 html body #dealettChat .dealett-chat-streaming-price-panel {
-  max-height: 0;
-  padding: 0 9px;
-  overflow: hidden;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: max-height .22s ease, padding .22s ease, opacity .16s ease, transform .22s ease;
-}
-
-html body #dealettChat .dealett-chat-streaming-service.is-selected .dealett-chat-streaming-price-panel {
-  max-height: 58px;
-  padding: 0 9px 8px;
-  opacity: 1;
-  transform: translateY(0);
+  min-width: 0;
 }
 
 html body #dealettChat .dealett-chat-streaming-price-label {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 102px;
-  align-items: center;
-  gap: 8px;
-  color: rgba(13, 23, 38, .66);
-  font-size: 10.5px;
-  font-weight: 700;
+  display: block;
 }
 
 html body #dealettChat .dealett-chat-streaming-price-input {
   width: 100%;
   min-width: 0;
-  height: 30px;
-  padding: 0 7px;
+  height: 32px;
+  padding: 0 6px;
   border: 1px solid rgba(13, 23, 38, .18);
   border-radius: 6px;
   background: #fff;
   color: #0d1726;
-  font: inherit;
+  font: 700 10.5px/1 Arial, sans-serif;
+  text-align: center;
+  transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease;
+  appearance: textfield;
+}
+
+html body #dealettChat .dealett-chat-streaming-price-input::-webkit-inner-spin-button,
+html body #dealettChat .dealett-chat-streaming-price-input::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+html body #dealettChat .dealett-chat-streaming-price-input:disabled {
+  background: #f4f5f7;
+  color: rgba(13, 23, 38, .42);
+  cursor: default;
 }
 
 html body #dealettChat .dealett-chat-streaming-price-input:focus {
   border-color: #da392b;
   outline: 2px solid rgba(218, 57, 43, .14);
+}
+
+html body #dealettChat .dealett-chat-streaming-service.has-error .dealett-chat-streaming-price-input {
+  border-color: #d92d20 !important;
+  background: #fff1f0 !important;
+  box-shadow: 0 0 0 2px rgba(217, 45, 32, .18) !important;
+}
+
+html body #dealettChat .dealett-chat-streaming-service.is-shaking .dealett-chat-streaming-price-input {
+  animation: dealett-streaming-price-shake .34s ease-in-out;
+}
+
+@keyframes dealett-streaming-price-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
 }
 
 html body #dealettChat .dealett-chat-streaming-none {
@@ -515,10 +570,14 @@ html body #dealettChat .dealett-chat-streaming-widget.is-submitted input {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html body #dealettChat .dealett-chat-streaming-service,
+  html body #dealettChat .dealett-chat-streaming-toggle,
   html body #dealettChat .dealett-chat-streaming-toggle i,
-  html body #dealettChat .dealett-chat-streaming-price-panel {
+  html body #dealettChat .dealett-chat-streaming-price-input {
     transition: none;
+  }
+
+  html body #dealettChat .dealett-chat-streaming-service.is-shaking .dealett-chat-streaming-price-input {
+    animation: none;
   }
 }
 
