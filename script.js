@@ -1414,6 +1414,9 @@
     const conversationTtlMs = 60 * 60 * 1000;
     let isSending = false;
     let typingIndicator = null;
+    let completedTurnSpacer = null;
+    let lastCompletedAssistantItem = null;
+    let completedTurnPositionToken = 0;
     let lastAssistantResponse = null;
     const renderedOfferIds = new Set();
     let offerClickedInSession = false;
@@ -1656,6 +1659,7 @@
       blockedQuestionField: null,
       attempts: {},
       deferredFields: [],
+      pendingBindingEnd: null,
     });
 
     const readQuestionFlowState = () => storedConversation?.flowState || createEmptyQuestionFlowState();
@@ -1692,7 +1696,14 @@
       }
     };
 
+    const clearCompletedTurnSpacer = () => {
+      completedTurnSpacer?.remove();
+      completedTurnSpacer = null;
+    };
+
     const scrollMessages = () => {
+      completedTurnPositionToken += 1;
+      clearCompletedTurnSpacer();
       messageList.scrollTop = messageList.scrollHeight;
     };
 
@@ -1716,33 +1727,62 @@
       typingIndicator = null;
     };
 
-    const positionCompletedTurn = (assistantItem) => {
+    const positionCompletedTurn = (assistantItem, { smooth = true } = {}) => {
       if (!assistantItem) return;
-
-      let userItem = assistantItem.previousElementSibling;
-      while (userItem && !userItem.classList.contains('dealett-chat-message--user')) {
-        userItem = userItem.previousElementSibling;
+      lastCompletedAssistantItem = assistantItem;
+      if (assistantItem.classList.contains('dealett-chat-message--greeting')) {
+        scrollMessages();
+        return;
       }
-
+      const positionToken = ++completedTurnPositionToken;
+      clearCompletedTurnSpacer();
       window.requestAnimationFrame(() => {
-        if (!userItem || !userItem.isConnected || !assistantItem.isConnected) {
+        if (positionToken !== completedTurnPositionToken || !assistantItem.isConnected) return;
+        if (panel.hidden || messageList.clientHeight <= 0) return;
+        if (pendingMessages.length) {
           scrollMessages();
           return;
         }
 
+        const spacer = document.createElement('div');
+        spacer.className = 'dealett-chat-turn-spacer';
+        spacer.setAttribute('aria-hidden', 'true');
+        messageList.append(spacer);
+        completedTurnSpacer = spacer;
         const listRect = messageList.getBoundingClientRect();
-        const userRect = userItem.getBoundingClientRect();
         const assistantRect = assistantItem.getBoundingClientRect();
-        const turnHeight = assistantRect.bottom - userRect.top;
-        const availableHeight = Math.max(0, messageList.clientHeight - 24);
+        const listStyles = getComputedStyle(messageList);
+        const topPadding = Number.parseFloat(listStyles.paddingTop) || 0;
+        const bottomPadding = Number.parseFloat(listStyles.paddingBottom) || 0;
+        const messageGap = Number.parseFloat(listStyles.rowGap) || 0;
+        const maximumMessageHeight = Number.parseFloat(listStyles.maxHeight);
+        const messageViewportHeight = Number.isFinite(maximumMessageHeight)
+          ? Math.max(messageList.clientHeight, maximumMessageHeight)
+          : messageList.clientHeight;
+        const assistantTop = messageList.scrollTop + assistantRect.top - listRect.top;
+        const targetScrollTop = Math.max(0, assistantTop - topPadding);
+        const trailingSpace = messageViewportHeight - topPadding - bottomPadding -
+          assistantRect.height - messageGap;
+        spacer.style.height = `${Math.max(0, Math.ceil(trailingSpace))}px`;
 
-        if (turnHeight > availableHeight) {
-          const userTop = messageList.scrollTop + userRect.top - listRect.top;
-          messageList.scrollTop = Math.max(0, userTop - 12);
-          return;
-        }
+        window.requestAnimationFrame(() => {
+          if (positionToken !== completedTurnPositionToken || !assistantItem.isConnected) return;
+          const maximumScrollTop = Math.max(0, messageList.scrollHeight - messageList.clientHeight);
+          const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          messageList.scrollTo({
+            top: Math.min(targetScrollTop, maximumScrollTop),
+            behavior: smooth && !reducedMotion ? 'smooth' : 'auto',
+          });
+        });
+      });
 
-        scrollMessages();
+      assistantItem.querySelectorAll('img').forEach((image) => {
+        if (image.complete) return;
+        image.addEventListener('load', () => {
+          if (assistantItem === lastCompletedAssistantItem && !isSending) {
+            positionCompletedTurn(assistantItem, { smooth: false });
+          }
+        }, { once: true });
       });
     };
 
@@ -1854,8 +1894,15 @@
 
       const wrap = document.createElement('div');
       wrap.className = 'dealett-chat-quick-replies';
+      const visibleQuickReplies = quickReplies.slice(0, 10);
+      if (
+        visibleQuickReplies.length === 10 &&
+        visibleQuickReplies.every((reply, index) => String(reply?.label || reply).trim() === String(index + 1))
+      ) {
+        wrap.classList.add('dealett-chat-quick-replies--people');
+      }
 
-      quickReplies.slice(0, 5).forEach((reply) => {
+      visibleQuickReplies.forEach((reply) => {
         const label = String(reply?.label || reply || '').trim();
         if (!label) return;
         const action = String(reply?.action || 'send_message');
@@ -2466,6 +2513,12 @@
       if (!messages.length && !options.skipGreeting) {
         loadInitialGreeting();
       }
+      window.requestAnimationFrame(() => {
+        if (isSending) scrollMessages();
+        else if (lastCompletedAssistantItem?.isConnected) {
+          positionCompletedTurn(lastCompletedAssistantItem, { smooth: false });
+        }
+      });
       window.setTimeout(() => input.focus(), 50);
     };
 

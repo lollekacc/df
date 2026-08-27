@@ -214,6 +214,19 @@ html body #dealettChat .dealett-chat-widget-actions {
   margin-top: 6px !important;
 }
 
+html body #dealettChat .dealett-chat-quick-replies--people {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  width: min(100%, 270px) !important;
+}
+
+html body #dealettChat .dealett-chat-quick-replies--people .dealett-chat-quick-reply {
+  width: 100% !important;
+  min-width: 0 !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
 html body #dealettChat .dealett-chat-quick-reply,
 html body #dealettChat .dealett-chat-widget-button,
 html body #dealettChat .dealett-chat-chip {
@@ -688,6 +701,14 @@ html body #dealettChat .dealett-chat-messages {
   max-height: min(430px, calc(100vh - 250px)) !important;
   padding: 16px 16px 12px !important;
   background: #fff !important;
+  overflow-anchor: none;
+}
+
+html body #dealettChat .dealett-chat-turn-spacer {
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 0;
+  pointer-events: none;
 }
 
 html body #dealettChat .dealett-chat-message--greeting .dealett-chat-bubble {
