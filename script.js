@@ -1374,6 +1374,7 @@
         typing: 'Dealett assistant skriver...',
         queued: 'Ditt tillägg är köat...',
         error: 'Jag kunde inte svara just nu. Kontrollera att AI-tjänsten är konfigurerad och försök igen.',
+        streamingNone: 'Inga av dessa streamingtjänster',
         welcomeMessages: [
           'Hej och varmt välkommen till Dealett.',
           'Vi hjälper dig hitta rätt lösning och skräddarsyr den efter dina behov – och du får självklart ett presentkort hos våra partners.',
@@ -1391,6 +1392,7 @@
         typing: 'Dealett assistant is typing...',
         queued: 'Your follow-up is queued...',
         error: 'I could not answer right now. Check that the AI service is configured and try again.',
+        streamingNone: 'None of these streaming services',
         welcomeMessages: [
           'Hi and a warm welcome to Dealett.',
           'We help you find the right solution and tailor it to your needs – and of course you receive a gift card from one of our partners.',
@@ -1550,7 +1552,7 @@
 
     const persistConversation = (updates = {}) => {
       storedConversation = {
-        version: 1,
+        version: 2,
         sessionId: chatSessionId,
         updatedAt: Date.now(),
         messages: [],
@@ -1560,6 +1562,9 @@
         offerCalculation: updates.offerCalculation !== undefined
           ? updates.offerCalculation
           : (storedConversation?.offerCalculation || null),
+        flowState: updates.flowState !== undefined
+          ? updates.flowState
+          : (storedConversation?.flowState || null),
       };
 
       try {
@@ -1601,6 +1606,11 @@
       familyPriceRange: null,
       exactMonthlyPrice: null,
       exactMonthlyPrices: [],
+      streamingCalculation: null,
+      streamingServices: [],
+      streamingMonthlyCosts: {},
+      internationalTravel: null,
+      internationalUsage: null,
       readyForOffer: false,
       missingFields: [
         'peopleCount', 'operators', 'bindingEnds', 'mobileUsage', 'priceRange',
@@ -1637,6 +1647,22 @@
       if (!offerCalculation || typeof offerCalculation !== 'object') return;
 
       persistConversation({ offerCalculation });
+    };
+
+    const createEmptyQuestionFlowState = () => ({
+      version: 1,
+      inProgress: false,
+      activeQuestionField: null,
+      blockedQuestionField: null,
+      attempts: {},
+      deferredFields: [],
+    });
+
+    const readQuestionFlowState = () => storedConversation?.flowState || createEmptyQuestionFlowState();
+
+    const writeQuestionFlowState = (flowState) => {
+      if (!flowState || typeof flowState !== 'object') return;
+      persistConversation({ flowState });
     };
 
     const getQuizContext = () => {
@@ -1861,6 +1887,163 @@
       }
     };
 
+    const renderStreamingPriceWidget = (messageItem, widget) => {
+      if (!messageItem || widget?.type !== 'streaming_prices' || !Array.isArray(widget.services)) return;
+
+      const formElement = document.createElement('form');
+      formElement.className = 'dealett-chat-streaming-widget';
+      formElement.setAttribute('data-chat-streaming-widget', '');
+
+      const serviceList = document.createElement('div');
+      serviceList.className = 'dealett-chat-streaming-services';
+
+      widget.services.forEach((service) => {
+        const serviceId = String(service?.id || '').trim();
+        const serviceLabel = String(service?.label || '').trim();
+        if (!serviceId || !serviceLabel) return;
+
+        const row = document.createElement('div');
+        row.className = 'dealett-chat-streaming-service';
+        row.dataset.streamingService = serviceId;
+
+        const toggleButton = document.createElement('button');
+        toggleButton.type = 'button';
+        toggleButton.className = 'dealett-chat-streaming-toggle';
+        toggleButton.setAttribute('aria-pressed', 'false');
+        toggleButton.setAttribute('aria-expanded', 'false');
+        toggleButton.innerHTML = [
+          `<span>${escapeChatText(serviceLabel)}</span>`,
+          '<i class="fa-solid fa-check" aria-hidden="true"></i>',
+        ].join('');
+
+        const pricePanel = document.createElement('div');
+        pricePanel.className = 'dealett-chat-streaming-price-panel';
+        pricePanel.setAttribute('aria-hidden', 'true');
+        const priceLabel = document.createElement('label');
+        priceLabel.className = 'dealett-chat-streaming-price-label';
+        priceLabel.innerHTML = `<span>${escapeChatText(service.priceLabel)}</span>`;
+        const priceInput = document.createElement('input');
+        priceInput.className = 'dealett-chat-streaming-price-input';
+        priceInput.type = 'number';
+        priceInput.inputMode = 'numeric';
+        priceInput.min = '1';
+        priceInput.max = '2000';
+        priceInput.step = '1';
+        priceInput.disabled = true;
+        priceInput.placeholder = String(service.pricePlaceholder || 'kr/mån');
+        priceInput.setAttribute('aria-label', `${serviceLabel}, ${service.priceLabel}`);
+        priceLabel.append(priceInput);
+        pricePanel.append(priceLabel);
+
+        row.append(toggleButton, pricePanel);
+        serviceList.append(row);
+      });
+
+      const noneButton = document.createElement('button');
+      noneButton.type = 'button';
+      noneButton.className = 'dealett-chat-streaming-none';
+      noneButton.textContent = String(widget.noneLabel || 'None');
+      noneButton.setAttribute('aria-pressed', 'false');
+
+      const submitButton = document.createElement('button');
+      submitButton.type = 'submit';
+      submitButton.className = 'dealett-chat-widget-button dealett-chat-widget-button--primary dealett-chat-streaming-submit';
+      submitButton.textContent = String(widget.submitLabel || text.send);
+      submitButton.disabled = true;
+
+      const selectedRows = () => [...serviceList.querySelectorAll('.dealett-chat-streaming-service.is-selected')];
+      const updateSubmitState = () => {
+        submitButton.disabled = !noneButton.classList.contains('is-selected') && !selectedRows().length;
+      };
+      const setServiceSelected = (row, selected) => {
+        const button = row.querySelector('.dealett-chat-streaming-toggle');
+        const pricePanel = row.querySelector('.dealett-chat-streaming-price-panel');
+        const priceInput = row.querySelector('.dealett-chat-streaming-price-input');
+        row.classList.toggle('is-selected', selected);
+        button.setAttribute('aria-pressed', String(selected));
+        button.setAttribute('aria-expanded', String(selected));
+        pricePanel.setAttribute('aria-hidden', String(!selected));
+        priceInput.disabled = !selected;
+      };
+
+      serviceList.addEventListener('click', (event) => {
+        const button = event.target.closest('.dealett-chat-streaming-toggle');
+        if (!button || button.disabled) return;
+        const row = button.closest('.dealett-chat-streaming-service');
+        const willSelect = !row.classList.contains('is-selected');
+        noneButton.classList.remove('is-selected');
+        noneButton.setAttribute('aria-pressed', 'false');
+        setServiceSelected(row, willSelect);
+        updateSubmitState();
+        scrollMessages();
+        window.setTimeout(() => {
+          if (willSelect) row.querySelector('.dealett-chat-streaming-price-input')?.focus();
+          scrollMessages();
+        }, 240);
+      });
+
+      noneButton.addEventListener('click', () => {
+        const willSelect = !noneButton.classList.contains('is-selected');
+        noneButton.classList.toggle('is-selected', willSelect);
+        noneButton.setAttribute('aria-pressed', String(willSelect));
+        selectedRows().forEach((row) => setServiceSelected(row, false));
+        updateSubmitState();
+        scrollMessages();
+        window.setTimeout(scrollMessages, 240);
+      });
+
+      formElement.append(serviceList, noneButton, submitButton);
+      formElement.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (submitButton.disabled) return;
+
+        const noStreaming = noneButton.classList.contains('is-selected');
+        const selected = noStreaming ? [] : selectedRows();
+        const streamingServices = selected.map((row) => row.dataset.streamingService);
+        const streamingMonthlyCosts = Object.fromEntries(selected.map((row) => {
+          const amount = Number(row.querySelector('.dealett-chat-streaming-price-input')?.value);
+          return [row.dataset.streamingService, Number.isFinite(amount) && amount > 0 ? Math.round(amount) : null];
+        }).filter(([, amount]) => amount));
+        const monthlyPriceSuffix = chatLanguage.startsWith('sv') ? 'kr/mån' : 'SEK/month';
+        const missingPriceLabel = String(widget.missingPriceLabel || (
+          chatLanguage.startsWith('sv') ? 'Pris saknas' : 'Price missing'
+        ));
+        const summary = noStreaming
+          ? text.streamingNone
+          : selected.map((row) => {
+            const label = row.querySelector('.dealett-chat-streaming-toggle span')?.textContent || row.dataset.streamingService;
+            const amount = streamingMonthlyCosts[row.dataset.streamingService];
+            return amount
+              ? `${label}: ${amount} ${monthlyPriceSuffix}`
+              : `${label}: ${missingPriceLabel}`;
+          }).join(', ');
+
+        formElement.classList.add('is-submitted');
+        formElement.querySelectorAll('button, input').forEach((control) => {
+          control.disabled = true;
+        });
+        sendMessage(summary, {
+          context: {
+            source: 'streaming_price_widget',
+            qualificationPatch: {
+              streamingCalculation: noStreaming ? 'none' : 'include',
+              streamingServices,
+              streamingMonthlyCosts,
+            },
+          },
+        });
+      });
+
+      messageItem.append(formElement);
+      scrollMessages();
+    };
+
+    const renderEmbeddedWidget = (messageItem, widget) => {
+      if (widget?.type === 'streaming_prices') {
+        renderStreamingPriceWidget(messageItem, widget);
+      }
+    };
+
     const addMessage = (role, content, options = {}) => {
       const timestamp = options.timestamp || new Date().toISOString();
       const item = document.createElement('article');
@@ -1972,6 +2155,7 @@
         contentLanguage: chatLanguage,
         before: pendingMessages[0]?.item,
       });
+      renderEmbeddedWidget(assistantItem, response.embeddedWidget);
       renderQuickReplies(assistantItem, response.quickReplies);
       const offerIds = Array.isArray(response.offerCards)
         ? response.offerCards.map((card) => String(card.planId || card.id || '')).filter(Boolean)
@@ -1982,6 +2166,7 @@
       }
       writeQualification(response.qualification);
       writeOfferCalculation(response.offerCalculation);
+      writeQuestionFlowState(response.flowState);
       if (response.quizAnswersStatus === 'confirmed' && !activeQuizContext?.quizHandoff) {
         const historicalContext = getQuizContext() || {};
         activeQuizContext = {
@@ -2157,6 +2342,7 @@
             language: chatLanguage,
             messages: messages.slice(0, -1),
             qualification: readQualification(),
+            flowState: readQuestionFlowState(),
             cart: readCartContext(),
             page: {
               title: document.title,
@@ -2276,6 +2462,10 @@
         ignoreQuizContext = false;
         const qualification = payload.qualification || payload.quizQualification || null;
         if (qualification) writeQualification(qualification);
+        writeQuestionFlowState({
+          ...createEmptyQuestionFlowState(),
+          inProgress: true,
+        });
         activeQuizContext = {
           ...(payload.context || {}),
           quizHandoff: true,
