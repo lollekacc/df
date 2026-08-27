@@ -17,12 +17,33 @@
     <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260825-2" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/hero-motion.css?v=20260825-3" />
+    <link rel="stylesheet" href="./assets/information-rotator.css?v=20260827-1" />
   </head>
   <body>
     <div data-include="header"></div>
 
     <main>
       <section class="hero">
+        <aside class="hero-information" data-information-rotator aria-label="Exempelfrågor">
+          <div class="hero-information__list">
+            <button class="hero-information__item" type="button" data-information-slot data-information-index="0" aria-label="Visa svar på fråga 1">
+              <span class="hero-information__number" data-information-number aria-hidden="true">01</span>
+              <span class="hero-information__text" data-information-text>Jag är ensam och använder mest mobilen till sociala medier, musik och vanlig surf. Vilket abonnemang passar mig bäst?</span>
+              <span class="hero-information__arrow" aria-hidden="true">↗</span>
+            </button>
+            <button class="hero-information__item" type="button" data-information-slot data-information-index="1" aria-label="Visa svar på fråga 2">
+              <span class="hero-information__number" data-information-number aria-hidden="true">02</span>
+              <span class="hero-information__text" data-information-text>Vi är två personer som vill samla våra abonnemang och få en lägre månadskostnad. Vilket alternativ ger oss bäst värde?</span>
+              <span class="hero-information__arrow" aria-hidden="true">↗</span>
+            </button>
+            <button class="hero-information__item" type="button" data-information-slot data-information-index="2" aria-label="Visa svar på fråga 3">
+              <span class="hero-information__number" data-information-number aria-hidden="true">03</span>
+              <span class="hero-information__text" data-information-text>Vi är en familj på 3 personer med olika surfbehov. En använder mycket surf medan de andra använder mindre. Vad passar oss bäst?</span>
+              <span class="hero-information__arrow" aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </aside>
+
         <div class="hero-showcase" aria-label="Aktuella presentkortserbjudanden">
           <button class="hero-offer-tile hero-offer-tile--family" type="button" data-hero-offer-persons="4" aria-label="Välj erbjudandet för fyra abonnemang">
             <img class="hero-offer-image" src="images/landing-offer-4.png" alt="" />
@@ -522,6 +543,20 @@
         </section>
       </section>
 
+      <dialog class="information-dialog" data-information-dialog aria-labelledby="informationDialogTitle">
+        <div class="information-dialog__surface">
+          <form method="dialog">
+            <button class="information-dialog__close" type="submit" aria-label="Stäng" title="Stäng">×</button>
+          </form>
+          <p class="information-dialog__eyebrow">Din fråga</p>
+          <h2 id="informationDialogTitle" data-information-dialog-question></h2>
+          <div class="information-dialog__answer">
+            <p>Svar</p>
+            <strong>Svar på väg......</strong>
+          </div>
+        </div>
+      </dialog>
+
       <div class="home-intro" hidden aria-hidden="true"></div>
 
       <section class="home-how section-space">
@@ -692,6 +727,7 @@
     <script src="./assets/coverage-maplibre.js"></script>
     <script src="./assets/newsletter-codex-background.js"></script>
     <script src="./assets/gift-logo-switcher.js"></script>
+    <script src="./assets/information-rotator.js?v=20260827-1"></script>
     <script src="assets/indexbehovsanalys.js"></script>
   </body>
 </html>
