@@ -362,6 +362,9 @@
 
     return [
       `<article class="cart-summary-card" style="--cart-accent:${accent}; --cart-accent-soft:${accentSoft};">`,
+      `  <button class="cart-remove-icon" type="button" data-remove-cart-item="${index}" aria-label="Ta bort ${escapeHtml(item.operator)} ${escapeHtml(item.title)}" title="Ta bort">`,
+      '    <i class="fa-solid fa-xmark" aria-hidden="true"></i>',
+      '  </button>',
       '  <div class="cart-summary-top">',
       '    <div class="cart-summary-logo">',
       item.logo ? `      <img src="${escapeHtml(item.logo)}" alt="${escapeHtml(item.operator)}" loading="lazy" decoding="async" />` : '',
@@ -373,9 +376,6 @@
       `        <span class="cart-summary-pill"><i class="fa-solid ${countIcon}"></i>${item.persons} ${escapeHtml(item.unitLabel || 'abonnemang')}</span>`,
       `        <span class="cart-summary-pill"><i class="fa-solid fa-gift"></i>${escapeHtml(rewardLabel)}</span>`,
       item.pricePerPerson ? `        <span class="cart-summary-pill"><i class="fa-solid fa-tag"></i>${formatCurrency(item.pricePerPerson)} kr/person</span>` : '',
-      '      </div>',
-      '      <div class="cart-summary-actions">',
-      `        <button class="cart-remove-btn" type="button" data-remove-cart-item="${index}" aria-label="Ta bort ${escapeHtml(item.operator)} ${escapeHtml(item.title)}">Ta bort</button>`,
       '      </div>',
       '    </div>',
       '  </div>',
@@ -559,7 +559,26 @@
     return date;
   };
 
+  const addBusinessDays = (days) => {
+    const date = addDays(0);
+    let remaining = Math.max(Number(days) || 0, 0);
+
+    while (remaining > 0) {
+      date.setDate(date.getDate() + 1);
+      const weekday = date.getDay();
+      if (weekday !== 0 && weekday !== 6) remaining -= 1;
+    }
+
+    return date;
+  };
+
   const toIsoDate = (date) => date.toISOString().slice(0, 10);
+
+  const formatDateRange = (start, end) => (
+    typeof dateFormatter.formatRange === 'function'
+      ? dateFormatter.formatRange(start, end)
+      : `${dateFormatter.format(start)}–${dateFormatter.format(end)}`
+  );
 
   const updateStartDate = (value) => {
     const customDateInput = document.querySelector('[data-custom-start-date]');
@@ -596,25 +615,27 @@
   const renderStartDates = () => {
     if (!els.startDateOptions) return;
 
-    const today = addDays(0);
+    const earliestStartDate = addBusinessDays(3);
+    const latestStartDate = addBusinessDays(5);
     const oneMonthAhead = addMonths(1);
     const options = [
       {
         value: 'snarast',
         title: 'Snarast m\u00f6jligt',
-        dateLabel: dateFormatter.format(today),
-        text: 'Vi startar processen direkt efter signering.'
+        dateLabel: formatDateRange(earliestStartDate, latestStartDate),
+        text: 'Ber\u00e4knad start 3\u20135 arbetsdagar efter signering.'
       },
       {
         value: toIsoDate(oneMonthAhead),
         title: 'En m\u00e5nad fram',
         dateLabel: dateFormatter.format(oneMonthAhead),
-        text: 'Bra vid planerat operat\u00f6rsbyte.'
+        text: 'Passar ofta vid en m\u00e5nads upps\u00e4gningstid hos nuvarande operat\u00f6r.'
       },
       {
         value: 'custom',
-        title: 'V\u00e4lj fritt',
-        text: 'V\u00e4lj ett eget datum i kalendern.',
+        title: 'V\u00e4lj datum',
+        text: 'V\u00e4lj \u00f6nskat startdatum i kalendern.',
+        minDate: toIsoDate(earliestStartDate),
         custom: true
       }
     ];
@@ -626,7 +647,7 @@
       `    <strong>${escapeHtml(option.title)}</strong>`,
       option.dateLabel ? `    <span class="start-date-choice__date">${escapeHtml(option.dateLabel)}</span>` : '',
       `    <span>${escapeHtml(option.text)}</span>`,
-      option.custom ? `    <input class="start-date-calendar" type="date" min="${escapeHtml(toIsoDate(addDays(0)))}" data-custom-start-date aria-label="V\u00e4lj startdatum" />` : '',
+      option.custom ? `    <input class="start-date-calendar" type="date" min="${escapeHtml(option.minDate)}" data-custom-start-date aria-label="V\u00e4lj startdatum" />` : '',
       '  </span>',
       '</label>'
     ].join('')).join('');

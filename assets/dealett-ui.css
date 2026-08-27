@@ -877,6 +877,12 @@ body::after {
   box-shadow: var(--dui-shadow-soft) !important;
 }
 
+/* The cart is the final purchase layer and must clear page-level dialogs. */
+html body .cart-drawer {
+  z-index: 11000 !important;
+  isolation: isolate !important;
+}
+
 .legal-document-shell {
   max-width: 920px !important;
   padding: clamp(28px, 5vw, 64px) !important;

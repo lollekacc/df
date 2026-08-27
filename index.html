@@ -14,32 +14,50 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
-    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260825-2" />
+    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260827-3" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/hero-motion.css?v=20260825-3" />
-    <link rel="stylesheet" href="./assets/information-rotator.css?v=20260827-1" />
+    <link rel="stylesheet" href="./assets/information-rotator.css?v=20260827-7" />
   </head>
   <body>
     <div data-include="header"></div>
 
     <main>
       <section class="hero">
-        <aside class="hero-information" data-information-rotator aria-label="Exempelfrågor">
+        <aside class="hero-information" data-information-rotator aria-label="Exempelfrågor" aria-roledescription="karusell">
+          <header class="hero-information__header">
+            <p class="hero-information__eyebrow">Snabbval</p>
+            <h2 class="hero-information__title">Välj din situation</h2>
+            <p class="hero-information__intro">Klicka på det alternativ som passar dig,<br />så startar Dealett AI analysen direkt.</p>
+          </header>
           <div class="hero-information__list">
             <button class="hero-information__item" type="button" data-information-slot data-information-index="0" aria-label="Visa svar på fråga 1">
-              <span class="hero-information__number" data-information-number aria-hidden="true">01</span>
               <span class="hero-information__text" data-information-text>Jag är ensam och använder mest mobilen till sociala medier, musik och vanlig surf. Vilket abonnemang passar mig bäst?</span>
               <span class="hero-information__arrow" aria-hidden="true">↗</span>
             </button>
             <button class="hero-information__item" type="button" data-information-slot data-information-index="1" aria-label="Visa svar på fråga 2">
-              <span class="hero-information__number" data-information-number aria-hidden="true">02</span>
               <span class="hero-information__text" data-information-text>Vi är två personer som vill samla våra abonnemang och få en lägre månadskostnad. Vilket alternativ ger oss bäst värde?</span>
               <span class="hero-information__arrow" aria-hidden="true">↗</span>
             </button>
             <button class="hero-information__item" type="button" data-information-slot data-information-index="2" aria-label="Visa svar på fråga 3">
-              <span class="hero-information__number" data-information-number aria-hidden="true">03</span>
               <span class="hero-information__text" data-information-text>Vi är en familj på 3 personer med olika surfbehov. En använder mycket surf medan de andra använder mindre. Vad passar oss bäst?</span>
               <span class="hero-information__arrow" aria-hidden="true">↗</span>
+            </button>
+          </div>
+          <div class="hero-information__controls" aria-label="Styr exempelfrågorna">
+            <button class="hero-information__control" type="button" data-information-previous aria-label="Visa föregående frågor" title="Föregående">
+              <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <div class="hero-information__pages" aria-label="Välj frågegrupp">
+              <button class="hero-information__page is-active" type="button" data-information-page="0" aria-label="Visa fråga 1 till 3" aria-current="true"></button>
+              <button class="hero-information__page" type="button" data-information-page="1" aria-label="Visa fråga 4 till 6"></button>
+              <button class="hero-information__page" type="button" data-information-page="2" aria-label="Visa fråga 7 och 8"></button>
+            </div>
+            <button class="hero-information__control" type="button" data-information-toggle aria-label="Pausa automatisk växling" aria-pressed="false" title="Pausa">
+              <i class="fa-solid fa-pause" data-information-toggle-icon aria-hidden="true"></i>
+            </button>
+            <button class="hero-information__control" type="button" data-information-next aria-label="Visa nästa frågor" title="Nästa">
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
             </button>
           </div>
         </aside>
@@ -727,7 +745,7 @@
     <script src="./assets/coverage-maplibre.js"></script>
     <script src="./assets/newsletter-codex-background.js"></script>
     <script src="./assets/gift-logo-switcher.js"></script>
-    <script src="./assets/information-rotator.js?v=20260827-1"></script>
+    <script src="./assets/information-rotator.js?v=20260827-4"></script>
     <script src="assets/indexbehovsanalys.js"></script>
   </body>
 </html>
