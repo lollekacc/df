@@ -1414,7 +1414,6 @@
     const conversationTtlMs = 60 * 60 * 1000;
     let isSending = false;
     let typingIndicator = null;
-    let completedTurnSpacer = null;
     let lastCompletedAssistantItem = null;
     let completedTurnPositionToken = 0;
     let lastAssistantResponse = null;
@@ -1696,14 +1695,22 @@
       }
     };
 
-    const clearCompletedTurnSpacer = () => {
-      completedTurnSpacer?.remove();
-      completedTurnSpacer = null;
+    const getElementTopInMessageList = (element, listRect) => (
+      messageList.scrollTop + element.getBoundingClientRect().top - listRect.top
+    );
+
+    const getPreviousTurnUserItem = (assistantItem) => {
+      let item = assistantItem.previousElementSibling;
+      while (item) {
+        if (item.classList.contains('dealett-chat-message--user')) return item;
+        if (item.classList.contains('dealett-chat-message')) break;
+        item = item.previousElementSibling;
+      }
+      return null;
     };
 
     const scrollMessages = () => {
       completedTurnPositionToken += 1;
-      clearCompletedTurnSpacer();
       messageList.scrollTop = messageList.scrollHeight;
     };
 
@@ -1735,7 +1742,6 @@
         return;
       }
       const positionToken = ++completedTurnPositionToken;
-      clearCompletedTurnSpacer();
       window.requestAnimationFrame(() => {
         if (positionToken !== completedTurnPositionToken || !assistantItem.isConnected) return;
         if (panel.hidden || messageList.clientHeight <= 0) return;
@@ -1744,26 +1750,21 @@
           return;
         }
 
-        const spacer = document.createElement('div');
-        spacer.className = 'dealett-chat-turn-spacer';
-        spacer.setAttribute('aria-hidden', 'true');
-        messageList.append(spacer);
-        completedTurnSpacer = spacer;
         const listRect = messageList.getBoundingClientRect();
         const assistantRect = assistantItem.getBoundingClientRect();
         const listStyles = getComputedStyle(messageList);
         const topPadding = Number.parseFloat(listStyles.paddingTop) || 0;
         const bottomPadding = Number.parseFloat(listStyles.paddingBottom) || 0;
-        const messageGap = Number.parseFloat(listStyles.rowGap) || 0;
-        const maximumMessageHeight = Number.parseFloat(listStyles.maxHeight);
-        const messageViewportHeight = Number.isFinite(maximumMessageHeight)
-          ? Math.max(messageList.clientHeight, maximumMessageHeight)
-          : messageList.clientHeight;
-        const assistantTop = messageList.scrollTop + assistantRect.top - listRect.top;
-        const targetScrollTop = Math.max(0, assistantTop - topPadding);
-        const trailingSpace = messageViewportHeight - topPadding - bottomPadding -
-          assistantRect.height - messageGap;
-        spacer.style.height = `${Math.max(0, Math.ceil(trailingSpace))}px`;
+        const assistantTop = getElementTopInMessageList(assistantItem, listRect);
+        const assistantBottom = assistantTop + assistantRect.height;
+        const userItem = getPreviousTurnUserItem(assistantItem);
+        const userTop = userItem ? getElementTopInMessageList(userItem, listRect) : assistantTop;
+        const availableHeight = Math.max(0, messageList.clientHeight - topPadding - bottomPadding);
+        const turnHeight = assistantBottom - userTop;
+        const targetScrollTop = Math.max(
+          0,
+          (turnHeight <= availableHeight ? userTop : assistantTop) - topPadding
+        );
 
         window.requestAnimationFrame(() => {
           if (positionToken !== completedTurnPositionToken || !assistantItem.isConnected) return;
@@ -1848,6 +1849,157 @@
       return url;
     };
 
+    const bindingLookupProfiles = {
+      Telia: {
+        portalName: 'Mitt Telia',
+        loginUrl: 'https://www.telia.se/mitt-telia/start',
+        hint: 'Öppna ditt mobilabonnemang och leta efter bindningstid eller avtalstid.',
+      },
+      Tele2: {
+        portalName: 'Mitt Tele2',
+        loginUrl: 'https://www.tele2.se/mitt-tele2',
+        hint: 'Öppna Abonnemang eller dina tjänster och kontrollera bindningstid.',
+      },
+      Telenor: {
+        portalName: 'Mitt Telenor',
+        loginUrl: 'https://www.telenor.se/mitt-telenor/',
+        hint: 'Öppna abonnemanget och se detaljer för bindningstid och tjänster.',
+      },
+      Tre: {
+        portalName: 'Mitt3',
+        loginUrl: 'https://www.tre.se/mitt3',
+        hint: 'Välj abonnemang, gå till Abonnemangsdetaljer och se rutan Uppgifter.',
+      },
+    };
+
+    const getBindingLookupProfile = (operator) => {
+      const normalized = String(operator || '').trim().toLocaleLowerCase('sv');
+      return Object.entries(bindingLookupProfiles).find(([name]) => (
+        name.toLocaleLowerCase('sv') === normalized
+      ))?.[1] || null;
+    };
+
+    const getBindingLookupOperatorsFromQualification = () => {
+      const operators = readQualification().operators || [];
+      const selected = operators
+        .map((operator) => String(operator || '').trim())
+        .filter((operator) => getBindingLookupProfile(operator));
+      return [...new Set(selected.length ? selected : Object.keys(bindingLookupProfiles))]
+        .map((name) => ({ name, ...bindingLookupProfiles[name] }))
+        .filter((operator) => operator.loginUrl);
+    };
+
+    const openBindingLookupModal = ({
+      operator = '',
+      operators = [],
+      onResolved = null,
+    } = {}) => {
+      const suppliedOperators = Array.isArray(operators) && operators.length
+        ? operators
+        : getBindingLookupOperatorsFromQualification();
+      const normalizedOperators = suppliedOperators
+        .map((item) => {
+          const name = String(item?.name || item || '').trim();
+          const fallback = getBindingLookupProfile(name) || {};
+          return {
+            name,
+            portalName: String(item?.portalName || fallback.portalName || name).trim(),
+            loginUrl: String(item?.loginUrl || fallback.loginUrl || '').trim(),
+            hint: String(item?.hint || fallback.hint || '').trim(),
+          };
+        })
+        .filter((item) => item.name && item.loginUrl);
+      if (!normalizedOperators.length) return;
+
+      const selectedIndex = Math.max(0, normalizedOperators.findIndex((item) => (
+        item.name.toLocaleLowerCase('sv') === String(operator || '').trim().toLocaleLowerCase('sv')
+      )));
+      let selectedOperator = normalizedOperators[selectedIndex] || normalizedOperators[0];
+      const modal = document.createElement('div');
+      modal.className = 'dealett-binding-lookup-modal';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.innerHTML = [
+        '<div class="dealett-binding-lookup-modal__backdrop" data-binding-lookup-close></div>',
+        '<section class="dealett-binding-lookup-modal__panel" aria-labelledby="bindingLookupTitle">',
+        '  <header class="dealett-binding-lookup-modal__head">',
+        '    <div>',
+        '      <p class="dealett-binding-lookup-modal__kicker">Bindningstid</p>',
+        '      <h2 id="bindingLookupTitle">Hitta bindningstid</h2>',
+        '    </div>',
+        '    <button class="dealett-binding-lookup-modal__close" type="button" data-binding-lookup-close aria-label="Stäng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>',
+        '  </header>',
+        '  <div class="dealett-binding-lookup-modal__operators"></div>',
+        '  <p class="dealett-binding-lookup-modal__hint"></p>',
+        '  <div class="dealett-binding-lookup-modal__viewer">',
+        '    <iframe title="Operatörens inloggning" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+        '  </div>',
+        '  <p class="dealett-binding-lookup-modal__fallback">Om inloggningen inte visas här kan operatören blockera inbäddning. Öppna länken, kontrollera datumet och kom tillbaka till chatten.</p>',
+        '  <a class="dealett-binding-lookup-modal__external" target="_blank" rel="noopener">Öppna i ny flik</a>',
+        '  <form class="dealett-binding-lookup-modal__answer">',
+        '    <label>Slutdatum <input type="date" required></label>',
+        '    <div>',
+        '      <button type="submit">Skicka datum</button>',
+        '      <button type="button" data-binding-lookup-no-binding>Ingen bindningstid</button>',
+        '    </div>',
+        '  </form>',
+        '</section>',
+      ].join('');
+
+      const closeModal = () => {
+        modal.remove();
+        document.body.classList.remove('dealett-binding-lookup-open');
+      };
+      const operatorButtons = modal.querySelector('.dealett-binding-lookup-modal__operators');
+      const hint = modal.querySelector('.dealett-binding-lookup-modal__hint');
+      const iframe = modal.querySelector('iframe');
+      const externalLink = modal.querySelector('.dealett-binding-lookup-modal__external');
+      const renderOperator = (nextOperator) => {
+        selectedOperator = nextOperator;
+        hint.textContent = `${selectedOperator.portalName}: ${selectedOperator.hint}`;
+        iframe.src = selectedOperator.loginUrl;
+        externalLink.href = selectedOperator.loginUrl;
+        externalLink.textContent = `Öppna ${selectedOperator.portalName} i ny flik`;
+        operatorButtons.querySelectorAll('button').forEach((button) => {
+          const active = button.dataset.operator === selectedOperator.name;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+      };
+
+      normalizedOperators.forEach((item) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.operator = item.name;
+        button.textContent = item.name;
+        button.setAttribute('aria-pressed', 'false');
+        button.addEventListener('click', () => renderOperator(item));
+        operatorButtons.append(button);
+      });
+
+      modal.addEventListener('click', (event) => {
+        if (event.target.closest('[data-binding-lookup-close]')) closeModal();
+        if (event.target.closest('[data-binding-lookup-no-binding]')) {
+          closeModal();
+          if (typeof onResolved === 'function') onResolved('Ingen bindningstid');
+          else sendMessage('Ingen bindningstid', { context: { bindingLookup: true } });
+        }
+      });
+      modal.querySelector('form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const date = modal.querySelector('input[type="date"]')?.value;
+        if (!date) return;
+        closeModal();
+        if (typeof onResolved === 'function') onResolved(date);
+        else sendMessage(date, { context: { bindingLookup: true } });
+      });
+
+      document.body.append(modal);
+      document.body.classList.add('dealett-binding-lookup-open');
+      renderOperator(selectedOperator);
+      modal.querySelector('.dealett-binding-lookup-modal__close')?.focus();
+    };
+
     const runQuickReplyAction = (action) => {
       if (action === 'open_coverage_map') {
         if (window.location.pathname.endsWith('/5g-bredband.html')) {
@@ -1870,6 +2022,10 @@
           sessionStorage.setItem('dealettFocusBroadbandAddress', 'true');
           window.location.href = '5g-bredband.html#addressSearchForm';
         }
+        return true;
+      }
+      if (action === 'open_binding_lookup') {
+        openBindingLookupModal();
         return true;
       }
       if (action === 'open_cart') {
@@ -2212,7 +2368,7 @@
         control?.focus();
       };
       const isComplete = (answer) => Boolean(
-        answer.operator && answer.bindingChoice &&
+        answer.operator && answer.bindingChoice && answer.bindingChoice !== 'lookup' &&
         (answer.bindingChoice !== 'date' || answer.bindingDate)
       );
       const validatePerson = (index) => {
@@ -2258,6 +2414,29 @@
         renderPerson();
       });
       bindingSelect.addEventListener('change', () => {
+        if (bindingSelect.value === 'lookup') {
+          if (!operatorSelect.value) {
+            showFieldError(operatorField);
+            bindingSelect.value = '';
+            return;
+          }
+          const lookupOperator = operatorSelect.value;
+          bindingSelect.value = answers[activeIndex].bindingChoice || '';
+          openBindingLookupModal({
+            operator: lookupOperator,
+            onResolved: (value) => {
+              if (value === 'Ingen bindningstid') {
+                answers[activeIndex].bindingChoice = 'Ingen bindningstid';
+                answers[activeIndex].bindingDate = '';
+              } else {
+                answers[activeIndex].bindingChoice = 'date';
+                answers[activeIndex].bindingDate = value;
+              }
+              renderPerson();
+            },
+          });
+          return;
+        }
         answers[activeIndex].bindingChoice = bindingSelect.value;
         if (bindingSelect.value !== 'date') answers[activeIndex].bindingDate = '';
         clearFieldError(bindingField);
@@ -2318,11 +2497,45 @@
       renderPerson();
     };
 
+    const renderBindingLookupWidget = (messageItem, widget) => {
+      if (!messageItem || widget?.type !== 'binding_lookup' || !Array.isArray(widget.operators)) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'dealett-chat-binding-lookup';
+      const title = document.createElement('strong');
+      title.className = 'dealett-chat-widget-title';
+      title.textContent = String(widget.title || 'Hitta bindningstid');
+      const description = document.createElement('p');
+      description.className = 'dealett-chat-widget-description';
+      description.textContent = String(widget.description || '');
+      const actions = document.createElement('div');
+      actions.className = 'dealett-chat-widget-actions';
+
+      widget.operators.slice(0, 5).forEach((operator) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'dealett-chat-widget-button dealett-chat-widget-button--primary';
+        button.textContent = `${widget.openLabel || 'Öppna här'}: ${operator.name}`;
+        button.addEventListener('click', () => {
+          openBindingLookupModal({
+            operator: operator.name,
+            operators: widget.operators,
+          });
+        });
+        actions.append(button);
+      });
+
+      wrap.append(title, description, actions);
+      messageItem.append(wrap);
+      scrollMessages();
+    };
+
     const renderEmbeddedWidget = (messageItem, widget) => {
       if (widget?.type === 'streaming_prices') {
         renderStreamingPriceWidget(messageItem, widget);
       } else if (widget?.type === 'operator_binding') {
         renderOperatorBindingWidget(messageItem, widget);
+      } else if (widget?.type === 'binding_lookup') {
+        renderBindingLookupWidget(messageItem, widget);
       }
     };
 

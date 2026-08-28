@@ -241,6 +241,17 @@ html body #dealettChat .dealett-chat-embedded-widget {
   padding: 9px !important;
 }
 
+html body #dealettChat .dealett-chat-binding-lookup {
+  display: grid;
+  width: min(286px, 100%);
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid rgba(13, 23, 38, .12);
+  border-radius: 8px;
+  background: #fff;
+}
+
 html body #dealettChat .dealett-chat-offers {
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   margin-top: 6px !important;
@@ -690,6 +701,200 @@ html body #dealettChat .dealett-chat-operator-binding-widget.is-submitted input 
   cursor: default;
 }
 
+body.dealett-binding-lookup-open {
+  overflow: hidden;
+}
+
+.dealett-binding-lookup-modal {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.dealett-binding-lookup-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 23, 38, .52);
+}
+
+.dealett-binding-lookup-modal__panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(980px, 100%);
+  max-height: min(860px, calc(100vh - 28px));
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(13, 23, 38, .32);
+}
+
+.dealett-binding-lookup-modal__head {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(13, 23, 38, .1);
+}
+
+.dealett-binding-lookup-modal__kicker,
+.dealett-binding-lookup-modal__head h2,
+.dealett-binding-lookup-modal__hint,
+.dealett-binding-lookup-modal__fallback {
+  margin: 0;
+}
+
+.dealett-binding-lookup-modal__kicker {
+  color: #da392b;
+  font: 800 11px/1.2 Arial, sans-serif;
+}
+
+.dealett-binding-lookup-modal__head h2 {
+  color: #0d1726;
+  font: 800 18px/1.2 Arial, sans-serif;
+}
+
+.dealett-binding-lookup-modal__close {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(13, 23, 38, .14);
+  border-radius: 50%;
+  background: #fff;
+  color: #0d1726;
+  cursor: pointer;
+}
+
+.dealett-binding-lookup-modal__operators {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px 0;
+  overflow-x: auto;
+}
+
+.dealett-binding-lookup-modal__operators button,
+.dealett-binding-lookup-modal__answer button,
+.dealett-binding-lookup-modal__external {
+  border: 1px solid rgba(13, 23, 38, .14);
+  border-radius: 8px;
+  background: #fff;
+  color: #0d1726;
+  cursor: pointer;
+  font: 800 12px/1.2 Arial, sans-serif;
+  text-decoration: none;
+}
+
+.dealett-binding-lookup-modal__operators button {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+}
+
+.dealett-binding-lookup-modal__operators button.is-active {
+  border-color: #da392b;
+  background: rgba(218, 57, 43, .08);
+  color: #9f2419;
+}
+
+.dealett-binding-lookup-modal__hint,
+.dealett-binding-lookup-modal__fallback {
+  padding: 8px 16px 0;
+  color: rgba(13, 23, 38, .72);
+  font: 600 12px/1.45 Arial, sans-serif;
+}
+
+.dealett-binding-lookup-modal__viewer {
+  min-height: 380px;
+  margin: 12px 16px 0;
+  overflow: hidden;
+  border: 1px solid rgba(13, 23, 38, .12);
+  border-radius: 8px;
+  background: #f6f7f9;
+}
+
+.dealett-binding-lookup-modal__viewer iframe {
+  display: block;
+  width: 100%;
+  height: min(520px, 52vh);
+  border: 0;
+  background: #fff;
+}
+
+.dealett-binding-lookup-modal__external {
+  justify-self: start;
+  margin: 10px 16px 0;
+  padding: 9px 12px;
+}
+
+.dealett-binding-lookup-modal__answer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px 16px 16px;
+  border-top: 1px solid rgba(13, 23, 38, .08);
+}
+
+.dealett-binding-lookup-modal__answer label {
+  display: grid;
+  gap: 5px;
+  color: #4d5663;
+  font: 800 11px/1.2 Arial, sans-serif;
+}
+
+.dealett-binding-lookup-modal__answer input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid rgba(13, 23, 38, .2);
+  border-radius: 8px;
+  font: 700 13px/1 Arial, sans-serif;
+}
+
+.dealett-binding-lookup-modal__answer div {
+  display: flex;
+  gap: 8px;
+}
+
+.dealett-binding-lookup-modal__answer button {
+  min-height: 38px;
+  padding: 0 12px;
+}
+
+.dealett-binding-lookup-modal__answer button[type="submit"] {
+  border-color: #da392b;
+  background: #da392b;
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .dealett-binding-lookup-modal {
+    padding: 10px;
+  }
+
+  .dealett-binding-lookup-modal__panel {
+    max-height: calc(100vh - 20px);
+  }
+
+  .dealett-binding-lookup-modal__viewer {
+    min-height: 300px;
+  }
+
+  .dealett-binding-lookup-modal__answer {
+    grid-template-columns: 1fr;
+  }
+
+  .dealett-binding-lookup-modal__answer div {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html body #dealettChat .dealett-chat-streaming-toggle,
   html body #dealettChat .dealett-chat-streaming-toggle i,
@@ -815,13 +1020,6 @@ html body #dealettChat .dealett-chat-messages {
   padding: 16px 16px 12px !important;
   background: #fff !important;
   overflow-anchor: none;
-}
-
-html body #dealettChat .dealett-chat-turn-spacer {
-  flex: 0 0 auto;
-  width: 100%;
-  min-height: 0;
-  pointer-events: none;
 }
 
 html body #dealettChat .dealett-chat-message--greeting .dealett-chat-bubble {
