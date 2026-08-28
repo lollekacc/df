@@ -41,6 +41,14 @@
 - Scale investigation and verification to the task. For trivial/local changes, make the change and perform only proportionate checks. Do not run broad analysis or regression testing unnecessarily.
 - For trivial, clearly scoped edits, use a fast path: inspect only the directly relevant file(s), make the smallest correct change, run only the minimum necessary verification, and stop. Do not perform broad repository searches, full-site checks, screenshots, or unrelated validation unless the change requires them.
 
+## Cross-Repository Verification
+
+- Trace customer-visible data changes from source data through API/normalization and the frontend renderer to actual browser output on every affected page.
+- Test the exact requested names, prices, images, and interactions. Browser verification must confirm visible text, successful image loading, and relevant interaction states before and after user actions.
+- Do not report completion until automated checks and rendered output agree.
+- Add regression tests for confirmed bugs when practical.
+- Review and show the complete relevant diff before committing.
+
 ## Recovery
 
 - If your implementation causes regressions, first attempt to debug and correct the implementation.
