@@ -25,3 +25,6 @@ jobs:
 
       - name: Check whitespace
         run: npm run check:whitespace
+
+      - name: Check public flow contracts
+        run: npm run test:public-flow

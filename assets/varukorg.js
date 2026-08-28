@@ -158,6 +158,29 @@
     return {};
   };
 
+  const readConversationId = () => {
+    const activeId = window.DealettChat?.getConversationId?.();
+    if (activeId) return activeId;
+
+    try {
+      const conversation = JSON.parse(sessionStorage.getItem('dealettChatConversationV3') || 'null');
+      return conversation?.conversationId || conversation?.sessionId || sessionStorage.getItem('dealettChatSessionId') || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const readAttribution = () => {
+    const activeAttribution = window.DealettAttribution?.read?.();
+    if (activeAttribution) return activeAttribution;
+
+    try {
+      return JSON.parse(sessionStorage.getItem('dealettAttributionV1') || 'null');
+    } catch {
+      return null;
+    }
+  };
+
   const escapeHtml = (value) => String(value ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -797,6 +820,13 @@
       cart,
       contact: getContact(),
       startDate: selectedStartDate,
+      conversationId: readConversationId() || existing.conversationId,
+      attribution: existing.attribution || readAttribution(),
+      sourcePage: existing.sourcePage || {
+        title: document.title,
+        path: window.location.pathname,
+        capturedAt: new Date().toISOString(),
+      },
       updatedAt: new Date().toISOString(),
       ...extra
     });

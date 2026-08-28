@@ -2,7 +2,15 @@
   if (window.DealettNetwork) return;
 
   const DEFAULT_TIMEOUT_MS = 8000;
-  const API_BASE = 'https://db-qtmd.onrender.com';
+  const PRODUCTION_API_BASE = 'https://db-qtmd.onrender.com';
+  const sameOriginHostnames = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
+  const DEFAULT_API_BASE = sameOriginHostnames.has(window.location.hostname)
+    ? ''
+    : PRODUCTION_API_BASE;
+  const configuredApiBase = typeof window.DEALETT_API_BASE === 'string'
+    ? window.DEALETT_API_BASE
+    : DEFAULT_API_BASE;
+  const API_BASE = String(configuredApiBase).replace(/\/+$/, '');
 
   const resolveResource = (resource) => {
     if (typeof resource === 'string' && resource.startsWith('/api/') && API_BASE) {
@@ -80,8 +88,10 @@
   };
 
   window.DealettNetwork = {
+    apiBase: API_BASE,
     fetchJson,
     fetchText,
     fetchWithTimeout,
+    resolveResource,
   };
 })();

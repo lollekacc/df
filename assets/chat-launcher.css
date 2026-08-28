@@ -194,6 +194,26 @@ html body #dealettChat .dealett-chat-message--assistant .dealett-chat-bubble {
   min-width: 0 !important;
 }
 
+html body #dealettChat .dealett-chat-message--simulated .dealett-chat-bubble {
+  border-color: rgba(180, 102, 26, .34) !important;
+  background: #fffaf2 !important;
+}
+
+html body #dealettChat .dealett-chat-simulation-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 0 0 6px !important;
+  padding: 3px 6px !important;
+  border: 1px solid rgba(180, 102, 26, .30) !important;
+  border-radius: 999px !important;
+  background: #fff3df !important;
+  color: #7a430f !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: .02em !important;
+}
+
 html body #dealettChat .dealett-chat-message--user .dealett-chat-bubble {
   padding-right: 25px !important;
 }

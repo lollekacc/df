@@ -1702,22 +1702,31 @@
     applyMapTheme();
   };
 
-  const map = new maplibregl.Map({
-    container: mapElement,
-    style: satelliteHybridStyle,
-    center: [16.6, 62.2],
-    zoom: 4,
-    pitch: swedenCameraBase.pitch,
-    bearing: swedenCameraBase.bearing,
-    maxBounds: swedenMaxBounds,
-    minZoom: 3,
-    maxZoom: 18,
-    renderWorldCopies: false,
-    attributionControl: false,
-    antialias: true,
-    maxPitch: 25,
-    cooperativeGestures: true,
-  });
+  let map;
+  try {
+    map = new maplibregl.Map({
+      container: mapElement,
+      style: satelliteHybridStyle,
+      center: [16.6, 62.2],
+      zoom: 4,
+      pitch: swedenCameraBase.pitch,
+      bearing: swedenCameraBase.bearing,
+      maxBounds: swedenMaxBounds,
+      minZoom: 3,
+      maxZoom: 18,
+      renderWorldCopies: false,
+      attributionControl: false,
+      antialias: true,
+      maxPitch: 25,
+      cooperativeGestures: true,
+    });
+  } catch (error) {
+    app.classList.add('coverage-maplibre-fallback');
+    mapElement.setAttribute('data-map-status', 'unavailable');
+    mapElement.textContent = 'Den interaktiva kartan kan inte visas i den här webbläsaren.';
+    console.warn('Coverage map disabled:', error);
+    return;
+  }
 
   map.touchZoomRotate.enable();
   map.scrollZoom.enable();

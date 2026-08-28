@@ -5,17 +5,29 @@
   const panel = canvas.closest(".newsletter-panel");
   if (!panel) return;
 
+  const activateFallback = (error) => {
+    panel.classList.add("codex-bg-fallback");
+    if (error) console.warn("Newsletter background disabled:", error);
+  };
+
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const gl = canvas.getContext("webgl", {
-    alpha: true,
-    antialias: false,
-    depth: false,
-    powerPreference: "high-performance",
-    premultipliedAlpha: true,
-  });
+  let gl;
+
+  try {
+    gl = canvas.getContext("webgl", {
+      alpha: true,
+      antialias: false,
+      depth: false,
+      powerPreference: "high-performance",
+      premultipliedAlpha: true,
+    });
+  } catch (error) {
+    activateFallback(error);
+    return;
+  }
 
   if (!gl) {
-    panel.classList.add("codex-bg-fallback");
+    activateFallback();
     return;
   }
 
@@ -188,35 +200,44 @@
   try {
     program = createProgram();
   } catch (error) {
-    console.warn("Newsletter background shader disabled:", error);
-    panel.classList.add("codex-bg-fallback");
+    activateFallback(error);
     return;
   }
 
-  const buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-    gl.STATIC_DRAW
-  );
+  let buffer;
+  let positionLocation;
+  let uniforms;
+  let fieldTexture;
 
-  const positionLocation = gl.getAttribLocation(program, "a_position");
-  const uniforms = {
-    resolution: gl.getUniformLocation(program, "u_resolution"),
-    pointer: gl.getUniformLocation(program, "u_pointer"),
-    field: gl.getUniformLocation(program, "u_field"),
-    time: gl.getUniformLocation(program, "u_time"),
-    velocity: gl.getUniformLocation(program, "u_velocity"),
-    reduced: gl.getUniformLocation(program, "u_reduced"),
-  };
+  try {
+    buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+      gl.STATIC_DRAW
+    );
 
-  const fieldTexture = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, fieldTexture);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    positionLocation = gl.getAttribLocation(program, "a_position");
+    uniforms = {
+      resolution: gl.getUniformLocation(program, "u_resolution"),
+      pointer: gl.getUniformLocation(program, "u_pointer"),
+      field: gl.getUniformLocation(program, "u_field"),
+      time: gl.getUniformLocation(program, "u_time"),
+      velocity: gl.getUniformLocation(program, "u_velocity"),
+      reduced: gl.getUniformLocation(program, "u_reduced"),
+    };
+
+    fieldTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, fieldTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  } catch (error) {
+    activateFallback(error);
+    return;
+  }
 
   const state = {
     pointerX: 0.5,
@@ -243,6 +264,7 @@
     nextVelocityX: null,
     nextVelocityY: null,
     fieldPixels: null,
+    failed: false,
   };
 
   function resizeField(rect) {
@@ -486,30 +508,40 @@
   }
 
   function render(now) {
-    resize();
+    if (state.failed) return;
 
-    const reduced = prefersReducedMotion.matches ? 1 : 0;
-    const dt = Math.min((now - state.lastFrameTime) / 16.67, 3);
-    state.lastFrameTime = now;
+    let reduced;
+    try {
+      resize();
 
-    state.pointerX += (state.targetX - state.pointerX) * (0.11 + state.velocity * 0.09);
-    state.pointerY += (state.targetY - state.pointerY) * (0.11 + state.velocity * 0.09);
-    state.velocity *= Math.pow(0.86, dt);
-    simulateField(dt, dt * 0.01667);
+      reduced = prefersReducedMotion.matches ? 1 : 0;
+      const dt = Math.min((now - state.lastFrameTime) / 16.67, 3);
+      state.lastFrameTime = now;
 
-    gl.useProgram(program);
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-    gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
-    gl.uniform2f(uniforms.pointer, state.pointerX, state.pointerY);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, fieldTexture);
-    gl.uniform1i(uniforms.field, 0);
-    gl.uniform1f(uniforms.time, now * 0.001);
-    gl.uniform1f(uniforms.velocity, reduced ? 0 : state.velocity);
-    gl.uniform1f(uniforms.reduced, reduced);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+      state.pointerX += (state.targetX - state.pointerX) * (0.11 + state.velocity * 0.09);
+      state.pointerY += (state.targetY - state.pointerY) * (0.11 + state.velocity * 0.09);
+      state.velocity *= Math.pow(0.86, dt);
+      simulateField(dt, dt * 0.01667);
+
+      gl.useProgram(program);
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.enableVertexAttribArray(positionLocation);
+      gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+      gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+      gl.uniform2f(uniforms.pointer, state.pointerX, state.pointerY);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, fieldTexture);
+      gl.uniform1i(uniforms.field, 0);
+      gl.uniform1f(uniforms.time, now * 0.001);
+      gl.uniform1f(uniforms.velocity, reduced ? 0 : state.velocity);
+      gl.uniform1f(uniforms.reduced, reduced);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    } catch (error) {
+      state.failed = true;
+      state.raf = 0;
+      activateFallback(error);
+      return;
+    }
 
     if (!reduced && state.visible) {
       state.raf = window.requestAnimationFrame(render);
@@ -519,7 +551,7 @@
   }
 
   function start() {
-    if (!state.raf) {
+    if (!state.failed && !state.raf) {
       state.lastFrameTime = performance.now();
       state.raf = window.requestAnimationFrame(render);
     }

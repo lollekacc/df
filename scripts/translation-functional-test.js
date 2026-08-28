@@ -81,6 +81,43 @@ const installTranslationMock = async (page) => {
   });
 };
 
+const installCheckoutFixture = async (page) => {
+  const cartItem = {
+    cartItemId: 'translation-functional-item',
+    offerId: 'translation-functional-offer',
+    operator: 'Testoperatör',
+    title: 'Översättningsfixture',
+    data: '10 GB surf',
+    price: 199,
+    monthlyPrice: 199,
+    regularMonthlyPrice: 199,
+    productType: 'mobile',
+    persons: 1,
+    phoneLines: 1,
+    operatorDocuments: {
+      agreementSummaryUrl: 'villkor.html',
+      fullAgreementUrl: 'villkor.html',
+      generalTermsUrl: 'villkor.html',
+      specialTermsUrl: 'villkor.html',
+      priceListUrl: 'villkor.html',
+      withdrawalInformationUrl: 'angerratt.html',
+      version: 'translation-test-v1',
+      documentId: 'translation-functional-fixture',
+    },
+  };
+  await page.send('Page.addScriptToEvaluateOnNewDocument', {
+    source: `(() => {
+      if (!window.location.pathname.endsWith('/bestallning.html')) return;
+      localStorage.setItem('dealettCart', JSON.stringify([${JSON.stringify(cartItem)}]));
+      sessionStorage.setItem('dealettCheckout', JSON.stringify({
+        startDate: 'snarast',
+        phoneNumbers: [],
+        fixture: 'translation-functional-test'
+      }));
+    })()`,
+  });
+};
+
 const capture = async (page, fileName) => {
   if (!screenshotDirectory) return;
   fs.mkdirSync(screenshotDirectory, { recursive: true });
@@ -147,12 +184,17 @@ const auditAllPages = async (page) => {
   }
 
   await navigate(page, 'index.html');
+  await waitFor(
+    page,
+    `document.documentElement.dataset.translationState === 'ready'`,
+    useLiveTranslation ? 60_000 : 20_000
+  );
   const preservedBrands = await page.evaluate(`({
     dealett: document.querySelector('.footer-brand-link')?.textContent.trim(),
-    giftLogos: [...document.querySelectorAll('.gift-logo')].map((item) => item.textContent.trim()),
+    hm: document.querySelector('.gift-logo__face[data-company="H&M"] span:last-child')?.textContent.trim(),
   })`);
   assert(preservedBrands.dealett === 'Dealett', 'The Dealett company name was translated.');
-  assert(preservedBrands.giftLogos.includes('H&M'), 'Gift-card logo text was translated.');
+  assert(preservedBrands.hm === 'H&M', 'Gift-card logo text was translated.');
 
   return results;
 };
@@ -188,6 +230,7 @@ const main = async () => {
       deviceScaleFactor: 1,
       mobile: false,
     });
+    await installCheckoutFixture(page);
     if (!useLiveTranslation) await installTranslationMock(page);
 
     await navigate(page, 'bestallning.html');

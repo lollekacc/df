@@ -1453,7 +1453,7 @@ function createIndexQuiz() {
   }
 
   async function fetchOfferCalculation(qualification) {
-    const requestCalculation = (requestQualification) => window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/offers/calculate", {
+    const requestCalculation = (requestQualification) => window.DealettNetwork.fetchJson("/api/offers/calculate", {
       label: "Behovsanalys kalkyl",
       timeoutMs: 18000,
       method: "POST",
@@ -2121,7 +2121,7 @@ function createIndexQuiz() {
       if (status) status.textContent = "Registrerar...";
 
       try {
-        await window.DealettNetwork.fetchJson("https://db-qtmd.onrender.com/api/newsletter", {
+        await window.DealettNetwork.fetchJson("/api/newsletter", {
           label: "Nyhetsbrev",
           method: "POST",
           headers: { "Content-Type": "application/json" },

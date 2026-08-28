@@ -6,6 +6,7 @@
     "check:json": "node scripts/check-json.js",
     "check:whitespace": "node scripts/check-whitespace.js",
     "test:translations": "node scripts/translation-functional-test.js",
+    "test:public-flow": "node scripts/public-flow-contract-test.js",
     "test:checkout": "node scripts/checkout-functional-test.js",
     "test:checkout:visual": "node scripts/checkout-visual-test.js"
   }

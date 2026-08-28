@@ -242,7 +242,7 @@ const appendExtraPlanToggle = (fragment, extraNodes, label, anchorNode = null) =
 const loadPlans = async () => {
   if (plansCache) return plansCache;
 
-  const data = await window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/mobile/plans', {
+  const data = await window.DealettNetwork.fetchJson('/api/mobile/plans', {
     label: 'Familjabonnemang data',
   });
 
@@ -268,6 +268,9 @@ const buildFamilyPlanOffer = (basePlan, addonPlan, offer, answers) => {
   const listedMonthlyPrice = listedBasePrice + extraCount * addonPrice;
 
   return {
+    planId: basePlan.id,
+    sourcePlanId: basePlan.sourcePlanId || basePlan.id,
+    addonPlanId: addonPlan?.id || null,
     provider: offer.label,
     operator: offer.provider,
     title: basePlan.title,
@@ -1023,7 +1026,7 @@ rewardContinueBtn?.addEventListener('click', () => {
   const persons = Number(selectedOffer.answers?.persons) || Number.parseInt(selectedOffer.members, 10) || 1;
   const cartItem = {
     cartItemId: `${selectedOffer.operator || selectedOffer.provider}-${Date.now()}`,
-    offerId: selectedOffer.title,
+    offerId: selectedOffer.planId || selectedOffer.title,
     operator: selectedOffer.operator || selectedOffer.provider,
     title: selectedOffer.title || 'Familjepaket',
     logo: selectedOffer.logo,

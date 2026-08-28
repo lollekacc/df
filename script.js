@@ -97,8 +97,11 @@
   const maxStoredTranslations = 2500;
   const attemptedRemoteTranslations = new Set();
   const remoteTranslationFailures = new Map();
-  const configuredApiBase = window.DEALETT_API_BASE || 'https://db-qtmd.onrender.com';
-  const translationEndpoint = `${configuredApiBase}/api/translate`;
+  const resolveApiResource = (resource) => (
+    window.DealettNetwork?.resolveResource?.(resource) || resource
+  );
+  const translationEndpoint = resolveApiResource('/api/translate');
+  const attributionStorageKey = 'dealettAttributionV1';
   const queuedRemoteTranslations = new Set();
   let activeLanguage = 'sv';
   let translationObserver = null;
@@ -107,6 +110,61 @@
   let queuedTranslationLanguage = 'sv';
   let isApplyingTranslations = false;
   let originalDocumentTitle = '';
+
+  const readStoredAttribution = () => {
+    try {
+      const stored = JSON.parse(sessionStorage.getItem(attributionStorageKey) || 'null');
+      return stored && typeof stored === 'object' ? stored : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const captureAttribution = () => {
+    const stored = readStoredAttribution();
+    if (stored) return stored;
+
+    const query = new URLSearchParams(window.location.search);
+    const utm = {};
+    ['source', 'medium', 'campaign', 'term', 'content'].forEach((field) => {
+      const value = query.get(`utm_${field}`);
+      if (value) utm[field] = value.slice(0, 300);
+    });
+    const clickIds = {};
+    ['gclid', 'fbclid', 'msclkid'].forEach((field) => {
+      const value = query.get(field);
+      if (value) clickIds[field] = value.slice(0, 300);
+    });
+
+    let referrer = null;
+    try {
+      const referrerUrl = document.referrer ? new URL(document.referrer) : null;
+      referrer = referrerUrl ? `${referrerUrl.origin}${referrerUrl.pathname}` : null;
+    } catch {
+      referrer = null;
+    }
+
+    const attribution = {
+      version: 1,
+      capturedAt: new Date().toISOString(),
+      landingPage: `${window.location.pathname}${window.location.hash || ''}`,
+      referrer,
+      utm,
+      clickIds,
+    };
+
+    try {
+      sessionStorage.setItem(attributionStorageKey, JSON.stringify(attribution));
+    } catch {
+      return attribution;
+    }
+    return attribution;
+  };
+
+  window.DealettAttribution = {
+    read: readStoredAttribution,
+  };
+  captureAttribution();
 
   try {
     const storedTranslations = JSON.parse(localStorage.getItem(translationCacheStorageKey) || '[]');
@@ -1374,6 +1432,8 @@
         typing: 'Dealett assistant skriver...',
         queued: 'Ditt tillägg är köat...',
         error: 'Jag kunde inte svara just nu. Kontrollera att AI-tjänsten är konfigurerad och försök igen.',
+        demoLabel: 'Simulerat demosvar',
+        demoStatus: 'Demoläge – simulerade svar',
         streamingNone: 'Inga av dessa streamingtjänster',
         welcomeMessages: [
           'Hej och varmt välkommen till Dealett.',
@@ -1392,6 +1452,8 @@
         typing: 'Dealett assistant is typing...',
         queued: 'Your follow-up is queued...',
         error: 'I could not answer right now. Check that the AI service is configured and try again.',
+        demoLabel: 'Simulated demo response',
+        demoStatus: 'Demo mode – simulated responses',
         streamingNone: 'None of these streaming services',
         welcomeMessages: [
           'Hi and a warm welcome to Dealett.',
@@ -1405,18 +1467,21 @@
     let chatLanguage = getChatLanguage();
     let text = copy[chatLanguage] || copy.sv;
     const messages = [];
-    const conversationKey = 'dealettChatConversationV2';
-    const legacyConversationKey = 'dealettChatConversationV1';
+    const conversationKey = 'dealettChatConversationV3';
+    const legacyConversationV2Key = 'dealettChatConversationV2';
+    const legacyConversationV1Key = 'dealettChatConversationV1';
     const legacyQualificationKey = 'dealettChatQualification';
     const legacyOfferCalculationKey = 'dealettChatOfferCalculation';
     const chatSessionKey = 'dealettChatSessionId';
     const autoOpenKey = 'dealettChatAutoOpenedV2';
     const conversationTtlMs = 60 * 60 * 1000;
+    const maxRecoveryMessages = 250;
     let isSending = false;
     let typingIndicator = null;
     let lastCompletedAssistantItem = null;
     let completedTurnPositionToken = 0;
     let lastAssistantResponse = null;
+    let lastResponseWasSimulated = false;
     const renderedOfferIds = new Set();
     let offerClickedInSession = false;
     let hasUserStartedChat = false;
@@ -1489,7 +1554,8 @@
     const clearStoredConversation = () => {
       try {
         sessionStorage.removeItem(conversationKey);
-        sessionStorage.removeItem(legacyConversationKey);
+        sessionStorage.removeItem(legacyConversationV2Key);
+        sessionStorage.removeItem(legacyConversationV1Key);
         sessionStorage.removeItem(legacyQualificationKey);
         sessionStorage.removeItem(legacyOfferCalculationKey);
         sessionStorage.removeItem(chatSessionKey);
@@ -1498,11 +1564,27 @@
       }
     };
 
+    const createStableChatId = () => {
+      if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+      const bytes = new Uint8Array(16);
+      if (window.crypto?.getRandomValues) {
+        window.crypto.getRandomValues(bytes);
+      } else {
+        bytes.forEach((_, index) => {
+          bytes[index] = Math.floor(Math.random() * 256);
+        });
+      }
+      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+      const hex = [...bytes].map((value) => value.toString(16).padStart(2, '0'));
+      return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10).join('')}`;
+    };
+
     const readStoredConversation = () => {
       try {
-        const raw = sessionStorage.getItem(conversationKey);
+        const raw = sessionStorage.getItem(conversationKey) || sessionStorage.getItem(legacyConversationV2Key);
         if (!raw) {
-          sessionStorage.removeItem(legacyConversationKey);
+          sessionStorage.removeItem(legacyConversationV1Key);
           sessionStorage.removeItem(legacyQualificationKey);
           sessionStorage.removeItem(legacyOfferCalculationKey);
           sessionStorage.removeItem(chatSessionKey);
@@ -1524,12 +1606,6 @@
 
     let storedConversation = readStoredConversation();
 
-    const createChatSessionId = () => [
-      'dealett-chat',
-      Date.now().toString(36),
-      Math.random().toString(36).slice(2, 10),
-    ].join('-');
-
     const persistChatSessionId = (sessionId) => {
       try {
         sessionStorage.setItem(chatSessionKey, sessionId);
@@ -1540,24 +1616,126 @@
     };
 
     const readChatSessionId = () => {
-      if (storedConversation?.sessionId) return storedConversation.sessionId;
+      if (storedConversation?.conversationId) return storedConversation.conversationId;
+      if (storedConversation?.version >= 3 && storedConversation?.sessionId) {
+        return storedConversation.sessionId;
+      }
       try {
         const stored = sessionStorage.getItem(chatSessionKey);
-        if (stored) return stored;
+        if (storedConversation?.version >= 3 && stored) return stored;
       } catch {
         // Fall back to an in-memory id.
       }
-      return persistChatSessionId(createChatSessionId());
+      return persistChatSessionId(createStableChatId());
     };
 
     let chatSessionId = readChatSessionId();
+    let conversationToken = storedConversation?.conversationToken || null;
+    let droppedMessageCount = Math.max(Number(storedConversation?.droppedMessageCount) || 0, 0);
+    let nextMessageSequence = 1;
+
+    const normalizeStoredMessage = (message, fallbackSequence) => {
+      if (!message || !['assistant', 'user'].includes(message.role) || typeof message.content !== 'string') {
+        return null;
+      }
+      const sequence = Number.isInteger(Number(message.sequence)) && Number(message.sequence) > 0
+        ? Number(message.sequence)
+        : fallbackSequence;
+      const createdAt = message.createdAt || message.timestamp || new Date().toISOString();
+      return {
+        messageId: String(message.messageId || message.id || createStableChatId()),
+        sequence,
+        role: message.role,
+        content: message.content,
+        createdAt,
+        timestamp: createdAt,
+        language: message.language || message.contentLanguage || null,
+        contentLanguage: message.contentLanguage || message.language || null,
+        greeting: message.greeting === true,
+        hidden: message.hidden === true,
+        structuredContent: message.structuredContent || null,
+        metadata: message.metadata || null,
+      };
+    };
+
+    const recoveredMessages = Array.isArray(storedConversation?.messages)
+      ? storedConversation.messages
+        .slice(-maxRecoveryMessages)
+        .map((message, index) => normalizeStoredMessage(message, index + 1))
+        .filter(Boolean)
+        .sort((left, right) => left.sequence - right.sequence)
+      : [];
+    recoveredMessages.reduce((previousSequence, message) => {
+      message.sequence = Math.max(message.sequence, previousSequence + 1);
+      return message.sequence;
+    }, 0);
+    messages.push(...recoveredMessages);
+    nextMessageSequence = messages.reduce(
+      (highest, message) => Math.max(highest, message.sequence + 1),
+      1
+    );
+
+    const appendRecoveryMessage = (message) => {
+      messages.push(message);
+      if (messages.length > maxRecoveryMessages) {
+        const overflow = messages.length - maxRecoveryMessages;
+        messages.splice(0, overflow);
+        droppedMessageCount += overflow;
+      }
+    };
+
+    const createMessageRecord = (role, content, options = {}) => {
+      const requestedSequence = Number(options.sequence) || 0;
+      const sequence = requestedSequence >= nextMessageSequence
+        ? requestedSequence
+        : nextMessageSequence;
+      nextMessageSequence = Math.max(nextMessageSequence, Number(sequence) + 1);
+      return normalizeStoredMessage({
+        messageId: options.messageId || createStableChatId(),
+        sequence,
+        role,
+        content,
+        createdAt: options.createdAt || options.timestamp || new Date().toISOString(),
+        language: options.language || options.contentLanguage || null,
+        greeting: options.greeting === true,
+        hidden: options.hidden === true,
+        structuredContent: options.structuredContent || null,
+        metadata: options.metadata || null,
+      }, sequence);
+    };
+
+    const createPendingMessageRecord = (role, content, options = {}) => {
+      const createdAt = options.createdAt || options.timestamp || new Date().toISOString();
+      return {
+        messageId: options.messageId || createStableChatId(),
+        sequence: null,
+        role,
+        content,
+        createdAt,
+        timestamp: createdAt,
+        language: options.language || options.contentLanguage || null,
+        contentLanguage: options.contentLanguage || options.language || null,
+        greeting: options.greeting === true,
+        hidden: options.hidden === true,
+        structuredContent: options.structuredContent || null,
+        metadata: options.metadata || null,
+      };
+    };
 
     const persistConversation = (updates = {}) => {
+      const now = Date.now();
       storedConversation = {
-        version: 2,
+        version: 3,
+        conversationId: chatSessionId,
         sessionId: chatSessionId,
-        updatedAt: Date.now(),
-        messages: [],
+        conversationToken,
+        createdAt: storedConversation?.createdAt || new Date(now).toISOString(),
+        updatedAt: now,
+        updatedAtIso: new Date(now).toISOString(),
+        messages: messages.map((message) => ({ ...message })),
+        messageCount: messages.length + droppedMessageCount,
+        droppedMessageCount,
+        transcriptTruncated: droppedMessageCount > 0,
         qualification: updates.qualification !== undefined
           ? updates.qualification
           : (storedConversation?.qualification || null),
@@ -1571,6 +1749,7 @@
 
       try {
         sessionStorage.setItem(conversationKey, JSON.stringify(storedConversation));
+        sessionStorage.removeItem(legacyConversationV2Key);
         sessionStorage.setItem(chatSessionKey, chatSessionId);
       } catch {
         // The in-memory conversation remains available for this page view.
@@ -1677,7 +1856,7 @@
       const previousLanguage = chatLanguage;
       chatLanguage = getChatLanguage();
       text = copy[chatLanguage] || copy.sv;
-      status.textContent = text.status;
+      status.textContent = lastResponseWasSimulated ? text.demoStatus : text.status;
       input.placeholder = text.placeholder;
       toggle.setAttribute('aria-label', text.open);
       panel.setAttribute('aria-label', text.title);
@@ -1815,6 +1994,7 @@
       clickedOfferId = null,
     }) => ({
       eventType,
+      conversationId: chatSessionId,
       sessionId: chatSessionId,
       transcriptId: chatSessionId,
       thumb,
@@ -1834,7 +2014,7 @@
     const sendChatFeedback = (payload) => {
       if (!window.DealettNetwork?.fetchJson) return Promise.resolve(null);
 
-      return window.DealettNetwork.fetchJson(`${configuredApiBase}/api/chat-feedback`, {
+      return window.DealettNetwork.fetchJson('/api/chat-feedback', {
         label: 'Dealett chat feedback',
         method: 'POST',
         timeoutMs: 8000,
@@ -2563,14 +2743,18 @@
     };
 
     const addMessage = (role, content, options = {}) => {
-      const timestamp = options.timestamp || new Date().toISOString();
+      const messageRecord = options.messageRecord || createMessageRecord(role, content, options);
+      const timestamp = messageRecord.createdAt;
       const item = document.createElement('article');
       item.className = `dealett-chat-message dealett-chat-message--${role}`;
-      if (options.greeting) item.classList.add('dealett-chat-message--greeting');
+      item.dataset.messageId = messageRecord.messageId;
+      item.dataset.messageSequence = String(messageRecord.sequence);
+      item._dealettMessageRecord = messageRecord;
+      if (messageRecord.greeting) item.classList.add('dealett-chat-message--greeting');
       const isUser = role === 'user';
       const contentAttributes = [
         isUser ? 'data-no-translate' : '',
-        options.contentLanguage ? `lang="${escapeChatText(options.contentLanguage)}" data-translation-complete` : '',
+        messageRecord.contentLanguage ? `lang="${escapeChatText(messageRecord.contentLanguage)}" data-translation-complete` : '',
       ].filter(Boolean).join(' ');
       const contentMarkup = Array.isArray(options.paragraphs)
         ? options.paragraphs.map((paragraph, index) => (
@@ -2591,14 +2775,7 @@
         messageList.append(item);
       }
       if (options.persist !== false) {
-        messages.push({
-          role,
-          content,
-          timestamp,
-          greeting: options.greeting === true,
-          contentLanguage: options.contentLanguage || null,
-        });
-        if (messages.length > 10) messages.splice(0, messages.length - 10);
+        appendRecoveryMessage(messageRecord);
         persistConversation();
       }
       scrollMessages();
@@ -2637,7 +2814,7 @@
 
     const addCalculatedOfferToCart = async (planId, options = {}) => {
       const { announce = true, openDrawer = true } = options;
-      const response = await window.DealettNetwork.fetchJson(`${configuredApiBase}/api/offers/cart-item`, {
+      const response = await window.DealettNetwork.fetchJson('/api/offers/cart-item', {
         label: 'Dealett erbjudande till varukorg',
         method: 'POST',
         timeoutMs: 10000,
@@ -2659,20 +2836,65 @@
       return response;
     };
 
+    const buildAssistantStructuredContent = (response) => ({
+      embeddedWidget: response?.embeddedWidget || null,
+      quickReplies: Array.isArray(response?.quickReplies) ? response.quickReplies : [],
+      offerCards: Array.isArray(response?.offerCards) ? response.offerCards : [],
+      offerCalculation: response?.offerCalculation || null,
+      qualification: response?.qualification || null,
+      flowState: response?.flowState || null,
+      relatedAction: response?.relatedAction || null,
+      quizAnswersStatus: response?.quizAnswersStatus || null,
+    });
+
+    const buildAssistantMetadata = (response) => ({
+      source: response?.source || null,
+      intent: response?.intent || null,
+      interactionStage: response?.interactionStage || null,
+      conversationStyle: response?.conversationStyle || null,
+      model: response?.messageMetadata?.model || response?.model || response?.modelVersion || null,
+      simulated: response?.simulated === true,
+      simulationMode: response?.simulationMode || null,
+      responseId: response?.responseId || response?.id || null,
+      serverMessageId: response?.messageMetadata?.id || response?.message?.messageId || response?.message?.id || response?.messageId || null,
+      serverSequence: response?.messageMetadata?.sequence || response?.message?.sequence || response?.sequence || null,
+    });
+
+    const markAssistantItemAsSimulated = (assistantItem) => {
+      if (!assistantItem) return;
+      assistantItem.classList.add('dealett-chat-message--simulated');
+      assistantItem.dataset.simulated = 'true';
+      const bubble = assistantItem.querySelector('.dealett-chat-bubble');
+      if (!bubble || bubble.querySelector('.dealett-chat-simulation-label')) return;
+      const label = document.createElement('span');
+      label.className = 'dealett-chat-simulation-label';
+      label.textContent = text.demoLabel;
+      bubble.prepend(label);
+    };
+
     const renderAssistantResponse = (response) => {
       const assistantText = typeof response?.reply === 'string' ? response.reply.trim() : '';
-      if (response?.source !== 'openai' || !assistantText) {
-        throw new Error('Chat response was not generated by OpenAI');
+      const isOpenAiResponse = response?.source === 'openai' && response?.simulated !== true;
+      const isExplicitDemoResponse = response?.source === 'demo-simulated' && response?.simulated === true;
+      if ((!isOpenAiResponse && !isExplicitDemoResponse) || !assistantText) {
+        throw new Error('Chat response source was not accepted');
       }
+      lastResponseWasSimulated = isExplicitDemoResponse;
       hideTypingIndicator();
       lastAssistantResponse = {
         ...response,
         reply: assistantText,
       };
       const assistantItem = addMessage('assistant', assistantText, {
+        messageId: response?.messageMetadata?.id || response?.message?.messageId || response?.message?.id || response?.messageId || undefined,
+        sequence: response?.messageMetadata?.sequence || undefined,
+        createdAt: response?.messageMetadata?.createdAt || response?.message?.createdAt || response?.createdAt || undefined,
         contentLanguage: chatLanguage,
         before: pendingMessages[0]?.item,
+        structuredContent: buildAssistantStructuredContent(response),
+        metadata: buildAssistantMetadata(response),
       });
+      if (isExplicitDemoResponse) markAssistantItemAsSimulated(assistantItem);
       renderEmbeddedWidget(assistantItem, response.embeddedWidget);
       renderQuickReplies(assistantItem, response.quickReplies);
       const offerIds = Array.isArray(response.offerCards)
@@ -2707,18 +2929,17 @@
         input.focus();
         return;
       }
-      if (!nextMessage.options?.silent) {
-        messages.push({
-          role: 'user',
-          content: nextMessage.message,
-          timestamp: new Date().toISOString(),
-          greeting: false,
-          contentLanguage: null,
-        });
-        if (messages.length > 10) messages.splice(0, messages.length - 10);
-        persistConversation();
+      const messageRecord = createMessageRecord('user', nextMessage.message, nextMessage.messageRecord);
+      if (nextMessage.item) {
+        nextMessage.item.dataset.messageSequence = String(messageRecord.sequence);
+        nextMessage.item._dealettMessageRecord = messageRecord;
       }
-      void processMessage(nextMessage.message, nextMessage.options);
+      appendRecoveryMessage(messageRecord);
+      persistConversation();
+      void processMessage(nextMessage.message, {
+        ...nextMessage.options,
+        messageRecord,
+      });
     };
 
     const loadInitialGreeting = () => {
@@ -2830,13 +3051,52 @@
       scrollMessages();
     };
 
+    const hydrateStoredConversation = () => {
+      let latestAssistantItem = null;
+      messages.forEach((messageRecord) => {
+        const structured = messageRecord.structuredContent || {};
+        if (messageRecord.hidden) return;
+        const item = addMessage(messageRecord.role, messageRecord.content, {
+          messageRecord,
+          persist: false,
+          contentLanguage: messageRecord.contentLanguage,
+          greeting: messageRecord.greeting,
+          paragraphs: messageRecord.greeting ? messageRecord.content.split(/\n\n+/) : undefined,
+        });
+        if (messageRecord.role !== 'assistant') return;
+
+        latestAssistantItem = item;
+        lastAssistantResponse = {
+          reply: messageRecord.content,
+          ...(messageRecord.metadata || {}),
+          ...structured,
+        };
+        const isSimulated = messageRecord.metadata?.source === 'demo-simulated' &&
+          messageRecord.metadata?.simulated === true;
+        if (isSimulated) markAssistantItemAsSimulated(item);
+        lastResponseWasSimulated = isSimulated;
+        renderEmbeddedWidget(item, structured.embeddedWidget);
+        renderQuickReplies(item, structured.quickReplies);
+        const offerIds = Array.isArray(structured.offerCards)
+          ? structured.offerCards.map((card) => String(card.planId || card.id || '')).filter(Boolean)
+          : [];
+        if (offerIds.some((offerId) => !renderedOfferIds.has(offerId))) {
+          renderChatOfferCards(item, structured.offerCards);
+          offerIds.forEach((offerId) => renderedOfferIds.add(offerId));
+        }
+      });
+      if (latestAssistantItem) lastCompletedAssistantItem = latestAssistantItem;
+      status.textContent = lastResponseWasSimulated ? text.demoStatus : text.status;
+      persistConversation();
+    };
+
     const setSending = (nextValue) => {
       isSending = nextValue;
       if (nextValue) showTypingIndicator();
       else hideTypingIndicator();
       status.textContent = nextValue
         ? (pendingMessages.length ? text.queued : text.typing)
-        : text.status;
+        : (lastResponseWasSimulated ? text.demoStatus : text.status);
     };
 
     const processMessage = async (message, options = {}) => {
@@ -2847,18 +3107,40 @@
 
       setSending(true);
       let requestFailed = false;
+      const clientRecord = options.messageRecord || null;
+      const priorMessages = (clientRecord
+        ? messages.filter((item) => item.messageId !== clientRecord.messageId)
+        : messages
+      ).slice(-10).map((item) => ({
+        id: item.messageId,
+        messageId: item.messageId,
+        sequence: item.sequence,
+        role: item.role,
+        content: item.content,
+        createdAt: item.createdAt,
+        timestamp: item.createdAt,
+        language: item.language,
+      }));
 
       try {
-        const response = await window.DealettNetwork.fetchJson(`${configuredApiBase}/api/chat`, {
+        const response = await window.DealettNetwork.fetchJson('/api/chat', {
           label: 'Dealett assistant',
           method: 'POST',
           timeoutMs: 60000,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            conversationId: chatSessionId,
+            conversationToken,
             sessionId: chatSessionId,
             message,
             language: chatLanguage,
-            messages: messages.slice(0, -1),
+            clientMessage: clientRecord ? {
+              id: clientRecord.messageId,
+              sequence: clientRecord.sequence,
+              createdAt: clientRecord.createdAt,
+              language: clientRecord.language || chatLanguage,
+            } : null,
+            messages: priorMessages,
             qualification: readQualification(),
             flowState: readQuestionFlowState(),
             cart: readCartContext(),
@@ -2870,6 +3152,10 @@
           }),
         });
 
+        if (typeof response?.conversationToken === 'string' && response.conversationToken) {
+          conversationToken = response.conversationToken;
+          persistConversation();
+        }
         renderAssistantResponse(response);
       } catch {
         requestFailed = true;
@@ -2885,8 +3171,12 @@
     const resetChatConversation = ({ greet = true } = {}) => {
       clearStoredConversation();
       storedConversation = null;
-      chatSessionId = persistChatSessionId(createChatSessionId());
+      chatSessionId = persistChatSessionId(createStableChatId());
+      conversationToken = null;
+      droppedMessageCount = 0;
+      nextMessageSequence = 1;
       lastAssistantResponse = null;
+      lastResponseWasSimulated = false;
       renderedOfferIds.clear();
       offerClickedInSession = false;
       hasUserStartedChat = false;
@@ -2912,29 +3202,37 @@
       input.value = '';
 
       if (isSending) {
+        const messageRecord = createPendingMessageRecord('user', message, {
+          language: chatLanguage,
+          hidden: options.silent || options.hiddenUserMessage,
+          structuredContent: options.context ? { context: options.context } : null,
+        });
         const item = options.silent || options.hiddenUserMessage
           ? null
-          : addMessage('user', message, { persist: false });
-        pendingMessages.push({ message, options, item });
+          : addMessage('user', message, { persist: false, messageRecord });
+        pendingMessages.push({ message, options, item, messageRecord });
         status.textContent = text.queued;
         input.focus();
         return;
       }
 
-      if (options.hiddenUserMessage) {
-        messages.push({
-          role: 'user',
-          content: message,
-          timestamp: new Date().toISOString(),
-          greeting: false,
-          contentLanguage: null,
+      let messageRecord = null;
+      if (options.hiddenUserMessage || options.silent) {
+        messageRecord = createMessageRecord('user', message, {
+          language: chatLanguage,
+          hidden: true,
+          structuredContent: options.context ? { context: options.context } : null,
         });
-        if (messages.length > 10) messages.splice(0, messages.length - 10);
+        appendRecoveryMessage(messageRecord);
         persistConversation();
       } else if (!options.silent) {
-        addMessage('user', message);
+        const item = addMessage('user', message, {
+          language: chatLanguage,
+          structuredContent: options.context ? { context: options.context } : null,
+        });
+        messageRecord = item._dealettMessageRecord;
       }
-      void processMessage(message, options);
+      void processMessage(message, { ...options, messageRecord });
     };
 
     const openPanel = (options = {}) => {
@@ -2965,6 +3263,8 @@
       toggle.focus();
     };
 
+    hydrateStoredConversation();
+
     toggle.addEventListener('click', () => {
       if (panel.hidden) openPanel();
       else closePanel();
@@ -2980,6 +3280,29 @@
       ...(window.DealettChat || {}),
       open: openPanel,
       close: closePanel,
+      getConversationId: () => chatSessionId,
+      getConversationReference: () => ({
+        conversationId: chatSessionId,
+        sessionId: chatSessionId,
+        transcriptVersion: 3,
+      }),
+      getOrderAssociation: () => (
+        messages.length || conversationToken
+          ? { conversationId: chatSessionId, conversationToken }
+          : { conversationId: null, conversationToken: null }
+      ),
+      getRecoverySnapshot: () => {
+        const { conversationToken: _conversationToken, ...recoverySnapshot } = storedConversation || {
+          version: 3,
+          conversationId: chatSessionId,
+          sessionId: chatSessionId,
+          messages: [],
+          messageCount: 0,
+          droppedMessageCount: 0,
+          transcriptTruncated: false,
+        };
+        return JSON.parse(JSON.stringify(recoverySnapshot));
+      },
       readQualification,
       writeQualification,
       continueFromQuiz(payload = {}) {

@@ -89,6 +89,98 @@
     }
   };
 
+  const cloneJson = (value, fallback = null) => {
+    try {
+      return value === undefined ? fallback : JSON.parse(JSON.stringify(value));
+    } catch {
+      return fallback;
+    }
+  };
+
+  const readCurrentCheckout = () => readJson(
+    sessionStorage,
+    'dealettCheckout',
+    readJson(localStorage, 'dealettCheckout', {})
+  );
+
+  const readAttribution = () => {
+    const activeAttribution = window.DealettAttribution?.read?.();
+    if (activeAttribution) return cloneJson(activeAttribution, null);
+    return readJson(sessionStorage, 'dealettAttributionV1', null);
+  };
+
+  const readConversationSnapshot = () => {
+    const activeSnapshot = window.DealettChat?.getRecoverySnapshot?.();
+    const storedSnapshot = readJson(sessionStorage, 'dealettChatConversationV3', null);
+    const snapshot = activeSnapshot || storedSnapshot;
+    const storedConversationId = (() => {
+      try {
+        return sessionStorage.getItem('dealettChatSessionId');
+      } catch {
+        return null;
+      }
+    })();
+    const conversationId = snapshot?.conversationId || snapshot?.sessionId || storedConversationId || null;
+    if (!snapshot && !conversationId) return null;
+
+    const messages = Array.isArray(snapshot?.messages)
+      ? snapshot.messages.slice(-250).map((message) => {
+        const structuredContent = cloneJson(message.structuredContent, null);
+        const metadata = cloneJson(message.metadata, null);
+        return {
+          messageId: message.messageId || message.id || null,
+          sequence: Number(message.sequence) || null,
+          role: message.role,
+          content: String(message.content || ''),
+          createdAt: message.createdAt || message.timestamp || null,
+          language: message.language || message.contentLanguage || null,
+          greeting: message.greeting === true,
+          hidden: message.hidden === true,
+          structuredContent: structuredContent || metadata ? {
+            ...(structuredContent || {}),
+            ...(metadata ? { messageMetadata: metadata } : {}),
+          } : null,
+          metadata,
+          model: metadata?.model || null,
+        };
+      })
+      : [];
+
+    if (!messages.length) return null;
+
+    return {
+      version: Number(snapshot?.version) || 3,
+      conversationId,
+      sessionId: conversationId,
+      createdAt: snapshot?.createdAt || null,
+      updatedAt: snapshot?.updatedAtIso || snapshot?.updatedAt || null,
+      messageCount: Number(snapshot?.messageCount) || messages.length,
+      droppedMessageCount: Math.max(Number(snapshot?.droppedMessageCount) || 0, 0),
+      transcriptTruncated: snapshot?.transcriptTruncated === true,
+      messages,
+      qualification: cloneJson(snapshot?.qualification, null),
+      offerCalculation: cloneJson(snapshot?.offerCalculation, null),
+      flowState: cloneJson(snapshot?.flowState, null),
+    };
+  };
+
+  const readConversationAssociation = () => {
+    const activeAssociation = window.DealettChat?.getOrderAssociation?.();
+    const storedConversation = readJson(sessionStorage, 'dealettChatConversationV3', null);
+    const conversationSnapshot = readConversationSnapshot();
+    const conversationToken = activeAssociation?.conversationToken || storedConversation?.conversationToken || null;
+    const hasArchivedMessages = Boolean(
+      conversationSnapshot?.messages?.length || storedConversation?.messages?.length
+    );
+    if (!conversationToken && !hasArchivedMessages) {
+      return { conversationId: null, conversationToken: null };
+    }
+    return {
+      conversationId: activeAssociation?.conversationId || storedConversation?.conversationId || conversationSnapshot?.conversationId || null,
+      conversationToken,
+    };
+  };
+
   const escapeHtml = (value) => String(value ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -130,6 +222,13 @@
     readJson(localStorage, 'dealettCheckout', {}));
   const cart = storedCart;
   const primaryItem = cart[cart.length - 1];
+  const distinctCartOffers = new Set(cart.map((item) => [
+    slugify(item.operator || item.provider || ''),
+    String(item.offerId || item.planId || item.id || item.title || '').trim().toLowerCase(),
+  ].join(':')));
+  const cartSelectionSupported = distinctCartOffers.size <= 1;
+  const unsupportedCartMessage =
+    'Varukorgen innehåller flera olika erbjudanden eller operatörer. Slutför ett erbjudande i taget så att rätt operatörsavtal kopplas till beställningen.';
 
   const numericValue = (...values) => {
     const match = values.find((value) => value !== null && value !== undefined && Number.isFinite(Number(value)));
@@ -208,6 +307,8 @@
   };
 
   let documentsReady = false;
+  let serverDemoMode = false;
+  let usingDemoOperatorDocuments = false;
   let submissionInProgress = false;
   let orderSubmitted = Boolean(checkout.finalSubmissionTimestamp);
   let contactTouched = false;
@@ -237,6 +338,21 @@
   };
 
   const operatorDocuments = buildOperatorDocuments();
+
+  const applyDemoOperatorDocumentSnapshot = () => {
+    const demoDocumentUrl = 'demo-avtalssammanfattning.html';
+    Object.assign(operatorDocuments, {
+      agreementSummaryUrl: demoDocumentUrl,
+      fullAgreementUrl: demoDocumentUrl,
+      generalTermsUrl: demoDocumentUrl,
+      specialTermsUrl: demoDocumentUrl,
+      priceListUrl: demoDocumentUrl,
+      withdrawalInformationUrl: demoDocumentUrl,
+      version: 'fictional-demo-v1',
+      documentId: `fictional-demo-${order.operatorSlug || 'operator'}-summary`,
+    });
+    usingDemoOperatorDocuments = true;
+  };
 
   if (params.get('test') === 'missing-dealett-terms') {
     dealettDocuments.mediationAndGiftCardTermsUrl = '';
@@ -429,33 +545,43 @@
   const renderLegalSections = () => {
     const operatorName = order.operator || 'operatören';
 
-    els.operatorAgreementLabel.innerHTML = [
-      'Jag har tagit del av ',
-      inlineDocumentLink({
-        title: `${operatorName}s avtalssammanfattning`,
-        label: `${operatorName}s avtalssammanfattning`,
-        url: operatorDocuments.agreementSummaryUrl,
-      }),
-      ' samt ',
-      inlineDocumentLink({
-        title: `${operatorName}s allmänna villkor`,
-        label: 'allmänna villkor',
-        url: operatorDocuments.generalTermsUrl,
-      }),
-      ', ',
-      inlineDocumentLink({
-        title: `${operatorName}s särskilda villkor`,
-        label: 'särskilda villkor',
-        url: operatorDocuments.specialTermsUrl,
-      }),
-      ' och ',
-      inlineDocumentLink({
-        title: `${operatorName}s prislista`,
-        label: 'prislista',
-        url: operatorDocuments.priceListUrl,
-      }),
-      ` och vill ingå abonnemangsavtalet med ${escapeHtml(operatorName)}.`,
-    ].join('');
+    els.operatorAgreementLabel.innerHTML = usingDemoOperatorDocuments
+      ? [
+        'Jag har tagit del av ',
+        inlineDocumentLink({
+          title: 'Fiktiv demoöversikt – inte ett avtal',
+          label: 'den fiktiva demoöversikten',
+          url: operatorDocuments.agreementSummaryUrl,
+        }),
+        `. Den simulerar endast dokumentsteget för ${escapeHtml(operatorName)} och är inte ett erbjudande eller avtal.`,
+      ].join('')
+      : [
+        'Jag har tagit del av ',
+        inlineDocumentLink({
+          title: `${operatorName}s avtalssammanfattning`,
+          label: `${operatorName}s avtalssammanfattning`,
+          url: operatorDocuments.agreementSummaryUrl,
+        }),
+        ' samt ',
+        inlineDocumentLink({
+          title: `${operatorName}s allmänna villkor`,
+          label: 'allmänna villkor',
+          url: operatorDocuments.generalTermsUrl,
+        }),
+        ', ',
+        inlineDocumentLink({
+          title: `${operatorName}s särskilda villkor`,
+          label: 'särskilda villkor',
+          url: operatorDocuments.specialTermsUrl,
+        }),
+        ' och ',
+        inlineDocumentLink({
+          title: `${operatorName}s prislista`,
+          label: 'prislista',
+          url: operatorDocuments.priceListUrl,
+        }),
+        ` och vill ingå abonnemangsavtalet med ${escapeHtml(operatorName)}.`,
+      ].join('');
 
     els.dealettTermsLabel.innerHTML = [
       'Jag accepterar ',
@@ -485,8 +611,9 @@
       '.',
     ].join('');
 
-    els.paymentObligation.textContent =
-      `Beställningen innebär betalningsskyldighet gentemot ${operatorName}.`;
+    els.paymentObligation.textContent = usingDemoOperatorDocuments
+      ? 'Fiktivt demoläge: ingen riktig beställning eller betalningsskyldighet uppstår.'
+      : `Beställningen innebär betalningsskyldighet gentemot ${operatorName}.`;
   };
 
   const setFieldState = (field, valid, errorText, showError) => {
@@ -551,17 +678,42 @@
     if (focus && text) els.message.focus();
   };
 
+  const getPendingOrderSubmission = () => {
+    const pending = readCurrentCheckout().pendingOrderSubmission;
+    if (
+      !pending ||
+      pending.idempotencyKey !== orderId ||
+      !pending.payload ||
+      pending.payload.clientOrderId !== orderId
+    ) {
+      return null;
+    }
+    return pending;
+  };
+
+  const getIdleSubmitLabel = () => {
+    const pending = getPendingOrderSubmission();
+    if (!pending) return serverDemoMode
+      ? 'Simulera testbeställning med BankID'
+      : 'Godkänn och beställ med BankID';
+    return pending.payload.testMode
+      ? 'Registrera testsigneringen igen'
+      : 'Skicka den signerade beställningen igen';
+  };
+
   const updateSubmitState = () => {
-    const canSubmit = (
-      validateContact({ showErrors: contactTouched }) &&
-      isOrderValid() &&
-      documentsReady &&
-      allRequiredConfirmationsAccepted() &&
-      !submissionInProgress &&
-      !orderSubmitted
+    const pendingSubmission = getPendingOrderSubmission();
+    const canSubmit = cartSelectionSupported && !submissionInProgress && !orderSubmitted && Boolean(
+      pendingSubmission || (
+        validateContact({ showErrors: contactTouched }) &&
+        isOrderValid() &&
+        documentsReady &&
+        allRequiredConfirmationsAccepted()
+      )
     );
 
     els.submitButton.disabled = !canSubmit;
+    if (!submissionInProgress) els.submitLabel.textContent = getIdleSubmitLabel();
   };
 
   const isLocalDocument = (url) => {
@@ -593,9 +745,37 @@
     }
   };
 
+  const readPublicEnvironment = async () => {
+    if (!window.DealettNetwork?.fetchJson) return { demoMode: false };
+    try {
+      const environment = await window.DealettNetwork.fetchJson('/api/public/v1/environment', {
+        timeoutMs: 3000,
+        label: 'Publik miljöstatus',
+      });
+      return { demoMode: environment?.demoMode === true };
+    } catch {
+      return { demoMode: false };
+    }
+  };
+
   const verifyDocuments = async () => {
     els.documentStatus.className = 'document-status';
     els.documentStatus.textContent = 'Kontrollerar att avtalsdokumenten går att öppna...';
+
+    if (!cartSelectionSupported) {
+      documentsReady = false;
+      els.documentStatus.className = 'document-status is-error';
+      els.documentStatus.textContent = unsupportedCartMessage;
+      updateSubmitState();
+      return;
+    }
+
+    const environment = await readPublicEnvironment();
+    serverDemoMode = environment.demoMode;
+    if (serverDemoMode) {
+      applyDemoOperatorDocumentSnapshot();
+      renderLegalSections();
+    }
 
     const requiredDocuments = [
       operatorDocuments.agreementSummaryUrl,
@@ -616,7 +796,9 @@
 
     if (documentsReady) {
       els.documentStatus.className = 'document-status is-ready';
-      els.documentStatus.textContent = 'Alla dokument är tillgängliga.';
+      els.documentStatus.textContent = usingDemoOperatorDocuments
+        ? 'Fiktivt demoläge: endast simulerade dokument används och ingen riktig beställning skapas.'
+        : 'Alla dokument är tillgängliga.';
     } else {
       els.documentStatus.className = 'document-status is-error';
       els.documentStatus.textContent =
@@ -627,8 +809,12 @@
   };
 
   const saveCheckoutDraft = (extra = {}) => {
+    const currentCheckout = readCurrentCheckout();
+    const conversationSnapshot = readConversationSnapshot();
+    const conversationAssociation = readConversationAssociation();
     writeSessionJson('dealettCheckout', {
       ...checkout,
+      ...currentCheckout,
       cart,
       contact: {
         email: els.email.value.trim(),
@@ -636,6 +822,13 @@
       },
       orderId,
       sessionId,
+      conversationId: conversationAssociation?.conversationId || conversationSnapshot?.conversationId || null,
+      attribution: currentCheckout.attribution || readAttribution(),
+      sourcePage: currentCheckout.sourcePage || {
+        title: document.title,
+        path: window.location.pathname,
+        capturedAt: nowIso(),
+      },
       startDate: order.startDate,
       numberHandling: order.numberHandling,
       updatedAt: nowIso(),
@@ -680,6 +873,7 @@
         type: order.numberHandling,
         lineCount: order.persons,
         transferredNumberCount: order.transferredNumberCount,
+        phoneNumbers: Array.isArray(checkout.phoneNumbers) ? [...checkout.phoneNumbers] : [],
       },
       giftCards: order.giftCards.map((gift) => ({
         provider: gift.provider,
@@ -687,6 +881,8 @@
         suppliedBy: 'Dealett',
       })),
       operatorDocuments: {
+        operator: order.operator,
+        planId: order.offerId || null,
         agreementSummaryUrl: operatorDocuments.agreementSummaryUrl,
         fullAgreementUrl: operatorDocuments.fullAgreementUrl || null,
         generalTermsUrl: operatorDocuments.generalTermsUrl,
@@ -695,6 +891,7 @@
         withdrawalInformationUrl: operatorDocuments.withdrawalInformationUrl,
         version: operatorDocuments.version || null,
         documentId: operatorDocuments.documentId || null,
+        demoOnly: usingDemoOperatorDocuments,
       },
       dealettDocuments: { ...dealettDocuments },
       confirmations: {
@@ -719,8 +916,314 @@
         accepted: Boolean(marketingInput?.checked),
         recordedAt: confirmationTimestamps.marketingConsent,
       },
+      conversationId: readConversationAssociation()?.conversationId || readConversationSnapshot()?.conversationId || null,
       finalSubmissionTimestamp: submittedAt,
-      testMode: false,
+      testMode: serverDemoMode,
+    };
+  };
+
+  const buildCartItemSnapshot = (item, index) => ({
+    cartItemId: item.cartItemId || `${orderId}-cart-item-${index + 1}`,
+    offerId: item.offerId || item.id || item.planId || null,
+    operator: item.operator || item.provider || null,
+    title: item.title || item.name || null,
+    productType: item.productType || null,
+    data: item.data || item.surf || null,
+    dataAmount: Number(item.dataAmount) || 0,
+    speed: item.speed || null,
+    speedMbps: Number(item.speedMbps) || 0,
+    persons: Math.max(Number(item.persons) || 1, 1),
+    quantity: Math.max(Number(item.persons) || 1, 1),
+    phoneLines: Math.max(Number(item.phoneLines) || 0, 0),
+    monthlyPrice: numericValue(item.monthlyPrice, item.price, item.finalPrice),
+    price: numericValue(item.monthlyPrice, item.price, item.finalPrice),
+    bindingMonths: Math.max(numericValue(item.bindingMonths, item.binding), 0),
+    activationDate: order.startDate,
+    pricing: {
+      monthlyPrice: numericValue(item.monthlyPrice, item.price, item.finalPrice),
+      regularMonthlyPrice: numericValue(item.regularMonthlyPrice, item.monthlyPrice, item.price),
+      pricePerPerson: numericValue(item.pricePerPerson),
+      bindingMonths: Math.max(numericValue(item.bindingMonths, item.binding), 0),
+      noticePeriodMonths: Math.max(numericValue(item.noticePeriodMonths), 0),
+      startFee: Math.max(numericValue(item.startFee, item.setupFee), 0),
+      invoiceFee: Math.max(numericValue(item.invoiceFee), 0),
+      invoiceFeeOptional: item.invoiceFeeOptional !== false,
+      minimumTotalCost: Math.max(numericValue(item.minimumTotalCost, item.totalCostFirst24Months), 0),
+      listedMonthlyPrice: numericValue(item.listedMonthlyPrice),
+      includedServiceValue: numericValue(item.includedServiceValue),
+    },
+    rewards: {
+      ...cloneJson(item.rewards, {}),
+      total: Math.max(Number(item.rewardTotal) || 0, 0),
+      amount: Math.max(Number(item.rewardTotal) || 0, 0),
+      currency: 'SEK',
+      type: 'gift_card',
+      provider: Object.keys(cloneJson(item.rewards, {}))[0] || null,
+    },
+    rewardTotal: Math.max(Number(item.rewardTotal) || 0, 0),
+    features: cloneJson(item.features, []),
+    addOn: cloneJson(item.addon || item.addOn, null),
+    streamingOffer: cloneJson(item.streamingOffer, null),
+    internationalTravel: item.internationalTravel || null,
+    deliveryType: item.deliveryType || null,
+    source: {
+      channel: typeof item.source === 'string' ? item.source : item.source?.channel || null,
+      catalogVersion: item.catalogVersion || item.source?.catalogVersion || null,
+      ruleVersion: item.ruleVersion || item.source?.ruleVersion || null,
+      campaignVersion: item.campaignVersion || item.source?.campaignVersion || null,
+    },
+    campaign: cloneJson(item.campaign, null),
+    campaignVersion: item.campaignVersion || null,
+    ruleVersion: item.ruleVersion || null,
+    operatorDocuments: cloneJson(item.operatorDocuments, null),
+    answers: cloneJson(item.answers, {}),
+    state: cloneJson(item.state, null),
+    qualification: cloneJson(item.qualification || item.answers?.qualification, null),
+    offerCalculation: (() => {
+      const calculation = cloneJson(item.offerCalculation || item.answers?.offerCalculation, null);
+      if (!calculation) return null;
+      return {
+        ...calculation,
+        inputs: cloneJson(calculation.inputs || item.qualification || item.answers?.qualification, {}),
+        outputs: cloneJson(calculation.outputs || calculation, {}),
+      };
+    })(),
+  });
+
+  const getParticipantValue = (item, itemIndex, field, fallback = null) => {
+    const state = item.state || {};
+    const answers = item.answers || {};
+    const qualification = item.qualification || answers.qualification || {};
+    const person = Array.isArray(qualification.people) ? qualification.people[itemIndex] : null;
+    const fieldSources = {
+      currentOperator: [
+        state.operatorsByPerson?.[itemIndex],
+        answers.operatorsByPerson?.[itemIndex],
+        qualification.operators?.[itemIndex],
+        person?.operator,
+        answers.currentOperator,
+      ],
+      bindingEnd: [
+        state.bindingEndDatesByPerson?.[itemIndex],
+        answers.bindingEndDatesByPerson?.[itemIndex],
+        qualification.bindingEnds?.[itemIndex],
+        person?.bindingEnd,
+        answers.operatorDates?.[itemIndex],
+      ],
+      currentMonthlyCost: [
+        answers.currentMonthlyCosts?.[itemIndex],
+        person?.currentMonthlyCost,
+      ],
+      noticePeriodMonths: [
+        answers.noticePeriodMonths?.[itemIndex],
+        person?.noticePeriodMonths,
+      ],
+    };
+    return fieldSources[field]?.find((value) => value !== undefined && value !== null && value !== '') ?? fallback;
+  };
+
+  const buildParticipantSnapshots = (cartItems, phoneNumbers) => {
+    let phoneNumberIndex = 0;
+    return cartItems.flatMap((item, subscriptionIndex) => {
+      const participantCount = Math.max(Number(item.persons) || 1, 1);
+      const phoneLineCount = Math.max(Number(item.phoneLines) || 0, 0);
+      return Array.from({ length: participantCount }, (_, participantIndex) => {
+        const receivesPhoneNumber = participantIndex < phoneLineCount;
+        const phoneNumber = receivesPhoneNumber ? (phoneNumbers[phoneNumberIndex++] || null) : null;
+        return {
+          participantId: `${item.cartItemId}-participant-${participantIndex + 1}`,
+          subscriptionId: item.cartItemId,
+          subscriptionIndex,
+          participantIndex,
+          role: participantIndex === 0 ? 'primary' : 'member',
+          phoneNumber,
+          numberPorting: phoneNumber ? 'number_transfer' : (receivesPhoneNumber ? 'new_number' : 'not_applicable'),
+          numberHandling: phoneNumber ? 'number_transfer' : (receivesPhoneNumber ? 'new_number' : 'not_applicable'),
+          requestedActivationDate: order.startDate,
+          currentOperator: getParticipantValue(cart[subscriptionIndex] || {}, participantIndex, 'currentOperator'),
+          bindingEnd: getParticipantValue(cart[subscriptionIndex] || {}, participantIndex, 'bindingEnd'),
+          currentMonthlyCost: getParticipantValue(cart[subscriptionIndex] || {}, participantIndex, 'currentMonthlyCost'),
+          noticePeriodMonths: getParticipantValue(cart[subscriptionIndex] || {}, participantIndex, 'noticePeriodMonths'),
+        };
+      });
+    });
+  };
+
+  const buildPublicOrderPayload = ({ agreementPayload, bankIdResult, submittedAt }) => {
+    const currentCheckout = readCurrentCheckout();
+    const contact = {
+      email: els.email.value.trim(),
+      phone: els.phone.value.trim(),
+    };
+    const phoneNumbers = (Array.isArray(currentCheckout.phoneNumbers)
+      ? currentCheckout.phoneNumbers
+      : checkout.phoneNumbers || []
+    ).map((number) => String(number || '').trim()).filter(Boolean);
+    const cartItems = cart.map(buildCartItemSnapshot);
+    const primaryCartItem = cartItems[0] || null;
+    const primaryQualification = cloneJson(
+      primaryCartItem?.qualification || primaryCartItem?.answers?.qualification,
+      {}
+    );
+    const primaryCalculation = cloneJson(
+      primaryCartItem?.offerCalculation || primaryCartItem?.answers?.offerCalculation,
+      {}
+    );
+    const calculation = {
+      ...primaryCalculation,
+      inputs: cloneJson(primaryCalculation.inputs || primaryQualification, {}),
+      outputs: cloneJson(primaryCalculation.outputs || primaryCalculation, {}),
+    };
+    const participants = buildParticipantSnapshots(cartItems, phoneNumbers);
+    const conversationSnapshot = readConversationSnapshot();
+    const conversationAssociation = readConversationAssociation();
+    const conversationId = conversationAssociation?.conversationId ||
+      conversationSnapshot?.conversationId ||
+      null;
+    const attribution = currentCheckout.attribution || readAttribution();
+    const subscriptions = cartItems.map((item) => ({
+      subscriptionId: item.cartItemId,
+      offerId: item.offerId,
+      operator: item.operator,
+      planName: item.title,
+      productType: item.productType,
+      data: item.data,
+      dataAmount: item.dataAmount,
+      speed: item.speed,
+      speedMbps: item.speedMbps,
+      participantCount: item.persons,
+      phoneLineCount: item.phoneLines,
+      quantity: item.quantity,
+      monthlyPrice: item.monthlyPrice,
+      price: item.price,
+      bindingMonths: item.bindingMonths,
+      activationDate: item.activationDate,
+      pricing: item.pricing,
+      rewards: item.rewards,
+      rewardTotal: item.rewardTotal,
+      features: item.features,
+      addOn: item.addOn,
+      streamingOffer: item.streamingOffer,
+      internationalTravel: item.internationalTravel,
+      deliveryType: item.deliveryType,
+      campaign: item.campaign,
+      campaignVersion: item.campaignVersion,
+      ruleVersion: item.ruleVersion,
+      source: item.source,
+    }));
+    const questionnaire = {
+      ...primaryQualification,
+      answersBySubscription: Object.fromEntries(cartItems.map((item) => [
+        item.cartItemId,
+        {
+          ...cloneJson(item.answers, {}),
+          ...cloneJson(item.qualification, {}),
+          answers: item.answers,
+          state: item.state,
+          qualification: item.qualification,
+        },
+      ])),
+    };
+    const recommendation = {
+      selectedOfferId: primaryCartItem?.offerId || null,
+      selectedOffer: primaryCartItem ? {
+        planId: primaryCartItem.offerId,
+        operator: primaryCartItem.operator,
+        title: primaryCartItem.title,
+      } : null,
+      alternatives: Array.isArray(primaryCalculation?.options)
+        ? cloneJson(primaryCalculation.options, [])
+        : [],
+      selections: cartItems.map((item) => ({
+        subscriptionId: item.cartItemId,
+        selectedOfferId: item.offerId,
+        source: item.source,
+        qualification: item.qualification,
+        calculation: item.offerCalculation,
+        alternatives: Array.isArray(item.offerCalculation?.options)
+          ? cloneJson(item.offerCalculation.options, [])
+          : [],
+      })),
+    };
+    const originatingPageDetails = cloneJson(currentCheckout.sourcePage, null);
+    const consentEvidence = {
+      source: 'public_web_checkout',
+      sessionId,
+      evidenceId: `${orderId}-consent`,
+      capturedAt: submittedAt,
+      confirmationMethod: 'checkboxes_before_bankid',
+      locale: document.documentElement.lang || 'sv',
+      confirmations: cloneJson(agreementPayload.confirmations, {}),
+      marketingConsent: cloneJson(agreementPayload.marketingConsent, {}),
+      operatorDocuments: cloneJson(agreementPayload.operatorDocuments, {}),
+      dealettDocuments: cloneJson(agreementPayload.dealettDocuments, {}),
+    };
+    const source = {
+      channel: 'public_web_checkout',
+      checkoutMode: params.get('embedded') === '1' ? 'embedded_cart' : 'standalone',
+      checkoutPage: window.location.pathname,
+      checkoutPageDetails: {
+        title: document.title,
+        path: window.location.pathname,
+      },
+      originatingPage: originatingPageDetails?.path || null,
+      originatingPageDetails,
+      cartSources: [...new Set(cartItems
+        .map((item) => item.source?.channel || null)
+        .filter(Boolean))],
+    };
+    const bankId = {
+      simulated: Boolean(serverDemoMode || bankIdResult?.simulated),
+      orderRef: bankIdResult?.orderRef || null,
+      signatureId: bankIdResult?.signature?.id || null,
+      signedAt: bankIdResult?.signature?.signedAt || submittedAt,
+      user: bankIdResult?.user ? {
+        name: bankIdResult.user.name || null,
+        personalNumberMasked: bankIdResult.user.personalNumberMasked || null,
+      } : null,
+    };
+
+    return {
+      schemaVersion: 'public-order-v1',
+      clientOrderId: orderId,
+      orderId,
+      idempotencyKey: orderId,
+      checkoutSessionId: sessionId,
+      submittedAt,
+      language: document.documentElement.lang || 'sv',
+      status: bankId.simulated ? 'development_signed' : 'submitted',
+      testMode: bankId.simulated,
+      customer: { ...contact, contact },
+      contact,
+      selectedOfferId: primaryCartItem?.offerId || null,
+      cartItems,
+      subscriptions,
+      participants,
+      numberHandling: {
+        type: currentCheckout.numberHandling || order.numberHandling,
+        phoneNumbers,
+        transferredNumberCount: phoneNumbers.length,
+      },
+      phoneNumbers,
+      portedNumbers: phoneNumbers,
+      questionnaire,
+      qualification: primaryQualification,
+      recommendation,
+      calculation,
+      consentEvidence,
+      attribution: cloneJson(attribution, null),
+      source,
+      sourcePage: originatingPageDetails?.path || window.location.pathname,
+      conversationId,
+      conversationToken: conversationAssociation?.conversationToken || null,
+      conversationSnapshot: conversationSnapshot ? {
+        ...conversationSnapshot,
+        conversationId,
+        totalMessageCount: conversationSnapshot?.messageCount || 0,
+        archivedClientAt: submittedAt,
+      } : null,
+      agreement: agreementPayload,
+      bankId,
     };
   };
 
@@ -734,9 +1237,13 @@
 
     window.DealettBankId.open({
       intent: 'sign',
-      title: 'Signera beställningen',
-      description: `Kontrollera uppgifterna och signera avtalet med ${order.operator}.`,
-      userVisibleData: `${order.operator} ${order.subscription}, ${formatCurrency(order.currentMonthlyPrice)} kr per månad. Betalningsskyldighet uppstår gentemot ${order.operator}.`,
+      title: serverDemoMode ? 'Simulera testsignering' : 'Signera beställningen',
+      description: serverDemoMode
+        ? 'Fiktivt demoläge. Signeringen är simulerad och skapar inget riktigt avtal.'
+        : `Kontrollera uppgifterna och signera avtalet med ${order.operator}.`,
+      userVisibleData: serverDemoMode
+        ? `[FIKTIV DEMO – INTE ETT AVTAL] ${order.operator} ${order.subscription}, ${formatCurrency(order.currentMonthlyPrice)} kr per månad.`
+        : `${order.operator} ${order.subscription}, ${formatCurrency(order.currentMonthlyPrice)} kr per månad. Betalningsskyldighet uppstår gentemot ${order.operator}.`,
       payload: {
         agreement: orderPayload,
         customerContact: {
@@ -758,17 +1265,84 @@
     });
   });
 
-  const postOrder = async (payload) => {
+  const postOrder = async (payload, idempotencyKey = orderId) => {
     if (!window.DealettNetwork?.fetchJson) {
       throw new Error('Ordertjänsten är inte tillgänglig.');
     }
 
-    return window.DealettNetwork.fetchJson('https://db-qtmd.onrender.com/api/orders', {
+    return window.DealettNetwork.fetchJson('/api/public/v1/orders', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Idempotency-Key': idempotencyKey,
+      },
       body: JSON.stringify(payload),
       timeoutMs: 8000,
       label: 'Beställningen',
+    });
+  };
+
+  const normalizeAcceptedOrder = (response) => {
+    const acceptedOrder = response?.order || response?.data || response;
+    const backendOrderId = acceptedOrder?.id || acceptedOrder?.orderId || response?.orderId || null;
+    const reference = acceptedOrder?.orderNumber ||
+      acceptedOrder?.orderReference ||
+      acceptedOrder?.publicReference ||
+      response?.orderNumber ||
+      response?.orderReference ||
+      response?.publicReference ||
+      backendOrderId;
+    if (!response || !reference) {
+      const error = new Error('Ordertjänsten bekräftade inte att beställningen har sparats. Försök skicka igen.');
+      error.code = 'order_acceptance_unconfirmed';
+      throw error;
+    }
+
+    return {
+      backendOrderId,
+      reference,
+      acceptedAt: acceptedOrder?.acceptedAt || acceptedOrder?.createdAt || response?.acceptedAt || nowIso(),
+      testMode: acceptedOrder?.testMode ?? response?.testMode,
+    };
+  };
+
+  const persistPendingOrderSubmission = (payload) => {
+    const pendingOrderSubmission = {
+      version: 1,
+      idempotencyKey: orderId,
+      signedAt: payload.bankId.signedAt,
+      createdAt: nowIso(),
+      payload,
+    };
+    saveCheckoutDraft({ pendingOrderSubmission });
+    return pendingOrderSubmission;
+  };
+
+  const completeAcceptedOrder = ({ acceptedOrder, pendingSubmission }) => {
+    const simulated = Boolean(pendingSubmission.payload.testMode || acceptedOrder.testMode === true);
+    orderSubmitted = true;
+    saveCheckoutDraft({
+      agreement: pendingSubmission.payload.agreement,
+      publicOrderCapture: {
+        schemaVersion: pendingSubmission.payload.schemaVersion,
+        clientOrderId: pendingSubmission.payload.clientOrderId,
+        conversationId: pendingSubmission.payload.conversationId,
+      },
+      pendingOrderSubmission: null,
+      finalSubmissionTimestamp: acceptedOrder.acceptedAt,
+      orderReference: acceptedOrder.reference,
+      backendOrderId: acceptedOrder.backendOrderId,
+      testMode: simulated,
+      bankId: {
+        simulated,
+        orderRef: pendingSubmission.payload.bankId.orderRef,
+        signatureId: pendingSubmission.payload.bankId.signatureId,
+        signedAt: pendingSubmission.payload.bankId.signedAt,
+      },
+    });
+    showResult({
+      simulated,
+      reference: acceptedOrder.reference,
     });
   };
 
@@ -792,12 +1366,12 @@
     window.scrollTo({ top: els.result.offsetTop - 120, behavior: 'smooth' });
   };
 
-  const setSubmitting = (isSubmitting) => {
+  const setSubmitting = (isSubmitting, label = 'Startar BankID...') => {
     submissionInProgress = isSubmitting;
     els.submitButton.classList.toggle('is-loading', isSubmitting);
     els.submitLabel.textContent = isSubmitting
-      ? 'Startar BankID...'
-      : 'Godkänn och beställ med BankID';
+      ? label
+      : getIdleSubmitLabel();
     updateSubmitState();
   };
 
@@ -820,6 +1394,38 @@
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (submissionInProgress || orderSubmitted) return;
+
+    if (!cartSelectionSupported) {
+      setMessage(unsupportedCartMessage, { focus: true });
+      return;
+    }
+
+    const existingPendingSubmission = getPendingOrderSubmission();
+    if (existingPendingSubmission) {
+      setMessage('', { type: 'info' });
+      setSubmitting(true, existingPendingSubmission.payload.testMode
+        ? 'Registrerar testsigneringen...'
+        : 'Registrerar beställningen...');
+      try {
+        const response = await postOrder(
+          existingPendingSubmission.payload,
+          existingPendingSubmission.idempotencyKey
+        );
+        const acceptedOrder = normalizeAcceptedOrder(response);
+        completeAcceptedOrder({
+          acceptedOrder,
+          pendingSubmission: existingPendingSubmission,
+        });
+      } catch (error) {
+        setMessage(
+          `Den signerade beställningen har ännu inte bekräftats av ordertjänsten. ${error.message || 'Försök skicka igen om en stund.'}`,
+          { focus: true }
+        );
+      } finally {
+        if (!orderSubmitted) setSubmitting(false);
+      }
+      return;
+    }
 
     contactTouched = true;
     updateSubmitState();
@@ -850,42 +1456,35 @@
     }
 
     setMessage('');
-    setSubmitting(true);
+    setSubmitting(true, 'Startar BankID...');
     const submittedAt = nowIso();
     const agreementPayload = buildAgreementPayload(submittedAt);
 
     try {
       const bankIdResult = await startBankIdOrder(agreementPayload);
-      const simulated = Boolean(bankIdResult?.simulated);
-      const storedOrder = await postOrder({
-        status: simulated ? 'development_signed' : 'submitted',
-        testMode: simulated,
-        agreement: agreementPayload,
-        bankId: {
-          simulated,
-          orderRef: bankIdResult?.orderRef || null,
-          signatureId: bankIdResult?.signature?.id || null,
-          signedAt: bankIdResult?.signature?.signedAt || submittedAt,
-        },
+      const publicOrderPayload = buildPublicOrderPayload({
+        agreementPayload,
+        bankIdResult,
+        submittedAt,
       });
-
-      orderSubmitted = true;
-      saveCheckoutDraft({
-        agreement: agreementPayload,
-        finalSubmissionTimestamp: submittedAt,
-        orderReference: storedOrder.orderReference,
-        bankId: {
-          simulated,
-          signedAt: bankIdResult?.signature?.signedAt || submittedAt,
-        },
-      });
-      showResult({
-        simulated,
-        reference: storedOrder.orderReference || orderId,
+      const pendingSubmission = persistPendingOrderSubmission(publicOrderPayload);
+      els.submitLabel.textContent = publicOrderPayload.testMode
+        ? 'Registrerar testsigneringen...'
+        : 'Registrerar beställningen...';
+      const response = await postOrder(publicOrderPayload, pendingSubmission.idempotencyKey);
+      const acceptedOrder = normalizeAcceptedOrder(response);
+      completeAcceptedOrder({
+        acceptedOrder,
+        pendingSubmission,
       });
     } catch (error) {
       if (error.code === 'bankid_cancelled') {
         setMessage(error.message);
+      } else if (getPendingOrderSubmission()) {
+        setMessage(
+          `Signeringen är klar, men beställningen har ännu inte bekräftats av ordertjänsten. ${error.message || 'Försök skicka den signerade beställningen igen om en stund.'}`,
+          { focus: true }
+        );
       } else {
         setMessage(
           error.message || 'Beställningen kunde inte slutföras. Försök igen om en stund.',
@@ -992,7 +1591,8 @@
   };
 
   const initialize = () => {
-    const contact = checkout.contact || {};
+    const currentCheckout = readCurrentCheckout();
+    const contact = currentCheckout.contact || checkout.contact || {};
     els.email.value = contact.email || '';
     els.phone.value = contact.phone || '';
 
@@ -1006,6 +1606,19 @@
       els.summaryToggle?.setAttribute('aria-expanded', 'true');
     }
     saveCheckoutDraft();
+    if (orderSubmitted && currentCheckout.orderReference) {
+      showResult({
+        simulated: Boolean(currentCheckout.testMode ?? currentCheckout.bankId?.simulated),
+        reference: currentCheckout.orderReference,
+      });
+      return;
+    }
+    if (getPendingOrderSubmission()) {
+      setMessage(
+        'Signeringen är klar, men beställningen väntar fortfarande på bekräftelse från ordertjänsten. Skicka den signerade beställningen igen.',
+        { type: 'info' }
+      );
+    }
     updateSubmitState();
     verifyDocuments();
 
