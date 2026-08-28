@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260827-3" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/hero-motion.css?v=20260825-3" />
-    <link rel="stylesheet" href="./assets/information-rotator.css?v=20260827-11" />
+    <link rel="stylesheet" href="./assets/information-rotator.css?v=20260828-1" />
   </head>
   <body>
     <div data-include="header"></div>
@@ -32,14 +32,17 @@
           </header>
           <div class="hero-information__list">
             <button class="hero-information__item" type="button" data-information-slot data-information-index="0" aria-label="Visa svar på fråga 1">
+              <span class="hero-information__number" data-information-number aria-hidden="true">1</span>
               <span class="hero-information__text" data-information-text>Jag är ensam och använder mest mobilen till sociala medier, musik och vanlig surf. Vilket abonnemang passar mig bäst?</span>
               <span class="hero-information__arrow" aria-hidden="true">↗</span>
             </button>
             <button class="hero-information__item" type="button" data-information-slot data-information-index="1" aria-label="Visa svar på fråga 2">
+              <span class="hero-information__number" data-information-number aria-hidden="true">2</span>
               <span class="hero-information__text" data-information-text>Vi är två personer som vill samla våra abonnemang och få en lägre månadskostnad. Vilket alternativ ger oss bäst värde?</span>
               <span class="hero-information__arrow" aria-hidden="true">↗</span>
             </button>
             <button class="hero-information__item" type="button" data-information-slot data-information-index="2" aria-label="Visa svar på fråga 3">
+              <span class="hero-information__number" data-information-number aria-hidden="true">3</span>
               <span class="hero-information__text" data-information-text>Vi är en familj på 3 personer med olika surfbehov. En använder mycket surf medan de andra använder mindre. Vad passar oss bäst?</span>
               <span class="hero-information__arrow" aria-hidden="true">↗</span>
             </button>
@@ -442,6 +445,9 @@
                         <button class="quiz-option rounded-[1.5rem] border border-slate-200 bg-white px-6 py-5 text-left text-lg font-bold text-slate-900 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md" data-international-usage="data" type="button">
                           Bara surf
                         </button>
+                        <button class="quiz-option rounded-[1.5rem] border border-slate-200 bg-white px-6 py-5 text-left text-lg font-bold text-slate-900 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md" data-international-usage="family_calls" type="button">
+                          Ringa fritt inom familjen
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -584,9 +590,9 @@
           <a href="#quiz-steps-wrapper" class="button button--primary analysis-start-action" data-home-quiz-link data-analysis-start-action><span data-analysis-start-label>Starta analysen</span><span aria-hidden="true">→</span></a>
         </div>
         <ol class="home-how__steps">
-          <li><span>01</span><div><h3>Berätta vad du behöver</h3><p>Surf, antal personer och ungefärlig budget.</p></div></li>
-          <li><span>02</span><div><h3>Vi jämför åt dig</h3><p>Pris, villkor, täckning och värdet på bonusen.</p></div></li>
-          <li><span>03</span><div><h3>Välj din bästa match</h3><p>Se allt tydligt och byt när det passar dig.</p></div></li>
+          <li><span>1</span><div><h3>Berätta vad du behöver</h3><p>Surf, antal personer och ungefärlig budget.</p></div></li>
+          <li><span>2</span><div><h3>Vi jämför åt dig</h3><p>Pris, villkor, täckning och värdet på bonusen.</p></div></li>
+          <li><span>3</span><div><h3>Välj din bästa match</h3><p>Se allt tydligt och byt när det passar dig.</p></div></li>
         </ol>
       </section>
 
@@ -745,7 +751,7 @@
     <script src="./assets/coverage-maplibre.js"></script>
     <script src="./assets/newsletter-codex-background.js"></script>
     <script src="./assets/gift-logo-switcher.js"></script>
-    <script src="./assets/information-rotator.js?v=20260827-4"></script>
+    <script src="./assets/information-rotator.js?v=20260828-1"></script>
     <script src="assets/indexbehovsanalys.js"></script>
   </body>
 </html>

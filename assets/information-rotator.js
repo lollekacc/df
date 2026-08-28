@@ -69,6 +69,8 @@
   const applyQuestion = (slot, questionIndex) => {
     slot.dataset.informationIndex = String(questionIndex);
     slot.setAttribute('aria-label', `Visa svar på fråga ${questionIndex + 1}`);
+    const number = slot.querySelector('[data-information-number]');
+    if (number) number.textContent = String(questionIndex + 1);
     const text = slot.querySelector('[data-information-text]');
     if (text) text.textContent = questions[questionIndex];
   };

@@ -1940,6 +1940,7 @@ function createIndexQuiz() {
   function getInternationalUsageLabel(value) {
     if (value === "calls") return "Lokala samtal och surf";
     if (value === "data") return "Bara surf";
+    if (value === "family_calls") return "Ringa fritt inom familjen";
     return value;
   }
 

@@ -6288,8 +6288,8 @@ html body.quiz-overlay-open .quiz-modal-layer :is(#step2, #step4, #step5, #step6
 }
 
 html body.quiz-overlay-open .quiz-modal-layer #step5 .quiz-option-list {
-  width: min(100%, 520px) !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  width: min(100%, 787px) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
 html body.quiz-overlay-open .quiz-modal-layer #step3 .quiz-card-body {
