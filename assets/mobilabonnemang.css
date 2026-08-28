@@ -723,6 +723,32 @@ html body.family-page .plan-card > .offer-card-details {
   margin-top: 0;
 }
 
+.offer-extra-toggle-row {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: center;
+}
+
+.offer-extra-toggle-button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(39, 36, 67, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #17142b;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.offer-extra-toggle-button:hover {
+  border-color: var(--offer-accent, var(--accent));
+  box-shadow: 0 12px 24px rgba(39, 36, 67, 0.1);
+  transform: translateY(-1px);
+}
+
 .offer-compare-button {
   display: inline-flex;
   align-items: center;

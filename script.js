@@ -2106,8 +2106,9 @@
 
       const serviceList = document.createElement('div');
       serviceList.className = 'dealett-chat-streaming-services';
+      const widgetInstanceId = `dealett-streaming-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
-      widget.services.forEach((service) => {
+      widget.services.forEach((service, serviceIndex) => {
         const serviceId = String(service?.id || '').trim();
         const serviceLabel = String(service?.label || '').trim();
         if (!serviceId || !serviceLabel) return;
@@ -2146,6 +2147,28 @@
         priceInput.disabled = true;
         priceInput.placeholder = String(service.pricePlaceholder || 'kr/mån');
         priceInput.setAttribute('aria-label', `${serviceLabel}, ${service.priceLabel}`);
+        const priceOptions = Array.isArray(service.priceOptions)
+          ? service.priceOptions
+            .map((option) => ({
+              label: String(option?.label || '').trim(),
+              amount: Number(option?.amount),
+            }))
+            .filter((option) => option.label && Number.isInteger(option.amount) && option.amount > 0)
+          : [];
+        if (priceOptions.length) {
+          const listId = `${widgetInstanceId}-${serviceIndex}`;
+          const dataList = document.createElement('datalist');
+          dataList.id = listId;
+          priceOptions.forEach((option) => {
+            const priceOption = document.createElement('option');
+            priceOption.value = String(option.amount);
+            priceOption.label = `${option.label} ${option.amount} kr`;
+            priceOption.textContent = `${option.label} ${option.amount} kr`;
+            dataList.append(priceOption);
+          });
+          priceInput.setAttribute('list', listId);
+          priceLabel.append(dataList);
+        }
         priceLabel.append(priceInput);
         pricePanel.append(priceLabel);
 

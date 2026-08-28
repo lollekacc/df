@@ -98,6 +98,41 @@ html body.family-page .offer-card:hover {
   box-shadow: 0 24px 50px rgba(13, 23, 38, .14) !important;
 }
 
+html body.mobile-plans-page .plan-card.has-extra-toggle-tab,
+html body.family-page .plan-card.has-extra-toggle-tab {
+  overflow: hidden !important;
+}
+
+html body.mobile-plans-page .plan-card .offer-extra-toggle-button--tab,
+html body.family-page .plan-card .offer-extra-toggle-button--tab {
+  position: absolute;
+  top: 50%;
+  right: -39px;
+  z-index: 5;
+  width: 112px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0 !important;
+  border-radius: 9px 9px 0 0 !important;
+  background: var(--offer-accent, #7b2389) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(65, 28, 79, .18) !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 34px;
+  letter-spacing: .02em;
+  text-align: center;
+  text-transform: lowercase;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center;
+}
+
+html body.mobile-plans-page .plan-card .offer-extra-toggle-button--tab:hover,
+html body.family-page .plan-card .offer-extra-toggle-button--tab:hover {
+  box-shadow: 0 10px 22px rgba(65, 28, 79, .22) !important;
+  transform: translateY(-50%) rotate(-90deg) translateY(-1px);
+}
+
 html body.bredband-page .bredband-filters {
   display: grid !important;
   grid-template-columns: repeat(3, minmax(0, 1fr));

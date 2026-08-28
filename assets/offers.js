@@ -100,6 +100,44 @@ const getPlanDataLabel = (plan) => {
   return plan.title || 'Mobilabonnemang';
 };
 
+const isTeliaExtraVariant = (plan = {}) => (
+  plan.operator === 'Telia' &&
+  plan.sourcePlanId === 'telia-unlimited-plus-one-streaming'
+);
+
+const isTeliaStreamingBundlePlan = (plan = {}) => (
+  plan.operator === 'Telia' &&
+  (plan.id === 'telia-unlimited-plus-streaming-bundle' ||
+    plan.sourcePlanId === 'telia-unlimited-plus-streaming-bundle')
+);
+
+const appendExtraPlanToggle = (fragment, extraNodes, label, anchorNode = null) => {
+  if (!extraNodes.length) return;
+
+  const button = createElement('button', 'offer-extra-toggle-button', label);
+  button.type = 'button';
+  button.addEventListener('click', () => {
+    extraNodes.forEach((node) => node.classList.remove('is-hidden'));
+    button.closest('.offer-extra-toggle-row')?.remove();
+    button.remove();
+  });
+
+  if (anchorNode) {
+    button.classList.add('offer-extra-toggle-button--tab');
+    anchorNode.classList.add('has-extra-toggle-tab');
+    anchorNode.append(button);
+  } else {
+    const row = createElement('div', 'offer-extra-toggle-row');
+    row.append(button);
+    fragment.append(row);
+  }
+
+  extraNodes.forEach((node) => {
+    node.classList.add('is-hidden');
+    fragment.append(node);
+  });
+};
+
 const loadPlans = async () => {
   if (plansCache) return plansCache;
 
@@ -420,6 +458,8 @@ const renderPlanOffers = async (offer, answers, card) => {
 
     const fragment = document.createDocumentFragment();
 
+    const extraPlanRows = [];
+
     operatorPlans.forEach((plan) => {
       const selectedPlan = buildSelectedPlanOffer(plan, answers);
       const row = createElement('div', 'operator-plan-row offer-card--plan');
@@ -449,8 +489,14 @@ const renderPlanOffers = async (offer, answers, card) => {
       actions.append(compareButton, button);
 
       row.append(createGiftCardHeader(), copy, meta, actions);
-      fragment.append(row);
+      if (isTeliaExtraVariant(plan)) {
+        extraPlanRows.push(row);
+      } else {
+        fragment.append(row);
+      }
     });
+
+    appendExtraPlanToggle(fragment, extraPlanRows, 'Visa fler Telia-val');
 
     if (addonPlan) {
       const row = createElement('div', 'operator-plan-row operator-plan-row--addon offer-card--addon');
@@ -725,7 +771,23 @@ const renderOffers = async () => {
       ));
 
     const fragment = document.createDocumentFragment();
-    visiblePlans.forEach((plan) => fragment.append(createPlanCard(plan)));
+    const extraPlanCards = [];
+    let teliaBundleCard = null;
+
+    visiblePlans.forEach((plan) => {
+      const card = createPlanCard(plan);
+      if (isTeliaExtraVariant(plan)) {
+        extraPlanCards.push(card);
+        return;
+      }
+
+      if (isTeliaStreamingBundlePlan(plan)) {
+        teliaBundleCard = card;
+      }
+      fragment.append(card);
+    });
+
+    appendExtraPlanToggle(fragment, extraPlanCards, 'Se fler', teliaBundleCard);
     offersContainer.replaceChildren(fragment);
   } catch {
     offersContainer.innerHTML = '<div class="offers-loading">Kunde inte hämta abonnemang just nu.</div>';
