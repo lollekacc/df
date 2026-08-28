@@ -150,6 +150,57 @@ const getPlanDataLabel = (plan) => {
 
 const isMobilePlan = (plan = {}) => ['mobil', 'mobile_subscription'].includes(plan.category);
 
+const getStreamingServicePresentation = (service) => {
+  const name = getStreamingServiceName(service).trim();
+  const normalized = name.toLowerCase();
+
+  if (normalized.includes('netflix')) {
+    return { key: 'netflix', label: 'Netflix', logo: 'images/streaming/netflix.svg' };
+  }
+  if (normalized.includes('hbo') || normalized.includes('max')) {
+    return { key: 'hbo-max', label: 'HBO Max', logo: 'images/streaming/hbo-max.svg' };
+  }
+  if (normalized.includes('disney')) {
+    return { key: 'disney-plus', label: 'Disney+', logo: 'images/streaming/disney-plus.svg' };
+  }
+  if (normalized.includes('amazon') || normalized.includes('prime')) {
+    return { key: 'amazon-prime', label: 'Amazon Prime', logo: 'images/gift-logos/amazon.svg' };
+  }
+  if (normalized.includes('tv4')) {
+    return { key: 'tv4-play', label: 'TV4 Play', logo: null };
+  }
+
+  return { key: 'other', label: getStreamingServiceShortName(service), logo: null };
+};
+
+const createStreamingServiceRow = (plan = {}) => {
+  const services = Array.isArray(plan.includedStreaming) ? plan.includedStreaming : [];
+  if (!services.length) return null;
+
+  const presentations = services.map(getStreamingServicePresentation).filter((service) => service.label);
+  const row = createElement('div', 'plan-streaming-services');
+  row.setAttribute('aria-label', `Streaming ingår: ${presentations.map((service) => service.label).join(', ')}`);
+
+  presentations.forEach((service) => {
+    const badge = createElement('span', 'plan-streaming-service');
+    badge.dataset.streamingService = service.key;
+    badge.title = service.label;
+
+    if (service.logo) {
+      const logo = document.createElement('img');
+      logo.src = service.logo;
+      logo.alt = service.label;
+      badge.append(logo);
+    } else {
+      badge.textContent = service.label;
+    }
+
+    row.append(badge);
+  });
+
+  return row;
+};
+
 const isTeliaExtraVariant = (plan = {}) => (
   plan.operator === 'Telia' &&
   plan.sourcePlanId === 'telia-unlimited-plus-one-streaming'
@@ -534,6 +585,8 @@ const renderPlanOffers = async (offer, answers, card) => {
         createElement('h3', '', plan.title),
         createElement('p', '', `${selectedPlan.members} | ${selectedPlan.surf}`)
       );
+      const streamingServices = createStreamingServiceRow(plan);
+      if (streamingServices) copy.append(streamingServices);
 
       const meta = createElement('ul', 'offer-card-meta operator-plan-meta');
       [
@@ -865,9 +918,11 @@ const createFamilyPlanCard = (plan, addonPlan, offer, persons) => {
   const heading = createElement('div', 'offer-card-copy');
   heading.append(
     createElement('span', 'plan-operator-name', plan.operator),
-    createElement('h3', '', dataLabel),
+    createElement('h3', '', plan.title || dataLabel),
     createElement('p', 'plan-description', `${persons} abonnemang med ${surfLabel} surf per abonnemang.`)
   );
+  const streamingServices = createStreamingServiceRow(plan);
+  if (streamingServices) heading.append(streamingServices);
 
   const price = createElement('p', 'plan-price');
   price.innerHTML = `<strong>${formatCurrency(selectedPlan.price)} kr</strong><span>/mån totalt</span>`;

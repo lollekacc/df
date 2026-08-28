@@ -401,6 +401,55 @@
   min-height: 45px;
 }
 
+.plan-streaming-services {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-height: 32px;
+}
+
+.plan-streaming-service {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  height: 30px;
+  padding: 4px 9px;
+  border: 1px solid rgba(39, 36, 67, 0.12);
+  border-radius: 6px;
+  background: #fff;
+  color: #17142b;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.plan-streaming-service img {
+  display: block;
+  width: auto;
+  max-width: 68px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.plan-streaming-service[data-streaming-service="netflix"] {
+  min-width: 42px;
+}
+
+.plan-streaming-service[data-streaming-service="netflix"] img {
+  width: 14px;
+}
+
+.plan-streaming-service[data-streaming-service="hbo-max"] {
+  border-color: #111;
+  background: #111;
+}
+
+.plan-streaming-service[data-streaming-service="amazon-prime"] img {
+  height: 24px;
+}
+
 .plan-price {
   display: flex;
   align-items: baseline;
