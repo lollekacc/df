@@ -2120,9 +2120,209 @@
       scrollMessages();
     };
 
+    const renderOperatorBindingWidget = (messageItem, widget) => {
+      if (!messageItem || widget?.type !== 'operator_binding') return;
+      const peopleCount = Math.max(1, Math.min(Number(widget.peopleCount) || 1, 10));
+      const answers = Array.from({ length: peopleCount }, () => ({
+        operator: '',
+        bindingChoice: '',
+        bindingDate: '',
+      }));
+      let activeIndex = 0;
+
+      const formElement = document.createElement('form');
+      formElement.className = 'dealett-chat-operator-binding-widget';
+      formElement.noValidate = true;
+
+      const progress = document.createElement('div');
+      progress.className = 'dealett-chat-person-progress';
+      progress.style.setProperty('--dealett-person-count', String(Math.min(peopleCount, 5)));
+      progress.setAttribute('aria-label', `${widget.personLabel || 'Person'} 1-${peopleCount}`);
+      const progressButtons = answers.map((_, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'dealett-chat-person-step';
+        button.textContent = String(index + 1);
+        button.setAttribute('aria-label', `${widget.personLabel || 'Person'} ${index + 1}`);
+        button.addEventListener('click', () => {
+          if (button.disabled || formElement.classList.contains('is-submitted')) return;
+          activeIndex = index;
+          renderPerson();
+        });
+        progress.append(button);
+        return button;
+      });
+
+      const personTitle = document.createElement('strong');
+      personTitle.className = 'dealett-chat-person-title';
+
+      const operatorField = document.createElement('label');
+      operatorField.className = 'dealett-chat-person-field';
+      const operatorLabel = document.createElement('span');
+      operatorLabel.textContent = String(widget.operatorLabel || 'Current operator');
+      const operatorSelect = document.createElement('select');
+      operatorSelect.className = 'dealett-chat-person-select';
+      operatorSelect.append(new Option(String(widget.operatorPlaceholder || 'Choose operator'), ''));
+      (widget.operators || []).forEach((operator) => {
+        operatorSelect.append(new Option(String(operator), String(operator)));
+      });
+      operatorField.append(operatorLabel, operatorSelect);
+
+      const bindingField = document.createElement('label');
+      bindingField.className = 'dealett-chat-person-field';
+      const bindingLabel = document.createElement('span');
+      bindingLabel.textContent = String(widget.bindingLabel || 'Binding period');
+      const bindingSelect = document.createElement('select');
+      bindingSelect.className = 'dealett-chat-person-select';
+      bindingSelect.append(new Option(String(widget.bindingPlaceholder || 'Choose binding status'), ''));
+      (widget.bindingOptions || []).forEach((option) => {
+        bindingSelect.append(new Option(String(option.label), String(option.value)));
+      });
+      bindingField.append(bindingLabel, bindingSelect);
+
+      const dateField = document.createElement('label');
+      dateField.className = 'dealett-chat-person-field dealett-chat-person-date';
+      const dateLabel = document.createElement('span');
+      dateLabel.textContent = String(widget.dateLabel || 'End date');
+      const dateInput = document.createElement('input');
+      dateInput.className = 'dealett-chat-person-input';
+      dateInput.type = 'date';
+      const today = new Date();
+      dateInput.min = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, '0'),
+        String(today.getDate()).padStart(2, '0'),
+      ].join('-');
+      dateField.append(dateLabel, dateInput);
+
+      const submitButton = document.createElement('button');
+      submitButton.type = 'submit';
+      submitButton.className = 'dealett-chat-widget-button dealett-chat-widget-button--primary dealett-chat-person-submit';
+
+      const clearFieldError = (field) => {
+        field.classList.remove('has-error', 'is-shaking');
+        field.querySelector('select, input')?.setAttribute('aria-invalid', 'false');
+      };
+      const showFieldError = (field) => {
+        field.classList.remove('is-shaking');
+        void field.offsetWidth;
+        field.classList.add('has-error', 'is-shaking');
+        const control = field.querySelector('select, input');
+        control?.setAttribute('aria-invalid', 'true');
+        control?.focus();
+      };
+      const isComplete = (answer) => Boolean(
+        answer.operator && answer.bindingChoice &&
+        (answer.bindingChoice !== 'date' || answer.bindingDate)
+      );
+      const validatePerson = (index) => {
+        const answer = answers[index];
+        if (!answer.operator) {
+          showFieldError(operatorField);
+          return false;
+        }
+        if (!answer.bindingChoice) {
+          showFieldError(bindingField);
+          return false;
+        }
+        if (answer.bindingChoice === 'date' && !answer.bindingDate) {
+          showFieldError(dateField);
+          return false;
+        }
+        return true;
+      };
+      const renderPerson = () => {
+        const answer = answers[activeIndex];
+        personTitle.textContent = `${widget.personLabel || 'Person'} ${activeIndex + 1} ${widget.ofLabel || 'of'} ${peopleCount}`;
+        operatorSelect.value = answer.operator;
+        bindingSelect.value = answer.bindingChoice;
+        dateInput.value = answer.bindingDate;
+        dateField.hidden = answer.bindingChoice !== 'date';
+        submitButton.textContent = activeIndex === peopleCount - 1
+          ? String(widget.submitLabel || text.send)
+          : String(widget.nextLabel || widget.submitLabel || text.send);
+        progressButtons.forEach((button, index) => {
+          const complete = isComplete(answers[index]);
+          button.classList.toggle('is-current', index === activeIndex);
+          button.classList.toggle('is-complete', complete);
+          button.setAttribute('aria-current', index === activeIndex ? 'step' : 'false');
+          button.disabled = index > activeIndex && !answers.slice(0, index).every(isComplete);
+        });
+        [operatorField, bindingField, dateField].forEach(clearFieldError);
+        scrollMessages();
+      };
+
+      operatorSelect.addEventListener('change', () => {
+        answers[activeIndex].operator = operatorSelect.value;
+        clearFieldError(operatorField);
+        renderPerson();
+      });
+      bindingSelect.addEventListener('change', () => {
+        answers[activeIndex].bindingChoice = bindingSelect.value;
+        if (bindingSelect.value !== 'date') answers[activeIndex].bindingDate = '';
+        clearFieldError(bindingField);
+        renderPerson();
+        if (bindingSelect.value === 'date') dateInput.focus();
+      });
+      dateInput.addEventListener('input', () => {
+        answers[activeIndex].bindingDate = dateInput.value;
+        clearFieldError(dateField);
+        renderPerson();
+      });
+
+      formElement.append(progress, personTitle, operatorField, bindingField, dateField, submitButton);
+      formElement.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (!validatePerson(activeIndex)) return;
+        if (activeIndex < peopleCount - 1) {
+          activeIndex += 1;
+          renderPerson();
+          operatorSelect.focus();
+          return;
+        }
+
+        const firstIncomplete = answers.findIndex((answer) => !isComplete(answer));
+        if (firstIncomplete >= 0) {
+          activeIndex = firstIncomplete;
+          renderPerson();
+          validatePerson(firstIncomplete);
+          return;
+        }
+
+        const operators = answers.map((answer) => answer.operator);
+        const bindingEnds = answers.map((answer) => (
+          answer.bindingChoice === 'date' ? answer.bindingDate : answer.bindingChoice
+        ));
+        const bindingLabels = Object.fromEntries((widget.bindingOptions || [])
+          .map((option) => [String(option.value), String(option.label)]));
+        const summary = answers.map((answer, index) => {
+          const binding = answer.bindingChoice === 'date'
+            ? answer.bindingDate
+            : (bindingLabels[answer.bindingChoice] || answer.bindingChoice);
+          return `${widget.personLabel || 'Person'} ${index + 1}: ${answer.operator}, ${binding}`;
+        }).join('; ');
+
+        formElement.classList.add('is-submitted');
+        formElement.querySelectorAll('button, select, input').forEach((control) => {
+          control.disabled = true;
+        });
+        sendMessage(summary, {
+          context: {
+            source: 'operator_binding_widget',
+            qualificationPatch: { operators, bindingEnds },
+          },
+        });
+      });
+
+      messageItem.append(formElement);
+      renderPerson();
+    };
+
     const renderEmbeddedWidget = (messageItem, widget) => {
       if (widget?.type === 'streaming_prices') {
         renderStreamingPriceWidget(messageItem, widget);
+      } else if (widget?.type === 'operator_binding') {
+        renderOperatorBindingWidget(messageItem, widget);
       }
     };
 
