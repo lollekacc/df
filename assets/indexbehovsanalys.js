@@ -168,6 +168,13 @@ function createIndexQuiz() {
       });
     });
     dom.heroFinder?.addEventListener("submit", handleHeroFinderSubmit);
+    dom.heroFinder?.addEventListener("change", syncHeroFinderLabel);
+    dom.heroFinder?.querySelector("[data-finder-more]")?.addEventListener("click", () => {
+      const extraPersons = dom.heroFinder.querySelector("#finder-extra-persons");
+      setHeroFinderExpanded(extraPersons.hidden);
+    });
+    window.addEventListener("pageshow", syncHeroFinderLabel);
+    syncHeroFinderLabel();
     dom.heroAiForm?.addEventListener("submit", handleHeroAiSubmit);
     dom.heroAiPrompts?.forEach(button => {
       button.addEventListener("click", () => {
@@ -748,6 +755,28 @@ function createIndexQuiz() {
       const option = steps[0]?.querySelector(`[data-persons="${persons}"]`);
       if (option) handlePersonsStep(option, steps[0]);
     }, selectionFeedbackMs);
+  }
+
+  function setHeroFinderExpanded(expanded) {
+    const button = dom.heroFinder?.querySelector("[data-finder-more]");
+    const extraPersons = dom.heroFinder?.querySelector("#finder-extra-persons");
+    if (!button || !extraPersons) return;
+    extraPersons.hidden = !expanded;
+    button.setAttribute("aria-expanded", String(expanded));
+    const persons = Number(dom.heroFinder.querySelector('[name="finder-persons"]:checked')?.value);
+    button.textContent = expanded ? "Färre" : persons > 5 ? `Fler (${persons})` : "Fler";
+  }
+
+  function syncHeroFinderLabel() {
+    const label = dom.heroFinder?.querySelector(".hero-finder__plan-label");
+    if (!label) return;
+    const isFamily = Number(dom.heroFinder.querySelector('[name="finder-persons"]:checked')?.value) > 1;
+    label.dataset.family = String(isFamily);
+    label.querySelector("[data-finder-mobile-label]").setAttribute("aria-hidden", String(isFamily));
+    label.querySelector("[data-finder-family-label]").setAttribute("aria-hidden", String(!isFamily));
+    const persons = Number(dom.heroFinder.querySelector('[name="finder-persons"]:checked')?.value);
+    const extraPersons = dom.heroFinder.querySelector("#finder-extra-persons");
+    setHeroFinderExpanded(persons > 5 || (extraPersons && !extraPersons.hidden));
   }
 
   function handleHeroFinderSubmit(event) {

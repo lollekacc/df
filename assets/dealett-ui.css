@@ -11230,30 +11230,6 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
     font-size: clamp(30px, 2.45vw, 42px) !important;
   }
 
-  html body:has(.home-intro) .hero-finder__group--type {
-    gap: 0 !important;
-    border-bottom: 1px solid #d2d5d8;
-  }
-
-  html body:has(.home-intro) .hero-finder__group--type .hero-finder__option span {
-    min-height: 42px !important;
-    padding: 7px 8px 9px !important;
-    border: 0 !important;
-    border-bottom: 3px solid transparent !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    color: #071b32 !important;
-    font-size: 17px;
-  }
-
-  html body:has(.home-intro) .hero-finder__group--type .hero-finder__option input:checked + span {
-    border-bottom-color: #d36e27 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    color: #071b32 !important;
-  }
-
   html body:has(.home-intro) .hero-finder__group:not(.hero-finder__group--type) {
     gap: 3px !important;
   }
@@ -11525,4 +11501,134 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
   html body:has(.home-intro) .hero-ai-guide__composer {
     flex: 0 0 190px;
   }
+}
+
+html body:has(.home-intro) .hero-finder__group--type {
+  position: relative;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 !important;
+  border-bottom: 0;
+}
+
+html body:has(.home-intro) .hero-finder__group--type .hero-finder__option::after {
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - 16px);
+  width: 32px;
+  height: 3px;
+  border-radius: 3px;
+  background: #d36e27;
+  content: "";
+  transform: scaleX(0);
+  transition: transform 260ms ease;
+  pointer-events: none;
+}
+
+html body:has(.home-intro) .hero-finder__group--type .hero-finder__option:has(input:checked)::after {
+  transform: scaleX(1);
+}
+
+html body:has(.home-intro) .hero-finder__group--type .hero-finder__option + .hero-finder__option::before {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 1px;
+  background: #cbd1d7;
+  content: "";
+}
+
+html body:has(.home-intro) .hero-finder__group--type .hero-finder__option > span {
+  min-height: 44px !important;
+  padding: 7px 6px 9px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #526071 !important;
+  font-size: clamp(13px, 1.2vw, 16px);
+}
+
+html body:has(.home-intro) .hero-finder__group--type .hero-finder__option input:checked + span {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #071b32 !important;
+}
+
+html body:has(.home-intro) .hero-finder__plan-label {
+  position: relative;
+}
+
+html body:has(.home-intro) .hero-finder__label-window {
+  display: grid;
+  height: 1.2em;
+  line-height: 1.2;
+  overflow: hidden;
+  font-style: normal;
+}
+
+html body:has(.home-intro) .hero-finder__plan-label em {
+  grid-area: 1 / 1;
+  font-style: normal;
+  white-space: nowrap;
+  transition: transform 280ms ease;
+}
+
+html body:has(.home-intro) .hero-finder__plan-label [data-finder-family-label] {
+  transform: translateY(100%);
+}
+
+html body:has(.home-intro) .hero-finder__plan-label[data-family="true"] [data-finder-mobile-label] {
+  transform: translateY(-100%);
+}
+
+html body:has(.home-intro) .hero-finder__plan-label[data-family="true"] [data-finder-family-label] {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body:has(.home-intro) .hero-finder__group--type .hero-finder__option::after,
+  html body:has(.home-intro) .hero-finder__plan-label em {
+    transition: none;
+  }
+}
+
+html body:has(.home-intro) .hero-finder__options--people {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) 42px;
+}
+
+html body:has(.home-intro) .hero-finder__options--people[hidden] {
+  display: none;
+}
+
+html body:has(.home-intro) .hero-finder__more {
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #526071;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+html body:has(.home-intro) .hero-finder__more:hover {
+  color: #071b32;
+}
+
+html body:has(.home-intro) .hero-finder__more:focus-visible {
+  outline: 2px solid #d36e27;
+  outline-offset: 2px;
+}
+
+html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder:has(#finder-extra-persons:not([hidden])) {
+  height: auto !important;
+  max-height: none !important;
+}
+
+html body:has(.home-intro) .hero-finder:has(#finder-extra-persons:not([hidden])) .hero-operators {
+  position: static !important;
+  width: 100% !important;
 }

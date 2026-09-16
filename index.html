@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
-    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260916-20" />
+    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260916-23" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/hero-motion.css?v=20260825-3" />
     <link rel="stylesheet" href="./assets/information-rotator.css?v=20260916-1" />
@@ -53,11 +53,12 @@
             <legend class="sr-only">Välj typ av abonnemang</legend>
             <label class="hero-finder__option">
               <input type="radio" name="finder-type" value="mobile" checked />
-              <span>Mobil</span>
-            </label>
-            <label class="hero-finder__option">
-              <input type="radio" name="finder-type" value="family" />
-              <span>Familj</span>
+              <span class="hero-finder__plan-label" data-family="true">
+                <i class="hero-finder__label-window">
+                  <em data-finder-mobile-label aria-hidden="true">Mobilabonnemang</em>
+                  <em data-finder-family-label>Familjabonnemang</em>
+                </i>
+              </span>
             </label>
             <label class="hero-finder__option">
               <input type="radio" name="finder-type" value="broadband" />
@@ -72,7 +73,15 @@
               <label class="hero-finder__option"><input type="radio" name="finder-persons" value="2" checked /><span>2</span></label>
               <label class="hero-finder__option"><input type="radio" name="finder-persons" value="3" /><span>3</span></label>
               <label class="hero-finder__option"><input type="radio" name="finder-persons" value="4" /><span>4</span></label>
-              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="5" /><span>5+</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="5" /><span>5</span></label>
+              <button class="hero-finder__more" type="button" data-finder-more aria-expanded="false" aria-controls="finder-extra-persons">Fler</button>
+            </div>
+            <div class="hero-finder__options hero-finder__options--people" id="finder-extra-persons" hidden>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="6" /><span>6</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="7" /><span>7</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="8" /><span>8</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="9" /><span>9</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="10" /><span>10</span></label>
             </div>
           </fieldset>
 
@@ -854,6 +863,6 @@
     <script src="./assets/newsletter-codex-background.js"></script>
     <script src="./assets/gift-logo-switcher.js"></script>
     <script src="./assets/information-rotator.js?v=20260916-1"></script>
-    <script src="assets/indexbehovsanalys.js?v=20260916-2"></script>
+    <script src="assets/indexbehovsanalys.js?v=20260916-4"></script>
   </body>
 </html>
