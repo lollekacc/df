@@ -11180,6 +11180,22 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
   html body:has(.home-intro) .hero-ai-guide__prompts button {
     min-height: 38px !important;
     padding-inline: 12px;
+    border-color: rgba(7, 27, 50, .14);
+    background: rgba(255, 255, 255, .58);
+    box-shadow: 0 4px 12px rgba(28, 35, 43, .035);
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  }
+
+  html body:has(.home-intro) .hero-ai-guide__prompts button:hover,
+  html body:has(.home-intro) .hero-ai-guide__prompts button:focus-visible {
+    border-color: rgba(194, 104, 48, .42);
+    background: rgba(255, 255, 255, .82);
+    box-shadow: 0 6px 16px rgba(28, 35, 43, .06);
+    transform: translateY(-1px);
+  }
+
+  html body:has(.home-intro) .hero-ai-guide__prompts button i {
+    color: #b96431;
   }
 
   html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder {
