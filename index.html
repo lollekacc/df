@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
-    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260916-11" />
+    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260916-12" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/hero-motion.css?v=20260825-3" />
     <link rel="stylesheet" href="./assets/information-rotator.css?v=20260916-1" />
@@ -26,7 +26,6 @@
       <section class="hero">
         <div class="hero-bottom">
           <div class="hero-ai-guide">
-            <p class="hero-ai-guide__eyebrow">Dealett AI · Din abonnemangsguide</p>
             <h1>Vad behöver du<br />från ditt abonnemang?</h1>
             <p class="hero-ai-guide__intro">Berätta med egna ord. Vi hjälper dig jämföra alternativen.</p>
 
@@ -119,46 +118,6 @@
             <div><h3>Presentkort på köpet</h3><p>Få mer värde. Vi räknar även in presentkort och andra förmåner.</p></div>
           </article>
         </section>
-
-        <aside class="hero-information" data-information-rotator aria-label="Vanliga behov och rekommenderade abonnemang" aria-roledescription="karusell">
-          <header class="hero-information__header">
-            <p class="hero-information__eyebrow">Snabbval</p>
-            <h2 class="hero-information__title">Svårt att välja? <span>Börja med en fråga.</span></h2>
-            <p class="hero-information__intro">Berätta vad som är viktigt för dig.</p>
-          </header>
-          <div class="hero-information__list">
-            <button class="hero-information__item" type="button" data-information-slot data-information-index="0" aria-label="Visa rekommenderat abonnemang för fråga 1">
-              <span class="hero-information__number" data-information-number aria-hidden="true">1</span>
-              <span class="hero-information__text" data-information-text>Jag använder mest sociala medier, musik och vanlig surf. Vilket prisvärt abonnemang passar mig?</span>
-              <span class="hero-information__arrow" aria-hidden="true">↗</span>
-            </button>
-            <button class="hero-information__item" type="button" data-information-slot data-information-index="1" aria-label="Visa rekommenderat abonnemang för fråga 2">
-              <span class="hero-information__number" data-information-number aria-hidden="true">2</span>
-              <span class="hero-information__text" data-information-text>Jag använder mest mobilen för meddelanden och lätt surf. Vilket abonnemang håller nere månadskostnaden?</span>
-              <span class="hero-information__arrow" aria-hidden="true">↗</span>
-            </button>
-            <button class="hero-information__item" type="button" data-information-slot data-information-index="2" aria-label="Visa rekommenderat abonnemang för fråga 3">
-              <span class="hero-information__number" data-information-number aria-hidden="true">3</span>
-              <span class="hero-information__text" data-information-text>Jag streamar video och delar internet ofta. Vilket abonnemang låter mig slippa hålla koll på surfen?</span>
-              <span class="hero-information__arrow" aria-hidden="true">↗</span>
-            </button>
-          </div>
-          <div class="hero-information__controls" aria-label="Styr exempelfrågorna">
-            <button class="hero-information__control" type="button" data-information-previous aria-label="Visa föregående frågor" title="Föregående">
-              <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
-            </button>
-            <div class="hero-information__pages" aria-label="Välj frågegrupp">
-              <button class="hero-information__page is-active" type="button" data-information-page="0" aria-label="Visa fråga 1 till 3" aria-current="true"></button>
-              <button class="hero-information__page" type="button" data-information-page="1" aria-label="Visa fråga 4 till 6"></button>
-            </div>
-            <button class="hero-information__control" type="button" data-information-toggle aria-label="Pausa automatisk växling" aria-pressed="false" title="Pausa">
-              <i class="fa-solid fa-pause" data-information-toggle-icon aria-hidden="true"></i>
-            </button>
-            <button class="hero-information__control" type="button" data-information-next aria-label="Visa nästa frågor" title="Nästa">
-              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-            </button>
-          </div>
-        </aside>
 
         <div class="hero-showcase" aria-label="Aktuella presentkortserbjudanden">
           <button class="hero-offer-tile hero-offer-tile--family" type="button" data-hero-offer-persons="4" aria-label="Välj erbjudandet för fyra abonnemang">
@@ -746,6 +705,48 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="snabbval-section" aria-label="Snabbval">
+        <aside class="hero-information" data-information-rotator aria-label="Vanliga behov och rekommenderade abonnemang" aria-roledescription="karusell">
+          <header class="hero-information__header">
+            <p class="hero-information__eyebrow">Snabbval</p>
+            <h2 class="hero-information__title">Svårt att välja? <span>Börja med en fråga.</span></h2>
+            <p class="hero-information__intro">Berätta vad som är viktigt för dig.</p>
+          </header>
+          <div class="hero-information__list">
+            <button class="hero-information__item" type="button" data-information-slot data-information-index="0" aria-label="Visa rekommenderat abonnemang för fråga 1">
+              <span class="hero-information__number" data-information-number aria-hidden="true">1</span>
+              <span class="hero-information__text" data-information-text>Jag använder mest sociala medier, musik och vanlig surf. Vilket prisvärt abonnemang passar mig?</span>
+              <span class="hero-information__arrow" aria-hidden="true">↗</span>
+            </button>
+            <button class="hero-information__item" type="button" data-information-slot data-information-index="1" aria-label="Visa rekommenderat abonnemang för fråga 2">
+              <span class="hero-information__number" data-information-number aria-hidden="true">2</span>
+              <span class="hero-information__text" data-information-text>Jag använder mest mobilen för meddelanden och lätt surf. Vilket abonnemang håller nere månadskostnaden?</span>
+              <span class="hero-information__arrow" aria-hidden="true">↗</span>
+            </button>
+            <button class="hero-information__item" type="button" data-information-slot data-information-index="2" aria-label="Visa rekommenderat abonnemang för fråga 3">
+              <span class="hero-information__number" data-information-number aria-hidden="true">3</span>
+              <span class="hero-information__text" data-information-text>Jag streamar video och delar internet ofta. Vilket abonnemang låter mig slippa hålla koll på surfen?</span>
+              <span class="hero-information__arrow" aria-hidden="true">↗</span>
+            </button>
+          </div>
+          <div class="hero-information__controls" aria-label="Styr exempelfrågorna">
+            <button class="hero-information__control" type="button" data-information-previous aria-label="Visa föregående frågor" title="Föregående">
+              <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <div class="hero-information__pages" aria-label="Välj frågegrupp">
+              <button class="hero-information__page is-active" type="button" data-information-page="0" aria-label="Visa fråga 1 till 3" aria-current="true"></button>
+              <button class="hero-information__page" type="button" data-information-page="1" aria-label="Visa fråga 4 till 6"></button>
+            </div>
+            <button class="hero-information__control" type="button" data-information-toggle aria-label="Pausa automatisk växling" aria-pressed="false" title="Pausa">
+              <i class="fa-solid fa-pause" data-information-toggle-icon aria-hidden="true"></i>
+            </button>
+            <button class="hero-information__control" type="button" data-information-next aria-label="Visa nästa frågor" title="Nästa">
+              <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </aside>
       </section>
 
       <section class="newsletter-section section-space" aria-labelledby="newsletterTitle">
