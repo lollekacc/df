@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
-    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260916-23" />
+    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260916-24" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/hero-motion.css?v=20260825-3" />
     <link rel="stylesheet" href="./assets/information-rotator.css?v=20260916-1" />
@@ -128,18 +128,30 @@
           </article>
         </section>
 
-        <div class="hero-showcase" aria-label="Aktuella presentkortserbjudanden">
+        <div class="hero-showcase hero-showcase--editorial" aria-label="Aktuella presentkortserbjudanden">
           <button class="hero-offer-tile hero-offer-tile--family" type="button" data-hero-offer-persons="4" aria-label="Välj erbjudandet för fyra abonnemang">
-            <img class="hero-offer-image" src="images/landing-offer-4.png" alt="" />
+            <picture class="hero-offer-artwork">
+              <source media="(min-width: 901px)" srcset="images/landing-offers-editorial.png" />
+              <img class="hero-offer-image" src="images/landing-offer-4.png" alt="" />
+            </picture>
           </button>
           <button class="hero-offer-tile hero-offer-tile--group" type="button" data-hero-offer-persons="3" aria-label="Välj erbjudandet för tre abonnemang">
-            <img class="hero-offer-image" src="images/landing-offer-3.png" alt="" />
+            <picture class="hero-offer-artwork">
+              <source media="(min-width: 901px)" srcset="images/landing-offers-editorial.png" />
+              <img class="hero-offer-image" src="images/landing-offer-3.png" alt="" />
+            </picture>
           </button>
           <button class="hero-offer-tile hero-offer-tile--duo" type="button" data-hero-offer-persons="2" aria-label="Välj erbjudandet för två abonnemang">
-            <img class="hero-offer-image" src="images/landing-offer-2.png" alt="" />
+            <picture class="hero-offer-artwork">
+              <source media="(min-width: 901px)" srcset="images/landing-offers-editorial.png" />
+              <img class="hero-offer-image" src="images/landing-offer-2.png" alt="" />
+            </picture>
           </button>
           <button class="hero-offer-tile hero-offer-tile--single" type="button" data-hero-offer-persons="1" aria-label="Välj erbjudandet för ett abonnemang">
-            <img class="hero-offer-image" src="images/landing-offer-1.png" alt="" />
+            <picture class="hero-offer-artwork">
+              <source media="(min-width: 901px)" srcset="images/landing-offers-editorial.png" />
+              <img class="hero-offer-image" src="images/landing-offer-1.png" alt="" />
+            </picture>
           </button>
         </div>
 
