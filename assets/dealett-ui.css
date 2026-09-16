@@ -11081,9 +11081,10 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
   html body:has(.home-intro) .hero:not(.quiz-in-hero) {
     position: relative !important;
     isolation: isolate;
-    grid-template-columns: minmax(0, 1.38fr) minmax(430px, 1fr) !important;
+    --hero-divider-span: clamp(64px, 7vw, 110px);
+    grid-template-columns: minmax(0, 1.42fr) minmax(400px, .98fr) !important;
     grid-template-rows: auto auto minmax(0, 1fr) auto !important;
-    column-gap: clamp(26px, 3vw, 54px) !important;
+    column-gap: var(--hero-divider-span) !important;
     min-height: calc(100svh - 64px + clamp(120px, 13vw, 200px)) !important;
     padding: 88px max(24px, calc((100vw - 1500px) / 2)) 0 max(170px, calc((100vw - 1500px) / 2 + 160px)) !important;
     overflow: hidden !important;
@@ -11204,10 +11205,24 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
     align-content: start !important;
     gap: 5px !important;
     padding: 0 0 0 34px !important;
-    border-left: 1px solid #c9ced4 !important;
+    border-left: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
+  }
+
+  html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder::before {
+    content: "";
+    position: absolute;
+    top: -24px;
+    right: 0;
+    bottom: -24px;
+    left: calc(-1 * var(--hero-divider-span) + 8px);
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 506' preserveAspectRatio='none'%3E%3Cpath d='M-4 -20 C110 10 60 380 110 526' fill='none' stroke='%23aaa7a2' stroke-opacity='.72' stroke-width='1.4'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 11%, #000 89%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 11%, #000 89%, transparent 100%);
+    transform: translateX(-22px);
+    pointer-events: none;
   }
 
   html body:has(.home-intro) .hero-finder__title {
