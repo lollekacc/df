@@ -3,6 +3,55 @@ document.addEventListener("DOMContentLoaded", () => {
   quiz.init();
 });
 
+function getFeaturedOfferKey(plan) {
+  if (!plan) return "";
+  return String(plan.planId ?? plan.id ?? [plan.operator, plan.title].filter(Boolean).join("-"));
+}
+
+function getFeaturedOfferLabel(plan, index) {
+  const labels = {
+    best_match: "Bäst matchning",
+    best_available_match: "Bästa tillgängliga matchning",
+    lowest_effective_cost: "Lägst effektiv kostnad",
+    next_best_match: "Näst bäst matchning",
+    best_streaming_alternative: "Bäst streamingalternativ",
+    lowest_cost_alternative: "Näst bästa alternativ"
+  };
+  return labels[plan?.recommendationType] || (index === 0 ? "Bäst matchning" : "Rekommenderat");
+}
+
+function selectFeaturedOfferCandidates(calculation = {}, plans = []) {
+  const calculated = Array.isArray(calculation.featuredOffers) && calculation.featuredOffers.length
+    ? calculation.featuredOffers
+    : [calculation.bestMatch, calculation.secondaryOffer, calculation.lowestEffectiveCost].filter(Boolean);
+  const candidates = [
+    ...calculated.map((plan, index) => ({ plan, label: getFeaturedOfferLabel(plan, index) })),
+    ...[...plans]
+      .sort((left, right) => (
+        (Number(left?.planMonthlyPrice ?? left?.finalPrice) || Number.POSITIVE_INFINITY) -
+        (Number(right?.planMonthlyPrice ?? right?.finalPrice) || Number.POSITIVE_INFINITY)
+      ))
+      .map(plan => ({ plan, label: "Rekommenderat" }))
+  ];
+  const featuredByKey = new Map();
+
+  candidates.forEach(entry => {
+    const key = getFeaturedOfferKey(entry.plan);
+    if (key && !featuredByKey.has(key)) featuredByKey.set(key, entry);
+  });
+
+  return [...featuredByKey.values()].slice(0, 2);
+}
+
+function getQuizOfferHighlights(featureItems = []) {
+  return [
+    "24 mån bindningstid",
+    featureItems.find(item => /3Världen/i.test(item)) ||
+      featureItems.find(item => /EU|EES/i.test(item)) ||
+      "EU/EES inkluderat",
+  ];
+}
+
 function createIndexQuiz() {
   const state = {
     currentStep: 0,
@@ -44,6 +93,10 @@ function createIndexQuiz() {
     startButton: document.getElementById("quiz-start"),
     heroStartButton: document.getElementById("hero-start-analysis"),
     analysisStartButtons: document.querySelectorAll("[data-analysis-start-action]"),
+    heroAiForm: document.querySelector("[data-home-ai-form]"),
+    heroAiInput: document.getElementById("home-ai-question"),
+    heroAiPrompts: document.querySelectorAll("[data-home-ai-prompt]"),
+    heroFinder: document.querySelector("[data-hero-finder]"),
     heroOfferButtons: document.querySelectorAll("[data-hero-offer-persons]"),
     hero: document.querySelector(".hero"),
     heroVisual: document.querySelector(".hero-visual"),
@@ -112,6 +165,15 @@ function createIndexQuiz() {
       button.addEventListener("click", event => {
         event.preventDefault();
         startQuizFromHeroOffer(button);
+      });
+    });
+    dom.heroFinder?.addEventListener("submit", handleHeroFinderSubmit);
+    dom.heroAiForm?.addEventListener("submit", handleHeroAiSubmit);
+    dom.heroAiPrompts?.forEach(button => {
+      button.addEventListener("click", () => {
+        if (!dom.heroAiInput) return;
+        dom.heroAiInput.value = button.dataset.homeAiPrompt || "";
+        dom.heroAiInput.focus();
       });
     });
     document.querySelectorAll("[data-home-quiz-link]").forEach(link => {
@@ -686,6 +748,38 @@ function createIndexQuiz() {
       const option = steps[0]?.querySelector(`[data-persons="${persons}"]`);
       if (option) handlePersonsStep(option, steps[0]);
     }, selectionFeedbackMs);
+  }
+
+  function handleHeroFinderSubmit(event) {
+    event.preventDefault();
+
+    const values = new FormData(dom.heroFinder);
+    if (values.get("finder-type") === "broadband") {
+      window.location.assign("5g-bredband.html");
+      return;
+    }
+
+    const persons = Number(values.get("finder-persons")) || 1;
+    const data = String(values.get("finder-data") || "medium");
+    startQuiz({ inHero: true });
+
+    requestAnimationFrame(() => {
+      const option = steps[0]?.querySelector(`[data-persons="${persons}"]`);
+      if (option) handlePersonsStep(option, steps[0]);
+      state.data = data;
+      syncQuizUiFromState();
+    });
+  }
+
+  function handleHeroAiSubmit(event) {
+    event.preventDefault();
+    const question = String(dom.heroAiInput?.value || "").trim();
+    if (!question) {
+      dom.heroAiInput?.focus();
+      return;
+    }
+
+    window.DealettChat?.ask?.(question, { source: "homepage_ai_guide" });
   }
 
   function resizePersonDetailArrays(persons) {
@@ -1393,7 +1487,7 @@ function createIndexQuiz() {
       return;
     }
 
-    renderRecommendationResults(getUniqueOperatorPlans(recommendedPlans), { expanded: false });
+    renderRecommendationResults(getUniqueOfferPlans(recommendedPlans), { expanded: false });
 
     syncStackHeight();
   }
@@ -1441,7 +1535,14 @@ function createIndexQuiz() {
       return [];
     }
 
-    return (calculation.options || []).map(option => ({
+    const calculatedPlans = [
+      ...(calculation.featuredOffers || []),
+      ...(calculation.options || [])
+    ].filter((option, index, all) => (
+      option && all.findIndex(candidate => getFeaturedOfferKey(candidate) === getFeaturedOfferKey(option)) === index
+    ));
+
+    return calculatedPlans.map(option => ({
       ...option,
       id: option.planId,
       logo: getOperatorLogo(option.operator),
@@ -1483,20 +1584,19 @@ function createIndexQuiz() {
     });
   }
 
-  function getUniqueOperatorPlans(items = []) {
-    const seenOperators = new Set();
+  function getUniqueOfferPlans(items = []) {
+    const seenOffers = new Set();
 
     return items.filter(item => {
-      const operatorKey = String(item?.operator || "").trim().toLowerCase();
-      if (!operatorKey || seenOperators.has(operatorKey)) return false;
-      seenOperators.add(operatorKey);
+      const offerKey = getRecommendationKey(item);
+      if (!offerKey || seenOffers.has(offerKey)) return false;
+      seenOffers.add(offerKey);
       return true;
     });
   }
 
   function getRecommendationKey(plan) {
-    if (!plan) return "";
-    return String(plan.planId ?? plan.id ?? [plan.operator, plan.title].filter(Boolean).join("-"));
+    return getFeaturedOfferKey(plan);
   }
 
   function buildCalculatedRecommendationPlan(plan, qualification) {
@@ -1513,50 +1613,11 @@ function createIndexQuiz() {
     };
   }
 
-  function combineRecommendationLabels(labels = []) {
-    const uniqueLabels = [...new Set(labels.filter(Boolean))];
-    if (uniqueLabels.length <= 1) return uniqueLabels[0] || "Rekommenderat";
-
-    return uniqueLabels
-      .map((label, index) => index === 0 ? label : label.charAt(0).toLowerCase() + label.slice(1))
-      .join(" & ");
-  }
-
   function selectFeaturedRecommendationEntries(plans = []) {
     const qualification = buildQualificationFromState();
-    const featuredByKey = new Map();
-    const addFeaturedPlan = (plan, label, { mergeLabel = true } = {}) => {
-      const key = getRecommendationKey(plan);
-      if (!key) return;
-
-      if (featuredByKey.has(key)) {
-        if (mergeLabel) featuredByKey.get(key).labels.push(label);
-        return;
-      }
-
-      featuredByKey.set(key, {
-        labels: [label],
-        plan: buildCalculatedRecommendationPlan(plan, qualification),
-      });
-    };
-
-    [
-      { plan: lastOfferCalculation?.bestMatch, label: "Bäst matchning" },
-      { plan: lastOfferCalculation?.lowestEffectiveCost, label: "Lägst effektiv kostnad" }
-    ].forEach(entry => addFeaturedPlan(entry.plan, entry.label, { mergeLabel: false }));
-
-    [...plans]
-      .sort((left, right) => (
-        (Number(left?.planMonthlyPrice ?? left?.finalPrice) || Number.POSITIVE_INFINITY) -
-        (Number(right?.planMonthlyPrice ?? right?.finalPrice) || Number.POSITIVE_INFINITY)
-      ))
-      .forEach(plan => {
-        if (featuredByKey.size < 2) addFeaturedPlan(plan, "Rekommenderat", { mergeLabel: false });
-      });
-
-    return [...featuredByKey.values()].slice(0, 2).map(entry => ({
-      plan: entry.plan,
-      label: combineRecommendationLabels(entry.labels),
+    return selectFeaturedOfferCandidates(lastOfferCalculation || {}, plans).map(entry => ({
+      plan: buildCalculatedRecommendationPlan(entry.plan, qualification),
+      label: entry.label,
     }));
   }
 
@@ -2006,8 +2067,10 @@ function createIndexQuiz() {
     const switchAction = plan.switchAction || plan.offerCalculation?.switchAction || "";
     const dataText = plan.data || (plan.dataAmount >= 999 ? "obegränsad surf" : `${plan.dataAmount} GB`);
     const operator = plan.operator || "operatören";
+    const tradeoff = buildRecommendationTradeoff(plan);
     const notes = [
       `Det här passar ${peopleCount === 1 ? "1 användare" : `${peopleCount} användare`} med ${String(dataText).toLowerCase()} hos ${operator}.`,
+      tradeoff,
       planMonthlyPrice > 0 ? `Du betalar ${formatMoney(planMonthlyPrice)}/mån.` : "",
       total24MonthCost !== null
         ? `På 24 månader blir helheten cirka ${formatMoney(total24MonthCost)} efter presentkort och valda behov.`
@@ -2030,6 +2093,30 @@ function createIndexQuiz() {
     return notes.filter(Boolean).join(" ");
   }
 
+  function buildRecommendationTradeoff(plan) {
+    const requirements = plan.relaxedRequirements || plan.offerCalculation?.relaxedRequirements || [];
+    const mustHaveRequirements = plan.unmetMustHaveRequirements || plan.offerCalculation?.unmetMustHaveRequirements || [];
+    if (plan.strictMatch !== false && plan.offerCalculation?.strictMatch !== false) return "";
+    const labels = {
+      eu_eea_roaming: "roaming inom EU/EES",
+      outside_eu_data: "surf utanför EU",
+      international_calls: "lokala samtal utanför EU",
+      worldwide_family_calls: "fria familjesamtal världen över",
+      extra_sim: "extra SIM",
+      shared_data: "delad surf"
+    };
+    const readable = [...new Set(requirements.map(requirement => {
+      const key = String(requirement || "");
+      if (key.startsWith("streaming:")) return key.split(":")[1];
+      return labels[key] || key.replaceAll("_", " ");
+    }).filter(Boolean))];
+    if (!readable.length) return "Det här är det närmaste tillgängliga alternativet, men det matchar inte alla svar fullt ut.";
+    if (mustHaveRequirements.length) {
+      return `Uppfyller inte ett uttryckligt krav: ${readable.join(", ")}. Visas endast som närmaste jämförelse.`;
+    }
+    return `Avvägning: ${readable.join(", ")} matchas inte fullt ut av det här alternativet.`;
+  }
+
   function buildRecommendationCard(plan, index, label) {
     const article = document.createElement("article");
     const providerClass = getProviderClass(plan.operator);
@@ -2046,17 +2133,14 @@ function createIndexQuiz() {
     const priceSub  = isMulti ? `${plan.pricePerPerson} kr per användare` : null;
     const dataText  = plan.dataAmount >= 999 ? "Obegränsad" : `${plan.dataAmount} GB`;
     const reasonText = buildRecommendationReason(plan);
+    const tradeoffText = buildRecommendationTradeoff(plan);
     const giftCardValue = Math.max(Number(plan.giftCardValue ?? plan.offerCalculation?.giftCardValue) || 0, 0);
     const giftCardText = giftCardValue ? formatMoney(giftCardValue) : "XXX kr";
-    const contractMonths = Math.max(Number(plan.bindingMonths ?? plan.offerCalculation?.bindingMonths) || 0, 0);
     const featureItems = [
       ...(Array.isArray(plan.benefits) ? plan.benefits : []),
       ...(Array.isArray(plan.offerCalculation?.benefits) ? plan.offerCalculation.benefits : []),
     ].map(item => String(item || "").trim()).filter(Boolean);
-    const highlights = [...new Set([
-      featureItems.find(item => /EU|EES/i.test(item)) || "EU/EES inkluderat",
-      contractMonths ? `${contractMonths} mån bindningstid` : "Ingen bindningstid",
-    ])].slice(0, 2);
+    const highlights = getQuizOfferHighlights(featureItems);
     const labelIcon = /lägst/i.test(topLabel) ? "fa-tag" : "fa-star";
 
     article.innerHTML = [
@@ -2079,6 +2163,7 @@ function createIndexQuiz() {
       `      <span>${priceSub ? escapeHtml(priceSub) : "/mån"}</span>`,
       '    </div>',
       '  </div>',
+      tradeoffText ? `  <p class="offer-card__reason">${escapeHtml(tradeoffText)}</p>` : "",
       `  <ul class="offer-card__highlights">${highlights.map(item => `<li><i class="fa-regular fa-circle-check" aria-hidden="true"></i>${escapeHtml(item)}</li>`).join("")}</ul>`,
       `  <a href="varukorg.html" class="offer-card__cta" data-recommendation-cart>Välj ${escapeHtml(plan.operator)} <span aria-hidden="true">→</span></a>`,
       '  <button class="offer-card__details" type="button" aria-expanded="false">Se detaljer <span aria-hidden="true">›</span></button>',

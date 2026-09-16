@@ -4,271 +4,514 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="./assets/language-bootstrap.js"></script>
-    <link rel="icon" type="image/png" sizes="32x32" href="./images/browserlogo2-32.png?v=20260821-white-bg" />
-    <link rel="icon" type="image/png" sizes="16x16" href="./images/browserlogo2-16.png?v=20260821-white-bg" />
-    <link rel="shortcut icon" href="./images/browserlogo2.ico?v=20260821-white-bg" />
-  <title>Dealett - F&ouml;retag</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="./images/browserlogo2-32.png?v=20260821-white-bg" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./images/browserlogo2-16.png?v=20260821-white-bg" />
+  <link rel="shortcut icon" href="./images/browserlogo2.ico?v=20260821-white-bg" />
+  <title>Dealett - Företag</title>
 
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link rel="stylesheet" href="./assets/foretag.css" />
-    <link rel="stylesheet" href="styles-redesign.css" />
-    <link rel="stylesheet" href="styles-editorial.css" />
+  <link rel="stylesheet" href="styles-redesign.css" />
+  <link rel="stylesheet" href="styles-editorial.css" />
   <link rel="stylesheet" href="./assets/dealett-ui.css" />
-  </head>
+  <link rel="stylesheet" href="./assets/foretag.css?v=20260916-5" />
+</head>
 <body class="business-page">
   <div data-include="header"></div>
 
-  <main class="business-main">
-    <section class="business-hero">
-      <img class="business-hero-image" src="images/editorial-hero-connectivity.png" alt="F&ouml;retagsabonnemang" />
-      <div class="business-hero-inner">
-        <div class="business-hero-copy">
-          <span class="business-kicker">F&ouml;retagsl&ouml;sningar</span>
-          <h1>Mobilabonnemang f&ouml;r f&ouml;retag</h1>
-          <p>Smarta mobilabonnemang anpassade f&ouml;r f&ouml;retag i alla storlekar med trygg 5G-uppkoppling och f&ouml;ruts&auml;gbara kostnader.</p>
-          <div class="business-hero-actions">
-            <a class="business-action business-action--primary" href="#businessPlans">J&auml;mf&ouml;r planer</a>
-            <a class="business-action business-action--secondary" href="kontakt.html">Prata med oss</a>
+  <main class="company-main">
+    <section class="company-hero" aria-labelledby="companyHeroTitle">
+      <div class="company-shell company-hero__layout">
+        <div class="company-hero__copy">
+          <span class="company-eyebrow">Företagsabonnemang, samlade</span>
+          <h1 id="companyHeroTitle">Hitta rätt abonnemang för jobbet.</h1>
+          <p>Jämför pris, surf och hastighet från Sveriges största operatörer på ett ställe. Filtrera fram rätt nivå och få hjälp när ni vill anpassa upplägget.</p>
+          <div class="company-hero__actions">
+            <a class="company-button company-button--primary" href="#businessPlans">
+              Jämför abonnemang
+              <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
+            </a>
+            <a class="company-button company-button--secondary" href="kontakt.html?from=foretag">
+              Få hjälp att välja
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
           </div>
-          <ul class="business-hero-points" aria-label="F&ouml;rdelar">
-            <li><i class="fa-solid fa-signal"></i><span>5G fr&aring;n ledande operat&ouml;rer</span></li>
-            <li><i class="fa-solid fa-receipt"></i><span>Tydliga kostnader per anv&auml;ndare</span></li>
-            <li><i class="fa-solid fa-headset"></i><span>Hj&auml;lp att v&auml;lja r&auml;tt uppl&auml;gg</span></li>
+          <ul class="company-hero__proof" aria-label="Översikt">
+            <li><strong>4</strong><span>operatörer</span></li>
+            <li><strong>11</strong><span>abonnemang</span></li>
+            <li><strong>1</strong><span>tilläggstjänst</span></li>
           </ul>
         </div>
-        <aside class="business-hero-panel" aria-label="F&ouml;retags&ouml;versikt">
-          <div class="business-stat-card">
-            <span>F&ouml;r team</span>
-            <strong>1-100+</strong>
-            <p>V&auml;lj storlek och j&auml;mf&ouml;r abonnemang som passar hur ni jobbar.</p>
+
+        <aside class="company-hero__panel" aria-label="Operatörer som går att jämföra">
+          <div class="company-hero__panel-head">
+            <span>Jämför på ett ställe</span>
+            <i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i>
           </div>
-          <div class="business-mini-grid">
-            <div class="business-mini-card">
-              <span>Uppkoppling</span>
-              <strong>5G</strong>
-            </div>
-            <div class="business-mini-card">
-              <span>Operat&ouml;rer</span>
-              <strong>4 st</strong>
-            </div>
+          <div class="company-hero__logos">
+            <div class="company-logo-tile"><img src="images/telia.png" alt="Telia" /></div>
+            <div class="company-logo-tile"><img src="images/tele2.png" alt="Tele2" /></div>
+            <div class="company-logo-tile"><img src="images/telenor.jpg" alt="Telenor" /></div>
+            <div class="company-logo-tile"><img src="images/tre.jpg" alt="Tre" /></div>
+          </div>
+          <div class="company-hero__panel-foot">
+            <span class="company-hero__check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+            <p><strong>Snabbare överblick.</strong> Samma nyckeluppgifter i samma ordning på varje kort.</p>
           </div>
         </aside>
       </div>
     </section>
 
-    <section class="business-size-section">
-      <div class="business-shell">
-        <div class="section-head center">
-          <span class="section-kicker">Kom ig&aring;ng</span>
-          <h2>Hur stort &auml;r f&ouml;retaget?</h2>
+    <section class="company-comparison" id="businessPlans" aria-labelledby="companyPlansTitle">
+      <div class="company-shell">
+        <header class="company-section-head">
+          <div>
+            <span class="company-eyebrow">Jämför erbjudanden</span>
+            <h2 id="companyPlansTitle">Välj det som passar ert sätt att jobba.</h2>
+          </div>
+          <p>Välj företagsstorlek och operatör. Öppna detaljerna först när du behöver dem.</p>
+        </header>
+
+        <div class="company-filter-bar" aria-label="Filtrera företagsabonnemang">
+          <fieldset class="company-filter-group company-filter-group--size">
+            <legend>Företagsstorlek</legend>
+            <div class="company-segmented-control">
+              <button class="company-size-button" type="button" data-size="small" aria-pressed="false">
+                <i class="fa-solid fa-user" aria-hidden="true"></i>
+                <span>1–9</span>
+              </button>
+              <button class="company-size-button" type="button" data-size="medium" aria-pressed="false">
+                <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+                <span>10–99</span>
+              </button>
+              <button class="company-size-button" type="button" data-size="large" aria-pressed="false">
+                <i class="fa-solid fa-building" aria-hidden="true"></i>
+                <span>100+</span>
+              </button>
+            </div>
+          </fieldset>
+
+          <fieldset class="company-filter-group company-filter-group--operators">
+            <legend>Operatör</legend>
+            <div class="company-operator-filters">
+              <button class="company-operator-filter is-active" type="button" data-operator-filter="all" aria-pressed="true">
+                <span>Alla</span>
+              </button>
+              <button class="company-operator-filter" type="button" data-operator-filter="telia" aria-label="Visa Telia" aria-pressed="false">
+                <img src="images/telia.png" alt="" />
+              </button>
+              <button class="company-operator-filter" type="button" data-operator-filter="tele2" aria-label="Visa Tele2" aria-pressed="false">
+                <img src="images/tele2.png" alt="" />
+              </button>
+              <button class="company-operator-filter" type="button" data-operator-filter="telenor" aria-label="Visa Telenor" aria-pressed="false">
+                <img src="images/telenor.jpg" alt="" />
+              </button>
+              <button class="company-operator-filter" type="button" data-operator-filter="tre" aria-label="Visa Tre" aria-pressed="false">
+                <img src="images/tre.jpg" alt="" />
+              </button>
+            </div>
+          </fieldset>
+
+          <label class="company-sort-control" for="companyPlanSort">
+            <span>Sortera</span>
+            <select id="companyPlanSort">
+              <option value="recommended">Rekommenderade</option>
+              <option value="price">Lägsta pris</option>
+              <option value="operator">Operatör A–Ö</option>
+            </select>
+          </label>
         </div>
-        <div class="business-size-grid">
-          <button class="business-size" data-size="small" type="button"><i class="fa-solid fa-user"></i><span>1-10 personer</span></button>
-          <button class="business-size" data-size="medium" type="button"><i class="fa-solid fa-users"></i><span>10-100 personer</span></button>
-          <button class="business-size" data-size="large" type="button"><i class="fa-solid fa-building"></i><span>100+ personer</span></button>
+
+        <div class="company-size-guidance" aria-live="polite">
+          <span class="company-size-guidance__icon"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i></span>
+          <p data-size-guidance>Välj hur många ni är så anpassar vi nästa steg.</p>
+          <a href="kontakt.html?from=foretag" data-guidance-link>Prata med oss <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
         </div>
+
+        <div class="company-results-toolbar">
+          <p><strong data-result-count>12</strong> <span data-result-label>lösningar</span></p>
+          <button class="company-reset-button" type="button" data-reset-filters>
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+            Återställ filter
+          </button>
+        </div>
+
+        <div class="company-plan-grid" role="list" aria-live="polite">
+          <article class="company-plan-card" role="listitem" data-operator="telia" data-price="579" data-featured="1" data-order="0">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/telia.png" alt="Telia" /></div>
+              <span class="company-plan-card__badge">Mest komplett</span>
+            </div>
+            <h3>Obegränsad Plus</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>Obegränsad</dd></div>
+              <div><dt>Hastighet</dt><dd>1 500 Mbit/s</dd></div>
+              <div><dt>EU/EES</dt><dd>50 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>Obegränsad surf</li>
+                <li>5G upp till 1 500 Mbit/s</li>
+                <li>50 GB surf i EU/EES</li>
+                <li>Fria samtal, sms och mms</li>
+                <li>Smart Säkerhet ingår</li>
+                <li>Extra datasim</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <div class="company-plan-card__price"><strong>579 kr</strong><span>/mån</span></div>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=telia&amp;plan=obegransad-plus" data-plan-cta aria-label="Få offert på Telia Obegränsad Plus">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="telia" data-price="479" data-featured="0" data-order="1">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/telia.png" alt="Telia" /></div>
+              <span class="company-plan-card__type">Företagsabonnemang</span>
+            </div>
+            <h3>Obegränsad</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>Obegränsad</dd></div>
+              <div><dt>Hastighet</dt><dd>300 Mbit/s</dd></div>
+              <div><dt>EU/EES</dt><dd>50 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>Obegränsad surf</li>
+                <li>5G upp till 300 Mbit/s</li>
+                <li>50 GB surf i EU/EES</li>
+                <li>Fria samtal, sms och mms</li>
+                <li>Smart Säkerhet ingår</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <div class="company-plan-card__price"><strong>479 kr</strong><span>/mån</span></div>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=telia&amp;plan=obegransad" data-plan-cta aria-label="Få offert på Telia Obegränsad">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="telia" data-price="379" data-featured="0" data-order="2">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/telia.png" alt="Telia" /></div>
+              <span class="company-plan-card__type">Företagsabonnemang</span>
+            </div>
+            <h3>50 GB</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>50 GB</dd></div>
+              <div><dt>Hastighet</dt><dd>100 Mbit/s</dd></div>
+              <div><dt>EU/EES</dt><dd>50 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>50 GB surf</li>
+                <li>5G upp till 100 Mbit/s</li>
+                <li>50 GB surf i EU/EES</li>
+                <li>Fria samtal, sms och mms</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <div class="company-plan-card__price"><strong>379 kr</strong><span>/mån</span></div>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=telia&amp;plan=50-gb" data-plan-cta aria-label="Få offert på Telia 50 GB">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="tele2" data-price="329" data-featured="0" data-order="3">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/tele2.png" alt="Tele2" /></div>
+              <span class="company-plan-card__type">Företagsabonnemang</span>
+            </div>
+            <h3>Obegränsad Max</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>Obegränsad</dd></div>
+              <div><dt>Hastighet</dt><dd>1 500 Mbit/s</dd></div>
+              <div><dt>EU/EES</dt><dd>100 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>5G upp till 1 500 Mbit/s</li>
+                <li>Ring fritt till kollegor utomlands</li>
+                <li>100 GB surf i EU/EES</li>
+                <li>Fria samtal, sms och mms</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <span class="company-plan-card__regular">Ordinarie 599 kr/mån</span>
+              <div class="company-plan-card__price"><strong>329 kr</strong><span>/mån</span></div>
+              <span class="company-plan-card__term">24 mån bindningstid</span>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=tele2&amp;plan=obegransad-max" data-plan-cta aria-label="Få offert på Tele2 Obegränsad Max">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="tele2" data-price="279" data-featured="1" data-order="4">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/tele2.png" alt="Tele2" /></div>
+              <span class="company-plan-card__badge">Populärt val</span>
+            </div>
+            <h3>Obegränsad</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>Obegränsad</dd></div>
+              <div><dt>Hastighet</dt><dd>300 Mbit/s</dd></div>
+              <div><dt>EU/EES</dt><dd>100 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>5G upp till 300 Mbit/s</li>
+                <li>Ring fritt till kollegor utomlands</li>
+                <li>100 GB surf i EU/EES</li>
+                <li>Fria samtal, sms och mms</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <span class="company-plan-card__regular">Ordinarie 499 kr/mån</span>
+              <div class="company-plan-card__price"><strong>279 kr</strong><span>/mån</span></div>
+              <span class="company-plan-card__term">24 mån bindningstid</span>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=tele2&amp;plan=obegransad" data-plan-cta aria-label="Få offert på Tele2 Obegränsad">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="tele2" data-price="269" data-featured="0" data-order="5">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/tele2.png" alt="Tele2" /></div>
+              <span class="company-plan-card__type">Företagsabonnemang</span>
+            </div>
+            <h3>60 GB</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>60 GB</dd></div>
+              <div><dt>Hastighet</dt><dd>100 Mbit/s</dd></div>
+              <div><dt>EU/EES</dt><dd>60 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>5G upp till 100 Mbit/s</li>
+                <li>60 GB surf i EU/EES</li>
+                <li>Fria samtal, sms och mms</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <span class="company-plan-card__regular">Ordinarie 399 kr/mån</span>
+              <div class="company-plan-card__price"><strong>269 kr</strong><span>/mån</span></div>
+              <span class="company-plan-card__term">24 mån bindningstid</span>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=tele2&amp;plan=60-gb" data-plan-cta aria-label="Få offert på Tele2 60 GB">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="telenor" data-price="449" data-featured="1" data-order="6">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/telenor.jpg" alt="Telenor" /></div>
+              <span class="company-plan-card__badge">Kampanj</span>
+            </div>
+            <h3>Obegränsat Premium</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>Obegränsad</dd></div>
+              <div><dt>Hastighet</dt><dd>1 500 Mbit/s</dd></div>
+              <div><dt>EU/EES+</dt><dd>150 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>Obegränsad surf i Sverige</li>
+                <li>150 GB i EU/EES + 10 länder</li>
+                <li>5G upp till 1 500 Mbit/s</li>
+                <li>Extra data-sim och SafeZone</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <span class="company-plan-card__regular">Ordinarie 599 kr/mån</span>
+              <div class="company-plan-card__price"><strong>449 kr</strong><span>/mån</span></div>
+              <span class="company-plan-card__term">24 mån bindningstid</span>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=telenor&amp;plan=obegransat-premium" data-plan-cta aria-label="Få offert på Telenor Obegränsat Premium">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="telenor" data-price="449" data-featured="0" data-order="7">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/telenor.jpg" alt="Telenor" /></div>
+              <span class="company-plan-card__type">Företagsabonnemang</span>
+            </div>
+            <h3>Obegränsat Plus</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>Obegränsad</dd></div>
+              <div><dt>Hastighet</dt><dd>600 Mbit/s</dd></div>
+              <div><dt>EU/EES+</dt><dd>100 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>Obegränsad surf i Sverige</li>
+                <li>100 GB i EU/EES + 10 länder</li>
+                <li>5G upp till 600 Mbit/s</li>
+                <li>Extra data-sim</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <span class="company-plan-card__regular">Ordinarie 499 kr/mån</span>
+              <div class="company-plan-card__price"><strong>449 kr</strong><span>/mån</span></div>
+              <span class="company-plan-card__term">24 mån bindningstid</span>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=telenor&amp;plan=obegransat-plus" data-plan-cta aria-label="Få offert på Telenor Obegränsat Plus">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="telenor" data-price="399" data-featured="0" data-order="8">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/telenor.jpg" alt="Telenor" /></div>
+              <span class="company-plan-card__type">Företagsabonnemang</span>
+            </div>
+            <h3>Obegränsat</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>Obegränsad</dd></div>
+              <div><dt>Hastighet</dt><dd>300 Mbit/s</dd></div>
+              <div><dt>EU/EES</dt><dd>75 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>Obegränsad surf i Sverige</li>
+                <li>75 GB i EU/EES</li>
+                <li>5G upp till 300 Mbit/s</li>
+                <li>Fria samtal, sms och mms</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <span class="company-plan-card__regular">Ordinarie 449 kr/mån</span>
+              <div class="company-plan-card__price"><strong>399 kr</strong><span>/mån</span></div>
+              <span class="company-plan-card__term">24 mån bindningstid</span>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=telenor&amp;plan=obegransat" data-plan-cta aria-label="Få offert på Telenor Obegränsat">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="tre" data-price="299" data-featured="0" data-order="9">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/tre.jpg" alt="Tre" /></div>
+              <span class="company-plan-card__type">Företagsabonnemang</span>
+            </div>
+            <h3>3Företag Obegränsad</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>Obegränsad</dd></div>
+              <div><dt>Hastighet</dt><dd>300 Mbit/s</dd></div>
+              <div><dt>EU/EES</dt><dd>100 GB</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>Obegränsad surf i Sverige</li>
+                <li>Upp till 300 Mbit/s</li>
+                <li>100 GB/mån i EU/EES</li>
+                <li>Samtal och sms ingår</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <div class="company-plan-card__price"><strong>299 kr</strong><span>/mån</span></div>
+              <span class="company-plan-card__term">24 mån bindningstid</span>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=tre&amp;plan=obegransad" data-plan-cta aria-label="Få offert på 3Företag Obegränsad">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card" role="listitem" data-operator="tre" data-price="399" data-featured="1" data-order="10">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/tre.jpg" alt="Tre" /></div>
+              <span class="company-plan-card__badge">Populär</span>
+            </div>
+            <h3>3Företag Obegränsad Max</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Surf</dt><dd>Obegränsad</dd></div>
+              <div><dt>Hastighet</dt><dd>Obegränsad</dd></div>
+              <div><dt>Utomlands</dt><dd>100 GB</dd></div>
+              <div><dt>Tjänst</dt><dd>3Världen Företag</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>Obegränsad surf i Sverige</li>
+                <li>Obegränsad hastighet</li>
+                <li>100 GB/mån utomlands</li>
+                <li>3Världen Företag ingår</li>
+                <li>Extra datakort ingår</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <div class="company-plan-card__price"><strong>399 kr</strong><span>/mån</span></div>
+              <span class="company-plan-card__term">24 mån bindningstid</span>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=tre&amp;plan=obegransad-max" data-plan-cta aria-label="Få offert på 3Företag Obegränsad Max">Få offert <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+
+          <article class="company-plan-card company-plan-card--service" role="listitem" data-operator="tre" data-price="99999" data-featured="0" data-order="11">
+            <div class="company-plan-card__topline">
+              <div class="company-plan-card__logo"><img src="images/tre.jpg" alt="Tre" /></div>
+              <span class="company-plan-card__badge company-plan-card__badge--dark">Tilläggstjänst</span>
+            </div>
+            <h3>3Koppla</h3>
+            <dl class="company-plan-card__facts">
+              <div><dt>Lösning</dt><dd>Mobil växel</dd></div>
+              <div><dt>Kundkontakt</dt><dd>Kontaktcenter</dd></div>
+              <div><dt>Hantering</dt><dd>Self service</dd></div>
+            </dl>
+            <details class="company-plan-card__details">
+              <summary>Allt som ingår</summary>
+              <ul>
+                <li>Mobil växel och kontaktcenter</li>
+                <li>Smarta företagsfunktioner</li>
+                <li>Integration med företagsappar</li>
+                <li>Enkel self service</li>
+              </ul>
+            </details>
+            <div class="company-plan-card__footer">
+              <div class="company-plan-card__price company-plan-card__price--quote"><strong>Offert</strong><span>anpassad för er</span></div>
+              <a class="company-plan-card__cta" href="kontakt.html?from=foretag&amp;operator=tre&amp;plan=3koppla" data-plan-cta aria-label="Läs mer om 3Koppla">Läs mer <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </article>
+        </div>
+
+        <div class="company-empty-state" data-empty-state hidden>
+          <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+          <h3>Inga lösningar matchar filtret.</h3>
+          <p>Återställ filtret för att se alla erbjudanden igen.</p>
+        </div>
+
+        <p class="company-price-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Priser och kampanjvillkor kan ändras. Slutligt pris och fullständiga villkor bekräftas innan beställning.</p>
       </div>
     </section>
 
-    <section class="business-plans-section" id="businessPlans">
-      <div class="business-shell">
-        <div class="section-head center">
-          <span class="section-kicker">J&auml;mf&ouml;r planer</span>
-          <h2>V&auml;lj operat&ouml;r och plan</h2>
-          <p>Alla planer inkluderar 5G-uppkoppling och st&ouml;d f&ouml;r f&ouml;retag i olika storlekar.</p>
+    <section class="company-process" aria-labelledby="companyProcessTitle">
+      <div class="company-shell">
+        <div class="company-process__intro">
+          <span class="company-eyebrow">Enklare från start</span>
+          <h2 id="companyProcessTitle">Från många val till ett tydligt nästa steg.</h2>
         </div>
+        <ol class="company-process__steps">
+          <li>
+            <span>01</span>
+            <div><h3>Välj storlek</h3><p>Berätta hur många användare lösningen ska fungera för.</p></div>
+          </li>
+          <li>
+            <span>02</span>
+            <div><h3>Jämför det viktiga</h3><p>Se surf, hastighet och pris i samma ordning på varje kort.</p></div>
+          </li>
+          <li>
+            <span>03</span>
+            <div><h3>Anpassa med oss</h3><p>Ta med ditt val när du kontaktar oss så hjälper vi dig vidare.</p></div>
+          </li>
+        </ol>
+      </div>
+    </section>
 
-        <div class="business-operator-stack">
-          <section class="business-operator">
-            <div class="business-operator-info">
-              <img src="images/telia.png" alt="Telia F&ouml;retag" />
-              <p>Marknadsledande t&auml;ckning och stabil prestanda f&ouml;r f&ouml;retag.</p>
-            </div>
-            <div class="business-plan-grid">
-              <article class="business-plan-card is-featured">
-                <span class="business-plan-badge">Mest komplett</span>
-                <h3>Obegr&auml;nsad Plus</h3>
-                <ul>
-                  <li>Obegr&auml;nsad surf</li>
-                  <li>5G upp till 1500 Mbit/s</li>
-                  <li>50 GB surf i EU/EES</li>
-                  <li>Fria samtal, sms och mms</li>
-                  <li>Smart S&auml;kerhet ing&aring;r</li>
-                  <li>Extra datasim</li>
-                </ul>
-                <strong>579 kr/m&aring;n</strong>
-                <a class="business-plan-btn" href="kontakt.html">V&auml;lj och anpassa</a>
-              </article>
-              <article class="business-plan-card">
-                <h3>Obegr&auml;nsad</h3>
-                <ul>
-                  <li>Obegr&auml;nsad surf</li>
-                  <li>5G upp till 300 Mbit/s</li>
-                  <li>50 GB surf i EU/EES</li>
-                  <li>Fria samtal, sms och mms</li>
-                  <li>Smart S&auml;kerhet ing&aring;r</li>
-                </ul>
-                <strong>479 kr/m&aring;n</strong>
-                <a class="business-plan-btn" href="kontakt.html">V&auml;lj och anpassa</a>
-              </article>
-              <article class="business-plan-card">
-                <h3>50 GB</h3>
-                <ul>
-                  <li>50 GB surf</li>
-                  <li>5G upp till 100 Mbit/s</li>
-                  <li>50 GB surf i EU/EES</li>
-                  <li>Fria samtal, sms och mms</li>
-                </ul>
-                <strong>379 kr/m&aring;n</strong>
-                <a class="business-plan-btn" href="kontakt.html">V&auml;lj och anpassa</a>
-              </article>
-            </div>
-          </section>
-
-          <section class="business-operator">
-            <div class="business-operator-info">
-              <img src="images/tele2.png" alt="Tele2 F&ouml;retag" />
-              <p>Flexibla f&ouml;retagsabonnemang med stark 5G-n&auml;rvaro.</p>
-            </div>
-            <div class="business-plan-grid">
-              <article class="business-plan-card">
-                <h3>Obegr&auml;nsad Max</h3>
-                <ul>
-                  <li>5G upp till 1500 Mbit/s</li>
-                  <li>Ring fritt till kollegor utomlands</li>
-                  <li>100 GB surf i EU/EES</li>
-                  <li>Fria samtal, sms och mms</li>
-                </ul>
-                <small>Ordinarie: 599 kr/m&aring;n</small>
-                <strong>329 kr/m&aring;n</strong>
-                <p>24 m&aring;n bindningstid</p>
-                <a class="business-plan-btn" href="kontakt.html">Best&auml;ll</a>
-              </article>
-              <article class="business-plan-card is-featured">
-                <span class="business-plan-badge">Popul&auml;rt val</span>
-                <h3>Obegr&auml;nsad</h3>
-                <ul>
-                  <li>5G upp till 300 Mbit/s</li>
-                  <li>Ring fritt till kollegor utomlands</li>
-                  <li>100 GB surf i EU/EES</li>
-                  <li>Fria samtal, sms och mms</li>
-                </ul>
-                <small>Ordinarie: 499 kr/m&aring;n</small>
-                <strong>279 kr/m&aring;n</strong>
-                <p>24 m&aring;n bindningstid</p>
-                <a class="business-plan-btn" href="kontakt.html">Best&auml;ll</a>
-              </article>
-              <article class="business-plan-card">
-                <h3>60 GB</h3>
-                <ul>
-                  <li>5G upp till 100 Mbit/s</li>
-                  <li>60 GB surf i EU/EES</li>
-                  <li>Fria samtal, sms och mms</li>
-                </ul>
-                <small>Ordinarie: 399 kr/m&aring;n</small>
-                <strong>269 kr/m&aring;n</strong>
-                <p>24 m&aring;n bindningstid</p>
-                <a class="business-plan-btn" href="kontakt.html">Best&auml;ll</a>
-              </article>
-            </div>
-          </section>
-
-          <section class="business-operator">
-            <div class="business-operator-info">
-              <img src="images/telenor.jpg" alt="Telenor F&ouml;retag" />
-              <p>Stabil uppkoppling och p&aring;litliga f&ouml;retagsl&ouml;sningar i hela Sverige.</p>
-            </div>
-            <div class="business-plan-grid">
-              <article class="business-plan-card is-featured">
-                <span class="business-plan-badge">Kampanj</span>
-                <h3>Obegr&auml;nsat Premium</h3>
-                <ul>
-                  <li>Obegr&auml;nsad surf i Sverige</li>
-                  <li>150 GB i EU/EES + 10 l&auml;nder</li>
-                  <li>5G upp till 1500 Mbit/s</li>
-                  <li>Extra data-sim och SafeZone</li>
-                </ul>
-                <small>Ordinarie: 599 kr/m&aring;n</small>
-                <strong>449 kr/m&aring;n</strong>
-                <p>24 m&aring;n bindningstid</p>
-                <a class="business-plan-btn" href="kontakt.html">Best&auml;ll</a>
-              </article>
-              <article class="business-plan-card">
-                <h3>Obegr&auml;nsat Plus</h3>
-                <ul>
-                  <li>Obegr&auml;nsad surf i Sverige</li>
-                  <li>100 GB i EU/EES + 10 l&auml;nder</li>
-                  <li>5G upp till 600 Mbit/s</li>
-                  <li>Extra data-sim</li>
-                </ul>
-                <small>Ordinarie: 499 kr/m&aring;n</small>
-                <strong>449 kr/m&aring;n</strong>
-                <p>24 m&aring;n bindningstid</p>
-                <a class="business-plan-btn" href="kontakt.html">Best&auml;ll</a>
-              </article>
-              <article class="business-plan-card">
-                <h3>Obegr&auml;nsat</h3>
-                <ul>
-                  <li>Obegr&auml;nsad surf i Sverige</li>
-                  <li>75 GB i EU/EES</li>
-                  <li>5G upp till 300 Mbit/s</li>
-                  <li>Fria samtal, sms och mms</li>
-                </ul>
-                <small>Ordinarie: 449 kr/m&aring;n</small>
-                <strong>399 kr/m&aring;n</strong>
-                <p>24 m&aring;n bindningstid</p>
-                <a class="business-plan-btn" href="kontakt.html">Best&auml;ll</a>
-              </article>
-            </div>
-          </section>
-
-          <section class="business-operator">
-            <div class="business-operator-info">
-              <img src="images/tre.jpg" alt="Tre F&ouml;retag" />
-              <p>Snabba och moderna f&ouml;retagsabonnemang med h&ouml;g flexibilitet.</p>
-            </div>
-            <div class="business-plan-grid">
-              <article class="business-plan-card">
-                <h3>3F&ouml;retag Obegr&auml;nsad</h3>
-                <ul>
-                  <li>Obegr&auml;nsad surf i Sverige</li>
-                  <li>Upp till 300 Mbit/s</li>
-                  <li>100 GB/m&aring;n i EU/EES</li>
-                  <li>Samtal och sms ing&aring;r</li>
-                </ul>
-                <strong>299 kr/m&aring;n</strong>
-                <p>24 m&aring;n bindningstid</p>
-                <a class="business-plan-btn" href="kontakt.html">Best&auml;ll</a>
-              </article>
-              <article class="business-plan-card is-featured">
-                <span class="business-plan-badge">Popul&auml;r</span>
-                <h3>3F&ouml;retag Obegr&auml;nsad Max</h3>
-                <ul>
-                  <li>Obegr&auml;nsad surf i Sverige</li>
-                  <li>Obegr&auml;nsad hastighet</li>
-                  <li>100 GB/m&aring;n utomlands</li>
-                  <li>Extra datakort ing&aring;r</li>
-                </ul>
-                <strong>399 kr/m&aring;n</strong>
-                <p>24 m&aring;n bindningstid</p>
-                <a class="business-plan-btn" href="kontakt.html">Best&auml;ll</a>
-              </article>
-              <article class="business-plan-card business-plan-card--soft">
-                <span class="business-plan-tag">Nyhet</span>
-                <h3>3Koppla</h3>
-                <ul>
-                  <li>Mobil v&auml;xel och kontaktcenter</li>
-                  <li>Smarta f&ouml;retagsfunktioner</li>
-                  <li>Integration med f&ouml;retagsappar</li>
-                  <li>Enkel self service</li>
-                </ul>
-                <p>Till&auml;ggstj&auml;nst f&ouml;r f&ouml;retag</p>
-                <a class="business-plan-btn" href="kontakt.html">L&auml;s mer</a>
-              </article>
-            </div>
-          </section>
+    <section class="company-contact-cta" aria-labelledby="companyContactTitle">
+      <div class="company-shell company-contact-cta__inner">
+        <div>
+          <span class="company-eyebrow">Behöver ni ett större upplägg?</span>
+          <h2 id="companyContactTitle">Vi hjälper er samla abonnemangen.</h2>
+          <p>Berätta hur teamet jobbar, så tar vi nästa steg tillsammans.</p>
         </div>
+        <a class="company-button company-button--light" href="kontakt.html?from=foretag&amp;need=radgivning">
+          Kontakta oss
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
       </div>
     </section>
   </main>
@@ -277,7 +520,8 @@
 
   <script src="./assets/cart-helpers.js"></script>
   <script src="./assets/network-utils.js"></script>
+  <script>try { sessionStorage.setItem('dealettChatAutoOpenedV2', 'true'); } catch {}</script>
   <script src="script.js?v=20260825-3"></script>
-  <script src="./assets/foretag.js"></script>
+  <script src="./assets/foretag.js?v=20260916-2"></script>
 </body>
 </html>

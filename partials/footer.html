@@ -1,78 +1,95 @@
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-main">
-      <div class="footer-brand">
-        <a href="index.html" class="brand footer-brand-link">Dealett</a>
-        <p>- b&auml;ttre deals, helt enkelt.</p>
+      <div class="footer-identity">
+        <div class="footer-brand">
+          <a href="index.html" class="brand footer-brand-link" aria-label="Dealett &ndash; startsida">
+            <img class="footer-brand-logo" src="images/Dealett-header.png" alt="" />
+            <span class="visually-hidden">Dealett</span>
+          </a>
+          <p>- b&auml;ttre deals, helt enkelt.</p>
+        </div>
+
+        <address class="footer-contact">
+          <a class="footer-contact-title" href="kontakt.html">
+            <span>Kontakt</span>
+            <span aria-hidden="true">&nearr;</span>
+          </a>
+          <a href="mailto:Info@minsida.com">Info@minsida.com</a>
+          <a href="tel:+4681234567">Tel: 08-123 45 67</a>
+          <span>Hamngatan 20<br />111 47 Stockholm</span>
+        </address>
       </div>
 
       <nav class="footer-links" aria-label="Snabbl&auml;nkar">
-        <div>
-          <p>J&auml;mf&ouml;r</p>
-          <a href="mobilabonnemang.html">Mobilabonnemang</a>
-          <a href="familjabonnemang.html">Familjabonnemang</a>
-          <a href="5g-bredband.html">5G-Bredband</a>
+        <div class="footer-link-group">
+          <h2>J&auml;mf&ouml;r</h2>
+          <ul>
+            <li><a href="mobilabonnemang.html">Mobilabonnemang</a></li>
+            <li><a href="familjabonnemang.html">Familjabonnemang</a></li>
+            <li><a href="5g-bredband.html">5G-Bredband</a></li>
+            <li><a href="jamfor-tackning.html">J&auml;mf&ouml;r t&auml;ckning</a></li>
+          </ul>
         </div>
-        <div>
-          <p>Dealett</p>
-          <a href="jamfor-tackning.html">J&auml;mf&ouml;r t&auml;ckning</a>
-          <a href="om-oss.html">Om oss</a>
-          <a href="kontakt.html">Kontakt</a>
+
+        <div class="footer-link-group">
+          <h2>Dealett</h2>
+          <ul>
+            <li><a href="om-oss.html">Om oss</a></li>
+            <li><a href="foretag.html">F&ouml;retag</a></li>
+            <li><a href="kontakt.html">Kontakt</a></li>
+          </ul>
         </div>
-        <div>
-          <p>K&ouml;pinformation</p>
-          <a href="villkor.html">F&ouml;rmedlings- och presentkortsvillkor</a>
-          <a href="integritetspolicy.html">Integritetspolicy</a>
-          <a href="angerratt.html">Information om &aring;ngerr&auml;tt</a>
+
+        <div class="footer-link-group footer-link-group--legal">
+          <h2>K&ouml;pinformation</h2>
+          <ul>
+            <li><a href="villkor.html">F&ouml;rmedlings- och presentkortsvillkor</a></li>
+            <li><a href="integritetspolicy.html">Integritetspolicy</a></li>
+            <li><a href="angerratt.html">Information om &aring;ngerr&auml;tt</a></li>
+          </ul>
         </div>
       </nav>
-
-      <div class="footer-contact">
-        <p class="footer-contact-title">Kontakt</p>
-        <a href="mailto:Info@minsida.com">Info@minsida.com</a>
-        <p>Tel: 08-123 45 67</p>
-        <p>Hamngatan 20</p>
-        <p>111 47 Stockholm</p>
-      </div>
     </div>
 
     <div class="footer-bottom">
-      <p class="footer-bottom-label">F&ouml;lj Dealett</p>
-
-      <div class="footer-social-grid" aria-label="F&ouml;lj Dealett i sociala medier">
-        <a class="footer-social-plate" href="https://www.facebook.com/dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; Facebook">
-          <span class="footer-social-icon"><i class="fa-brands fa-facebook-f"></i></span>
-          <span class="footer-social-copy">
-            <strong>Facebook</strong>
-          </span>
-        </a>
-        <a class="footer-social-plate" href="https://www.tiktok.com/@dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; TikTok">
-          <span class="footer-social-icon"><i class="fa-brands fa-tiktok"></i></span>
-          <span class="footer-social-copy">
-            <strong>TikTok</strong>
-          </span>
-        </a>
-        <a class="footer-social-plate" href="https://www.instagram.com/dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; Instagram">
-          <span class="footer-social-icon"><i class="fa-brands fa-instagram"></i></span>
-          <span class="footer-social-copy">
-            <strong>Instagram</strong>
-          </span>
-        </a>
-        <a class="footer-social-plate" href="https://x.com/dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; X">
-          <span class="footer-social-icon"><i class="fa-brands fa-x-twitter"></i></span>
-          <span class="footer-social-copy">
-            <strong>X</strong>
-          </span>
-        </a>
-        <a class="footer-social-plate" href="https://www.youtube.com/@dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; YouTube">
-          <span class="footer-social-icon"><i class="fa-brands fa-youtube"></i></span>
-          <span class="footer-social-copy">
-            <strong>YouTube</strong>
-          </span>
-        </a>
-      </div>
-
       <p class="footer-copyright">&copy; 2026 Dealett</p>
+
+      <nav class="footer-social" aria-label="F&ouml;lj Dealett i sociala medier">
+        <span class="footer-bottom-label">F&ouml;lj Dealett</span>
+        <ul class="footer-social-grid">
+          <li>
+            <a class="footer-social-plate" href="https://www.facebook.com/dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; Facebook">
+              <span class="footer-social-icon"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></span>
+              <span class="footer-social-copy">Facebook</span>
+            </a>
+          </li>
+          <li>
+            <a class="footer-social-plate" href="https://www.tiktok.com/@dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; TikTok">
+              <span class="footer-social-icon"><i class="fa-brands fa-tiktok" aria-hidden="true"></i></span>
+              <span class="footer-social-copy">TikTok</span>
+            </a>
+          </li>
+          <li>
+            <a class="footer-social-plate" href="https://www.instagram.com/dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; Instagram">
+              <span class="footer-social-icon"><i class="fa-brands fa-instagram" aria-hidden="true"></i></span>
+              <span class="footer-social-copy">Instagram</span>
+            </a>
+          </li>
+          <li>
+            <a class="footer-social-plate" href="https://x.com/dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; X">
+              <span class="footer-social-icon"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i></span>
+              <span class="footer-social-copy">X</span>
+            </a>
+          </li>
+          <li>
+            <a class="footer-social-plate" href="https://www.youtube.com/@dealett" target="_blank" rel="noopener" aria-label="Dealett p&aring; YouTube">
+              <span class="footer-social-icon"><i class="fa-brands fa-youtube" aria-hidden="true"></i></span>
+              <span class="footer-social-copy">YouTube</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </footer>

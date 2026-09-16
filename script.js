@@ -1966,14 +1966,18 @@
       });
     };
 
+    const getPresentedOfferOptions = (offerCalculation) => (
+      Array.isArray(offerCalculation?.featuredOffers) && offerCalculation.featuredOffers.length
+        ? offerCalculation.featuredOffers
+        : (Array.isArray(offerCalculation?.options) ? offerCalculation.options : [])
+    );
+
     const hasOfferOptions = (offerCalculation) => Boolean(
-      offerCalculation?.readyForOffer &&
-      Array.isArray(offerCalculation.options) &&
-      offerCalculation.options.length
+      offerCalculation?.readyForOffer && getPresentedOfferOptions(offerCalculation).length
     );
 
     const getFinalBotRecommendation = (response) => {
-      const option = response?.offerCalculation?.options?.[0];
+      const option = getPresentedOfferOptions(response?.offerCalculation)[0];
       if (!option) return String(response?.reply || '').slice(0, 1400);
 
       const price = Number.isFinite(Number(option.monthlyPrice))
@@ -2991,10 +2995,11 @@
             '  </div>',
           ].join('') : '',
           '  <div class="offer-card__stats">',
+          card.bindingLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-file-signature"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.bindingTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.bindingLabel)}</p></div></div>` : '',
           card.dataLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-wifi"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.dataTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.dataLabel)}</p></div></div>` : '',
           card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.monthlyPriceTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p>${card.monthlyPriceSubLabel ? `<p class="offer-card__stat-sub">${escapeChatText(card.monthlyPriceSubLabel)}</p>` : ''}</div></div>` : '',
-          card.bindingLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-file-signature"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.bindingTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.bindingLabel)}</p></div></div>` : '',
           '  </div>',
+          card.strictMatch === false && card.reason ? `  <p class="offer-card__reason">${escapeChatText(card.reason)}</p>` : '',
           benefits.length ? `  <ul class="dealett-chat-offer-benefits">${benefits.map(benefit => `<li>${escapeChatText(benefit)}</li>`).join('')}</ul>` : '',
           safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel)} <i class="fa-solid fa-cart-shopping"></i></button>` : '',
           '</div>',
@@ -3280,6 +3285,12 @@
       ...(window.DealettChat || {}),
       open: openPanel,
       close: closePanel,
+      ask(message, context = {}) {
+        const question = String(message || '').trim();
+        if (!question) return;
+        openPanel({ skipGreeting: true });
+        sendMessage(question, { context });
+      },
       getConversationId: () => chatSessionId,
       getConversationReference: () => ({
         conversationId: chatSessionId,

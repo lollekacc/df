@@ -100,6 +100,11 @@ const getPlanDataLabel = (plan) => {
   return plan.title || 'Mobilabonnemang';
 };
 
+const getRoamingServiceLabel = (plan = {}) => {
+  const serviceName = String(plan.roaming?.serviceName || '').trim();
+  return serviceName ? `${serviceName} ingår` : '';
+};
+
 const getStreamingServicePresentation = (service) => {
   const name = String(service || '').trim();
   const normalized = name.toLowerCase();
@@ -227,6 +232,7 @@ const buildSelectedPlanOffer = (plan, answers) => {
     invoiceFee: plan.invoiceFee,
     invoiceFeeOptional: plan.invoiceFeeOptional !== false,
     logo: plan.logo,
+    roaming: plan.roaming || null,
     reward: Number(operatorOffer.reward) || 0,
     accent: operatorOffer.accent || 'var(--accent)',
     answers,
@@ -303,10 +309,11 @@ const buildPlanCompareItem = (selectedPlan, plan, answers) => ({
     { label: 'Typ', value: 'Mobilabonnemang' },
     { label: 'Surf', value: `${getPlanDataLabel(plan)} surf` },
     { label: 'Pris', value: `${formatCurrency(plan.price)} kr/m\u00e5n` },
+    getRoamingServiceLabel(plan) ? { label: 'Utomlandstjänst', value: getRoamingServiceLabel(plan) } : null,
     { label: 'Presentkort', value: 'XXX kr' },
     { label: 'Samtal & SMS', value: 'Fria samtal och SMS' },
     ...getMobileAnswerFacts({ provider: selectedPlan.operator }, answers),
-  ],
+  ].filter(Boolean),
 });
 
 const buildAddonCompareItem = (addonPlan, offer) => ({
@@ -526,9 +533,11 @@ const renderPlanOffers = async (offer, answers, card) => {
 
       const meta = createElement('ul', 'offer-card-meta operator-plan-meta');
       [
+        '24 mån bindningstid',
+        getRoamingServiceLabel(plan),
         `${getPlanDataLabel(plan)} surf`,
         `${formatCurrency(plan.price)} kr/m\u00e5n`,
-      ].forEach((item) => {
+      ].filter(Boolean).forEach((item) => {
         meta.append(createElement('li', '', item));
       });
 
@@ -563,6 +572,7 @@ const renderPlanOffers = async (offer, answers, card) => {
 
       const meta = createElement('ul', 'offer-card-meta operator-plan-meta');
       [
+        '24 mån bindningstid',
         `${formatCurrency(addonPlan.addonPrice ?? addonPlan.price)} kr/mån`,
         'Extra familjemedlem',
       ].forEach((item) => {
@@ -783,7 +793,7 @@ const createPlanCard = (plan) => {
   price.innerHTML = `<strong>${formatCurrency(plan.price)} kr</strong><span>/mån</span>`;
 
   const meta = createElement('ul', 'offer-card-meta');
-  ['Fria samtal och sms'].forEach((item) => {
+  ['24 mån bindningstid', 'Fria samtal och sms', getRoamingServiceLabel(plan)].filter(Boolean).forEach((item) => {
     meta.append(createElement('li', '', item));
   });
 
@@ -887,6 +897,7 @@ const buildFallbackMobileCart = (rewards) => {
     features: [
       'Fria samtal och sms',
       '5G & eSIM',
+      getRoamingServiceLabel(selectedOffer),
       selectedOffer.addon ? `${selectedOffer.addon.title} ${formatCurrency(addonPrice)} kr/mån` : '',
     ].filter(Boolean),
   };

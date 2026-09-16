@@ -10,7 +10,7 @@
     <title>Om oss | Dealett</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="stylesheet" href="./assets/om-oss.css" />
+    <link rel="stylesheet" href="./assets/om-oss.css?v=20260916-5" />
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
     <link rel="stylesheet" href="./assets/dealett-ui.css" />
@@ -20,192 +20,114 @@
 
     <main class="about-main">
       <section class="about-hero" data-header-anchor-target>
-        <img
-          src="images/editorial-home-router.png"
-          alt="Familj som anv&auml;nder digitala tj&auml;nster hemma"
-          class="about-hero-image"
-          fetchpriority="high"
-          decoding="async"
-        />
-
         <div class="about-hero-inner">
           <div class="about-hero-copy">
             <span class="about-kicker">Om Dealett</span>
-            <h1>Vi g&ouml;r det enklare att v&auml;lja r&auml;tt abonnemang</h1>
+            <h1>R&auml;tt abonnemang. B&auml;ttre deal.</h1>
             <p>
-              Dealett hj&auml;lper privatpersoner att j&auml;mf&ouml;ra mobil- och 5G-bredbandsabonnemang
-              p&aring; ett tydligt, modernt och tryggt s&auml;tt. Mindre brus. B&auml;ttre beslut.
+              Dealett hj&auml;lper dig att j&auml;mf&ouml;ra mobil- och familjeabonnemang samt 5G-bredband
+              fr&aring;n Telia, Tele2, Telenor och Tre. Vi samlar pris, surf och bindningstid
+              p&aring; ett st&auml;lle &ndash; s&aring; att du kan v&auml;lja med b&auml;ttre koll och mindre kr&aring;ngel.
             </p>
 
-            <ul class="about-hero-points" aria-label="F&ouml;rdelar">
-              <li><i class="fa-solid fa-check"></i><span>Tydliga j&auml;mf&ouml;relser</span></li>
-              <li><i class="fa-solid fa-check"></i><span>Fokus p&aring; verkliga behov</span></li>
-              <li><i class="fa-solid fa-check"></i><span>Smidigare v&auml;g till r&auml;tt val</span></li>
-            </ul>
-          </div>
-
-          <aside class="about-hero-side" aria-label="V&aring;r id&eacute;">
-            <article class="about-stat-card">
-              <span>V&aring;r id&eacute;</span>
-              <strong>Enklare j&auml;mf&ouml;relser</strong>
-              <p>
-                Vi samlar abonnemang, villkor och erbjudanden i ett mer anv&auml;ndbart fl&ouml;de
-                s&aring; att du snabbare kan f&ouml;rst&aring; vad som passar dig b&auml;st.
-              </p>
-            </article>
-
-            <div class="about-mini-grid">
-              <div class="about-mini-card">
-                <span>Fokus</span>
-                <strong>Mobil &amp; 5G-bredband</strong>
-              </div>
-              <div class="about-mini-card">
-                <span>M&aring;l</span>
-                <strong>Tydlighet &amp; trygghet</strong>
-              </div>
+            <div class="about-hero-actions">
+              <a href="mobilabonnemang.html" class="about-btn about-btn-primary">J&auml;mf&ouml;r abonnemang</a>
+              <a href="#sa-fungerar-det" class="about-btn about-btn-secondary">S&aring; fungerar det</a>
             </div>
-          </aside>
+          </div>
         </div>
       </section>
 
-      <section class="about-section">
+      <section class="about-partners-section" aria-labelledby="about-partners-title">
+        <div class="about-container about-partners-inner">
+          <div class="about-partners-copy">
+            <span class="about-kicker">I samarbete med</span>
+            <h2 id="about-partners-title">Telia, Tele2, Telenor och Tre</h2>
+          </div>
+
+          <ul class="about-partner-grid" aria-label="Operat&ouml;rer">
+            <li class="about-partner-card">
+              <img src="images/telia.png" alt="" />
+              <span>Telia</span>
+            </li>
+            <li class="about-partner-card">
+              <img src="images/tele2.png" alt="" />
+              <span>Tele2</span>
+            </li>
+            <li class="about-partner-card">
+              <img src="images/telenor.jpg" alt="" />
+              <span>Telenor</span>
+            </li>
+            <li class="about-partner-card">
+              <img src="images/tre.jpg" alt="" />
+              <span>Tre</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="sa-fungerar-det" class="about-section">
         <div class="about-container">
-          <div class="about-section-head center">
-            <span class="about-kicker">V&aring;rt uppdrag</span>
-            <h2>Att g&ouml;ra abonnemangsval enklare, smartare och mer transparenta</h2>
+          <div class="about-section-head">
+            <span class="about-kicker">Det h&auml;r g&ouml;r vi</span>
+            <h2>Vi j&auml;mf&ouml;r. Du v&auml;ljer.</h2>
             <p>
-              Dealett grundades med m&aring;let att hj&auml;lpa kunder att hitta r&auml;tt mobil- och
-              5G-bredbandsabonnemang utan att beh&ouml;va j&auml;mf&ouml;ra allt manuellt p&aring; flera olika h&aring;ll.
+              Vi hj&auml;lper dig att hitta ett abonnemang som passar din vardag och budget.
+              Du ser de viktigaste skillnaderna innan du g&aring;r vidare.
             </p>
           </div>
 
-          <div class="about-story-grid">
-            <article class="about-story-card">
-              <h3>Vad vi g&ouml;r</h3>
-              <p>
-                Vi hj&auml;lper dig att j&auml;mf&ouml;ra alternativ fr&aring;n ledande operat&ouml;rer som Tele2,
-                Telia, Telenor och Tre utifr&aring;n pris, surf, t&auml;ckning och behov.
-              </p>
-            </article>
+          <ol class="about-process-grid">
+            <li class="about-process-card">
+              <span class="about-step-number" aria-hidden="true">1</span>
+              <h3>Ber&auml;tta vad du beh&ouml;ver</h3>
+              <p>Vi utg&aring;r fr&aring;n surf, antal anv&auml;ndare och vad som &auml;r viktigast f&ouml;r dig.</p>
+            </li>
 
-            <article class="about-story-card">
-              <h3>Hur vi t&auml;nker</h3>
-              <p>
-                Informationen ska vara tydlig, relevant och enkel att anv&auml;nda. Du ska snabbt
-                kunna f&ouml;rst&aring; skillnaden mellan olika alternativ och k&auml;nna dig s&auml;ker i ditt val.
-              </p>
-            </article>
+            <li class="about-process-card">
+              <span class="about-step-number" aria-hidden="true">2</span>
+              <h3>J&auml;mf&ouml;r det som r&auml;knas</h3>
+              <p>Du ser pris, surf och bindningstid p&aring; ett st&auml;lle.</p>
+            </li>
 
-            <article class="about-story-card">
-              <h3>Varf&ouml;r det spelar roll</h3>
-              <p>
-                M&aring;nga betalar mer &auml;n de beh&ouml;ver eller sitter med abonnemang som inte matchar
-                deras faktiska anv&auml;ndning. Vi vill g&ouml;ra det l&auml;ttare att v&auml;lja b&auml;ttre.
-              </p>
-            </article>
-          </div>
+            <li class="about-process-card">
+              <span class="about-step-number" aria-hidden="true">3</span>
+              <h3>V&auml;lj och g&aring; vidare</h3>
+              <p>N&auml;r du har hittat r&auml;tt g&aring;r du vidare med den operat&ouml;r du v&auml;ljer.</p>
+            </li>
+          </ol>
         </div>
       </section>
 
       <section class="about-section about-section-soft">
-        <div class="about-container">
-          <div class="about-section-head center">
-            <span class="about-kicker">V&aring;ra v&auml;rden</span>
-            <h2>Byggt p&aring; tydlighet, f&ouml;rtroende och l&aring;ngsiktighet</h2>
+        <div class="about-container about-clarity-grid">
+          <div class="about-clarity-copy">
+            <span class="about-kicker">Tydligt fr&aring;n b&ouml;rjan</span>
+            <h2>Du ska veta vem som ansvarar f&ouml;r vad.</h2>
+            <p>
+              Dealett hj&auml;lper dig att j&auml;mf&ouml;ra alternativen. Det &auml;r den operat&ouml;r du v&auml;ljer
+              som s&auml;tter villkoren, levererar tj&auml;nsten och fakturerar dig.
+            </p>
           </div>
 
-          <div class="about-values-grid">
-            <article class="about-value-card">
-              <div class="about-icon-wrap"><i class="fa-solid fa-bullseye"></i></div>
-              <h3>Tydlighet</h3>
-              <p>Vi str&auml;var efter enkelhet i hur vi presenterar information, j&auml;mf&ouml;relser och rekommendationer.</p>
-            </article>
-
-            <article class="about-value-card">
-              <div class="about-icon-wrap"><i class="fa-solid fa-eye"></i></div>
-              <h3>Transparens</h3>
-              <p>Vi vill att du ska f&ouml;rst&aring; varf&ouml;r ett alternativ passar dig b&auml;ttre &auml;n ett annat.</p>
-            </article>
-
-            <article class="about-value-card">
-              <div class="about-icon-wrap"><i class="fa-solid fa-users"></i></div>
-              <h3>Gemenskap</h3>
-              <p>Vi tror p&aring; l&aring;ngsiktiga relationer och en tj&auml;nst som k&auml;nns p&aring;litlig &ouml;ver tid.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="about-section">
-        <div class="about-container">
-          <div class="about-section-head center">
-            <span class="about-kicker">S&aring; arbetar vi</span>
-            <h2>Fr&aring;n behov till b&auml;ttre beslut</h2>
-          </div>
-
-          <div class="about-process-grid">
-            <article class="about-process-card">
-              <span class="about-step-number">1</span>
-              <h3>F&ouml;rst&aring; behovet</h3>
-              <p>Vi utg&aring;r fr&aring;n hur mycket surf, hur m&aring;nga personer och vilken typ av uppl&auml;gg som faktiskt beh&ouml;vs.</p>
-            </article>
-
-            <article class="about-process-card">
-              <span class="about-step-number">2</span>
-              <h3>J&auml;mf&ouml;ra tydligt</h3>
-              <p>Vi visar relevanta alternativ i ett renare och mer &ouml;versk&aring;dligt fl&ouml;de.</p>
-            </article>
-
-            <article class="about-process-card">
-              <span class="about-step-number">3</span>
-              <h3>F&ouml;renkla valet</h3>
-              <p>Du ska kunna g&aring; vidare med st&ouml;rre trygghet och mindre os&auml;kerhet.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="about-section about-team-section">
-        <div class="about-container">
-          <div class="about-section-head center">
-            <span class="about-kicker">S&auml;ttet</span>
-            <h2>En kortare v&auml;g till r&auml;tt val</h2>
-            <p>Vi h&aring;ller upplevelsen snabb, tydlig och fokuserad p&aring; det du faktiskt beh&ouml;ver j&auml;mf&ouml;ra.</p>
-          </div>
-
-          <div class="about-team-grid">
-            <article class="about-team-card">
-              <span class="about-step-number">1</span>
-              <h3>F&auml;rre steg</h3>
-              <p class="about-team-text">V&auml;lj kategori, filtrera snabbt och g&aring; vidare n&auml;r det k&auml;nns r&auml;tt.</p>
-            </article>
-
-            <article class="about-team-card">
-              <span class="about-step-number">2</span>
-              <h3>Tydliga val</h3>
-              <p class="about-team-text">Pris, surf, bindningstid och bel&ouml;ning visas d&auml;r du beh&ouml;ver dem.</p>
-            </article>
-
-            <article class="about-team-card">
-              <span class="about-step-number">3</span>
-              <h3>Smidig forts&auml;ttning</h3>
-              <p class="about-team-text">Varukorg, kontakt och n&auml;sta steg h&aring;lls enkla att hitta.</p>
-            </article>
-          </div>
+          <ul class="about-clarity-list" aria-label="Det viktigaste om tj&auml;nsten">
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Kostnadsfritt att j&auml;mf&ouml;ra</span></li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Du v&auml;ljer alltid sj&auml;lv</span></li>
+            <li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Pris och bindningstid visas f&ouml;re ditt val</span></li>
+          </ul>
         </div>
       </section>
 
       <section class="about-cta-section">
         <div class="about-container about-cta-inner">
           <div>
-            <span class="about-kicker">N&auml;sta steg</span>
-            <h2>Redo att hitta ett b&auml;ttre abonnemang?</h2>
-            <p>Utforska Dealett och j&auml;mf&ouml;r alternativ utifr&aring;n det som faktiskt spelar roll f&ouml;r dig.</p>
+            <span class="about-kicker">Hitta din deal</span>
+            <h2>Redo att j&auml;mf&ouml;ra?</h2>
           </div>
 
           <div class="about-cta-actions">
-            <a href="mobilabonnemang.html" class="about-btn about-btn-primary">J&auml;mf&ouml;r abonnemang</a>
-            <a href="kontakt.html" class="about-btn about-btn-secondary">Kontakta oss</a>
+            <a href="mobilabonnemang.html" class="about-btn about-btn-primary">Mobilabonnemang</a>
+            <a href="5g-bredband.html" class="about-btn about-btn-secondary">5G-bredband</a>
           </div>
         </div>
       </section>

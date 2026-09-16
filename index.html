@@ -14,36 +14,132 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
-    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260827-3" />
+    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260916-11" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/hero-motion.css?v=20260825-3" />
-    <link rel="stylesheet" href="./assets/information-rotator.css?v=20260828-1" />
+    <link rel="stylesheet" href="./assets/information-rotator.css?v=20260916-1" />
   </head>
   <body>
     <div data-include="header"></div>
 
     <main>
       <section class="hero">
-        <aside class="hero-information" data-information-rotator aria-label="Exempelfrågor" aria-roledescription="karusell">
+        <div class="hero-bottom">
+          <div class="hero-ai-guide">
+            <p class="hero-ai-guide__eyebrow">Dealett AI · Din abonnemangsguide</p>
+            <h1>Vad behöver du<br />från ditt abonnemang?</h1>
+            <p class="hero-ai-guide__intro">Berätta med egna ord. Vi hjälper dig jämföra alternativen.</p>
+
+            <form class="hero-ai-guide__composer" data-home-ai-form>
+              <label class="sr-only" for="home-ai-question">Beskriv vad du behöver från ditt abonnemang</label>
+              <textarea id="home-ai-question" name="question" rows="3" placeholder="Till exempel: Vi är fyra i familjen och vill ha mer surf..." required></textarea>
+              <div class="hero-ai-guide__composer-footer">
+                <span class="hero-ai-guide__ask-label"><i class="fa-solid fa-plus" aria-hidden="true"></i> Fråga Dealett AI</span>
+                <button type="submit" aria-label="Skicka frågan till Dealett AI"><i class="fa-regular fa-paper-plane" aria-hidden="true"></i></button>
+              </div>
+            </form>
+
+            <div class="hero-ai-guide__prompts" aria-label="Exempelfrågor">
+              <button type="button" data-home-ai-prompt="Vi vill samla familjens abonnemang."><i class="fa-solid fa-users" aria-hidden="true"></i><span>Samla familjen</span></button>
+              <button type="button" data-home-ai-prompt="Jag vill ha streaming på köpet."><i class="fa-regular fa-circle-play" aria-hidden="true"></i><span>Streaming på köpet</span></button>
+              <button type="button" data-home-ai-prompt="Jag behöver kunna surfa utomlands."><i class="fa-solid fa-plane" aria-hidden="true"></i><span>Surfa utomlands</span></button>
+            </div>
+          </div>
+        </div>
+
+        <form class="hero-finder" data-hero-finder>
+          <h2 class="hero-finder__title">Vad letar du efter?</h2>
+
+          <fieldset class="hero-finder__group hero-finder__group--type">
+            <legend class="sr-only">Välj typ av abonnemang</legend>
+            <label class="hero-finder__option">
+              <input type="radio" name="finder-type" value="mobile" checked />
+              <span>Mobil</span>
+            </label>
+            <label class="hero-finder__option">
+              <input type="radio" name="finder-type" value="family" />
+              <span>Familj</span>
+            </label>
+            <label class="hero-finder__option">
+              <input type="radio" name="finder-type" value="broadband" />
+              <span>Bredband</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="hero-finder__group">
+            <legend>Hur många är ni?</legend>
+            <div class="hero-finder__options hero-finder__options--people">
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="1" /><span>1</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="2" checked /><span>2</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="3" /><span>3</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="4" /><span>4</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-persons" value="5" /><span>5+</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="hero-finder__group">
+            <legend>Hur mycket surf behöver ni?</legend>
+            <div class="hero-finder__options hero-finder__options--data">
+              <label class="hero-finder__option"><input type="radio" name="finder-data" value="low" /><span>Lite</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-data" value="medium" checked /><span>Lagom</span></label>
+              <label class="hero-finder__option"><input type="radio" name="finder-data" value="high" /><span>Mycket</span></label>
+            </div>
+          </fieldset>
+
+          <button class="hero-finder__submit" type="submit">
+            <span>Visa mina alternativ</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <p class="hero-finder__note"><span>Kostnadsfritt</span><span>Ingen inloggning</span></p>
+
+          <div class="hero-operators" aria-label="Operatörer vi jämför">
+            <strong>Vi jämför</strong>
+            <div class="hero-operator"><img src="images/telia.png" alt="Telia" /></div>
+            <div class="hero-operator"><img src="images/tele2.png" alt="Tele2" /></div>
+            <div class="hero-operator"><img src="images/telenor.jpg" alt="Telenor" /></div>
+            <div class="hero-operator"><img src="images/tre.jpg" alt="Tre" /></div>
+          </div>
+        </form>
+
+        <section class="hero-value" aria-labelledby="heroValueTitle">
+          <div class="hero-value__intro">
+            <h2 id="heroValueTitle">Priset är bara början.</h2>
+            <p>Surf, streaming, resor och presentkort.<br />Se vad du faktiskt får för pengarna.</p>
+          </div>
+          <article class="hero-value__item">
+            <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+            <div><h3>Rätt surf för din vardag</h3><p>Anpassa efter hur ni streamar, jobbar och surfar – hemma och på resande fot.</p></div>
+          </article>
+          <article class="hero-value__item">
+            <i class="fa-solid fa-gift" aria-hidden="true"></i>
+            <div><h3>Det extra som ingår</h3><p>Se vad som faktiskt ingår – och vad som kan läggas till.</p></div>
+          </article>
+          <article class="hero-value__item">
+            <i class="fa-regular fa-credit-card" aria-hidden="true"></i>
+            <div><h3>Presentkort på köpet</h3><p>Få mer värde. Vi räknar även in presentkort och andra förmåner.</p></div>
+          </article>
+        </section>
+
+        <aside class="hero-information" data-information-rotator aria-label="Vanliga behov och rekommenderade abonnemang" aria-roledescription="karusell">
           <header class="hero-information__header">
             <p class="hero-information__eyebrow">Snabbval</p>
-            <h2 class="hero-information__title">Välj din situation</h2>
-            <p class="hero-information__intro">Klicka på det alternativ som passar dig, så startar Dealett AI analysen direkt.</p>
+            <h2 class="hero-information__title">Svårt att välja? <span>Börja med en fråga.</span></h2>
+            <p class="hero-information__intro">Berätta vad som är viktigt för dig.</p>
           </header>
           <div class="hero-information__list">
-            <button class="hero-information__item" type="button" data-information-slot data-information-index="0" aria-label="Visa svar på fråga 1">
+            <button class="hero-information__item" type="button" data-information-slot data-information-index="0" aria-label="Visa rekommenderat abonnemang för fråga 1">
               <span class="hero-information__number" data-information-number aria-hidden="true">1</span>
-              <span class="hero-information__text" data-information-text>Jag är ensam och använder mest mobilen till sociala medier, musik och vanlig surf. Vilket abonnemang passar mig bäst?</span>
+              <span class="hero-information__text" data-information-text>Jag använder mest sociala medier, musik och vanlig surf. Vilket prisvärt abonnemang passar mig?</span>
               <span class="hero-information__arrow" aria-hidden="true">↗</span>
             </button>
-            <button class="hero-information__item" type="button" data-information-slot data-information-index="1" aria-label="Visa svar på fråga 2">
+            <button class="hero-information__item" type="button" data-information-slot data-information-index="1" aria-label="Visa rekommenderat abonnemang för fråga 2">
               <span class="hero-information__number" data-information-number aria-hidden="true">2</span>
-              <span class="hero-information__text" data-information-text>Vi är två personer som vill samla våra abonnemang och få en lägre månadskostnad. Vilket alternativ ger oss bäst värde?</span>
+              <span class="hero-information__text" data-information-text>Jag använder mest mobilen för meddelanden och lätt surf. Vilket abonnemang håller nere månadskostnaden?</span>
               <span class="hero-information__arrow" aria-hidden="true">↗</span>
             </button>
-            <button class="hero-information__item" type="button" data-information-slot data-information-index="2" aria-label="Visa svar på fråga 3">
+            <button class="hero-information__item" type="button" data-information-slot data-information-index="2" aria-label="Visa rekommenderat abonnemang för fråga 3">
               <span class="hero-information__number" data-information-number aria-hidden="true">3</span>
-              <span class="hero-information__text" data-information-text>Vi är en familj på 3 personer med olika surfbehov. En använder mycket surf medan de andra använder mindre. Vad passar oss bäst?</span>
+              <span class="hero-information__text" data-information-text>Jag streamar video och delar internet ofta. Vilket abonnemang låter mig slippa hålla koll på surfen?</span>
               <span class="hero-information__arrow" aria-hidden="true">↗</span>
             </button>
           </div>
@@ -54,7 +150,6 @@
             <div class="hero-information__pages" aria-label="Välj frågegrupp">
               <button class="hero-information__page is-active" type="button" data-information-page="0" aria-label="Visa fråga 1 till 3" aria-current="true"></button>
               <button class="hero-information__page" type="button" data-information-page="1" aria-label="Visa fråga 4 till 6"></button>
-              <button class="hero-information__page" type="button" data-information-page="2" aria-label="Visa fråga 7 och 8"></button>
             </div>
             <button class="hero-information__control" type="button" data-information-toggle aria-label="Pausa automatisk växling" aria-pressed="false" title="Pausa">
               <i class="fa-solid fa-pause" data-information-toggle-icon aria-hidden="true"></i>
@@ -78,32 +173,6 @@
           <button class="hero-offer-tile hero-offer-tile--single" type="button" data-hero-offer-persons="1" aria-label="Välj erbjudandet för ett abonnemang">
             <img class="hero-offer-image" src="images/landing-offer-1.png" alt="" />
           </button>
-        </div>
-
-        <div class="hero-bottom">
-          <div class="hero-bottom-copy">
-            <p class="hero-eyebrow"><span></span>Bättre deals, helt enkelt.</p>
-            <h1>
-              Rätt abonnemang<br />
-              <em>Presentkort på köpet</em>
-            </h1>
-            <p class="hero-lead">
-              Vi analyserar och rekomenderar
-              <button type="button" id="hero-start-analysis" class="button button--primary hero-inline-action analysis-start-action" data-analysis-start-action><span data-analysis-start-label>Starta analysen</span><span aria-hidden="true">→</span></button>
-            </p>
-          </div>
-          <div class="hero-bottom-actions">
-            <div class="hero-proof-mobile" aria-label="Fördelar med Dealett">
-              <span>Kostnadsfritt</span>
-              <span>Under 2 minuter</span>
-              <span>Ingen inloggning</span>
-            </div>
-            <div class="hero-proof" aria-label="Fördelar med Dealett">
-              <strong>Kostnadsfritt</strong>
-              <strong>Under 2 minuter</strong>
-              <strong>Ingen inloggning</strong>
-            </div>
-          </div>
         </div>
 
         <div id="hero-quiz-mount" class="hero-quiz-mount" aria-live="polite">
@@ -572,11 +641,43 @@
           <form method="dialog">
             <button class="information-dialog__close" type="submit" aria-label="Stäng" title="Stäng">×</button>
           </form>
-          <p class="information-dialog__eyebrow">Din fråga</p>
+          <p class="information-dialog__eyebrow">Snabbval</p>
           <h2 id="informationDialogTitle" data-information-dialog-question></h2>
-          <div class="information-dialog__answer">
-            <p>Svar</p>
-            <strong>Svar på väg......</strong>
+          <div class="information-dialog__answer" data-information-dialog-answer data-state="loading" aria-live="polite">
+            <div class="information-dialog__loading" data-information-loading>
+              <strong>Hämtar rekommenderat abonnemang…</strong>
+            </div>
+
+            <article class="information-plan" data-information-plan hidden>
+              <div class="information-plan__identity">
+                <div class="information-plan__logo-wrap">
+                  <img class="information-plan__logo" data-information-plan-logo src="" alt="" />
+                </div>
+                <div>
+                  <p class="information-plan__label">Vårt svar</p>
+                  <h3 data-information-plan-title></h3>
+                </div>
+              </div>
+
+              <p class="information-plan__reason" data-information-plan-reason></p>
+              <dl class="information-plan__facts" data-information-plan-facts></dl>
+
+              <div class="information-plan__purchase">
+                <div class="information-plan__price-wrap">
+                  <p class="information-plan__price" data-information-plan-price></p>
+                  <p class="information-plan__price-note" data-information-plan-price-note></p>
+                </div>
+                <button class="information-plan__add" type="button" data-information-add-to-cart disabled>
+                  Lägg i varukorgen
+                </button>
+              </div>
+              <p class="information-plan__status" data-information-cart-status role="status"></p>
+            </article>
+
+            <div class="information-dialog__error" data-information-error hidden>
+              <strong>Vi kunde inte hämta abonnemanget just nu.</strong>
+              <p>Stäng rutan och försök igen om en liten stund.</p>
+            </div>
           </div>
         </div>
       </dialog>
@@ -747,11 +848,11 @@
     <script src="./assets/cart-helpers.js"></script>
     <script src="./assets/network-utils.js"></script>
     <script src="./assets/offer-compare.js"></script>
-    <script src="script.js?v=20260825-3"></script>
+    <script src="script.js?v=20260916-1"></script>
     <script src="./assets/coverage-maplibre.js"></script>
     <script src="./assets/newsletter-codex-background.js"></script>
     <script src="./assets/gift-logo-switcher.js"></script>
-    <script src="./assets/information-rotator.js?v=20260828-1"></script>
-    <script src="assets/indexbehovsanalys.js"></script>
+    <script src="./assets/information-rotator.js?v=20260916-1"></script>
+    <script src="assets/indexbehovsanalys.js?v=20260916-2"></script>
   </body>
 </html>

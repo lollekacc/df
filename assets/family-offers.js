@@ -148,6 +148,11 @@ const getPlanDataLabel = (plan) => {
   return plan.title || 'Mobilabonnemang';
 };
 
+const getRoamingServiceLabel = (plan = {}) => {
+  const serviceName = String(plan.roaming?.serviceName || '').trim();
+  return serviceName ? `${serviceName} ingår` : '';
+};
+
 const isMobilePlan = (plan = {}) => ['mobil', 'mobile_subscription'].includes(plan.category);
 
 const getStreamingServicePresentation = (service) => {
@@ -287,6 +292,7 @@ const buildFamilyPlanOffer = (basePlan, addonPlan, offer, answers) => {
     pricePerPerson: Math.round(totalMonthlyPrice / persons),
     addonPrice,
     logo: basePlan.logo,
+    roaming: basePlan.roaming || null,
     reward: offer.reward,
     accent: offer.accent,
     answers,
@@ -420,6 +426,7 @@ const buildFamilyCompareItem = (selectedPlan, plan, answers) => ({
       ? { label: 'Avräknat streamingvärde', value: `${formatCurrency(selectedPlan.includedServiceValue)} kr/mån` }
       : null,
     selectedPlan.internationalTravel ? { label: 'Utlandsresor', value: getTravelLabel(selectedPlan.internationalTravel) } : null,
+    getRoamingServiceLabel(plan) ? { label: 'Utomlandstjänst', value: getRoamingServiceLabel(plan) } : null,
     { label: 'Presentkort', value: 'XXX kr' },
     ...getFamilyAnswerFacts(answers),
   ].filter(Boolean),
@@ -593,6 +600,8 @@ const renderPlanOffers = async (offer, answers, card) => {
 
       const meta = createElement('ul', 'offer-card-meta operator-plan-meta');
       [
+        '24 mån bindningstid',
+        getRoamingServiceLabel(plan),
         `${formatCurrency(selectedPlan.price)} kr/m\u00e5n totalt`,
         selectedPlan.listedMonthlyPrice !== selectedPlan.price
           ? `Listpris: ${formatCurrency(selectedPlan.listedMonthlyPrice)} kr/mån`
@@ -933,8 +942,10 @@ const createFamilyPlanCard = (plan, addonPlan, offer, persons) => {
 
   const meta = createElement('ul', 'offer-card-meta');
   [
+    '24 mån bindningstid',
+    getRoamingServiceLabel(plan),
     `${formatCurrency(selectedPlan.addonPrice)} kr per extra abonnemang`,
-  ].forEach((item) => meta.append(createElement('li', '', item)));
+  ].filter(Boolean).forEach((item) => meta.append(createElement('li', '', item)));
 
   const button = createElement('button', 'offer-card-action', 'Välj familjeabonnemang');
   button.type = 'button';
@@ -1049,6 +1060,7 @@ rewardContinueBtn?.addEventListener('click', () => {
       selectedOffer.members,
       'Samlad faktura',
       'Fria samtal och sms',
+      getRoamingServiceLabel(selectedOffer),
       selectedOffer.streamingOffer ? `Streaming: ${selectedOffer.streamingOffer.label}` : '',
       selectedOffer.includedServiceValue ? `Streamingvärde avräknat ${formatCurrency(selectedOffer.includedServiceValue)} kr/mån` : '',
       selectedOffer.internationalTravel ? getTravelLabel(selectedOffer.internationalTravel) : '',
