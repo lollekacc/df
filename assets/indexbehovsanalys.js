@@ -133,7 +133,6 @@ function createIndexQuiz() {
   let recommendationsRequestId = 0;
   let lastOfferCalculation = null;
   let pendingAdvanceTimer = null;
-  let quizWasHidden = false;
   let quizHasStarted = false;
 
   function init() {
@@ -256,11 +255,9 @@ function createIndexQuiz() {
       popupActions.innerHTML = [
         '<button type="button" class="quiz-popup-restart" data-quiz-popup-action="restart" aria-label="Starta om quizet" title="Starta om quizet">',
         '  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8a8 8 0 1 0 1 6" /><path d="M19 3v5h-5" /></svg>',
-        '</button>',
-        '<button type="button" class="quiz-popup-minimize" data-quiz-popup-action="hide" aria-label="Dölj quizet" title="Dölj quizet">',
-        '  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 17h14" /></svg>',
         '</button>'
       ].join("");
+      if (backButton) popupActions.prepend(backButton);
       card.append(popupActions);
     });
   }
@@ -270,8 +267,6 @@ function createIndexQuiz() {
     if (popupAction) {
       if (popupAction.dataset.quizPopupAction === "restart") {
         restartQuiz();
-      } else {
-        hideQuizPopup();
       }
       return;
     }
@@ -837,7 +832,7 @@ function createIndexQuiz() {
   function handleHeroFinderSubmit(event) {
     event.preventDefault();
     if (dom.heroFinder.classList.contains('is-inline-quiz')) {
-      steps[state.currentStep]?.querySelector('[data-operator-next]:not(:disabled), [data-streaming-next]')?.click();
+      steps[state.currentStep]?.querySelector('[data-streaming-next]')?.click();
       return;
     }
 
@@ -1099,8 +1094,14 @@ function createIndexQuiz() {
   }
 
   function maybeAdvanceFromOperatorQuestion() {
-    const next = dom.operatorContainer?.querySelector('[data-operator-next]');
-    if (next) next.disabled = !state.operators[operatorPage] || !(state.operatorDates[operatorPage] || state.operatorNoBinding[operatorPage]);
+    if (pendingAdvanceTimer) window.clearTimeout(pendingAdvanceTimer);
+    pendingAdvanceTimer = null;
+    if (state.currentStep !== 1 || !state.operators[operatorPage] || !(state.operatorDates[operatorPage] || state.operatorNoBinding[operatorPage])) return;
+    pendingAdvanceTimer = window.setTimeout(() => {
+      pendingAdvanceTimer = null;
+      if (operatorPage < state.existingCustomers - 1) showOperatorPage(operatorPage + 1);
+      else if (updateOperatorContinueState()) showStep(finderDataSelected ? priceStepIndex : dataStepIndex);
+    }, selectionFeedbackMs);
   }
 
   function handlePriceStep(step, option) {
@@ -1327,29 +1328,18 @@ function createIndexQuiz() {
       dom.operatorContainer.appendChild(fragment);
     });
 
-    const next = document.createElement('button');
-    next.type = 'button';
-    next.className = 'quiz-next-button';
-    next.dataset.operatorNext = '';
-    next.addEventListener('click', () => {
-      if (!state.operators[operatorPage] || !(state.operatorDates[operatorPage] || state.operatorNoBinding[operatorPage])) return;
-      if (operatorPage < count - 1) showOperatorPage(operatorPage + 1);
-      else if (updateOperatorContinueState()) showStep(finderDataSelected ? priceStepIndex : dataStepIndex);
-    });
-    dom.operatorContainer.append(next);
     showOperatorPage(0);
     syncStackHeight();
   }
 
   function showOperatorPage(index) {
+    if (pendingAdvanceTimer) window.clearTimeout(pendingAdvanceTimer);
+    pendingAdvanceTimer = null;
     operatorPage = index;
     dom.operatorContainer?.querySelectorAll('[data-operator-group]').forEach((card, page) => {
       card.hidden = page !== index;
     });
-    const next = dom.operatorContainer?.querySelector('[data-operator-next]');
-    if (next) next.textContent = index < state.existingCustomers - 1 ? 'Nästa person →' : 'Fortsätt →';
     if (dom.customerOperatorQuestion) dom.customerOperatorQuestion.textContent = `Abonnemang ${index + 1} av ${state.existingCustomers}`;
-    maybeAdvanceFromOperatorQuestion();
   }
 
   function updateOperatorQuestionTitle(count) {
@@ -1381,16 +1371,6 @@ function createIndexQuiz() {
     [...(dom.heroFinder?.children || [])].forEach(child => { child.inert = false; });
   }
 
-  function hideQuizPopup() {
-    quizWasHidden = true;
-    mountQuizInSection();
-    dom.wrapper?.classList.add("hidden", "opacity-0");
-    dom.intro?.classList.remove("hidden");
-    document.getElementById("analys")?.classList.remove("quiz-running");
-
-    syncAnalysisStartButtons();
-  }
-
   function syncAnalysisStartButtons() {
     dom.analysisStartButtons?.forEach(button => {
       const label = quizHasStarted ? "Fortsätt analys" : "Starta analysen";
@@ -1409,7 +1389,6 @@ function createIndexQuiz() {
     finderDataSelected = false;
     quizHasStarted = false;
     refinementEntryState = null;
-    quizWasHidden = false;
     showIntro();
     dom.heroFinder?.reset();
     dom.wrapper?.querySelectorAll('.quiz-option, [data-no-binding]').forEach(button => {
@@ -1443,8 +1422,7 @@ function createIndexQuiz() {
     dom.wrapper?.classList.remove("opacity-0");
     document.getElementById("analys")?.classList.add("quiz-running");
 
-    const stepToShow = options.initialStep ?? ((quizWasHidden || finderDataSelected) ? state.currentStep : 0);
-    quizWasHidden = false;
+    const stepToShow = options.initialStep ?? (finderDataSelected ? state.currentStep : 0);
 
     requestAnimationFrame(() => {
       dom.wrapper?.classList.remove("opacity-0");
@@ -1453,6 +1431,8 @@ function createIndexQuiz() {
   }
 
   function showIntro() {
+    if (pendingAdvanceTimer) window.clearTimeout(pendingAdvanceTimer);
+    pendingAdvanceTimer = null;
     mountQuizInSection();
     dom.wrapper?.classList.add("hidden", "opacity-0");
     dom.intro?.classList.remove("hidden");

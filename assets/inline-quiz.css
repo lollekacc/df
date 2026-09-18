@@ -55,11 +55,11 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-card {
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-card-toolbar {
   display: flex !important;
   flex-direction: row !important;
-  justify-content: space-between !important;
+  justify-content: flex-end !important;
   align-items: center !important;
   gap: 8px !important;
   margin: 0 !important;
-  padding: 0 72px 0 0 !important;
+  padding: 0 0 0 72px !important;
   min-height: 28px !important;
 }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-back-inline {
@@ -102,6 +102,7 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-option span { 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .operator-per-person { display: flex !important; flex-direction: column !important; flex: 1; gap: 12px !important; margin: 0 !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .operator-person-card { padding: 0 !important; border: 0 !important; background: none !important; box-shadow: none !important; margin: 0 !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .operator-card-controls { display: grid !important; grid-template-columns: 1fr !important; gap: 16px !important; }
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .operator-choice-label { margin: 0 0 -11px !important; font-size: 12px !important; font-weight: 600 !important; line-height: 1.3 !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .operator-choice-grid { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 5px !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .operator-choice-grid .quiz-option { padding: 7px !important; height: 43px !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .partner-logo { display: block !important; width: 100% !important; height: 24px !important; max-width: 54px !important; object-fit: contain !important; }
@@ -112,8 +113,11 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .operator-date-label
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack [data-operator-date] { grid-area: auto !important; display: block !important; width: 100% !important; min-height: 38px !important; box-sizing: border-box; height: 38px !important; padding: 6px 10px !important; border: 1px solid #cbd1d7 !important; border-radius: 7px !important; font: inherit !important; background: #fff9 !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-next-button { display: block !important; width: 100% !important; min-height: 40px !important; padding: 10px !important; margin: auto 0 0 !important; border: 0 !important; border-radius: 7px !important; background: linear-gradient(110deg,#c46a32,#d58148) !important; color: white !important; font-family: inherit !important; font-size: 15px !important; font-weight: 700 !important; line-height: 1.2 !important; box-shadow: none !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-next-button:disabled { opacity: .45; cursor: not-allowed; }
-html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-popup-actions { position: absolute !important; inset: 0 0 auto auto !important; display: flex !important; gap: 6px !important; }
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-popup-actions { position: absolute !important; inset: 0 auto auto 0 !important; display: flex !important; gap: 6px !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-popup-actions button { display: grid !important; place-items: center; width: 28px !important; height: 28px !important; padding: 4px !important; border: 1px solid #cbd1d7 !important; border-radius: 6px !important; background: #fff9 !important; color: #0b263c !important; }
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-popup-actions button { cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-popup-actions button:hover,
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-popup-actions button:focus-visible { background: #0b2c43 !important; border-color: #0b2c43 !important; color: #fff !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-ai-actions { position: absolute !important; inset: auto 0 0 !important; margin: 0 !important; display: flex !important; justify-content: center !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-ai-button { display: flex !important; gap: 4px !important; padding: 4px !important; border: 0 !important; background: none !important; color: #5f6c77 !important; font-size: 11px !important; box-shadow: none !important; }
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-ai-button span,
