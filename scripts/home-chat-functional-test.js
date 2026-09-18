@@ -148,14 +148,14 @@ async function run() {
       const sendBounds = await send.boundingBox();
       const statusBounds = await page.locator('.dealett-chat-inline-controls').boundingBox();
       const resetBounds = await newChat.boundingBox();
-      assert(statusBounds.y >= bounds.y + bounds.height - 1);
+      assert(statusBounds.y >= bounds.y);
       assert(composerInput.height >= 44 && composerInput.height <= 48);
       assert(Math.abs(composerInput.y + composerInput.height / 2 - sendBounds.y - sendBounds.height / 2) <= 2);
       assert(sendBounds.x >= composerInput.x + composerInput.width);
       assert.equal(await page.locator('.hero-ai-guide__ask-label').isVisible(), false);
       assert(sendBounds.y + sendBounds.height <= box.y + box.height);
-      assert(Math.abs(resetBounds.y - box.y) <= 2);
-      assert(Math.abs(resetBounds.x + resetBounds.width - box.x - box.width) <= 2);
+      assert(Math.abs(resetBounds.y - box.y - 8) <= 2);
+      assert(Math.abs(resetBounds.x + resetBounds.width - box.x - box.width + 10) <= 2);
       assert.equal(await newChat.locator('svg').count(), 1);
       const messagesBounds = await page.locator('.dealett-chat-messages').boundingBox();
       const userBubbleBounds = await users.last().locator('.dealett-chat-bubble').boundingBox();
@@ -163,8 +163,8 @@ async function run() {
       assert(Math.abs(messagesBounds.y - box.y) <= 2);
       assert(Math.abs(messagesBounds.x + messagesBounds.width - box.x - box.width) <= 2);
       assert(Math.abs(userBubbleBounds.x + userBubbleBounds.width - resetBounds.x) <= 6);
-      assert(statusBounds.height <= 24 && statusBounds.x - box.x <= 2);
-      assert(Math.abs(statusBounds.y + statusBounds.height - replyBounds.y) <= 2);
+      assert(statusBounds.height <= 24 && statusBounds.x - box.x <= 6);
+      assert(Math.abs(messagesBounds.y + messagesBounds.height - replyBounds.y) <= 2);
       assert.equal(await page.locator('form form').count(), 0);
       const promptsBounds = await page.locator('.hero-ai-guide__prompts').boundingBox();
       const nextBounds = await page.locator(width <= 900 ? '.hero-finder' : '.hero-value').boundingBox();

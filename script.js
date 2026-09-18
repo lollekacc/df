@@ -1601,6 +1601,7 @@
       if (!heroForm) return;
       if (!heroGuide.classList.contains('has-inline-chat')) sizeInlineChat();
       heroForm.parentElement.insertBefore(root, heroForm);
+      messageList.append(inlineControls);
       heroGuide.classList.add('has-inline-chat');
       root.classList.add('dealett-chat--inline');
       panel.setAttribute('role', 'region');
@@ -3315,6 +3316,7 @@
       pendingMessages.splice(0, pendingMessages.length);
       messages.splice(0, messages.length);
       messageList.replaceChildren();
+      if (root.classList.contains('dealett-chat--inline')) messageList.append(inlineControls);
       suggestionArea.replaceChildren();
       if (greet) loadInitialGreeting();
       syncInlineState();
@@ -3396,6 +3398,7 @@
       if (root.classList.contains('dealett-chat--inline')) {
         const guide = root.closest('.hero-ai-guide');
         root.classList.remove('dealett-chat--inline');
+        root.append(inlineControls);
         panel.setAttribute('role', 'dialog');
         guide?.classList.remove('has-inline-chat');
         document.body.append(root);
