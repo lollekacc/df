@@ -10049,7 +10049,7 @@ html body .footer .footer-brand-link:focus-visible {
     color: #0d1726;
   }
 
-  html body:has(.home-intro) .hero-ai-guide__composer button {
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button {
     display: grid;
     width: 48px;
     height: 48px;
@@ -10064,8 +10064,8 @@ html body .footer .footer-brand-link:focus-visible {
     transition: transform 160ms ease, background-color 160ms ease;
   }
 
-  html body:has(.home-intro) .hero-ai-guide__composer button:hover,
-  html body:has(.home-intro) .hero-ai-guide__composer button:focus-visible {
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button:hover,
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button:focus-visible {
     background: #0d2847;
     outline: none;
     transform: translateY(-1px);
@@ -10496,6 +10496,49 @@ html body:has(.home-intro) .hero-finder {
   color: #0d1726;
 }
 
+html body:has(.home-intro) .hero-finder [hidden] {
+  display: none;
+}
+
+html body:has(.home-intro) .hero-finder__stage {
+  display: grid;
+  gap: inherit;
+  min-width: 0;
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+
+@media (min-width: 901px) {
+  html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder:has(.hero-finder__stage) {
+    height: auto !important;
+    max-height: none !important;
+    padding-bottom: 52px !important;
+  }
+}
+
+html body:has(.home-intro) .hero-finder__address h2 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+html body:has(.home-intro) .hero-finder__address p,
+html body:has(.home-intro) .hero-finder__address-help {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+html body:has(.home-intro) .hero-finder__address input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #9ca3af;
+  border-radius: 8px;
+  font: inherit;
+}
+
 html body:has(.home-intro) .hero-finder__title {
   margin: 0;
   color: #0d1726;
@@ -10531,6 +10574,7 @@ html body:has(.home-intro) .hero-finder__options {
 }
 
 html body:has(.home-intro) .hero-finder__options--people {
+  position: relative;
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
@@ -10817,7 +10861,7 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
     padding-block: 3px 6px !important;
   }
 
-  html body:has(.home-intro) .hero-ai-guide__composer button {
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button {
     width: 42px !important;
     height: 42px !important;
   }
@@ -10984,14 +11028,14 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
     color: #c86c36;
   }
 
-  html body:has(.home-intro) .hero-ai-guide__composer button {
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button {
     border-radius: 50%;
     background: #082843;
     box-shadow: 0 8px 18px rgba(8, 40, 67, .16);
   }
 
-  html body:has(.home-intro) .hero-ai-guide__composer button:hover,
-  html body:has(.home-intro) .hero-ai-guide__composer button:focus-visible {
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button:hover,
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button:focus-visible {
     background: #0d3659;
   }
 
@@ -11165,12 +11209,12 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
     border-top: 1px solid rgba(7, 27, 50, .08);
   }
 
-  html body:has(.home-intro) .hero-ai-guide__composer button {
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button {
     background: #c96d34;
   }
 
-  html body:has(.home-intro) .hero-ai-guide__composer button:hover,
-  html body:has(.home-intro) .hero-ai-guide__composer button:focus-visible {
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button:hover,
+  html body:has(.home-intro) .hero-ai-guide__composer-footer > button:focus-visible {
     background: #b95d29;
   }
 
@@ -11594,7 +11638,7 @@ html body:has(.home-intro) .hero-finder__plan-label[data-family="true"] [data-fi
 }
 
 html body:has(.home-intro) .hero-finder__options--people {
-  grid-template-columns: repeat(5, minmax(0, 1fr)) 42px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 html body:has(.home-intro) .hero-finder__options--people[hidden] {
@@ -11602,19 +11646,38 @@ html body:has(.home-intro) .hero-finder__options--people[hidden] {
 }
 
 html body:has(.home-intro) .hero-finder__more {
-  padding: 0;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: #526071;
+  grid-column: 5;
+  grid-row: 2;
+  justify-self: center;
+  margin: -1px 0 0;
+  width: max-content;
+  min-width: 0;
+  height: auto;
+  padding: 3px 5px;
+  border: 1px solid #cbd1d7;
+  border-top: 0;
+  border-radius: 0 0 7px 7px;
+  background: #f0efec;
+  color: #071b32;
   font: inherit;
-  font-size: 12px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  transition: background-color 150ms ease, color 150ms ease;
   cursor: pointer;
 }
 
+html body:has(.home-intro) .hero-finder__options--people:has(> .hero-finder__more) {
+  row-gap: 0;
+}
+
+html body:has(.home-intro) .hero-finder__options--people > .hero-finder__option,
+html body:has(.home-intro) .hero-finder__options--people > .hero-finder__option > span {
+  margin: 0;
+}
+
 html body:has(.home-intro) .hero-finder__more:hover {
+  background: #e6e4df;
   color: #071b32;
 }
 

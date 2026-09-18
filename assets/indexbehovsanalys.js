@@ -176,6 +176,12 @@ function createIndexQuiz() {
     window.addEventListener("pageshow", syncHeroFinderLabel);
     syncHeroFinderLabel();
     dom.heroAiForm?.addEventListener("submit", handleHeroAiSubmit);
+    dom.heroAiInput?.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+        event.preventDefault();
+        dom.heroAiForm.requestSubmit();
+      }
+    });
     dom.heroAiPrompts?.forEach(button => {
       button.addEventListener("click", () => {
         if (!dom.heroAiInput) return;
@@ -764,10 +770,65 @@ function createIndexQuiz() {
     extraPersons.hidden = !expanded;
     button.setAttribute("aria-expanded", String(expanded));
     const persons = Number(dom.heroFinder.querySelector('[name="finder-persons"]:checked')?.value);
-    button.textContent = expanded ? "Färre" : persons > 5 ? `Fler (${persons})` : "Fler";
+    button.textContent = expanded ? "Färre" : "Fler";
+    button.setAttribute("aria-label", expanded ? "Visa färre personer" : persons > 5 ? `Visa fler personer (${persons} valda)` : "Visa fler personer");
+    const targetRow = expanded ? extraPersons : dom.heroFinder.querySelector(".hero-finder__options--people");
+    if (targetRow && button.parentElement !== targetRow) targetRow.append(button);
+  }
+
+  let heroFinderType;
+  let heroFinderTransition;
+
+  function showHeroFinderType(isBroadband) {
+    dom.heroFinder?.querySelectorAll("[data-finder-mobile], [data-finder-broadband]").forEach((section) => {
+      const hidden = section.hasAttribute("data-finder-mobile") ? isBroadband : !isBroadband;
+      section.hidden = hidden;
+      if (section.tagName === "FIELDSET") section.disabled = hidden;
+    });
+    const submitLabel = dom.heroFinder?.querySelector(".hero-finder__submit span");
+    if (submitLabel) submitLabel.textContent = isBroadband ? "Sök bredband" : "Visa mina alternativ";
+  }
+
+  async function transitionHeroFinder(isBroadband) {
+    if (heroFinderType === isBroadband) return;
+    const previousType = heroFinderType;
+    heroFinderType = isBroadband;
+    heroFinderTransition?.cancel();
+    const stage = dom.heroFinder?.querySelector("[data-finder-stage]");
+    if (!stage) return;
+    stage.inert = false;
+    if (previousType === undefined || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      showHeroFinderType(isBroadband);
+      return;
+    }
+
+    const direction = isBroadband ? -1 : 1;
+    stage.inert = true;
+    const outgoing = stage.animate([
+      { opacity: 1, transform: "perspective(900px) translateX(0) rotateY(0deg)" },
+      { opacity: 0, transform: `perspective(900px) translateX(${direction * 28}%) rotateY(${direction * 32}deg)` },
+    ], { duration: 170, easing: "cubic-bezier(.4, 0, 1, 1)", fill: "forwards" });
+    heroFinderTransition = outgoing;
+    try {
+      await outgoing.finished;
+    } catch {
+      return;
+    }
+
+    const previousHeight = stage.offsetHeight;
+    showHeroFinderType(isBroadband);
+    outgoing.cancel();
+    const nextHeight = stage.offsetHeight;
+    stage.inert = false;
+    heroFinderTransition = stage.animate([
+      { opacity: 0, height: `${previousHeight}px`, transform: `perspective(900px) translateX(${-direction * 28}%) rotateY(${-direction * 32}deg)` },
+      { opacity: 1, height: `${nextHeight}px`, transform: "perspective(900px) translateX(0) rotateY(0deg)" },
+    ], { duration: 280, easing: "cubic-bezier(.16, 1, .3, 1)" });
   }
 
   function syncHeroFinderLabel() {
+    const isBroadband = dom.heroFinder?.querySelector('[name="finder-type"]:checked')?.value === "broadband";
+    transitionHeroFinder(isBroadband);
     const label = dom.heroFinder?.querySelector(".hero-finder__plan-label");
     if (!label) return;
     const isFamily = Number(dom.heroFinder.querySelector('[name="finder-persons"]:checked')?.value) > 1;
@@ -784,7 +845,12 @@ function createIndexQuiz() {
 
     const values = new FormData(dom.heroFinder);
     if (values.get("finder-type") === "broadband") {
-      window.location.assign("5g-bredband.html");
+      const address = String(values.get("finder-address") || "").trim();
+      if (!address) {
+        dom.heroFinder.querySelector('[name="finder-address"]')?.focus();
+        return;
+      }
+      window.location.assign(`5g-bredband.html?address=${encodeURIComponent(address)}#offersSection`);
       return;
     }
 
@@ -808,7 +874,12 @@ function createIndexQuiz() {
       return;
     }
 
-    window.DealettChat?.ask?.(question, { source: "homepage_ai_guide" });
+    if (window.DealettChat?.ask) {
+      const accepted = window.DealettChat.ask(question, { source: "homepage_ai_guide" });
+      if (!accepted) return;
+      dom.heroAiInput.value = "";
+      dom.heroAiInput.focus({ preventScroll: true });
+    }
   }
 
   function resizePersonDetailArrays(persons) {

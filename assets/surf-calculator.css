@@ -1,0 +1,42 @@
+.surf-trigger { display: inline-flex; align-items: center; gap: 7px; margin-top: 10px; padding: 4px 0; border: 0; background: transparent; color: #8b4a19; font: inherit; font-size: 12px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.surf-calculator { box-sizing: border-box; position: fixed; inset: 0; margin: auto; width: min(920px, calc(100% - 32px)); max-height: calc(100dvh - 32px); padding: 32px; overflow: auto; border: 1px solid var(--dui-line); border-radius: 24px; background: var(--dui-bg, #f8f5f0); color: #0d1726; box-shadow: 0 28px 100px #0d172640; font-family: var(--dui-font-body, sans-serif); }
+.surf-calculator::backdrop { background: #0d1726a6; backdrop-filter: blur(5px); }
+.surf-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+.surf-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .14em; color: #8b4a19; }
+.surf-header h2 { margin: 10px 0; font-size: clamp(24px, 3vw, 32px); line-height: 1.15; letter-spacing: -.04em; }
+.surf-calculator p { margin: 8px 0; font-size: 13px; line-height: 1.6; color: #59606a; }
+.surf-close { flex-shrink: 0; width: 40px; height: 40px; border: 1px solid #0d17261c; border-radius: 50%; background: transparent; font-size: 25px; cursor: pointer; }
+.surf-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; }
+.surf-inputs h3 { margin: 0; font-size: 18px; }
+.surf-activity { margin-top: 20px; }
+.surf-label { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; }
+.surf-label label { font-weight: 600; }
+.surf-label i { width: 24px; color: #a65d25; }
+.surf-label output { white-space: nowrap; font-variant-numeric: tabular-nums; color: #59606a; }
+.surf-calculator input[type=range] { display: block; appearance: none; width: 100%; height: 6px; margin: 18px 0 12px; padding: 0; border: 0 !important; border-radius: 6px !important; background: linear-gradient(to right, #c8792b var(--surf-progress, 0%), #e4ddd3 var(--surf-progress, 0%)) !important; cursor: pointer; }
+.surf-calculator input[type=range]::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; border: 3px solid #fff; border-radius: 50%; background: #c8792b; box-shadow: 0 1px 5px #0d172633; }
+.surf-calculator input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border: 3px solid #fff; border-radius: 50%; background: #c8792b; }
+.surf-calculator input:disabled { opacity: .45; cursor: default; }
+.surf-quality { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 22px; font-size: 12px; }
+.surf-quality select { max-width: 65%; border: 1px solid #d9d1c6; border-radius: 8px; padding: 8px; background: #fff; color: #0d1726; font: inherit; }
+.surf-wifi { margin-top: 24px; padding-top: 22px; border-top: 1px solid #ddd6cd; }
+.surf-result { padding: 26px; border-radius: 18px; background: #fff; align-self: start; }
+.surf-number { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-top: 18px; }
+.surf-number strong { font-size: 64px; font-weight: 600; letter-spacing: -.06em; line-height: 1.1; }
+.surf-number span { font-size: 13px; color: #59606a; }
+.surf-result dl { margin: 26px 0; font-size: 12px; }
+.surf-result dl div { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #eee9e2; }
+.surf-result dd { margin: 0; font-weight: 600; white-space: nowrap; }
+.surf-apply { width: 100%; padding: 14px 12px; border: 0; border-radius: 999px; background: #0d1726; color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.surf-apply:disabled { opacity: .4; cursor: default; }
+.surf-result .surf-note { font-size: 11px; margin-top: 12px; }
+.surf-result details { margin-top: 22px; font-size: 12px; }
+.surf-result summary { cursor: pointer; font-weight: 600; }
+.surf-result details p { font-size: 11px; }
+.surf-calculator :focus-visible, .surf-trigger:focus-visible { outline: 3px solid #a65d25 !important; outline-offset: 5px; }
+@media (max-width: 640px) {
+  .surf-calculator { padding: 22px 18px; border-radius: 18px; }
+  .surf-layout { grid-template-columns: 1fr; gap: 24px; }
+  .surf-header { margin-bottom: 22px; }
+  .surf-result { padding: 22px; }
+}

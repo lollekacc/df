@@ -1477,6 +1477,9 @@
     const conversationTtlMs = 60 * 60 * 1000;
     const maxRecoveryMessages = 250;
     let isSending = false;
+    let conversationGeneration = 0;
+    let activeChatRequest = null;
+    let failedTurn = null;
     let typingIndicator = null;
     let lastCompletedAssistantItem = null;
     let completedTurnPositionToken = 0;
@@ -1522,6 +1525,58 @@
     const form = root.querySelector('.dealett-chat-form');
     const input = root.querySelector('.dealett-chat-input');
     const status = root.querySelector('[data-chat-status]');
+    const heroGuide = document.querySelector('.hero-ai-guide');
+    const heroForm = heroGuide?.querySelector('[data-home-ai-form]');
+    const heroInput = heroForm?.querySelector('textarea');
+    const heroSend = heroForm?.querySelector('[type="submit"]');
+    const heroInitialPlaceholder = heroInput?.placeholder;
+    const inlineControls = document.createElement('div');
+    inlineControls.className = 'dealett-chat-inline-controls';
+    const inlineStatus = document.createElement('span');
+    inlineStatus.setAttribute('role', 'status');
+    const newConversationButton = document.createElement('button');
+    newConversationButton.type = 'button';
+    newConversationButton.className = 'dealett-chat-inline-reset';
+    newConversationButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8a8 8 0 1 0 1 6" /><path d="M19 3v5h-5" /></svg>';
+    const retryButton = document.createElement('button');
+    retryButton.type = 'button';
+    retryButton.hidden = true;
+    inlineControls.append(inlineStatus, retryButton);
+    root.append(inlineControls, newConversationButton);
+    const syncInlineState = () => {
+      const inline = root.classList.contains('dealett-chat--inline');
+      const english = chatLanguage === 'en';
+      if (heroSend) heroSend.disabled = inline && (isSending || Boolean(failedTurn));
+      if (heroInput) heroInput.placeholder = inline
+        ? (english ? 'Write your reply...' : 'Skriv ditt svar...')
+        : heroInitialPlaceholder;
+      messageList.setAttribute('aria-busy', String(isSending));
+      retryButton.hidden = !failedTurn || isSending;
+      retryButton.textContent = english ? 'Try again' : 'Försök igen';
+      newConversationButton.setAttribute('aria-label', english ? 'New conversation' : 'Ny konversation');
+      newConversationButton.title = english ? 'New conversation' : 'Ny konversation';
+      inlineStatus.textContent = isSending
+        ? (english ? 'Dealett AI is replying…' : 'Dealett AI svarar…')
+        : failedTurn
+          ? (english ? 'No reply received. Try again.' : 'Svaret kunde inte hämtas. Försök igen.')
+          : (english ? 'Your conversation with Dealett AI' : 'Din konversation med Dealett AI');
+    };
+    const mountInlineChat = () => {
+      if (!heroForm) return;
+      heroForm.parentElement.insertBefore(root, heroForm);
+      heroGuide.classList.add('has-inline-chat');
+      root.classList.add('dealett-chat--inline');
+      panel.setAttribute('role', 'region');
+      panel.hidden = false;
+      root.classList.add('is-open');
+      syncInlineState();
+    };
+    const focusChatInput = () => {
+      const composer = root.classList.contains('dealett-chat--inline')
+        ? document.getElementById('home-ai-question')
+        : input;
+      composer?.focus({ preventScroll: true });
+    };
 
     let autoOpenHandled = false;
     try {
@@ -1605,6 +1660,7 @@
     };
 
     let storedConversation = readStoredConversation();
+    let conversationPresentation = storedConversation?.presentation || null;
 
     const persistChatSessionId = (sessionId) => {
       try {
@@ -1653,6 +1709,7 @@
         contentLanguage: message.contentLanguage || message.language || null,
         greeting: message.greeting === true,
         hidden: message.hidden === true,
+        delivery: message.delivery || null,
         structuredContent: message.structuredContent || null,
         metadata: message.metadata || null,
       };
@@ -1729,6 +1786,7 @@
         conversationId: chatSessionId,
         sessionId: chatSessionId,
         conversationToken,
+        presentation: conversationPresentation,
         createdAt: storedConversation?.createdAt || new Date(now).toISOString(),
         updatedAt: now,
         updatedAtIso: new Date(now).toISOString(),
@@ -1868,10 +1926,11 @@
       if (
         event?.type === 'dealett:language-changed' &&
         previousLanguage !== chatLanguage &&
-        messages.length
+        messages.length && !root.classList.contains('dealett-chat--inline')
       ) {
         resetChatConversation({ greet: !panel.hidden });
       }
+      syncInlineState();
     };
 
     const getElementTopInMessageList = (element, listRect) => (
@@ -2930,7 +2989,7 @@
     const continuePendingMessage = () => {
       const nextMessage = pendingMessages.shift();
       if (!nextMessage) {
-        input.focus();
+        focusChatInput();
         return;
       }
       const messageRecord = createMessageRecord('user', nextMessage.message, nextMessage.messageRecord);
@@ -3102,9 +3161,13 @@
       status.textContent = nextValue
         ? (pendingMessages.length ? text.queued : text.typing)
         : (lastResponseWasSimulated ? text.demoStatus : text.status);
+      syncInlineState();
     };
 
     const processMessage = async (message, options = {}) => {
+      const generation = conversationGeneration;
+      const requestController = new AbortController();
+      activeChatRequest = requestController;
       const requestContext = {
         ...(getQuizContext() || {}),
         ...(options.context || {}),
@@ -3113,6 +3176,10 @@
       setSending(true);
       let requestFailed = false;
       const clientRecord = options.messageRecord || null;
+      if (clientRecord) {
+        clientRecord.delivery = 'pending';
+        persistConversation();
+      }
       const priorMessages = (clientRecord
         ? messages.filter((item) => item.messageId !== clientRecord.messageId)
         : messages
@@ -3132,6 +3199,7 @@
           label: 'Dealett assistant',
           method: 'POST',
           timeoutMs: 60000,
+          signal: requestController.signal,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             conversationId: chatSessionId,
@@ -3157,14 +3225,25 @@
           }),
         });
 
+        if (generation !== conversationGeneration) return;
         if (typeof response?.conversationToken === 'string' && response.conversationToken) {
           conversationToken = response.conversationToken;
           persistConversation();
         }
         renderAssistantResponse(response);
+        if (clientRecord) clientRecord.delivery = 'sent';
+        failedTurn = null;
+        persistConversation();
       } catch {
         requestFailed = true;
       } finally {
+        if (generation !== conversationGeneration) return;
+        activeChatRequest = null;
+        if (requestFailed && clientRecord) {
+          clientRecord.delivery = 'failed';
+          failedTurn = { message, options };
+          persistConversation();
+        }
         setSending(false);
         if (requestFailed) {
           status.textContent = text.error;
@@ -3174,6 +3253,12 @@
     };
 
     const resetChatConversation = ({ greet = true } = {}) => {
+      conversationGeneration += 1;
+      activeChatRequest?.abort();
+      activeChatRequest = null;
+      failedTurn = null;
+      hideTypingIndicator();
+      isSending = false;
       clearStoredConversation();
       storedConversation = null;
       chatSessionId = persistChatSessionId(createStableChatId());
@@ -3181,6 +3266,9 @@
       droppedMessageCount = 0;
       nextMessageSequence = 1;
       lastAssistantResponse = null;
+      lastCompletedAssistantItem = null;
+      completedTurnPositionToken += 1;
+      conversationPresentation = null;
       lastResponseWasSimulated = false;
       renderedOfferIds.clear();
       offerClickedInSession = false;
@@ -3192,11 +3280,13 @@
       messageList.replaceChildren();
       suggestionArea.replaceChildren();
       if (greet) loadInitialGreeting();
+      syncInlineState();
     };
 
     const sendMessage = (rawMessage, options = {}) => {
       const message = String(rawMessage || '').trim();
-      if (!message && !options.silent) return;
+      if (!message && !options.silent) return false;
+      if (root.classList.contains('dealett-chat--inline') && (isSending || failedTurn)) return false;
 
       if (isConversationExpired()) {
         resetChatConversation({ greet: false });
@@ -3217,7 +3307,7 @@
           : addMessage('user', message, { persist: false, messageRecord });
         pendingMessages.push({ message, options, item, messageRecord });
         status.textContent = text.queued;
-        input.focus();
+        focusChatInput();
         return;
       }
 
@@ -3238,6 +3328,7 @@
         messageRecord = item._dealettMessageRecord;
       }
       void processMessage(message, { ...options, messageRecord });
+      return true;
     };
 
     const openPanel = (options = {}) => {
@@ -3258,24 +3349,56 @@
           positionCompletedTurn(lastCompletedAssistantItem, { smooth: false });
         }
       });
-      window.setTimeout(() => input.focus(), 50);
+      window.setTimeout(focusChatInput, 50);
     };
 
     const closePanel = () => {
       panel.hidden = true;
       root.classList.remove('is-open');
       toggle.setAttribute('aria-expanded', 'false');
+      if (root.classList.contains('dealett-chat--inline')) {
+        const guide = root.closest('.hero-ai-guide');
+        root.classList.remove('dealett-chat--inline');
+        panel.setAttribute('role', 'dialog');
+        guide?.classList.remove('has-inline-chat');
+        document.body.append(root);
+        guide?.querySelector('[data-home-ai-form] textarea')?.focus();
+        return;
+      }
       toggle.focus();
     };
 
     hydrateStoredConversation();
+    if (heroForm && conversationPresentation === 'homepage' && messages.some((message) => message.role === 'user')) {
+      const lastUser = [...messages].reverse().find((message) => message.role === 'user');
+      if (['pending', 'failed'].includes(lastUser?.delivery)) {
+        lastUser.delivery = 'failed';
+        failedTurn = {
+          message: lastUser.content,
+          options: { messageRecord: lastUser, context: lastUser.structuredContent?.context || {} },
+        };
+      }
+      mountInlineChat();
+    }
+    newConversationButton.addEventListener('click', () => {
+      resetChatConversation({ greet: false });
+      closePanel();
+      syncInlineState();
+      if (heroInput) heroInput.value = '';
+    });
+    retryButton.addEventListener('click', () => {
+      if (!failedTurn || isSending) return;
+      const turn = failedTurn;
+      failedTurn = null;
+      void processMessage(turn.message, turn.options);
+    });
 
     toggle.addEventListener('click', () => {
       if (panel.hidden) openPanel();
       else closePanel();
     });
 
-    if (!autoOpenHandled) {
+    if (!autoOpenHandled && !document.querySelector('[data-home-ai-form]')) {
       window.setTimeout(() => {
         if (!autoOpenHandled && panel.hidden) openPanel();
       }, 2500);
@@ -3287,9 +3410,17 @@
       close: closePanel,
       ask(message, context = {}) {
         const question = String(message || '').trim();
-        if (!question) return;
+        if (!question) return false;
+        if (context.source === 'homepage_ai_guide') {
+          if (isSending || failedTurn) return false;
+          if (conversationPresentation !== 'homepage' || isConversationExpired()) {
+            resetChatConversation({ greet: false });
+          }
+          conversationPresentation = 'homepage';
+          mountInlineChat();
+        }
         openPanel({ skipGreeting: true });
-        sendMessage(question, { context });
+        return sendMessage(question, { context });
       },
       getConversationId: () => chatSessionId,
       getConversationReference: () => ({
@@ -3355,7 +3486,7 @@
     });
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !panel.hidden) {
+      if (event.key === 'Escape' && !panel.hidden && !root.classList.contains('dealett-chat--inline')) {
         closePanel();
       }
     });

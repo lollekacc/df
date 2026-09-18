@@ -630,4 +630,12 @@ if (els.sortSelect) {
 }
 
 bindEvents();
+const initialAddress = new URLSearchParams(window.location.search).get('address')?.trim();
+if (initialAddress && els.addressInput) {
+  els.addressInput.value = initialAddress;
+  hasRunAddressSearch = true;
+  try {
+    sessionStorage.setItem('dealettBroadbandAddress', initialAddress);
+  } catch {}
+}
 loadPlans();

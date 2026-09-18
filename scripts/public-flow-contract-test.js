@@ -26,8 +26,8 @@ const publicSources = fs.readdirSync(path.join(root, 'assets'))
   .concat(chat)
   .join('\n');
 
-const runNetworkContract = (hostname, override) => {
-  const window = { location: { hostname } };
+const runNetworkContract = (hostname, override, port = '3000') => {
+  const window = { location: { hostname, port } };
   if (override !== undefined) window.DEALETT_API_BASE = override;
   vm.runInNewContext(network, { window, console });
   return window.DealettNetwork;
@@ -279,6 +279,14 @@ const localhostNetwork = runNetworkContract('localhost');
 const loopbackNetwork = runNetworkContract('127.0.0.1');
 const productionNetwork = runNetworkContract('www.dealett.se');
 const overriddenNetwork = runNetworkContract('localhost', 'http://127.0.0.1:41793/');
+for (const hostname of ['localhost', '127.0.0.1', '[::1]']) {
+  const previewNetwork = runNetworkContract(hostname, undefined, '5500');
+  assert(
+    previewNetwork.resolveResource('/api/mobile/plans') === `http://${hostname}:3000/api/mobile/plans`,
+    'Live Server must request offers from the local backend.'
+  );
+}
+assert(runNetworkContract('localhost', '', '5500').apiBase === '', 'Explicit same-origin overrides must be preserved.');
 assert(
   localhostNetwork.apiBase === '' && localhostNetwork.resolveResource('/api/public/v1/environment') === '/api/public/v1/environment' &&
     loopbackNetwork.apiBase === '' &&

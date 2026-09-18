@@ -29,14 +29,16 @@
             <h1>Vad behöver du<br />från ditt abonnemang?</h1>
             <p class="hero-ai-guide__intro">Berätta med egna ord. Vi hjälper dig jämföra alternativen.</p>
 
-            <form class="hero-ai-guide__composer" data-home-ai-form>
-              <label class="sr-only" for="home-ai-question">Beskriv vad du behöver från ditt abonnemang</label>
-              <textarea id="home-ai-question" name="question" rows="3" placeholder="Till exempel: Vi är fyra i familjen och vill ha mer surf..." required></textarea>
-              <div class="hero-ai-guide__composer-footer">
-                <span class="hero-ai-guide__ask-label"><i class="fa-solid fa-plus" aria-hidden="true"></i> Fråga Dealett AI</span>
-                <button type="submit" aria-label="Skicka frågan till Dealett AI"><i class="fa-regular fa-paper-plane" aria-hidden="true"></i></button>
-              </div>
-            </form>
+            <div class="hero-ai-guide__composer">
+              <form class="hero-ai-guide__form" data-home-ai-form>
+                <label class="sr-only" for="home-ai-question">Beskriv vad du behöver från ditt abonnemang</label>
+                <textarea id="home-ai-question" name="question" rows="3" placeholder="Till exempel: Vi är fyra i familjen och vill ha mer surf..." required></textarea>
+                <div class="hero-ai-guide__composer-footer">
+                  <span class="hero-ai-guide__ask-label"><i class="fa-solid fa-plus" aria-hidden="true"></i> Fråga Dealett AI</span>
+                  <button type="submit" aria-label="Skicka frågan till Dealett AI"><i class="fa-regular fa-paper-plane" aria-hidden="true"></i></button>
+                </div>
+              </form>
+            </div>
 
             <div class="hero-ai-guide__prompts" aria-label="Exempelfrågor">
               <button type="button" data-home-ai-prompt="Vi vill samla familjens abonnemang."><i class="fa-solid fa-users" aria-hidden="true"></i><span>Samla familjen</span></button>
@@ -66,7 +68,8 @@
             </label>
           </fieldset>
 
-          <fieldset class="hero-finder__group">
+          <div class="hero-finder__stage" data-finder-stage>
+          <fieldset class="hero-finder__group" data-finder-mobile>
             <legend>Hur många är ni?</legend>
             <div class="hero-finder__options hero-finder__options--people">
               <label class="hero-finder__option"><input type="radio" name="finder-persons" value="1" /><span>1</span></label>
@@ -85,7 +88,7 @@
             </div>
           </fieldset>
 
-          <fieldset class="hero-finder__group">
+          <fieldset class="hero-finder__group" data-finder-mobile>
             <legend>Hur mycket surf behöver ni?</legend>
             <div class="hero-finder__options hero-finder__options--data">
               <label class="hero-finder__option"><input type="radio" name="finder-data" value="low" /><span>Lite</span></label>
@@ -94,10 +97,20 @@
             </div>
           </fieldset>
 
+          <fieldset class="hero-finder__group hero-finder__address" data-finder-broadband hidden disabled>
+            <legend>Sök adress</legend>
+            <h2>Se vad som passar där du bor</h2>
+            <p>Fyll i adress eller stad för att filtrera fram aktuella 5G-erbjudanden.</p>
+            <label class="sr-only" for="finder-address">Adress eller stad</label>
+            <input id="finder-address" name="finder-address" type="text" placeholder="Ex. Storgatan 3, Stockholm" autocomplete="street-address" required />
+          </fieldset>
+
           <button class="hero-finder__submit" type="submit">
             <span>Visa mina alternativ</span>
             <span aria-hidden="true">→</span>
           </button>
+          <p class="hero-finder__address-help" data-finder-broadband hidden>Skriv adress eller stad för en preliminär kontroll, eller <a href="#coverageApp">öppna täckningskartan</a>.</p>
+          </div>
           <p class="hero-finder__note"><span>Kostnadsfritt</span><span>Ingen inloggning</span></p>
 
           <div class="hero-operators" aria-label="Operatörer vi jämför">

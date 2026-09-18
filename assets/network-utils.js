@@ -5,7 +5,7 @@
   const PRODUCTION_API_BASE = 'https://db-qtmd.onrender.com';
   const sameOriginHostnames = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
   const DEFAULT_API_BASE = sameOriginHostnames.has(window.location.hostname)
-    ? ''
+    ? (window.location.port === '5500' ? `http://${window.location.hostname}:3000` : '')
     : PRODUCTION_API_BASE;
   const configuredApiBase = typeof window.DEALETT_API_BASE === 'string'
     ? window.DEALETT_API_BASE
