@@ -68,6 +68,7 @@ html body #dealettChat.dealett-chat--inline .dealett-chat-inline-reset {
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 2;
   display: inline-grid;
   place-items: center;
   width: 52px;
@@ -101,9 +102,11 @@ html body #dealettChat.dealett-chat--inline .dealett-chat-inline-controls {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px 12px;
-  margin-top: 12px;
+  margin: 0;
+  padding: 2px 4px;
   color: #657386;
   font-size: 12px;
+  line-height: 16px;
 }
 
 html body #dealettChat.dealett-chat--inline .dealett-chat-inline-controls span {
@@ -237,7 +240,7 @@ html body #dealettChat.dealett-chat--inline {
   min-width: 0 !important;
   z-index: auto !important;
   margin: 0 !important;
-  padding: 52px 20px 12px !important;
+  padding: 0 !important;
   box-sizing: border-box !important;
 }
 
@@ -267,9 +270,14 @@ html body #dealettChat.dealett-chat--inline .dealett-chat-messages {
   overflow-y: auto !important;
   overscroll-behavior-y: contain;
   scrollbar-gutter: stable;
-  padding: 4px 2px !important;
+  scrollbar-width: thin;
+  padding: 16px 46px 4px 20px !important;
   gap: 18px !important;
   background: transparent !important;
+}
+
+html body #dealettChat.dealett-chat--inline .dealett-chat-messages::-webkit-scrollbar {
+  width: 6px;
 }
 
 html body #dealettChat.dealett-chat--inline .dealett-chat-bubble {

@@ -157,6 +157,14 @@ async function run() {
       assert(Math.abs(resetBounds.y - box.y) <= 2);
       assert(Math.abs(resetBounds.x + resetBounds.width - box.x - box.width) <= 2);
       assert.equal(await newChat.locator('svg').count(), 1);
+      const messagesBounds = await page.locator('.dealett-chat-messages').boundingBox();
+      const userBubbleBounds = await users.last().locator('.dealett-chat-bubble').boundingBox();
+      const replyBounds = await page.locator('.hero-ai-guide__form').boundingBox();
+      assert(Math.abs(messagesBounds.y - box.y) <= 2);
+      assert(Math.abs(messagesBounds.x + messagesBounds.width - box.x - box.width) <= 2);
+      assert(Math.abs(userBubbleBounds.x + userBubbleBounds.width - resetBounds.x) <= 6);
+      assert(statusBounds.height <= 24 && statusBounds.x - box.x <= 2);
+      assert(Math.abs(statusBounds.y + statusBounds.height - replyBounds.y) <= 2);
       assert.equal(await page.locator('form form').count(), 0);
       const promptsBounds = await page.locator('.hero-ai-guide__prompts').boundingBox();
       const nextBounds = await page.locator(width <= 900 ? '.hero-finder' : '.hero-value').boundingBox();
