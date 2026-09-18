@@ -4,9 +4,29 @@ html body .hero-ai-guide__form {
 
 html body:has(.home-intro) .hero-ai-guide.has-inline-chat .hero-ai-guide__composer {
   flex: 0 0 auto !important;
-  height: auto !important;
+  position: absolute !important;
+  top: var(--inline-composer-top) !important;
+  left: var(--inline-composer-left) !important;
+  width: var(--inline-composer-width) !important;
+  height: var(--inline-composer-height) !important;
+  min-height: 0 !important;
   max-height: none !important;
-  grid-template-rows: auto auto !important;
+  margin: 0 !important;
+  grid-template-rows: minmax(0, 1fr) auto !important;
+}
+
+html body:has(.home-intro) .hero-ai-guide.has-inline-chat {
+  position: relative !important;
+  box-sizing: border-box !important;
+  height: var(--inline-guide-height) !important;
+}
+
+html body:has(.home-intro) .hero-ai-guide.has-inline-chat .hero-ai-guide__prompts {
+  position: absolute !important;
+  top: var(--inline-prompts-top) !important;
+  left: var(--inline-prompts-left) !important;
+  width: var(--inline-prompts-width) !important;
+  margin: 0 !important;
 }
 
 html body:has(.home-intro) .hero-ai-guide.has-inline-chat .hero-ai-guide__form {
@@ -197,17 +217,6 @@ html body .hero-ai-guide__composer-footer > button:disabled {
   }
 }
 
-html body:has(.home-intro) .hero:not(.quiz-in-hero):has(.has-inline-chat) {
-  height: auto !important;
-  max-height: none !important;
-  grid-template-rows: auto !important;
-}
-
-html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-bottom:has(.has-inline-chat) {
-  height: auto !important;
-  max-height: none !important;
-}
-
 html body #dealettChat.dealett-chat--inline .dealett-chat-header,
 html body #dealettChat.dealett-chat--inline .dealett-chat-form,
 html body #dealettChat.dealett-chat--inline .dealett-chat-message--greeting,
@@ -219,6 +228,9 @@ html body #dealettChat.dealett-chat--inline .dealett-chat-toggle {
 }
 
 html body #dealettChat.dealett-chat--inline {
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0 !important;
   position: relative !important;
   inset: auto !important;
   width: 100% !important;
@@ -236,7 +248,8 @@ html body #dealettChat.dealett-chat--inline .dealett-chat-panel {
   max-width: 100% !important;
   display: flex !important;
   flex-direction: column !important;
-  height: auto !important;
+  height: 100% !important;
+  min-height: 0 !important;
   max-height: none !important;
   margin: 0 !important;
   transform: none !important;
@@ -247,10 +260,10 @@ html body #dealettChat.dealett-chat--inline .dealett-chat-panel {
 }
 
 html body #dealettChat.dealett-chat--inline .dealett-chat-messages {
-  flex: 0 0 auto !important;
-  height: min(360px, 45svh) !important;
+  flex: 1 1 auto !important;
+  height: auto !important;
   min-height: 0 !important;
-  max-height: min(360px, 45svh) !important;
+  max-height: none !important;
   overflow-y: auto !important;
   overscroll-behavior-y: contain;
   scrollbar-gutter: stable;

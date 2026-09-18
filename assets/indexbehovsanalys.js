@@ -112,6 +112,7 @@ function createIndexQuiz() {
     offersContainer: document.getElementById("offers-container"),
     deploymentGrid: document.querySelector(".deployment-card-grid")
   };
+  const initialState = JSON.stringify(state);
 
   const steps = Array.from(document.querySelectorAll("#quiz-card-stack .quiz-step-card"));
   const questionStepCount = Math.max(steps.length - 1, 0);
@@ -124,7 +125,9 @@ function createIndexQuiz() {
     internationalUsage: 5
   };
   const sectionWrapperAnchor = document.createComment("quiz section mount");
-  let quizModalLayer = null;
+  let operatorPage = 0;
+  let finderDataSelected = false;
+  let refinementEntryState = null;
   const selectionFeedbackMs = 220;
   const giftCardPlaceholder = "Presentkort: XXX kr";
   let recommendationsRequestId = 0;
@@ -213,6 +216,18 @@ function createIndexQuiz() {
           return;
         }
 
+        if (index === 1 && operatorPage > 0) {
+          showOperatorPage(operatorPage - 1);
+          return;
+        }
+        if (index === 1 && finderDataSelected) {
+          showIntro();
+          return;
+        }
+        if (index === refinementStepIndexes.streaming && refinementEntryState) {
+          Object.assign(state, refinementEntryState);
+        }
+
         showStep(getPreviousStepIndex(index));
       });
     });
@@ -270,31 +285,6 @@ function createIndexQuiz() {
     const refinementStart = event.target.closest("[data-refinement-start]");
     if (refinementStart) {
       handleRefinementStart();
-      return;
-    }
-
-    const refinementToggle = event.target.closest("[data-refinement-toggle]");
-    if (refinementToggle) {
-      const panel = refinementToggle.closest(".quiz-refinement-panel");
-      const toggleAction = refinementToggle.dataset.refinementToggle;
-      const shouldOpen = toggleAction === "open"
-        ? true
-        : toggleAction === "close"
-          ? false
-          : panel?.classList.contains("is-collapsed");
-      state.refinementPromptCollapsed = !shouldOpen;
-      panel?.classList.toggle("is-collapsed", state.refinementPromptCollapsed);
-      refinementToggle.setAttribute("aria-expanded", String(!state.refinementPromptCollapsed));
-      syncStackHeight();
-      return;
-    }
-
-    const refinementSkip = event.target.closest("[data-refinement-skip]");
-    if (refinementSkip) {
-      state.refinementPromptCollapsed = true;
-      const panel = refinementSkip.closest(".quiz-refinement-panel");
-      panel?.classList.add("is-collapsed");
-      syncStackHeight();
       return;
     }
 
@@ -753,6 +743,7 @@ function createIndexQuiz() {
   }
 
   function startQuizFromHeroOffer(button) {
+    finderDataSelected = false;
     const persons = Number(button.dataset.heroOfferPersons);
     if (!persons) return;
 
@@ -768,6 +759,9 @@ function createIndexQuiz() {
     const extraPersons = dom.heroFinder?.querySelector("#finder-extra-persons");
     if (!button || !extraPersons) return;
     extraPersons.hidden = !expanded;
+    dom.heroFinder.querySelectorAll('.hero-finder__options--people > label').forEach(label => {
+      label.hidden = label.parentElement === extraPersons ? !expanded : expanded;
+    });
     button.setAttribute("aria-expanded", String(expanded));
     const persons = Number(dom.heroFinder.querySelector('[name="finder-persons"]:checked')?.value);
     button.textContent = expanded ? "Färre" : "Fler";
@@ -842,6 +836,10 @@ function createIndexQuiz() {
 
   function handleHeroFinderSubmit(event) {
     event.preventDefault();
+    if (dom.heroFinder.classList.contains('is-inline-quiz')) {
+      steps[state.currentStep]?.querySelector('[data-operator-next]:not(:disabled), [data-streaming-next]')?.click();
+      return;
+    }
 
     const values = new FormData(dom.heroFinder);
     if (values.get("finder-type") === "broadband") {
@@ -856,7 +854,8 @@ function createIndexQuiz() {
 
     const persons = Number(values.get("finder-persons")) || 1;
     const data = String(values.get("finder-data") || "medium");
-    startQuiz({ inHero: true });
+    finderDataSelected = true;
+    startQuiz({ inHero: true, initialStep: 1 });
 
     requestAnimationFrame(() => {
       const option = steps[0]?.querySelector(`[data-persons="${persons}"]`);
@@ -946,6 +945,8 @@ function createIndexQuiz() {
 
     const isOpening = dom.personExtraOptions.classList.contains("hidden");
     dom.personExtraOptions.classList.toggle("hidden", !isOpening);
+    const firstRow = steps[0]?.querySelector('.quiz-person-grid:not(.quiz-person-grid--extra)');
+    if (firstRow) firstRow.hidden = isOpening;
     dom.personMoreToggle.setAttribute("aria-expanded", String(isOpening));
     dom.personMoreToggle.textContent = isOpening ? "Dölj" : "Visa fler";
   }
@@ -1098,9 +1099,8 @@ function createIndexQuiz() {
   }
 
   function maybeAdvanceFromOperatorQuestion() {
-    if (!updateOperatorContinueState() || state.currentStep !== 1) return;
-
-    showStepAfterSelection(dataStepIndex);
+    const next = dom.operatorContainer?.querySelector('[data-operator-next]');
+    if (next) next.disabled = !state.operators[operatorPage] || !(state.operatorDates[operatorPage] || state.operatorNoBinding[operatorPage]);
   }
 
   function handlePriceStep(step, option) {
@@ -1144,12 +1144,13 @@ function createIndexQuiz() {
   }
 
   function getPreviousStepIndex(index) {
+    if (index === refinementStepIndexes.streaming) return resultStepIndex;
     if (index === resultStepIndex) {
       return state.resultMode === "refined" && state.selectedRefinements.length
         ? getLastAnsweredRefinementStep()
         : priceStepIndex;
     }
-    if (index === priceStepIndex) return dataStepIndex;
+    if (index === priceStepIndex) return finderDataSelected ? 1 : dataStepIndex;
     if (index === refinementStepIndexes.internationalUsage) return refinementStepIndexes.travel;
     return Math.max(index - 1, 0);
   }
@@ -1180,6 +1181,11 @@ function createIndexQuiz() {
   }
 
   function handleRefinementStart() {
+    refinementEntryState = {
+      resultMode: state.resultMode,
+      selectedRefinements: [...state.selectedRefinements],
+      refinementQueue: [...state.refinementQueue]
+    };
     const selected = ["streaming", "travel", "internationalUsage"];
     state.resultMode = "refined";
     state.selectedRefinements = selected;
@@ -1321,7 +1327,29 @@ function createIndexQuiz() {
       dom.operatorContainer.appendChild(fragment);
     });
 
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.className = 'quiz-next-button';
+    next.dataset.operatorNext = '';
+    next.addEventListener('click', () => {
+      if (!state.operators[operatorPage] || !(state.operatorDates[operatorPage] || state.operatorNoBinding[operatorPage])) return;
+      if (operatorPage < count - 1) showOperatorPage(operatorPage + 1);
+      else if (updateOperatorContinueState()) showStep(finderDataSelected ? priceStepIndex : dataStepIndex);
+    });
+    dom.operatorContainer.append(next);
+    showOperatorPage(0);
     syncStackHeight();
+  }
+
+  function showOperatorPage(index) {
+    operatorPage = index;
+    dom.operatorContainer?.querySelectorAll('[data-operator-group]').forEach((card, page) => {
+      card.hidden = page !== index;
+    });
+    const next = dom.operatorContainer?.querySelector('[data-operator-next]');
+    if (next) next.textContent = index < state.existingCustomers - 1 ? 'Nästa person →' : 'Fortsätt →';
+    if (dom.customerOperatorQuestion) dom.customerOperatorQuestion.textContent = `Abonnemang ${index + 1} av ${state.existingCustomers}`;
+    maybeAdvanceFromOperatorQuestion();
   }
 
   function updateOperatorQuestionTitle(count) {
@@ -1333,29 +1361,24 @@ function createIndexQuiz() {
   }
 
   function mountQuizInHero() {
-    if (!dom.wrapper) return;
+    if (!dom.wrapper || !dom.heroFinder) return;
 
     if (!sectionWrapperAnchor.parentNode) {
       dom.wrapper.parentNode?.insertBefore(sectionWrapperAnchor, dom.wrapper);
     }
 
-    if (!quizModalLayer) {
-      quizModalLayer = document.createElement("div");
-      quizModalLayer.id = "dealett-quiz-modal-layer";
-      quizModalLayer.className = "quiz-modal-layer";
-      quizModalLayer.setAttribute("aria-live", "polite");
-      document.body.appendChild(quizModalLayer);
-    }
-
-    quizModalLayer.appendChild(dom.wrapper);
-    document.body.classList.add("quiz-overlay-open");
+    dom.heroFinder.appendChild(dom.wrapper);
+    dom.wrapper.setAttribute('aria-live', 'polite');
+    dom.heroFinder.classList.add('is-inline-quiz');
+    [...dom.heroFinder.children].forEach(child => { if (child !== dom.wrapper) child.inert = true; });
   }
 
   function mountQuizInSection() {
     if (!dom.wrapper) return;
 
     sectionWrapperAnchor.parentNode?.insertBefore(dom.wrapper, sectionWrapperAnchor);
-    document.body.classList.remove("quiz-overlay-open");
+    dom.heroFinder?.classList.remove('is-inline-quiz');
+    [...(dom.heroFinder?.children || [])].forEach(child => { child.inert = false; });
   }
 
   function hideQuizPopup() {
@@ -1379,40 +1402,53 @@ function createIndexQuiz() {
   }
 
   function restartQuiz() {
-    const restartUrl = new URL(window.location.href);
-    restartUrl.searchParams.set("start", "quiz");
-    window.location.assign(restartUrl.toString());
+    if (pendingAdvanceTimer) window.clearTimeout(pendingAdvanceTimer);
+    pendingAdvanceTimer = null;
+    recommendationsRequestId += 1;
+    Object.assign(state, JSON.parse(initialState));
+    finderDataSelected = false;
+    quizHasStarted = false;
+    refinementEntryState = null;
+    quizWasHidden = false;
+    showIntro();
+    dom.heroFinder?.reset();
+    dom.wrapper?.querySelectorAll('.quiz-option, [data-no-binding]').forEach(button => {
+      button.classList.remove('selected', 'active');
+      button.setAttribute('aria-pressed', 'false');
+    });
+    dom.wrapper?.querySelectorAll('[data-streaming-service]').forEach(input => { input.checked = false; });
+    dom.wrapper?.querySelectorAll('[data-streaming-cost]').forEach(input => {
+      input.value = '';
+      input.setCustomValidity('');
+    });
+    dom.personExtraOptions?.classList.add('hidden');
+    const firstPersonRow = steps[0]?.querySelector('.quiz-person-grid:not(.quiz-person-grid--extra)');
+    if (firstPersonRow) firstPersonRow.hidden = false;
+    dom.personMoreToggle?.setAttribute('aria-expanded', 'false');
+    if (dom.personMoreToggle) dom.personMoreToggle.textContent = 'Visa fler';
+    setHeroFinderExpanded(false);
+    syncHeroFinderLabel();
+    syncQuizUiFromState();
+    syncAnalysisStartButtons();
   }
 
   function startQuiz(options = {}) {
     quizHasStarted = true;
     syncAnalysisStartButtons();
 
-    const preserveScroll = options.inHero
-      ? { x: window.scrollX || 0, y: window.scrollY || 0 }
-      : null;
-
-    if (options.inHero) {
-      mountQuizInHero();
-    } else {
-      mountQuizInSection();
-    }
+    mountQuizInHero();
 
     dom.intro?.classList.add("hidden");
     dom.wrapper?.classList.remove("hidden");
     dom.wrapper?.classList.remove("opacity-0");
     document.getElementById("analys")?.classList.add("quiz-running");
 
-    const stepToShow = quizWasHidden ? state.currentStep : 0;
+    const stepToShow = options.initialStep ?? ((quizWasHidden || finderDataSelected) ? state.currentStep : 0);
     quizWasHidden = false;
 
     requestAnimationFrame(() => {
       dom.wrapper?.classList.remove("opacity-0");
       showStep(stepToShow);
-      if (preserveScroll) {
-        window.scrollTo(preserveScroll.x, preserveScroll.y);
-        window.setTimeout(() => window.scrollTo(preserveScroll.x, preserveScroll.y), 0);
-      }
     });
   }
 
@@ -1448,27 +1484,12 @@ function createIndexQuiz() {
     updateStepState(safeIndex);
     syncProgress();
     syncStackHeight();
-    requestAnimationFrame(alignActiveStepInViewport);
+    const title = steps[safeIndex]?.querySelector('.quiz-title, .result-title');
+    title?.setAttribute('tabindex', '-1');
+    title?.focus({ preventScroll: true });
 
     if (safeIndex === resultStepIndex) {
       renderRecommendations();
-    }
-  }
-
-  function alignActiveStepInViewport() {
-    const activeStep = steps[state.currentStep];
-    const activeCard = activeStep?.querySelector(".quiz-card") || activeStep;
-    if (!activeCard || dom.wrapper?.classList.contains("hidden")) return;
-    if (document.body.classList.contains("quiz-overlay-open") && dom.wrapper?.parentElement === quizModalLayer) return;
-
-    const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
-    const rect = activeCard.getBoundingClientRect();
-    const targetTop = Math.max(window.scrollY + rect.top - headerHeight - 12, 0);
-    const isHiddenUnderHeader = rect.top < headerHeight + 8;
-    const isTooLow = rect.top > Math.max(window.innerHeight * 0.2, headerHeight + 80);
-
-    if (isHiddenUnderHeader || isTooLow) {
-      window.scrollTo({ top: targetTop, behavior: "auto" });
     }
   }
 
@@ -1497,7 +1518,7 @@ function createIndexQuiz() {
   }
 
   function getVisibleStepIndexes() {
-    const baseSteps = [0, 1, dataStepIndex, priceStepIndex];
+    const baseSteps = finderDataSelected ? [1, priceStepIndex] : [0, 1, dataStepIndex, priceStepIndex];
     const refinementSteps = state.resultMode === "refined"
       ? buildRefinementQueue()
       : [];
@@ -1559,7 +1580,7 @@ function createIndexQuiz() {
       if (requestId !== recommendationsRequestId) return;
 
       dom.offersContainer.innerHTML = [
-        '<article class="offer-card offer-card--empty">',
+        '<article class="inline-offer inline-offer--empty">',
         '<h4 class="offer-card__title">Kunde inte hämta erbjudanden</h4>',
         '<p class="offer-card__empty-text">Försök igen om en stund eller välj ett paket direkt från startsidan.</p>',
         "</article>"
@@ -1577,7 +1598,7 @@ function createIndexQuiz() {
       const noOfferText = lastOfferCalculation?.noOfferReason ||
         "Testa att gå tillbaka och justera prisnivå eller surfbehov så visar vi fler relevanta alternativ.";
       dom.offersContainer.innerHTML = [
-        '<article class="offer-card offer-card--empty">',
+        '<article class="inline-offer inline-offer--empty">',
         '<h4 class="offer-card__title">Inga träffar just nu</h4>',
         `<p class="offer-card__empty-text">${escapeHtml(noOfferText)}</p>`,
         "</article>"
@@ -1600,8 +1621,8 @@ function createIndexQuiz() {
 
     if (title) {
       title.textContent = isRefined
-        ? "Vi uppdaterade dina bästa alternativ"
-        : "Här är våra initiala erbjudanden";
+        ? "Dina uppdaterade alternativ"
+        : "Dina bästa alternativ";
     }
 
     if (desc) {
@@ -1744,64 +1765,36 @@ function createIndexQuiz() {
     dom.offersContainer.classList.toggle("offers-recommendation-grid--expanded", expanded);
     dom.offersContainer.innerHTML = "";
 
-    visibleEntries.forEach(({ plan, label }, index) => {
-      dom.offersContainer.appendChild(
-        buildRecommendationCard(plan, index, label)
-      );
-    });
+    const entries = hasMoreOperators ? [
+      ...visibleEntries,
+      ...plans.filter(plan => !visibleEntries.some(entry => getFeaturedOfferKey(entry.plan) === getFeaturedOfferKey(plan)))
+        .map((plan, index) => ({ plan, label: getExpandedRecommendationLabel(plan, index, featuredEntries) }))
+    ] : visibleEntries;
+    const renderPage = index => {
+      dom.offersContainer.replaceChildren(buildRecommendationCard(entries[index].plan, index, entries[index].label));
+      dom.offersContainer.append(buildInlinePager(index, entries.length, renderPage, 'Erbjudande'));
+      dom.offersContainer.append(buildRefinementPanel());
+    };
+    renderPage(0);
+  }
 
-    if (!expanded && hasMoreOperators) {
-      const toggle = document.createElement("button");
-      toggle.type = "button";
-      toggle.className = "recommendation-results-toggle";
-      toggle.textContent = "Visa alla operatörer";
-      toggle.setAttribute("aria-expanded", "false");
-      toggle.addEventListener("click", () => {
-        renderRecommendationResults(plans, { expanded: true });
-        syncStackHeight();
-      });
-      dom.offersContainer.appendChild(toggle);
-    }
-
-    dom.offersContainer.appendChild(buildRefinementPanel());
+  function buildInlinePager(index, total, onChange, label) {
+    const pager = document.createElement('nav');
+    pager.className = 'inline-quiz-pager';
+    pager.setAttribute('aria-label', label);
+    pager.innerHTML = `<button type="button" aria-label="Föregående ${label.toLowerCase()}" ${index === 0 ? 'disabled' : ''}>←</button><span>${escapeHtml(label)} ${index + 1} / ${total}</span><button type="button" aria-label="Nästa ${label.toLowerCase()}" ${index === total - 1 ? 'disabled' : ''}>→</button>`;
+    pager.firstElementChild.addEventListener('click', () => onChange(index - 1));
+    pager.lastElementChild.addEventListener('click', () => onChange(index + 1));
+    return pager;
   }
 
   function buildRefinementPanel() {
-    const panel = document.createElement("section");
-    panel.className = [
-      "quiz-refinement-panel",
-      "quiz-refinement-panel--blind",
-      state.refinementPromptCollapsed ? "is-collapsed" : ""
-    ].filter(Boolean).join(" ");
-    panel.setAttribute("aria-label", "Förfina erbjudanden");
-
     const isRefined = state.resultMode === "refined" && state.selectedRefinements.length > 0;
-    const title = isRefined
-      ? "Resultaten är uppdaterade med dina extra svar."
-      : "Svara på 3 frågor till för bättre resultat";
-    const copy = isRefined
-      ? "Du kan fortfarande gå igenom frågorna igen om du vill finjustera analysen."
-      : "Vi väger in streaming, resor och användning utanför EU innan vi räknar om dina erbjudanden.";
-
-    panel.innerHTML = [
-      `<button class="quiz-refinement-tab" type="button" data-refinement-toggle="toggle" aria-expanded="${String(!state.refinementPromptCollapsed)}">`,
-      '  <span class="quiz-refinement-tab-icon" aria-hidden="true">◎</span>',
-      '  <span class="quiz-refinement-tab-label">Bättre matchning</span>',
-      '  <span class="quiz-refinement-tab-chevron" aria-hidden="true">⌃</span>',
-      '</button>',
-      '<div class="quiz-refinement-blind">',
-      '  <div class="quiz-refinement-target" aria-hidden="true">◎</div>',
-      '  <div class="quiz-refinement-copy">',
-      `    <p class="quiz-refinement-kicker">${isRefined ? 'Fördjupad matchning' : 'Bättre matchning'}</p>`,
-      `    <h4>${escapeHtml(title)}</h4>`,
-      `    <p>${escapeHtml(copy)}</p>`,
-      '  </div>',
-      '  <div class="quiz-refinement-actions">',
-      '    <button class="quiz-next-button" type="button" data-refinement-start>Förbättra min matchning <span aria-hidden="true">→</span></button>',
-      '  </div>',
-      '</div>',
-    ].join("");
-
+    const panel = document.createElement('button');
+    panel.type = 'button';
+    panel.className = 'inline-refine';
+    panel.dataset.refinementStart = '';
+    panel.textContent = isRefined ? 'Ändra streaming & resor →' : 'Förfina med streaming & resor →';
     return panel;
   }
 
@@ -2218,75 +2211,46 @@ function createIndexQuiz() {
   }
 
   function buildRecommendationCard(plan, index, label) {
-    const article = document.createElement("article");
-    const providerClass = getProviderClass(plan.operator);
-    article.className = [
-      "offer-card",
-      index === 0 ? "offer-card--top" : "",
-      providerClass ? `provider-card--${providerClass}` : ""
-    ].filter(Boolean).join(" ");
-
-    const topLabel = label || `Operatör ${index + 1}`;
-    const isMulti = state.persons && state.persons > 1;
-    const planMonthlyPrice = Number(plan.planMonthlyPrice ?? plan.finalPrice) || 0;
-    const priceMain = new Intl.NumberFormat("sv-SE").format(planMonthlyPrice);
-    const priceSub  = isMulti ? `${plan.pricePerPerson} kr per användare` : null;
-    const dataText  = plan.dataAmount >= 999 ? "Obegränsad" : `${plan.dataAmount} GB`;
-    const reasonText = buildRecommendationReason(plan);
-    const tradeoffText = buildRecommendationTradeoff(plan);
-    const giftCardValue = Math.max(Number(plan.giftCardValue ?? plan.offerCalculation?.giftCardValue) || 0, 0);
-    const giftCardText = giftCardValue ? formatMoney(giftCardValue) : "XXX kr";
-    const featureItems = [
+    const article = document.createElement('article');
+    article.className = 'inline-offer';
+    const price = formatMoney(Number(plan.planMonthlyPrice ?? plan.finalPrice) || 0);
+    const data = plan.dataAmount >= 999 ? 'Obegränsad' : plan.dataAmount + ' GB';
+    const gift = Math.max(Number(plan.giftCardValue ?? plan.offerCalculation?.giftCardValue) || 0, 0);
+    const features = [...new Set([
       ...(Array.isArray(plan.benefits) ? plan.benefits : []),
-      ...(Array.isArray(plan.offerCalculation?.benefits) ? plan.offerCalculation.benefits : []),
-    ].map(item => String(item || "").trim()).filter(Boolean);
-    const highlights = getQuizOfferHighlights(featureItems);
-    const labelIcon = /lägst/i.test(topLabel) ? "fa-tag" : "fa-star";
-
-    article.innerHTML = [
-      '<div class="offer-card__accent"></div>',
-      '<div class="offer-card__inner">',
-      '  <div class="offer-card__top">',
-      `    <span class="offer-card__label"><i class="fa-solid ${labelIcon}" aria-hidden="true"></i>${escapeHtml(topLabel)}</span>`,
-      '  </div>',
-      '  <div class="offer-card__head">',
-      `    <img src="${escapeHtml(plan.logo)}" alt="${escapeHtml(plan.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ""}" />`,
-      `    <span class="offer-card__gift-badge" aria-label="Presentkort ${escapeHtml(giftCardText)}"><span>Presentkort</span><strong>${escapeHtml(giftCardText)}</strong></span>`,
-      '  </div>',
-      '  <div class="offer-card__offer-row">',
-      '    <div class="offer-card__data">',
-      `      <strong>${escapeHtml(dataText)}</strong>`,
-      '      <span>surf</span>',
-      '    </div>',
-      '    <div class="offer-card__price">',
-      `      <strong>${escapeHtml(priceMain)} <small>kr</small></strong>`,
-      `      <span>${priceSub ? escapeHtml(priceSub) : "/mån"}</span>`,
-      '    </div>',
-      '  </div>',
-      tradeoffText ? `  <p class="offer-card__reason">${escapeHtml(tradeoffText)}</p>` : "",
-      `  <ul class="offer-card__highlights">${highlights.map(item => `<li><i class="fa-regular fa-circle-check" aria-hidden="true"></i>${escapeHtml(item)}</li>`).join("")}</ul>`,
-      `  <a href="varukorg.html" class="offer-card__cta" data-recommendation-cart>Välj ${escapeHtml(plan.operator)} <span aria-hidden="true">→</span></a>`,
-      '  <button class="offer-card__details" type="button" aria-expanded="false">Se detaljer <span aria-hidden="true">›</span></button>',
-      `  <div class="offer-card__details-panel" hidden><p>${escapeHtml(reasonText)}</p>${featureItems.length ? `<ul>${featureItems.map(benefit => `<li>${escapeHtml(benefit)}</li>`).join("")}</ul>` : ""}<div class="offer-card__actions"></div></div>`,
-      '</div>'
-    ].join("\n");
-
-    article.querySelector("[data-recommendation-cart]")?.addEventListener("click", event => {
-      event.preventDefault();
-      saveRecommendationAndNavigate(plan);
+      ...(Array.isArray(plan.offerCalculation?.benefits) ? plan.offerCalculation.benefits : [])
+    ].map(String).filter(Boolean))];
+    const detailText = [plan.title, buildRecommendationReason(plan), buildRecommendationTradeoff(plan), ...features].filter(Boolean);
+    const pages = detailText.flatMap(text => {
+      const words = String(text).split(/\s+/);
+      const chunks = [''];
+      words.forEach(word => {
+        const last = chunks.length - 1;
+        if ((chunks[last] + ' ' + word).length > 150 && chunks[last]) chunks.push(word);
+        else chunks[last] += (chunks[last] ? ' ' : '') + word;
+      });
+      return chunks;
     });
-
-    article.querySelector(".offer-card__details")?.addEventListener("click", event => {
-      const button = event.currentTarget;
-      const detailsPanel = article.querySelector(".offer-card__details-panel");
-      const expanded = button.getAttribute("aria-expanded") === "true";
-      button.setAttribute("aria-expanded", String(!expanded));
-      if (detailsPanel) detailsPanel.hidden = expanded;
-    });
-
-    const compareButton = createCompareButton(buildRecommendationCompareItem(plan, index), { compact: false });
-    article.querySelector(".offer-card__actions")?.append(compareButton);
-
+    const renderSummary = () => {
+      article.innerHTML = '<div class="inline-offer__head"><img src="' + escapeHtml(plan.logo) + '" alt="' + escapeHtml(plan.operator) + '" /><span>' + escapeHtml(label) + '</span></div>' +
+        '<div class="inline-offer__facts"><div><strong>' + escapeHtml(data) + '</strong><small>surf · ' + (state.persons || 1) + ' abonnemang</small></div><div><strong>' + escapeHtml(price) + '</strong><small>/mån totalt' + (state.persons > 1 ? ' · ' + escapeHtml(formatMoney(plan.pricePerPerson)) + '/person' : '') + '</small></div></div>' +
+        '<p>24 mån bindningstid · ' + escapeHtml(getQuizOfferHighlights(features)[1]) + '</p>' +
+        '<p>Presentkort: <strong>' + escapeHtml(formatMoney(gift)) + '</strong></p>' +
+        '<div class="inline-offer__actions"><button type="button" data-inline-details>Se detaljer</button><span data-inline-compare></span></div>' +
+        '<a href="varukorg.html" class="quiz-next-button" data-recommendation-cart>Välj ' + escapeHtml(plan.operator) + ' →</a>';
+      article.querySelector('[data-inline-details]').addEventListener('click', () => renderDetails(0));
+      article.querySelector('[data-inline-compare]').append(createCompareButton(buildRecommendationCompareItem(plan, index), { compact: true }));
+      article.querySelector('[data-recommendation-cart]').addEventListener('click', event => {
+        event.preventDefault();
+        saveRecommendationAndNavigate(plan);
+      });
+    };
+    const renderDetails = page => {
+      article.innerHTML = '<div class="inline-offer__head"><strong>' + escapeHtml(plan.operator) + '</strong><span>Detaljer</span></div><div class="inline-offer__detail"><p>' + escapeHtml(pages[page] || 'Inga ytterligare detaljer.') + '</p></div><div class="inline-offer__actions"><button type="button" data-inline-summary>← Till erbjudandet</button></div>';
+      article.querySelector('[data-inline-summary]').addEventListener('click', renderSummary);
+      article.append(buildInlinePager(page, Math.max(pages.length, 1), renderDetails, 'Detaljsida'));
+    };
+    renderSummary();
     return article;
   }
 

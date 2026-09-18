@@ -64,9 +64,19 @@ async function run() {
       assert.equal(requests.length, 0);
       mode = 'hold';
       await input.fill('hej');
+      const pageLayout = () => page.evaluate(() => ({
+        top: document.querySelector('.hero-ai-guide__composer').getBoundingClientRect().top + scrollY,
+        valueTop: document.querySelector('.hero-value').getBoundingClientRect().top + scrollY,
+        finderTop: document.querySelector('.hero-finder').getBoundingClientRect().top + scrollY,
+        height: document.documentElement.scrollHeight,
+        scroll: scrollY,
+      }));
+      const initialLayout = await pageLayout();
       await input.press('Enter');
       await page.waitForFunction(() => document.querySelector('.dealett-chat-messages')?.getAttribute('aria-busy') === 'true');
       await count(users, 1);
+      const activeLayout = await pageLayout();
+      for (const key of Object.keys(initialLayout)) assert(Math.abs(initialLayout[key] - activeLayout[key]) <= 1, `Page moved: ${key}`);
       assert.equal(await send.isDisabled(), true);
       await input.fill('Mitt nästa svar');
       await input.press('Enter');
@@ -148,6 +158,9 @@ async function run() {
       assert(Math.abs(resetBounds.x + resetBounds.width - box.x - box.width) <= 2);
       assert.equal(await newChat.locator('svg').count(), 1);
       assert.equal(await page.locator('form form').count(), 0);
+      const promptsBounds = await page.locator('.hero-ai-guide__prompts').boundingBox();
+      const nextBounds = await page.locator(width <= 900 ? '.hero-finder' : '.hero-value').boundingBox();
+      assert(promptsBounds.y + promptsBounds.height <= nextBounds.y, 'Chat overlaps the next section');
       if (process.env.CHAT_SCREENSHOT_DIR) {
         await page.locator('.hero-ai-guide').screenshot({ path: path.join(process.env.CHAT_SCREENSHOT_DIR, `home-chat-${width}.png`) });
       }
@@ -184,7 +197,7 @@ async function run() {
         await waitIdle();
       }
       const scroll = await page.locator('.dealett-chat-messages').evaluate(e => ({ height: e.clientHeight, content: e.scrollHeight }));
-      assert(scroll.height <= 360 && scroll.content > scroll.height);
+      assert(scroll.height > 0 && scroll.content > scroll.height);
       const longConversationBox = await page.locator('.hero-ai-guide__composer').boundingBox();
       assert(Math.abs(longConversationBox.height - box.height) <= 1);
       const replyDivider = await page.locator('.hero-ai-guide__form').evaluate(e => getComputedStyle(e).borderTopWidth);

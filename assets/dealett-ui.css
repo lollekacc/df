@@ -11686,16 +11686,6 @@ html body:has(.home-intro) .hero-finder__more:focus-visible {
   outline-offset: 2px;
 }
 
-html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder:has(#finder-extra-persons:not([hidden])) {
-  height: auto !important;
-  max-height: none !important;
-}
-
-html body:has(.home-intro) .hero-finder:has(#finder-extra-persons:not([hidden])) .hero-operators {
-  position: static !important;
-  width: 100% !important;
-}
-
 .hero-offer-artwork {
   display: contents;
 }

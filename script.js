@@ -1561,8 +1561,45 @@
           ? (english ? 'No reply received. Try again.' : 'Svaret kunde inte hämtas. Försök igen.')
           : (english ? 'Your conversation with Dealett AI' : 'Din konversation med Dealett AI');
     };
+    const sizeInlineChat = () => {
+      if (!heroForm) return;
+      const active = heroGuide.classList.contains('has-inline-chat');
+      heroGuide.classList.remove('has-inline-chat');
+      root.style.setProperty('display', 'none', 'important');
+      const guideBox = heroGuide.getBoundingClientRect();
+      const composerBox = heroForm.parentElement.getBoundingClientRect();
+      const prompts = heroGuide.querySelector('.hero-ai-guide__prompts');
+      const promptsBox = prompts.getBoundingClientRect();
+      const gap = promptsBox.top - composerBox.bottom;
+      const obstacles = [...document.querySelectorAll('.hero-finder, .hero-value, .hero-showcase, main > section')]
+        .filter(element => !element.contains(heroGuide))
+        .map(element => element.getBoundingClientRect())
+        .filter(box => box.height > 0 && box.top >= promptsBox.bottom - 1 && box.left < composerBox.right && box.right > composerBox.left);
+      const boundary = obstacles.length ? Math.min(...obstacles.map(box => box.top)) : promptsBox.bottom;
+      const height = Math.max(composerBox.height, boundary - composerBox.top - promptsBox.height - gap - 12);
+      const values = {
+        'guide-height': guideBox.height,
+        'composer-top': composerBox.top - guideBox.top,
+        'composer-left': composerBox.left - guideBox.left,
+        'composer-width': composerBox.width,
+        'composer-height': height,
+        'prompts-top': composerBox.top - guideBox.top + height + gap,
+        'prompts-left': promptsBox.left - guideBox.left,
+        'prompts-width': promptsBox.width,
+      };
+      Object.entries(values).forEach(([key, value]) => heroGuide.style.setProperty(`--inline-${key}`, `${value}px`));
+      if (active) heroGuide.classList.add('has-inline-chat');
+      root.style.removeProperty('display');
+    };
+    const refreshInlineSize = () => {
+      if (heroGuide?.classList.contains('has-inline-chat')) sizeInlineChat();
+    };
+    window.addEventListener('resize', refreshInlineSize);
+    document.querySelector('link[data-dealett-chat-launcher]')?.addEventListener('load', refreshInlineSize);
+    document.fonts?.ready.then(refreshInlineSize);
     const mountInlineChat = () => {
       if (!heroForm) return;
+      if (!heroGuide.classList.contains('has-inline-chat')) sizeInlineChat();
       heroForm.parentElement.insertBefore(root, heroForm);
       heroGuide.classList.add('has-inline-chat');
       root.classList.add('dealett-chat--inline');
