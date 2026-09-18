@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
-    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260918-1" />
+    <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260918-5" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/inline-quiz.css?v=20260918-6" />
     <link rel="stylesheet" href="./assets/information-rotator.css?v=20260916-1" />
@@ -143,28 +143,44 @@
 
         <div class="hero-showcase hero-showcase--editorial" aria-label="Aktuella presentkortserbjudanden">
           <button class="hero-offer-tile hero-offer-tile--family" type="button" data-hero-offer-persons="4" aria-label="Välj erbjudandet för fyra abonnemang">
-            <picture class="hero-offer-artwork">
-              <source media="(min-width: 901px)" srcset="images/landing-offers-editorial.png" />
-              <img class="hero-offer-image" src="images/landing-offer-4.png" alt="" />
-            </picture>
+            <span class="offer-content">
+              <span class="offer-content__eyebrow">Familj <span aria-hidden="true">·</span> 4 abonnemang</span>
+              <span class="offer-content__heading">Mer familj. <span>Mer värde.</span></span>
+              <span class="offer-content__description">Samla hela familjens abonnemang och få mer på köpet.</span>
+              <span class="offer-content__reward"><span>Upp till</span><span class="offer-content__amount">4 000 <span>kr</span></span><span>i presentkort</span><i class="fa-solid fa-gift" aria-hidden="true"></i></span>
+              <span class="offer-content__benefit">Helt kostnadsfritt</span>
+              <span class="offer-content__footer"><span>Telenor</span><span>Se erbjudandet <span aria-hidden="true">↗</span></span></span>
+            </span>
           </button>
           <button class="hero-offer-tile hero-offer-tile--group" type="button" data-hero-offer-persons="3" aria-label="Välj erbjudandet för tre abonnemang">
-            <picture class="hero-offer-artwork">
-              <source media="(min-width: 901px)" srcset="images/landing-offers-editorial.png" />
-              <img class="hero-offer-image" src="images/landing-offer-3.png" alt="" />
-            </picture>
+            <span class="offer-content">
+              <span class="offer-content__eyebrow">Familj <span aria-hidden="true">·</span> 3 abonnemang</span>
+              <span class="offer-content__heading">Tre abonnemang. <span>Ett bättre val.</span></span>
+              <span class="offer-content__description">Samla era abonnemang och få mer tillbaka.</span>
+              <span class="offer-content__reward"><span>Upp till</span><span class="offer-content__amount">3 000 <span>kr</span></span><span>i presentkort</span><i class="fa-solid fa-gift" aria-hidden="true"></i></span>
+              <span class="offer-content__benefit">Snabbt & enkelt på bara 2 minuter</span>
+              <span class="offer-content__footer"><span>Tele2</span><span>Se erbjudandet <span aria-hidden="true">↗</span></span></span>
+            </span>
           </button>
           <button class="hero-offer-tile hero-offer-tile--duo" type="button" data-hero-offer-persons="2" aria-label="Välj erbjudandet för två abonnemang">
-            <picture class="hero-offer-artwork">
-              <source media="(min-width: 901px)" srcset="images/landing-offers-editorial.png" />
-              <img class="hero-offer-image" src="images/landing-offer-2.png" alt="" />
-            </picture>
+            <span class="offer-content">
+              <span class="offer-content__eyebrow">Duo <span aria-hidden="true">·</span> 2 abonnemang</span>
+              <span class="offer-content__heading">Bättre <span>tillsammans.</span></span>
+              <span class="offer-content__description">Två abonnemang. Mer värde för er båda.</span>
+              <span class="offer-content__reward"><span>Upp till</span><span class="offer-content__amount">2 000 <span>kr</span></span><span>i presentkort</span><i class="fa-solid fa-gift" aria-hidden="true"></i></span>
+              <span class="offer-content__benefit">Surf & samtal i 100+ länder</span>
+              <span class="offer-content__footer"><span>Tre</span><span>Se erbjudandet <span aria-hidden="true">↗</span></span></span>
+            </span>
           </button>
           <button class="hero-offer-tile hero-offer-tile--single" type="button" data-hero-offer-persons="1" aria-label="Välj erbjudandet för ett abonnemang">
-            <picture class="hero-offer-artwork">
-              <source media="(min-width: 901px)" srcset="images/landing-offers-editorial.png" />
-              <img class="hero-offer-image" src="images/landing-offer-1.png" alt="" />
-            </picture>
+            <span class="offer-content">
+              <span class="offer-content__eyebrow">En person <span aria-hidden="true">·</span> 1 abonnemang</span>
+              <span class="offer-content__heading">Bara för dig. <span>Fortfarande en deal.</span></span>
+              <span class="offer-content__description">Hitta rätt abonnemang och få mer på köpet.</span>
+              <span class="offer-content__reward"><span>Upp till</span><span class="offer-content__amount">1 000 <span>kr</span></span><span>i presentkort</span><i class="fa-solid fa-gift" aria-hidden="true"></i></span>
+              <span class="offer-content__benefit">Premiumval till ett bättre pris</span>
+              <span class="offer-content__footer"><span>Telia</span><span>Se erbjudandet <span aria-hidden="true">↗</span></span></span>
+            </span>
           </button>
         </div>
 
@@ -692,8 +708,18 @@
 
       <section class="gift-card-section section-space">
         <div class="page-shell">
-          <div class="gift-card-image">
-            <img src="images/editorial-gift-cards.png" alt="Presentkort från flera populära varumärken" />
+          <div class="gift-card-image gift-choice" aria-label="Välj presentkort för vardag, stil eller något du längtar efter">
+            <div class="gift-choice__top"><span>DEALETT</span><span>Det extra på köpet</span></div>
+            <p class="gift-choice__title">Till något<br>du <em>verkligen</em><br>vill ha.</p>
+            <div class="gift-choice__voucher">
+              <div class="gift-choice__voucher-main"><i class="fa-solid fa-gift" aria-hidden="true"></i><span>Presentkort</span><span>Ditt val. Din favorit.</span></div>
+              <div class="gift-choice__voucher-end" aria-hidden="true">Till dig ↗</div>
+            </div>
+            <div class="gift-choice__brands" aria-label="Exempel på varumärken">
+              <div><img src="images/gift-logos/ica.png" alt="ICA Maxi" loading="lazy" width="80" height="40"><span>För vardagen</span></div>
+              <div><img src="images/gift-logos/hm.png" alt="H&amp;M" loading="lazy" width="80" height="40"><span>För din stil</span></div>
+              <div><img src="images/gift-logos/zalando.png" alt="Zalando" loading="lazy" width="80" height="40"><span>För något nytt</span></div>
+            </div>
           </div>
 
           <div class="gift-card-content">
