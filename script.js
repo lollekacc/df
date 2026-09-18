@@ -2910,7 +2910,7 @@
 
     const getOperatorLogo = (operator) => {
       const provider = getProviderClass(operator);
-      return provider ? `images/${provider}.${['telia', 'tele2'].includes(provider) ? 'png' : 'jpg'}` : '';
+      return provider ? `images/${provider}.${provider === 'telenor' ? 'svg' : ['telia', 'tele2'].includes(provider) ? 'webp' : 'jpg'}` : '';
     };
 
     const addCalculatedOfferToCart = async (planId, options = {}) => {

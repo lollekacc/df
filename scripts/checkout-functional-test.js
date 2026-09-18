@@ -35,7 +35,7 @@ const makeItem = (overrides = {}) => ({
   offerId: 'functional-offer',
   operator: 'Telenor',
   title: 'Obegränsat Plus',
-  logo: 'images/telenor.jpg',
+  logo: 'images/telenor.svg',
   data: 'Obegränsad surf',
   price: 629,
   monthlyPrice: 629,

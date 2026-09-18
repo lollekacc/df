@@ -7,10 +7,10 @@ const apiFetchJson = async (resource, options = {}) => window.DealettNetwork.fet
 });
 
 const providerLogos = {
-  Telia: 'images/telia.png',
-  Tele2: 'images/tele2.png',
+  Telia: 'images/telia.webp',
+  Tele2: 'images/tele2.webp',
   Tre: 'images/tre.jpg',
-  Telenor: 'images/telenor.jpg',
+  Telenor: 'images/telenor.svg',
 };
 
 const providerAccents = {

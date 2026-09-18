@@ -1337,82 +1337,11 @@ body:has(.home-intro) main { overflow:clip; }
 }
 .home-motion-ready .home-reveal.is-visible { opacity:1; filter:none; transform:none; }
 
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero)::before {
-  animation: home-hero-image-in .52s cubic-bezier(.2,.75,.2,1) both;
-}
-
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-eyebrow.home-reveal,
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) h1.home-reveal,
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof.home-reveal {
-  --home-hero-copy-x: -86px;
-  filter: none;
-  animation: home-hero-copy-in .42s cubic-bezier(.16,1,.3,1) both;
-  transition: none;
-}
-
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-eyebrow.home-reveal {
-  animation-delay: .08s;
-}
-
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) h1.home-reveal {
-  animation-delay: .14s;
-}
-
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof.home-reveal {
-  animation-delay: .2s;
-}
-
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-actions.home-reveal {
-  --home-hero-action-x: 96px;
-  filter: none;
-  animation: home-hero-actions-in .42s .28s cubic-bezier(.16,1,.3,1) both;
-  transition: none;
-}
-
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-eyebrow.home-reveal.is-visible,
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) h1.home-reveal.is-visible,
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof.home-reveal.is-visible,
-.home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-actions.home-reveal.is-visible {
-  opacity: 1;
-  filter: none;
-  transform: none;
-}
-
 @keyframes editorial-pulse {
   0%,100% { box-shadow:0 0 0 5px rgba(248, 245, 240,.16); }
   50% { box-shadow:0 0 0 11px rgba(248, 245, 240,0); }
 }
 @keyframes editorial-underline { to { transform:scaleX(1); } }
-@keyframes home-hero-image-in {
-  from {
-    opacity: .62;
-    transform: scale(1.045);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-@keyframes home-hero-copy-in {
-  from {
-    opacity: 0;
-    transform: translate3d(var(--home-hero-copy-x),0,0);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes home-hero-actions-in {
-  from {
-    opacity: 0;
-    transform: translate3d(var(--home-hero-action-x),0,0);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
 
 /* All secondary page heroes use a clean split layout. */
 .shop-hero,.business-hero,.bredband-hero,.coverage-hero,.about-hero,.support-hero {
@@ -2978,11 +2907,6 @@ body:has(.home-intro) .newsletter-form .button:hover { color:#fff; }
   .hero .hero-eyebrow::before { animation:none; }
   .hero h1 em::after { animation:none; transform:scaleX(1); }
   .home-motion-ready .home-reveal { opacity:1; filter:none; transform:none; }
-  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero)::before { animation:none; opacity:1; transform:none; }
-  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-eyebrow.home-reveal,
-  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) h1.home-reveal,
-  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof.home-reveal,
-  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-actions.home-reveal { opacity:1; filter:none; transform:none; }
   .mobile-plans-page .shop-hero-kicker span,.mobile-plans-page .shop-hero h1 em::after { animation:none; }
   .mobile-plans-page .shop-hero h1 em::after { transform:scaleX(1); }
   .mobile-plans-motion-ready .mobile-plans-reveal { opacity:1; filter:none; transform:none; }
@@ -3604,10 +3528,6 @@ body:has(.home-intro) #quiz-steps-wrapper .operator-no-binding-button[aria-press
     text-align: right;
   }
 
-  .home-motion-ready body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-actions.home-reveal {
-    --home-hero-action-x: 18px;
-  }
-
   body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-text-link {
     justify-content: flex-end;
   }
@@ -3935,7 +3855,6 @@ body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-proof {
     padding: 0 18px;
     flex-direction: column;
     align-items: flex-end;
-    --home-hero-action-x: 18px;
   }
 
   body:has(.home-intro) .hero:not(.quiz-in-hero) #hero-start-analysis,

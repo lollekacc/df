@@ -21,7 +21,7 @@ const offers = [
   {
     provider: 'Telia',
     label: 'Telia Familj',
-    logo: 'images/telia.png',
+    logo: 'images/telia.webp',
     accent: '#6E2380',
     members: '4 abonnemang',
     surf: 'Obegr\u00e4nsad surf',
@@ -30,7 +30,7 @@ const offers = [
   {
     provider: 'Telenor',
     label: 'Telenor Familj',
-    logo: 'images/telenor.jpg',
+    logo: 'images/telenor.svg',
     accent: '#00437E',
     members: '4 abonnemang',
     surf: 'Obegr\u00e4nsad surf',
@@ -48,7 +48,7 @@ const offers = [
   {
     provider: 'Tele2',
     label: 'Tele2 Familj',
-    logo: 'images/tele2.png',
+    logo: 'images/tele2.webp',
     accent: '#003A6E',
     members: '4 abonnemang',
     surf: 'Obegr\u00e4nsad surf',

@@ -508,23 +508,23 @@
   opacity: 1;
 }
 
-.company-logo-tile img[src$='telenor.jpg'],
-.company-plan-card__logo img[src$='telenor.jpg'],
-.company-operator-filter img[src$='telenor.jpg'] {
+.company-logo-tile img[src$='telenor.svg'],
+.company-plan-card__logo img[src$='telenor.svg'],
+.company-operator-filter img[src$='telenor.svg'] {
   width: 100%;
   max-width: none;
-  object-fit: cover;
+  object-fit: contain;
 }
 
-.company-logo-tile img[src$='telenor.jpg'] {
+.company-logo-tile img[src$='telenor.svg'] {
   height: 38px;
 }
 
-.company-plan-card__logo img[src$='telenor.jpg'] {
+.company-plan-card__logo img[src$='telenor.svg'] {
   height: 28px;
 }
 
-.company-operator-filter img[src$='telenor.jpg'] {
+.company-operator-filter img[src$='telenor.svg'] {
   height: 24px;
 }
 

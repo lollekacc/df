@@ -2407,7 +2407,7 @@ function createIndexQuiz() {
 
   function getOperatorLogo(operator) {
     const provider = getProviderClass(operator);
-    return `images/${provider}.${["telia", "tele2"].includes(provider) ? "png" : "jpg"}`;
+    return `images/${provider}.${provider === "telenor" ? "svg" : ["telia", "tele2"].includes(provider) ? "webp" : "jpg"}`;
   }
 
   return { init };

@@ -39,12 +39,12 @@
     'telia-home-unlimited-4': {
       offerId: 'telia-home-unlimited-4',
       operator: 'Telia',
-      logo: 'images/telia.png'
+      logo: 'images/telia.webp'
     },
     'telenor-home-unlimited-4': {
       offerId: 'telenor-home-unlimited-4',
       operator: 'Telenor',
-      logo: 'images/telenor.jpg'
+      logo: 'images/telenor.svg'
     },
     'tre-home-unlimited-4': {
       offerId: 'tre-home-unlimited-4',
@@ -54,7 +54,7 @@
     'tele2-home-unlimited-4': {
       offerId: 'tele2-home-unlimited-4',
       operator: 'Tele2',
-      logo: 'images/tele2.png'
+      logo: 'images/tele2.webp'
     }
   };
 
