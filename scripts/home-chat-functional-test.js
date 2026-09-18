@@ -149,7 +149,8 @@ async function run() {
       const statusBounds = await page.locator('.dealett-chat-inline-controls').boundingBox();
       const resetBounds = await newChat.boundingBox();
       assert(statusBounds.y >= bounds.y);
-      assert(composerInput.height >= 44 && composerInput.height <= 48);
+      assert.equal(composerInput.height, 30);
+      assert.equal(sendBounds.height, 30);
       assert(Math.abs(composerInput.y + composerInput.height / 2 - sendBounds.y - sendBounds.height / 2) <= 2);
       assert(sendBounds.x >= composerInput.x + composerInput.width);
       assert.equal(await page.locator('.hero-ai-guide__ask-label').isVisible(), false);
@@ -207,7 +208,7 @@ async function run() {
       const scroll = await page.locator('.dealett-chat-messages').evaluate(e => ({ height: e.clientHeight, content: e.scrollHeight }));
       assert(scroll.height > 0 && scroll.content > scroll.height);
       const longConversationBox = await page.locator('.hero-ai-guide__composer').boundingBox();
-      assert(Math.abs(longConversationBox.height - box.height) <= 1);
+      assert(Math.abs(longConversationBox.height - box.height) <= 1, `Chat height changed from ${box.height} to ${longConversationBox.height}`);
       const replyDivider = await page.locator('.hero-ai-guide__form').evaluate(e => getComputedStyle(e).borderTopWidth);
       assert.equal(replyDivider, '1px');
       assert.equal(await input.isVisible(), true);
