@@ -126,6 +126,8 @@ function createIndexQuiz() {
   };
   const sectionWrapperAnchor = document.createComment("quiz section mount");
   let operatorPage = 0;
+  let quizTurn = null;
+  let quizTurnVersion = 0;
   let finderDataSelected = false;
   let refinementEntryState = null;
   const selectionFeedbackMs = 220;
@@ -202,6 +204,9 @@ function createIndexQuiz() {
     dom.wrapper.addEventListener("change", handleWrapperChange);
     dom.wrapper.addEventListener("input", handleWrapperInput);
     window.addEventListener("resize", syncStackHeight);
+    window.matchMedia('(max-width: 900px)').addEventListener('change', () => {
+      if (state.currentStep === 1) showOperatorPage(Math.floor(operatorPage / getOperatorPageSize()) * getOperatorPageSize());
+    });
     bindNewsletterForm();
     bindStaticOfferCards();
 
@@ -216,7 +221,7 @@ function createIndexQuiz() {
         }
 
         if (index === 1 && operatorPage > 0) {
-          showOperatorPage(operatorPage - 1);
+          showOperatorPage(Math.max(0, operatorPage - getOperatorPageSize()), true);
           return;
         }
         if (index === 1 && finderDataSelected) {
@@ -263,6 +268,10 @@ function createIndexQuiz() {
   }
 
   function handleWrapperClick(event) {
+    if (event.target.matches('[data-operator-date]')) {
+      try { event.target.showPicker?.(); } catch {}
+      return;
+    }
     const popupAction = event.target.closest("[data-quiz-popup-action]");
     if (popupAction) {
       if (popupAction.dataset.quizPopupAction === "restart") {
@@ -318,6 +327,10 @@ function createIndexQuiz() {
   }
 
   function handleWrapperChange(event) {
+    if (event.target.matches('[data-binding-text]')) {
+      event.target.reportValidity();
+      return;
+    }
     if (event.target.matches("[data-operator-date]")) {
       handleOperatorDateChange(event.target);
       return;
@@ -339,6 +352,28 @@ function createIndexQuiz() {
   }
 
   function handleWrapperInput(event) {
+    if (event.target.matches('[data-binding-text]')) {
+      const input = event.target;
+      const index = Number(input.dataset.personIndex);
+      const digits = input.value.replace(/\D/g, '').slice(0, 8);
+      const formatted = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4)].filter(Boolean).join('-');
+      if (input.value !== formatted) input.value = formatted;
+      const match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(input.value);
+      const iso = match ? `${match[3]}-${match[2]}-${match[1]}` : '';
+      const date = iso ? new Date(`${iso}T12:00:00Z`) : null;
+      const valid = date && !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === iso;
+      input.setCustomValidity(input.value && !valid ? 'Ange ett giltigt datum: dd-mm-yyyy.' : '');
+      state.operatorDates[index] = valid ? iso : null;
+      state.operatorNoBinding[index] = false;
+      const group = input.closest('[data-operator-group]');
+      const nativeDate = group.querySelector('[data-operator-date]');
+      nativeDate.value = valid ? iso : '';
+      const noBinding = group.querySelector('[data-no-binding]');
+      noBinding.classList.remove('selected', 'active');
+      noBinding.setAttribute('aria-pressed', 'false');
+      maybeAdvanceFromOperatorQuestion();
+      return;
+    }
     if (!event.target.matches("[data-current-monthly-cost], [data-addon-monthly-cost], [data-device-monthly-cost], [data-device-remaining-months], [data-coverage-locations]")) return;
     handleOperatorDetailChange(event.target);
   }
@@ -1052,6 +1087,7 @@ function createIndexQuiz() {
     if (!Number.isInteger(personIndex)) return;
 
     state.operatorDates[personIndex] = input.value || null;
+    syncBindingDateLabel(input);
     if (input.value) {
       state.operatorNoBinding[personIndex] = false;
       const group = input.closest("[data-operator-group]");
@@ -1073,6 +1109,7 @@ function createIndexQuiz() {
     const dateInput = group?.querySelector("[data-operator-date]");
     if (dateInput) {
       dateInput.value = "";
+      syncBindingDateLabel(dateInput);
     }
 
     option.classList.add("selected", "active");
@@ -1096,11 +1133,19 @@ function createIndexQuiz() {
   function maybeAdvanceFromOperatorQuestion() {
     if (pendingAdvanceTimer) window.clearTimeout(pendingAdvanceTimer);
     pendingAdvanceTimer = null;
-    if (state.currentStep !== 1 || !state.operators[operatorPage] || !(state.operatorDates[operatorPage] || state.operatorNoBinding[operatorPage])) return;
+    const end = Math.min(operatorPage + getOperatorPageSize(), state.existingCustomers);
+    if (state.currentStep !== 1 || end <= operatorPage) return;
+    for (let index = operatorPage; index < end; index += 1) {
+      if (!state.operators[index] || !(state.operatorDates[index] || state.operatorNoBinding[index])) return;
+    }
     pendingAdvanceTimer = window.setTimeout(() => {
       pendingAdvanceTimer = null;
-      if (operatorPage < state.existingCustomers - 1) showOperatorPage(operatorPage + 1);
-      else if (updateOperatorContinueState()) showStep(finderDataSelected ? priceStepIndex : dataStepIndex);
+      if (updateOperatorContinueState()) {
+        showStep(finderDataSelected ? priceStepIndex : dataStepIndex);
+        return;
+      }
+      const nextIncomplete = state.operators.findIndex((operator, index) => index < state.existingCustomers && (!operator || !(state.operatorDates[index] || state.operatorNoBinding[index])));
+      showOperatorPage(Math.floor(nextIncomplete / getOperatorPageSize()) * getOperatorPageSize(), true);
     }, selectionFeedbackMs);
   }
 
@@ -1252,6 +1297,8 @@ function createIndexQuiz() {
 
       card?.setAttribute("data-operator-group", "");
       card?.setAttribute("data-operator-count", String(count));
+      card?.setAttribute('role', 'group');
+      card?.setAttribute('aria-label', `Person ${personIndex + 1}`);
 
       const personNumber = fragment.querySelector("[data-person-number]");
       if (personNumber) {
@@ -1272,7 +1319,12 @@ function createIndexQuiz() {
       fragment.querySelectorAll("[data-operator-date]").forEach(input => {
         input.dataset.personIndex = String(personIndex);
         input.value = state.operatorDates[personIndex] || "";
+        input.setAttribute('aria-label', `Bindningstiden slutar, person ${personIndex + 1}`);
+        syncBindingDateLabel(input);
       });
+      const dateText = fragment.querySelector('[data-binding-text]');
+      dateText.dataset.personIndex = String(personIndex);
+      dateText.setAttribute('aria-label', `Slutdatum för person ${personIndex + 1}, dd-mm-yyyy`);
 
       fragment.querySelectorAll("[data-no-binding]").forEach(button => {
         button.dataset.personIndex = String(personIndex);
@@ -1332,14 +1384,32 @@ function createIndexQuiz() {
     syncStackHeight();
   }
 
-  function showOperatorPage(index) {
+  function showOperatorPage(index, animate = false) {
+    if (animate && index !== operatorPage) {
+      turnQuiz(() => showOperatorPage(index), index > operatorPage ? 1 : -1);
+      return;
+    }
     if (pendingAdvanceTimer) window.clearTimeout(pendingAdvanceTimer);
     pendingAdvanceTimer = null;
     operatorPage = index;
+    const end = Math.min(index + getOperatorPageSize(), state.existingCustomers || 0);
+    dom.operatorContainer?.style.setProperty('--operator-columns', String(Math.max(1, Math.min(2, end - index))));
     dom.operatorContainer?.querySelectorAll('[data-operator-group]').forEach((card, page) => {
-      card.hidden = page !== index;
+      card.hidden = page < index || page >= end;
     });
-    if (dom.customerOperatorQuestion) dom.customerOperatorQuestion.textContent = `Abonnemang ${index + 1} av ${state.existingCustomers}`;
+    if (dom.customerOperatorQuestion) dom.customerOperatorQuestion.textContent = 'Välj operatör och när bindningstiden slutar.';
+  }
+
+  function getOperatorPageSize() {
+    return window.matchMedia('(max-width: 900px)').matches ? 2 : 4;
+  }
+
+  function syncBindingDateLabel(input) {
+    const label = input.closest('.operator-date-field')?.querySelector('[data-binding-text]');
+    if (!label) return;
+    const parts = input.value.split('-');
+    label.value = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : '';
+    label.setCustomValidity('');
   }
 
   function updateOperatorQuestionTitle(count) {
@@ -1431,6 +1501,9 @@ function createIndexQuiz() {
   }
 
   function showIntro() {
+    quizTurnVersion += 1;
+    quizTurn?.cancel();
+    if (dom.wrapper) dom.wrapper.inert = false;
     if (pendingAdvanceTimer) window.clearTimeout(pendingAdvanceTimer);
     pendingAdvanceTimer = null;
     mountQuizInSection();
@@ -1452,7 +1525,48 @@ function createIndexQuiz() {
     }, selectionFeedbackMs);
   }
 
+  async function turnQuiz(update, direction = 1) {
+    const version = ++quizTurnVersion;
+    quizTurn?.cancel();
+    if (!dom.wrapper || dom.wrapper.classList.contains('hidden') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (dom.wrapper) dom.wrapper.inert = false;
+      update();
+      return;
+    }
+    dom.wrapper.inert = true;
+    try {
+      quizTurn = dom.wrapper.animate([
+        { opacity: 1, transform: 'perspective(900px) translateX(0) rotateY(0deg)' },
+        { opacity: 0, transform: `perspective(900px) translateX(${-direction * 28}%) rotateY(${-direction * 32}deg)` }
+      ], { duration: 170, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' });
+      await quizTurn.finished;
+      if (version !== quizTurnVersion) return;
+      update();
+      quizTurn.cancel();
+      quizTurn = dom.wrapper.animate([
+        { opacity: 0, transform: `perspective(900px) translateX(${direction * 28}%) rotateY(${direction * 32}deg)` },
+        { opacity: 1, transform: 'perspective(900px) translateX(0) rotateY(0deg)' }
+      ], { duration: 280, easing: 'cubic-bezier(.16, 1, .3, 1)' });
+      await quizTurn.finished;
+    } catch {} finally {
+      if (version === quizTurnVersion) {
+        dom.wrapper.inert = false;
+        const title = steps[state.currentStep]?.querySelector('.quiz-title, .result-title');
+        title?.focus({ preventScroll: true });
+      }
+    }
+  }
+
   function showStep(index) {
+    if (index === state.currentStep) {
+      applyStep(index);
+      return;
+    }
+    const order = getVisibleStepIndexes();
+    turnQuiz(() => applyStep(index), order.indexOf(index) < order.indexOf(state.currentStep) ? -1 : 1);
+  }
+
+  function applyStep(index) {
     if (pendingAdvanceTimer) {
       window.clearTimeout(pendingAdvanceTimer);
       pendingAdvanceTimer = null;
@@ -1461,6 +1575,7 @@ function createIndexQuiz() {
     const safeIndex = Math.max(0, Math.min(index, resultStepIndex));
 
     state.currentStep = safeIndex;
+    if (safeIndex === 1) showOperatorPage(Math.floor(operatorPage / getOperatorPageSize()) * getOperatorPageSize());
     updateStepState(safeIndex);
     syncProgress();
     syncStackHeight();

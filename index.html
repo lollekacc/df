@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260918-1" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/hero-motion.css?v=20260825-3" />
-    <link rel="stylesheet" href="./assets/inline-quiz.css?v=20260918-3" />
+    <link rel="stylesheet" href="./assets/inline-quiz.css?v=20260918-6" />
     <link rel="stylesheet" href="./assets/information-rotator.css?v=20260916-1" />
   </head>
   <body>
@@ -271,7 +271,6 @@
                     </p>
 
                     <div class="operator-card-controls">
-                      <p class="operator-choice-label">Välj den operatör du har idag</p>
                       <div class="operator-choice-grid grid grid-cols-2 gap-3">
                         <button type="button" class="partner-wrapper quiz-option familj-opt flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-white" data-operator="Tele2">
                           <img src="images/tele2.png" class="partner-logo h-10 w-auto object-contain transition hover:scale-105" alt="Tele2" />
@@ -295,15 +294,15 @@
                       </div>
 
                       <div class="operator-binding-controls">
-                        <label class="operator-date-field">
+                        <div class="operator-date-field">
+                          <input type="text" data-binding-text placeholder="dd-mm-yyyy" inputmode="numeric" maxlength="10" autocomplete="off" />
                           <span class="operator-date-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24" focusable="false">
                               <path d="M7 2v3M17 2v3M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
                             </svg>
                           </span>
-                          <span class="operator-date-label">Välj datum då bindningstiden upphör</span>
                           <input type="date" data-operator-date />
-                        </label>
+                        </div>
 
                         <button type="button" class="operator-no-binding-button" data-no-binding aria-pressed="false">
                           Ingen bindningstid
@@ -890,6 +889,6 @@
     <script src="./assets/newsletter-codex-background.js"></script>
     <script src="./assets/gift-logo-switcher.js"></script>
     <script src="./assets/information-rotator.js?v=20260916-1"></script>
-    <script src="assets/indexbehovsanalys.js?v=20260918-3"></script>
+    <script src="assets/indexbehovsanalys.js?v=20260918-5"></script>
   </body>
 </html>
