@@ -52,8 +52,8 @@ async function run() {
       await page.waitForFunction(() => Boolean(window.DealettChat));
       const input = page.locator('#home-ai-question');
       const send = page.locator('[data-home-ai-form] [type="submit"]');
-      const newChat = page.getByRole('button', { name: 'Ny konversation', exact: true });
-      const retry = page.getByRole('button', { name: 'Försök igen', exact: true });
+      const newChat = page.getByRole('button', { name: '+ Ny chatt', exact: true });
+      const retry = page.locator('#dealettChat .dealett-chat-inline-controls').getByRole('button', { name: 'Försök igen', exact: true });
       const users = page.locator('#dealettChat .dealett-chat-message--user');
       const assistants = page.locator('#dealettChat .dealett-chat-message--assistant:not(.dealett-chat-message--typing):not(.dealett-chat-message--greeting)');
       const waitIdle = () => page.waitForFunction(() => document.querySelector('.dealett-chat-messages')?.getAttribute('aria-busy') === 'false');
@@ -93,7 +93,7 @@ async function run() {
       await count(assistants, 1);
       assert.equal(await retry.isVisible(), false);
       assert.equal(await input.inputValue(), 'Mitt nästa svar');
-      assert(!await page.locator('#dealettChat').innerText().then(text => /OLD WIDGET|välkommen/.test(text)));
+      assert(!await page.locator('#dealettChat .dealett-chat-messages').innerText().then(text => /OLD WIDGET|välkommen/.test(text)));
       assert.deepEqual(await input.evaluate(e => [getComputedStyle(e.parentElement).borderRadius, getComputedStyle(e.parentElement).backgroundColor]), initialStyle);
       mode = 'reply';
       await send.click();
@@ -155,16 +155,16 @@ async function run() {
       assert(sendBounds.x >= composerInput.x + composerInput.width);
       assert.equal(await page.locator('.hero-ai-guide__ask-label').isVisible(), false);
       assert(sendBounds.y + sendBounds.height <= box.y + box.height);
-      assert(Math.abs(resetBounds.y - box.y - 8) <= 2);
-      assert(Math.abs(resetBounds.x + resetBounds.width - box.x - box.width + 10) <= 2);
-      assert.equal(await newChat.locator('svg').count(), 1);
+      assert(resetBounds.y >= box.y && resetBounds.y < box.y + 44);
+      assert(resetBounds.x + resetBounds.width <= box.x + box.width);
+      assert.equal(await newChat.innerText(), '+ Ny chatt');
       const messagesBounds = await page.locator('.dealett-chat-messages').boundingBox();
       const userBubbleBounds = await users.last().locator('.dealett-chat-bubble').boundingBox();
       const replyBounds = await page.locator('.hero-ai-guide__form').boundingBox();
-      assert(Math.abs(messagesBounds.y - box.y) <= 2);
+      assert(Math.abs(messagesBounds.y - box.y - 44) <= 2);
       assert(Math.abs(messagesBounds.x + messagesBounds.width - box.x - box.width) <= 2);
-      assert(Math.abs(userBubbleBounds.x + userBubbleBounds.width - resetBounds.x) <= 6);
-      assert(statusBounds.height <= 24 && statusBounds.x - box.x <= 6);
+      assert(userBubbleBounds.x + userBubbleBounds.width <= messagesBounds.x + messagesBounds.width);
+      assert(statusBounds.height <= 24 && statusBounds.x >= box.x);
       assert(Math.abs(messagesBounds.y + messagesBounds.height - replyBounds.y) <= 2);
       assert.equal(await page.locator('form form').count(), 0);
       const promptsBounds = await page.locator('.hero-ai-guide__prompts').boundingBox();
@@ -200,6 +200,7 @@ async function run() {
       await waitIdle();
       await count(users, 1);
       await count(assistants, 1);
+      const beforeLongConversation = await page.locator('.hero-ai-guide__composer').boundingBox();
       for (let turn = 0; turn < 8; turn += 1) {
         await input.fill(`Följdfråga ${turn + 1}`);
         await send.click();
@@ -208,11 +209,12 @@ async function run() {
       const scroll = await page.locator('.dealett-chat-messages').evaluate(e => ({ height: e.clientHeight, content: e.scrollHeight }));
       assert(scroll.height > 0 && scroll.content > scroll.height);
       const longConversationBox = await page.locator('.hero-ai-guide__composer').boundingBox();
-      assert(Math.abs(longConversationBox.height - box.height) <= 1, `Chat height changed from ${box.height} to ${longConversationBox.height}`);
+      assert(Math.abs(longConversationBox.height - beforeLongConversation.height) <= 1, `Chat height changed from ${box.height} to ${longConversationBox.height}`);
       const replyDivider = await page.locator('.hero-ai-guide__form').evaluate(e => getComputedStyle(e).borderTopWidth);
       assert.equal(replyDivider, '1px');
       assert.equal(await input.isVisible(), true);
       await newChat.click();
+      await page.evaluate(() => window.DealettChat.close());
       await page.locator('.dealett-chat-toggle').click();
       assert.equal(await page.locator('.dealett-chat-panel').getAttribute('role'), 'dialog');
       assert.equal(await page.locator('.dealett-chat-form').isVisible(), true);

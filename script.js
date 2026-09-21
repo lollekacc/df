@@ -1466,7 +1466,7 @@
     const getChatLanguage = () => window.DEALETT_I18N?.getLanguage?.() || 'sv';
     let chatLanguage = getChatLanguage();
     let text = copy[chatLanguage] || copy.sv;
-    const messages = [];
+    let messages = [];
     const conversationKey = 'dealettChatConversationV3';
     const legacyConversationV2Key = 'dealettChatConversationV2';
     const legacyConversationV1Key = 'dealettChatConversationV1';
@@ -1477,7 +1477,23 @@
     const conversationTtlMs = 60 * 60 * 1000;
     const maxRecoveryMessages = 250;
     let isSending = false;
-    let conversationGeneration = 0;
+    const conversationsKey = 'dealettChatConversationsV1';
+    const conversations = new Map();
+    const runtimes = new Map();
+    let backgroundUpdate = false;
+    let renderConversationList = () => {};
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(conversationsKey) || '[]');
+      if (Array.isArray(saved)) saved.forEach(entry => {
+        if (entry?.conversationId && Array.isArray(entry.messages) && Date.now() - entry.updatedAt < conversationTtlMs) {
+          conversations.set(entry.conversationId, entry);
+        }
+      });
+    } catch {}
+    const persistConversationList = () => {
+      try { sessionStorage.setItem(conversationsKey, JSON.stringify([...conversations.values()])); } catch {}
+      renderConversationList();
+    };
     let activeChatRequest = null;
     let failedTurn = null;
     let typingIndicator = null;
@@ -1485,12 +1501,12 @@
     let completedTurnPositionToken = 0;
     let lastAssistantResponse = null;
     let lastResponseWasSimulated = false;
-    const renderedOfferIds = new Set();
+    let renderedOfferIds = new Set();
     let offerClickedInSession = false;
     let hasUserStartedChat = false;
     let activeQuizContext = null;
     let ignoreQuizContext = false;
-    const pendingMessages = [];
+    let pendingMessages = [];
 
     const root = document.createElement('section');
     root.id = 'dealettChat';
@@ -1502,7 +1518,6 @@
       `<div class="dealett-chat-panel" role="dialog" aria-modal="false" aria-label="${text.title}" hidden>`,
       '  <header class="dealett-chat-header">',
       `    <span class="dealett-chat-status-accessible" data-chat-status aria-live="polite">${text.status}</span>`,
-      `    <button class="dealett-chat-reset" type="button" aria-label="${text.reset}" title="${text.reset}"><i class="fa-solid fa-rotate-left"></i></button>`,
       `    <button class="dealett-chat-close" type="button" aria-label="${text.close}"><i class="fa-solid fa-xmark"></i></button>`,
       '  </header>',
       '  <div class="dealett-chat-messages" role="log" aria-live="polite"></div>',
@@ -1518,9 +1533,8 @@
 
     const toggle = root.querySelector('.dealett-chat-toggle');
     const panel = root.querySelector('.dealett-chat-panel');
-    const resetButton = root.querySelector('.dealett-chat-reset');
     const closeButton = root.querySelector('.dealett-chat-close');
-    const messageList = root.querySelector('.dealett-chat-messages');
+    let messageList = root.querySelector('.dealett-chat-messages');
     const suggestionArea = root.querySelector('.dealett-chat-suggestions');
     const form = root.querySelector('.dealett-chat-form');
     const input = root.querySelector('.dealett-chat-input');
@@ -1534,18 +1548,16 @@
     inlineControls.className = 'dealett-chat-inline-controls';
     const inlineStatus = document.createElement('span');
     inlineStatus.setAttribute('role', 'status');
-    const newConversationButton = document.createElement('button');
-    newConversationButton.type = 'button';
-    newConversationButton.className = 'dealett-chat-inline-reset';
-    newConversationButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8a8 8 0 1 0 1 6" /><path d="M19 3v5h-5" /></svg>';
     const retryButton = document.createElement('button');
     retryButton.type = 'button';
     retryButton.hidden = true;
     inlineControls.append(inlineStatus, retryButton);
-    root.append(inlineControls, newConversationButton);
+    messageList.append(inlineControls);
     const syncInlineState = () => {
+      if (backgroundUpdate) return;
       const inline = root.classList.contains('dealett-chat--inline');
       const english = chatLanguage === 'en';
+      root.querySelector('.dealett-chat-send').disabled = isSending || Boolean(failedTurn);
       if (heroSend) heroSend.disabled = inline && (isSending || Boolean(failedTurn));
       if (heroInput) heroInput.placeholder = inline
         ? (english ? 'Write your reply...' : 'Skriv ditt svar...')
@@ -1553,8 +1565,6 @@
       messageList.setAttribute('aria-busy', String(isSending));
       retryButton.hidden = !failedTurn || isSending;
       retryButton.textContent = english ? 'Try again' : 'Försök igen';
-      newConversationButton.setAttribute('aria-label', english ? 'New conversation' : 'Ny konversation');
-      newConversationButton.title = english ? 'New conversation' : 'Ny konversation';
       inlineStatus.textContent = isSending
         ? (english ? 'Dealett AI is replying…' : 'Dealett AI svarar…')
         : failedTurn
@@ -1607,9 +1617,11 @@
       panel.setAttribute('role', 'region');
       panel.hidden = false;
       root.classList.add('is-open');
+      setHistoryOpen(historyOpen);
       syncInlineState();
     };
     const focusChatInput = () => {
+      if (backgroundUpdate) return;
       const composer = root.classList.contains('dealett-chat--inline')
         ? document.getElementById('home-ai-question')
         : input;
@@ -1820,6 +1832,7 @@
     const persistConversation = (updates = {}) => {
       const now = Date.now();
       storedConversation = {
+        ...conversations.get(chatSessionId),
         version: 3,
         conversationId: chatSessionId,
         sessionId: chatSessionId,
@@ -1843,6 +1856,9 @@
           : (storedConversation?.flowState || null),
       };
 
+      conversations.set(chatSessionId, storedConversation);
+      persistConversationList();
+      if (backgroundUpdate) return;
       try {
         sessionStorage.setItem(conversationKey, JSON.stringify(storedConversation));
         sessionStorage.removeItem(legacyConversationV2Key);
@@ -1911,6 +1927,7 @@
       };
       persistConversation({ qualification: nextQualification });
 
+      if (backgroundUpdate) return;
       document.dispatchEvent(new CustomEvent('dealett:chat-qualification-updated', {
         detail: {
           qualification: {
@@ -1957,8 +1974,6 @@
       toggle.setAttribute('aria-label', text.open);
       panel.setAttribute('aria-label', text.title);
       closeButton.setAttribute('aria-label', text.close);
-      resetButton.setAttribute('aria-label', text.reset);
-      resetButton.setAttribute('title', text.reset);
       root.querySelector('.dealett-chat-send')?.setAttribute('aria-label', text.send);
 
       if (
@@ -1969,6 +1984,7 @@
         resetChatConversation({ greet: !panel.hidden });
       }
       syncInlineState();
+      renderConversationList();
     };
 
     const getElementTopInMessageList = (element, listRect) => (
@@ -1991,7 +2007,7 @@
     };
 
     const showTypingIndicator = () => {
-      if (typingIndicator?.isConnected) return;
+      if (typingIndicator?.parentNode === messageList) return;
 
       const item = document.createElement('article');
       item.className = 'dealett-chat-message dealett-chat-message--assistant dealett-chat-message--typing';
@@ -2017,6 +2033,7 @@
         scrollMessages();
         return;
       }
+      if (backgroundUpdate) return;
       const positionToken = ++completedTurnPositionToken;
       window.requestAnimationFrame(() => {
         if (positionToken !== completedTurnPositionToken || !assistantItem.isConnected) return;
@@ -3096,6 +3113,7 @@
           card.dataLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-wifi"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.dataTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.dataLabel)}</p></div></div>` : '',
           card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.monthlyPriceTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p>${card.monthlyPriceSubLabel ? `<p class="offer-card__stat-sub">${escapeChatText(card.monthlyPriceSubLabel)}</p>` : ''}</div></div>` : '',
           '  </div>',
+          card.recommendationType === 'example_offer' ? `  <p class="offer-card__reason">${escapeChatText(card.resultLabel)}</p>` : '',
           card.strictMatch === false && card.reason ? `  <p class="offer-card__reason">${escapeChatText(card.reason)}</p>` : '',
           benefits.length ? `  <ul class="dealett-chat-offer-benefits">${benefits.map(benefit => `<li>${escapeChatText(benefit)}</li>`).join('')}</ul>` : '',
           safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel)} <i class="fa-solid fa-cart-shopping"></i></button>` : '',
@@ -3202,8 +3220,53 @@
       syncInlineState();
     };
 
+    const saveRuntime = () => {
+      const state = {
+        messages, messageList, isSending, activeChatRequest, failedTurn, typingIndicator,
+        lastCompletedAssistantItem, lastAssistantResponse, lastResponseWasSimulated,
+        renderedOfferIds, offerClickedInSession, hasUserStartedChat, activeQuizContext,
+        ignoreQuizContext, pendingMessages, storedConversation, conversationPresentation,
+        chatSessionId, conversationToken, droppedMessageCount, nextMessageSequence,
+      };
+      const previous = runtimes.get(chatSessionId);
+      state.scrollTop = backgroundUpdate ? (previous?.scrollTop || 0) : messageList.scrollTop;
+      state.draft = backgroundUpdate ? (previous?.draft || '') : (heroForm && root.classList.contains('dealett-chat--inline') ? heroInput.value : input.value);
+      runtimes.set(chatSessionId, state);
+      return state;
+    };
+    const loadRuntime = state => {
+      ({
+        messages, messageList, isSending, activeChatRequest, failedTurn, typingIndicator,
+        lastCompletedAssistantItem, lastAssistantResponse, lastResponseWasSimulated,
+        renderedOfferIds, offerClickedInSession, hasUserStartedChat, activeQuizContext,
+        ignoreQuizContext, pendingMessages, storedConversation, conversationPresentation,
+        chatSessionId, conversationToken, droppedMessageCount, nextMessageSequence,
+      } = state);
+      completedTurnPositionToken += 1;
+    };
+    const inConversation = (id, callback) => {
+      if (!conversations.has(id)) return;
+      if (id === chatSessionId) { callback(); renderConversationList(); return; }
+      const target = runtimes.get(id);
+      if (!target || !conversations.has(id)) return;
+      const visible = saveRuntime();
+      backgroundUpdate = true;
+      loadRuntime(target);
+      try { callback(); }
+      finally {
+        saveRuntime();
+        const entry = conversations.get(id);
+        if (entry) entry.unread = true;
+        loadRuntime(visible);
+        backgroundUpdate = false;
+        status.textContent = isSending ? text.typing : failedTurn ? text.error : lastResponseWasSimulated ? text.demoStatus : text.status;
+        syncInlineState();
+        persistConversationList();
+      }
+    };
+
     const processMessage = async (message, options = {}) => {
-      const generation = conversationGeneration;
+      const requestConversationId = chatSessionId;
       const requestController = new AbortController();
       activeChatRequest = requestController;
       const requestContext = {
@@ -3263,38 +3326,49 @@
           }),
         });
 
-        if (generation !== conversationGeneration) return;
-        if (typeof response?.conversationToken === 'string' && response.conversationToken) {
-          conversationToken = response.conversationToken;
+        inConversation(requestConversationId, () => {
+          if (typeof response?.conversationToken === 'string' && response.conversationToken) {
+            conversationToken = response.conversationToken;
+            persistConversation();
+          }
+          renderAssistantResponse(response);
+          if (clientRecord) clientRecord.delivery = 'sent';
+          failedTurn = null;
           persistConversation();
-        }
-        renderAssistantResponse(response);
-        if (clientRecord) clientRecord.delivery = 'sent';
-        failedTurn = null;
-        persistConversation();
+        });
       } catch {
         requestFailed = true;
       } finally {
-        if (generation !== conversationGeneration) return;
-        activeChatRequest = null;
-        if (requestFailed && clientRecord) {
-          clientRecord.delivery = 'failed';
-          failedTurn = { message, options };
-          persistConversation();
-        }
-        setSending(false);
-        if (requestFailed) {
-          status.textContent = text.error;
-        }
-        continuePendingMessage();
+        inConversation(requestConversationId, () => {
+          activeChatRequest = null;
+          if (requestFailed && clientRecord) {
+            clientRecord.delivery = 'failed';
+            failedTurn = { message, options };
+            persistConversation();
+          }
+          setSending(false);
+          if (requestFailed) {
+            status.textContent = text.error;
+          }
+          continuePendingMessage();
+        });
       }
     };
 
     const resetChatConversation = ({ greet = true } = {}) => {
-      conversationGeneration += 1;
-      activeChatRequest?.abort();
+      saveRuntime();
+      if (!messages.some(message => message.role === 'user') && !isSending) {
+        conversations.delete(chatSessionId);
+        runtimes.delete(chatSessionId);
+      }
+      messageList = document.createElement('div');
+      messageList.className = 'dealett-chat-messages';
+      messageList.setAttribute('role', 'log');
+      messageList.setAttribute('aria-live', 'polite');
+      panel.querySelector('.dealett-chat-messages').replaceWith(messageList);
       activeChatRequest = null;
       failedTurn = null;
+      typingIndicator = null;
       hideTypingIndicator();
       isSending = false;
       clearStoredConversation();
@@ -3308,17 +3382,20 @@
       completedTurnPositionToken += 1;
       conversationPresentation = null;
       lastResponseWasSimulated = false;
-      renderedOfferIds.clear();
+      renderedOfferIds = new Set();
       offerClickedInSession = false;
       hasUserStartedChat = false;
       activeQuizContext = null;
       ignoreQuizContext = true;
-      pendingMessages.splice(0, pendingMessages.length);
-      messages.splice(0, messages.length);
+      pendingMessages = [];
+      messages = [];
       messageList.replaceChildren();
-      if (root.classList.contains('dealett-chat--inline')) messageList.append(inlineControls);
+      messageList.append(inlineControls);
       suggestionArea.replaceChildren();
+      input.value = '';
+      if (heroInput) heroInput.value = '';
       if (greet) loadInitialGreeting();
+      persistConversation();
       syncInlineState();
     };
 
@@ -3379,6 +3456,7 @@
       panel.hidden = false;
       root.classList.add('is-open');
       toggle.setAttribute('aria-expanded', 'true');
+      setHistoryOpen(historyOpen);
       if (!messages.length && !options.skipGreeting) {
         loadInitialGreeting();
       }
@@ -3392,13 +3470,13 @@
     };
 
     const closePanel = () => {
+      setHistoryOpen(false);
       panel.hidden = true;
       root.classList.remove('is-open');
       toggle.setAttribute('aria-expanded', 'false');
       if (root.classList.contains('dealett-chat--inline')) {
         const guide = root.closest('.hero-ai-guide');
         root.classList.remove('dealett-chat--inline');
-        root.append(inlineControls);
         panel.setAttribute('role', 'dialog');
         guide?.classList.remove('has-inline-chat');
         document.body.append(root);
@@ -3408,24 +3486,181 @@
       toggle.focus();
     };
 
-    hydrateStoredConversation();
-    if (heroForm && conversationPresentation === 'homepage' && messages.some((message) => message.role === 'user')) {
-      const lastUser = [...messages].reverse().find((message) => message.role === 'user');
+    const navigation = document.createElement('div');
+    navigation.className = 'dealett-chat-navigation';
+    const chatsButton = document.createElement('button');
+    chatsButton.type = 'button';
+    chatsButton.setAttribute('aria-controls', 'dealett-chat-history');
+    const createButton = document.createElement('button');
+    createButton.type = 'button';
+    navigation.append(chatsButton, createButton);
+    panel.insertBefore(navigation, messageList);
+    const history = document.createElement('nav');
+    history.id = 'dealett-chat-history';
+    history.className = 'dealett-chat-history';
+    panel.append(history);
+    let historyOpen = window.innerWidth > 760;
+    let showArchived = false;
+    const setHistoryOpen = value => {
+      historyOpen = value;
+      const mobile = window.innerWidth <= 760;
+      (mobile ? document.body : panel).append(history);
+      history.classList.toggle('dealett-chat-history--mobile', mobile);
+      history.hidden = !value || panel.hidden;
+      panel.classList.toggle('has-chat-history', value);
+      chatsButton.setAttribute('aria-expanded', String(value));
+    };
+    const recoverFailedTurn = () => {
+      const lastUser = [...messages].reverse().find(message => message.role === 'user');
       if (['pending', 'failed'].includes(lastUser?.delivery)) {
         lastUser.delivery = 'failed';
-        failedTurn = {
-          message: lastUser.content,
-          options: { messageRecord: lastUser, context: lastUser.structuredContent?.context || {} },
-        };
+        failedTurn = { message: lastUser.content, options: { messageRecord: lastUser, context: lastUser.structuredContent?.context || {} } };
       }
+    };
+    const selectConversation = id => {
+      const showLatest = !runtimes.has(id) || conversations.get(id)?.unread;
+      if (id !== chatSessionId) {
+        saveRuntime();
+        const previousList = messageList;
+        if (runtimes.has(id)) {
+          loadRuntime(runtimes.get(id));
+        } else {
+          const entry = conversations.get(id);
+          if (!entry) return;
+          resetChatConversation({ greet: false });
+          conversations.delete(chatSessionId);
+          storedConversation = entry;
+          chatSessionId = id;
+          conversationToken = entry.conversationToken || null;
+          conversationPresentation = entry.presentation;
+          droppedMessageCount = entry.droppedMessageCount || 0;
+          messages = entry.messages.map((message, index) => normalizeStoredMessage(message, index + 1)).filter(Boolean);
+          nextMessageSequence = messages.reduce((highest, message) => Math.max(highest, message.sequence + 1), 1);
+          hydrateStoredConversation();
+          recoverFailedTurn();
+        }
+        if (previousList.isConnected) previousList.replaceWith(messageList);
+        messageList.scrollTop = runtimes.get(id)?.scrollTop || 0;
+        messageList.append(inlineControls);
+        input.value = runtimes.get(id)?.draft || '';
+        if (heroInput) heroInput.value = runtimes.get(id)?.draft || '';
+      }
+      const entry = conversations.get(id);
+      if (root.classList.contains('dealett-chat--inline')) conversationPresentation = 'homepage';
+      if (entry) entry.unread = false;
+      persistConversation();
+      syncInlineState();
+      if (window.innerWidth <= 760) setHistoryOpen(false);
+      if (showLatest && lastCompletedAssistantItem) positionCompletedTurn(lastCompletedAssistantItem, { smooth: false });
+      focusChatInput();
+    };
+    const startConversation = () => {
+      showArchived = false;
+      resetChatConversation({ greet: false });
+      conversationPresentation = heroForm ? 'homepage' : null;
+      if (heroForm) mountInlineChat();
+      openPanel({ skipGreeting: true });
+      if (window.innerWidth <= 760) setHistoryOpen(false);
+      persistConversation();
+    };
+    renderConversationList = () => {
+      if (backgroundUpdate) return;
+      const english = chatLanguage === 'en';
+      const unread = [...conversations.values()].filter(entry => entry.unread).length;
+      chatsButton.textContent = `${english ? 'Chats' : 'Chattar'}${unread ? ` (${unread})` : ''}`;
+      createButton.textContent = english ? '+ New chat' : '+ Ny chatt';
+      history.setAttribute('aria-label', english ? 'Saved chats' : 'Sparade chattar');
+      history.replaceChildren();
+      const dismiss = document.createElement('button');
+      dismiss.type = 'button';
+      dismiss.className = 'dealett-chat-history-dismiss';
+      dismiss.textContent = english ? 'Close chats' : 'Stäng chattar';
+      dismiss.addEventListener('click', () => { setHistoryOpen(false); chatsButton.focus(); });
+      history.append(dismiss);
+      const hint = document.createElement('p');
+      hint.textContent = english ? 'Different topic? Start a new chat. Your chats are saved here during this visit.' : 'Nytt ämne? Starta en ny chatt. Dina chattar sparas här under besöket.';
+      if ([...conversations.values()].filter(entry => entry.messages.some(message => message.role === 'user')).length < 2) history.append(hint);
+      const archiveToggle = document.createElement('button');
+      archiveToggle.type = 'button';
+      archiveToggle.textContent = showArchived ? (english ? 'Back to chats' : 'Tillbaka till chattar') : (english ? 'Archived chats' : 'Arkiverade chattar');
+      archiveToggle.addEventListener('click', () => { showArchived = !showArchived; renderConversationList(); });
+      [...conversations.values()].filter(entry => Boolean(entry.archived) === showArchived)
+        .sort((a, b) => b.updatedAt - a.updatedAt).forEach(entry => {
+          const row = document.createElement('div');
+          row.className = 'dealett-chat-history-row';
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.setAttribute('aria-current', String(entry.conversationId === chatSessionId));
+          const title = document.createElement('strong');
+          title.textContent = entry.title || entry.messages.find(message => message.role === 'user' && !message.hidden)?.content.slice(0, 55) || (english ? 'New chat' : 'Ny chatt');
+          const preview = document.createElement('span');
+          const runtime = entry.conversationId === chatSessionId ? { isSending, failedTurn } : runtimes.get(entry.conversationId);
+          const pending = runtime?.isSending;
+          preview.textContent = pending ? (english ? 'Replying…' : 'Svarar…') : runtime?.failedTurn || entry.messages.at(-1)?.delivery === 'failed' || entry.messages.at(-1)?.delivery === 'pending' ? (english ? 'Try again' : 'Försök igen') : entry.messages.filter(message => !message.hidden).at(-1)?.content.slice(0, 70) || (english ? 'Ask your first question' : 'Ställ din första fråga');
+          if (pending) row.classList.add('is-pending');
+          if (entry.unread) title.textContent = '● ' + title.textContent;
+          button.append(title, preview);
+          button.addEventListener('click', () => selectConversation(entry.conversationId));
+          const menu = document.createElement('details');
+          const summary = document.createElement('summary');
+          summary.textContent = '⋯';
+          summary.setAttribute('aria-label', english ? 'Manage chat' : 'Hantera chatt');
+          menu.append(summary);
+          const action = (label, callback) => {
+            const control = document.createElement('button');
+            control.type = 'button';
+            control.textContent = label;
+            control.addEventListener('click', callback);
+            menu.append(control);
+          };
+          action(english ? 'Rename' : 'Byt namn', () => {
+            const value = window.prompt(english ? 'Chat name' : 'Chattnamn', title.textContent);
+            if (value?.trim()) { entry.title = value.trim().slice(0, 80); persistConversationList(); }
+          });
+          action(entry.archived ? (english ? 'Restore' : 'Återställ') : (english ? 'Archive' : 'Arkivera'), () => {
+            entry.archived = !entry.archived;
+            persistConversationList();
+          });
+          action(english ? 'Delete' : 'Ta bort', () => {
+            if (!window.confirm(english ? 'Delete this chat?' : 'Ta bort den här chatten?')) return;
+            const id = entry.conversationId;
+            if (id === chatSessionId) { activeChatRequest?.abort(); startConversation(); }
+            else runtimes.get(id)?.activeChatRequest?.abort();
+            conversations.delete(id);
+            runtimes.delete(id);
+            persistConversationList();
+          });
+          row.append(button, menu);
+          history.append(row);
+        });
+      history.append(archiveToggle);
+    };
+    chatsButton.addEventListener('click', () => setHistoryOpen(!historyOpen));
+    createButton.addEventListener('click', startConversation);
+    if (heroForm) {
+      const discovery = document.createElement('button');
+      discovery.type = 'button';
+      discovery.className = 'dealett-chat-discovery';
+      discovery.textContent = chatLanguage === 'en' ? 'Chats · + New chat' : 'Chattar · + Ny chatt';
+      heroGuide.querySelector('.hero-ai-guide__prompts').append(discovery);
+      discovery.addEventListener('click', () => {
+        conversationPresentation = 'homepage';
+        mountInlineChat();
+        openPanel({ skipGreeting: true });
+        setHistoryOpen(true);
+      });
+    }
+    setHistoryOpen(historyOpen);
+    window.addEventListener('resize', () => setHistoryOpen(historyOpen));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && historyOpen) { setHistoryOpen(false); chatsButton.focus(); }
+    });
+
+    hydrateStoredConversation();
+    recoverFailedTurn();
+    if (heroForm && conversationPresentation === 'homepage' && messages.some((message) => message.role === 'user')) {
       mountInlineChat();
     }
-    newConversationButton.addEventListener('click', () => {
-      resetChatConversation({ greet: false });
-      closePanel();
-      syncInlineState();
-      if (heroInput) heroInput.value = '';
-    });
     retryButton.addEventListener('click', () => {
       if (!failedTurn || isSending) return;
       const turn = failedTurn;
@@ -3451,7 +3686,7 @@
       ask(message, context = {}) {
         const question = String(message || '').trim();
         if (!question) return false;
-        if (context.source === 'homepage_ai_guide') {
+        if (context.source === 'homepage_ai_guide' || context.source === 'business_ai_guide') {
           if (isSending || failedTurn) return false;
           if (conversationPresentation !== 'homepage' || isConversationExpired()) {
             resetChatConversation({ greet: false });
@@ -3515,10 +3750,6 @@
     };
 
     closeButton.addEventListener('click', closePanel);
-
-    resetButton.addEventListener('click', () => {
-      resetChatConversation();
-    });
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();

@@ -375,7 +375,7 @@
   const renderSummaryCard = (item, index) => {
     const accent = getAccent(item.operator);
     const accentSoft = `${accent}14`;
-    const rewardLabel = 'Presentkort: XXX kr';
+    const rewardLabel = item.featuredOfferId ? `Presentkort: ${formatCurrency(item.rewardTotal)} kr` : 'Presentkort: XXX kr';
     const priceLabel = item.price > 0 ? `${formatCurrency(item.price)} kr/m\u00e5n` : rewardLabel;
     const totalLabel = item.price > 0 ? 'M\u00e5nadspris' : 'Presentkort';
     const priceNote = item.price > 0

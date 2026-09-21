@@ -1,0 +1,580 @@
+html body.subscription-page {
+  --subscription-accent: #c96f24;
+  --subscription-card-radius: 18px;
+  --subscription-filter-radius: 16px;
+  --subscription-control-radius: 8px;
+  --subscription-gap: 24px;
+  --subscription-card-shadow: 0 16px 38px rgba(13, 23, 38, .09);
+  --subscription-card-hover-shadow: 0 24px 50px rgba(13, 23, 38, .14);
+  --subscription-filter-shadow: 0 12px 30px rgba(13, 23, 38, .065);
+  --subscription-section-top: clamp(42px, 5vw, 68px);
+  --mobile-orange: var(--subscription-accent);
+  --family-green: var(--subscription-accent);
+}
+
+html body.subscription-page :is(.shop-hero, .bredband-hero) {
+  min-height: 0 !important;
+  padding: 116px var(--dui-page-x) 44px !important;
+  border-bottom: 1px solid var(--dui-line) !important;
+  background: var(--dui-bg) !important;
+  color: var(--dui-text) !important;
+  overflow: visible !important;
+}
+
+html body.subscription-page :is(.shop-hero, .bredband-hero)::before,
+html body.subscription-page :is(.shop-hero, .bredband-hero)::after {
+  content: none !important;
+}
+
+html body.subscription-page :is(.shop-hero-content, .bredband-hero-inner) {
+  width: var(--dui-shell) !important;
+  max-width: none !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+html body.subscription-page :is(.shop-hero, .bredband-hero) h1 {
+  max-width: 820px !important;
+  margin: 10px 0 14px !important;
+  font-size: clamp(38px, 4.5vw, 62px) !important;
+  line-height: 1 !important;
+}
+
+html body.subscription-page :is(.shop-hero-lead, .bredband-hero-copy > p) {
+  max-width: 720px !important;
+  margin: 24px 0 0 !important;
+  color: var(--dui-muted) !important;
+  font-size: 17px !important;
+  line-height: 1.5 !important;
+}
+
+html body.subscription-page :is(.result-section, .bredband-results-section) {
+  padding: var(--subscription-section-top) 0 var(--dui-section-y) !important;
+  background: var(--dui-surface) !important;
+}
+
+html body.subscription-page :is(.result-shell, .bredband-results-shell) {
+  width: var(--dui-shell) !important;
+  max-width: 1480px !important;
+  margin-inline: auto !important;
+}
+
+html body.subscription-page :is(.offers-strip, .plan-toolbar, .operator-filter, .bredband-filters) {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body.subscription-page .offers-strip {
+  overflow: visible !important;
+}
+
+html body.subscription-page :is(.plan-toolbar, .bredband-filters) {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch !important;
+  gap: 14px !important;
+  margin: 0 0 30px !important;
+}
+
+html body.subscription-page .plan-toolbar > :first-child {
+  min-width: 0;
+}
+
+html body.subscription-page .plan-toolbar:not(:has(.family-size-filter)) {
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+}
+
+html body.subscription-page :is(.bredband-filter-group, .range-filter, .plan-toolbar > :first-child) {
+  min-width: 0;
+  padding: 14px 16px 16px !important;
+  border: 0 !important;
+  border-radius: var(--subscription-filter-radius) !important;
+  background: rgba(255, 255, 255, .82) !important;
+  box-shadow: var(--subscription-filter-shadow) !important;
+}
+
+html body.subscription-page .bredband-filter-group {
+  gap: 7px;
+}
+
+html body.subscription-page :is(.bredband-filter-group label, .plan-toolbar-label) {
+  color: rgba(13, 23, 38, .62) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+}
+
+html body.subscription-page .bredband-filter-group select {
+  min-height: 48px;
+  padding: 0 42px 0 14px;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background-color: rgba(246, 244, 240, .92) !important;
+  color: var(--dui-text) !important;
+  box-shadow: none !important;
+  font-weight: 700;
+}
+
+html body.subscription-page .bredband-filter-group select:focus {
+  box-shadow: 0 0 0 4px rgba(201, 111, 36, .14) !important;
+}
+
+html body.subscription-page .range-filter {
+  --range-accent: var(--subscription-accent);
+  min-height: 112px;
+}
+
+html body.subscription-page .operator-filter {
+  gap: 8px !important;
+}
+
+html body.subscription-page .operator-filter-button {
+  min-height: 42px;
+  padding-inline: 18px;
+  border: 0 !important;
+  border-radius: var(--subscription-control-radius) !important;
+  background: rgba(246, 244, 240, .92) !important;
+  color: var(--dui-text) !important;
+  box-shadow: none !important;
+}
+
+html body.subscription-page .operator-filter-button:hover {
+  background: rgba(15, 23, 40, .11) !important;
+  transform: translateY(-1px);
+}
+
+html body.subscription-page .operator-filter-button.is-active {
+  background: var(--subscription-accent) !important;
+  color: #fff !important;
+}
+
+html body.subscription-page .offers-inner {
+  padding: 0 !important;
+}
+
+html body.subscription-page :is(.offers-container, .bredband-offers-grid) {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: var(--subscription-gap) !important;
+  padding: 0 !important;
+}
+
+html body.subscription-page :is(.offer-card, .bredband-offer-card) {
+  width: 100%;
+  max-width: none;
+  min-height: 420px;
+  border: 0 !important;
+  border-radius: var(--subscription-card-radius) !important;
+  background: var(--dui-surface) !important;
+  box-shadow: var(--subscription-card-shadow) !important;
+}
+
+html body.subscription-page :is(.offer-card:hover, .offer-card.is-selected, .bredband-offer-card:hover, .bredband-offer-card.active) {
+  border: 0 !important;
+  box-shadow: var(--subscription-card-hover-shadow) !important;
+}
+
+html body.subscription-page .plan-card:not(.is-answering) {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 18px 15px;
+  grid-template-rows: auto auto auto 1fr auto;
+  align-content: start;
+  padding: 44px 22px 22px;
+}
+
+html body.subscription-page .family-plan-card:not(.is-answering) {
+  grid-template-rows: auto auto auto auto 1fr auto;
+}
+
+html body.subscription-page .plan-card::before {
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  height: 5px;
+  background: var(--subscription-accent) !important;
+}
+
+html body.subscription-page .plan-card::after {
+  content: none;
+}
+
+html body.subscription-page .plan-card .offer-card-actions {
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  align-self: end;
+  gap: 10px;
+  margin-top: 0;
+}
+
+html body.subscription-page .offer-compare-button:not(.offer-compare-button--icon) {
+  width: 100% !important;
+  min-height: 46px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  border: 1px solid var(--dui-line-strong) !important;
+  background: var(--dui-surface) !important;
+  color: var(--dui-text) !important;
+}
+
+html body.subscription-page .offer-compare-button.is-selected {
+  box-shadow: inset 0 0 0 2px var(--subscription-accent) !important;
+}
+
+html body.subscription-page .plan-card:not(.is-answering) > .offer-card-details:not(.is-hidden) {
+  display: contents;
+}
+
+html body.subscription-page .plan-card:not(.is-answering) .offer-card-logo-stage {
+  grid-area: 1 / 1;
+  align-self: center;
+  width: 108px;
+  min-height: 68px;
+  border-radius: 10px;
+  background: rgba(246, 244, 240, .72);
+}
+
+html body.subscription-page .plan-card .offer-card-logo-background {
+  inset: 11px 10px;
+}
+
+html body.subscription-page .plan-card:not(.is-answering) .offer-card-copy {
+  grid-area: 1 / 2;
+  align-self: center;
+  gap: 6px;
+  padding: 0;
+}
+
+html body.subscription-page .plan-operator-name {
+  color: var(--dui-text);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+html body.subscription-page .plan-card h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--dui-muted) !important;
+}
+
+html body.subscription-page .plan-card .plan-description {
+  min-height: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+html body.subscription-page .plan-card > .offer-card-gift-header {
+  grid-area: 2 / 1 / auto / -1;
+  width: 100%;
+  min-height: 54px;
+  margin: 0;
+  border: 1px solid var(--dui-line);
+  border-radius: var(--subscription-control-radius);
+  background: rgba(39, 36, 67, .04);
+}
+
+html body.subscription-page .offer-card-gift-column {
+  background: transparent;
+}
+
+html body.subscription-page .offer-card-gift-column + .offer-card-gift-column {
+  border-color: var(--dui-line);
+}
+
+html body.subscription-page .plan-card .offer-card-details > :not(.offer-card-copy) {
+  grid-column: 1 / -1;
+}
+
+html body.subscription-page .plan-card .plan-price {
+  margin: 0;
+  padding: 17px 0;
+  border-block: 1px solid var(--dui-line);
+}
+
+html body.subscription-page .plan-price strong {
+  font-size: 31px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+html body.subscription-page .offer-card-meta {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+html body.subscription-page .offer-card-meta li {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: rgba(39, 36, 67, .78);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+html body.subscription-page :is(.offer-card-action, .bredband-choose-btn) {
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: var(--subscription-control-radius) !important;
+  background: var(--subscription-accent) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+html body.subscription-page :is(.offer-compare-button, .range-all-button, .offer-question-actions button, .family-status-options button, .family-calc-options button) {
+  border-radius: var(--subscription-control-radius) !important;
+}
+
+html body.subscription-page :is(.offer-card-expanded-panel, .reward-panel) {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--subscription-card-radius) !important;
+  background: var(--dui-surface) !important;
+  box-shadow: var(--subscription-card-shadow) !important;
+}
+
+html body.subscription-page :is(.offer-card-questions, .reward-summary-bar) {
+  padding: 24px;
+  border-color: var(--dui-line) !important;
+  background: var(--dui-surface-soft) !important;
+  color: var(--dui-text) !important;
+}
+
+html body.subscription-page :is(.offer-card-questions h4, .offer-answer-list dd, .offer-binding-date label, .reward-summary-bar strong) {
+  color: var(--dui-text) !important;
+}
+
+html body.subscription-page :is(.offer-answer-list dt, .reward-summary-bar span) {
+  color: var(--dui-muted) !important;
+}
+
+html body.subscription-page :is(.offer-question-actions button, .family-status-options button) {
+  min-height: 46px;
+  border: 1px solid var(--dui-line-strong);
+  background: var(--dui-surface);
+  color: var(--dui-text);
+}
+
+html body.subscription-page .offer-binding-date input {
+  color: var(--dui-text);
+  color-scheme: light;
+}
+
+html body.subscription-page .plan-card.has-extra-toggle-tab {
+  overflow: hidden !important;
+}
+
+html body.subscription-page .plan-card .offer-extra-toggle-button--tab {
+  position: absolute;
+  top: 50%;
+  right: -39px;
+  z-index: 5;
+  width: 112px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0 !important;
+  border-radius: 9px 9px 0 0 !important;
+  background: var(--offer-accent, #7b2389) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(65, 28, 79, .18) !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 34px;
+  letter-spacing: .02em;
+  text-align: center;
+  text-transform: lowercase;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center;
+}
+
+html body.subscription-page .plan-card .offer-extra-toggle-button--tab:hover {
+  box-shadow: 0 10px 22px rgba(65, 28, 79, .22) !important;
+  transform: translateY(-50%) rotate(-90deg) translateY(-1px);
+}
+
+
+html body.subscription-page #rewardContinueBtn {
+  margin-top: 0;
+}
+
+html body.subscription-page .reward-panel {
+  padding: 24px !important;
+}
+
+html body.subscription-page .reward-summary-bar {
+  border: 0 !important;
+  border-radius: var(--subscription-filter-radius) !important;
+}
+
+html body.subscription-page .reward-summary-bar strong {
+  font-weight: 700;
+}
+
+html body.subscription-page .reward-summary-bar span {
+  font-weight: 500;
+}
+
+html body.subscription-page .reward-summary-bar strong span {
+  display: inline;
+  color: inherit !important;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+html body.subscription-page .reward-progress {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--dui-line);
+}
+
+html body.subscription-page .reward-progress-fill {
+  border-radius: inherit;
+  background: var(--subscription-accent) !important;
+}
+
+html body.subscription-page .reward-grid-native {
+  gap: 14px;
+  border: 0;
+}
+
+html body.subscription-page .reward-choice {
+  padding: 16px;
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--subscription-control-radius) !important;
+  background: var(--dui-surface) !important;
+  box-shadow: none !important;
+}
+
+html body.subscription-page .reward-choice strong {
+  font-weight: 600;
+}
+
+html body.subscription-page .reward-choice input {
+  width: 100%;
+  padding: 0 12px !important;
+  border: 1px solid var(--dui-line-strong) !important;
+  border-radius: var(--subscription-control-radius) !important;
+  background: var(--dui-surface-soft) !important;
+}
+
+html body.subscription-page .compare-tray {
+  right: 18px;
+  bottom: 18px;
+  left: 18px;
+  width: min(1120px, calc(100% - 36px));
+  transform: none !important;
+  margin-inline: auto;
+  padding: 14px;
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--subscription-filter-radius) !important;
+  background: var(--dui-surface-soft) !important;
+  box-shadow: var(--subscription-card-shadow) !important;
+  animation: none;
+}
+
+html body.subscription-page :is(.compare-tray-head, .compare-tray-head strong, .compare-modal-head h2) {
+  color: var(--dui-text) !important;
+}
+
+html body.subscription-page .compare-tray-count {
+  color: var(--dui-muted);
+}
+
+html body.subscription-page .compare-tray-item {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--subscription-control-radius) !important;
+  background: var(--dui-surface) !important;
+}
+
+html body.subscription-page .compare-modal-backdrop {
+  background: rgba(23, 20, 43, .58);
+  backdrop-filter: blur(5px);
+}
+
+html body.subscription-page .compare-modal-panel {
+  border: 1px solid var(--dui-line) !important;
+  border-radius: var(--subscription-card-radius) !important;
+  background: var(--dui-surface) !important;
+  box-shadow: var(--subscription-card-shadow) !important;
+  animation: none;
+}
+
+html body.subscription-page .compare-modal-head {
+  padding: 20px 22px;
+  border-color: var(--dui-line) !important;
+  background: var(--dui-surface-soft) !important;
+}
+
+html body.subscription-page .compare-modal-head h2 {
+  font-size: 26px;
+}
+
+html body.subscription-page .compare-modal-body {
+  padding: 20px 22px 24px;
+}
+
+html body.subscription-page :is(.compare-table th, .compare-table td, .compare-table-wrap) {
+  border-color: var(--dui-line) !important;
+}
+
+html body.subscription-page :is(.compare-table thead th, .compare-table tbody th) {
+  background: var(--dui-surface-soft) !important;
+  color: var(--dui-text) !important;
+}
+
+@media (max-width: 1160px) {
+  html body.subscription-page :is(.offers-container, .bredband-offers-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 980px) {
+  html body.subscription-page :is(.plan-toolbar, .bredband-filters) {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body.subscription-page :is(.shop-hero, .bredband-hero) {
+    padding: 92px 18px 30px !important;
+  }
+
+  html body.subscription-page :is(.shop-hero, .bredband-hero) h1 {
+    font-size: clamp(34px, 9vw, 42px) !important;
+  }
+
+  html body.subscription-page .shop-hero-content {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 680px) {
+  html body.subscription-page {
+    --subscription-section-top: 34px;
+  }
+
+  html body.subscription-page :is(.offers-container, .bredband-offers-grid) {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body.subscription-page .operator-filter {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html body.subscription-page .operator-filter-button {
+    width: 100%;
+    padding-inline: 12px;
+  }
+}

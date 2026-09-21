@@ -134,7 +134,7 @@
   const normalizeFeatures = (item = {}) => {
     const productType = getProductType(item);
     const features = Array.isArray(item.features) ? item.features : [];
-    const giftCardFeature = 'Presentkort: XXX kr';
+    const giftCardFeature = item.featuredOfferId ? `Presentkort: ${formatCurrency(item.rewardTotal)} kr` : 'Presentkort: XXX kr';
     const fallback = productType === 'broadband'
       ? ['Stabil uppkoppling', 'Support ingår']
       : ['Fria samtal och sms', '5G & eSIM'];

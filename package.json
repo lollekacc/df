@@ -1,6 +1,8 @@
 {
   "private": true,
   "scripts": {
+    "test:subscriptions": "node scripts/subscription-design-functional-test.js",
+    "test:featured-offers": "node scripts/featured-offers-functional-test.js",
     "check": "npm run check:js && npm run check:json && npm run check:whitespace",
     "check:js": "node scripts/check-js.js",
     "check:json": "node scripts/check-json.js",
@@ -8,6 +10,7 @@
     "test:translations": "node scripts/translation-functional-test.js",
     "test:public-flow": "node scripts/public-flow-contract-test.js && node scripts/snabbval-contract-test.js",
     "test:checkout": "node scripts/checkout-functional-test.js",
-    "test:checkout:visual": "node scripts/checkout-visual-test.js"
+    "test:checkout:visual": "node scripts/checkout-visual-test.js",
+    "test:chat": "node scripts/home-chat-functional-test.js && node scripts/multi-chat-functional-test.js"
   }
 }

@@ -172,6 +172,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const chatForm = document.querySelector('.company-chat [data-home-ai-form]');
+  const chatInput = chatForm?.querySelector('textarea');
+  chatForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const question = chatInput.value.trim();
+    if (!question || !window.DealettChat?.ask) return;
+    const accepted = window.DealettChat.ask(question, {
+      source: 'business_ai_guide',
+      audience: 'business',
+      companySize: state.size,
+      operator: state.operator,
+    });
+    if (accepted) chatInput.value = '';
+    chatInput.focus({ preventScroll: true });
+  });
+  chatInput?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      chatForm.requestSubmit();
+    }
+  });
+  document.querySelectorAll('[data-business-ai-prompt]').forEach((button) => {
+    button.addEventListener('click', () => {
+      chatInput.value = button.dataset.businessAiPrompt;
+      chatInput.focus({ preventScroll: true });
+    });
+  });
+
   sortControl.value = state.sort;
   updateSize();
   updateOperator();

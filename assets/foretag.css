@@ -883,24 +883,24 @@
   color: #6f7680 !important;
   font-size: 10px;
   line-height: 1.35;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .company-plan-card__regular {
   grid-row: 1;
-  grid-column: 1;
+  grid-column: 1 / -1;
   text-decoration: line-through;
 }
 
 .company-plan-card__term {
-  grid-row: 1;
-  grid-column: 2;
-  text-align: right;
+  grid-row: 2;
+  grid-column: 1 / -1;
+  text-align: left;
 }
 
 .company-plan-card__price {
   display: flex;
-  grid-row: 2;
+  grid-row: 3;
   grid-column: 1;
   min-height: 33px;
   align-items: baseline;
@@ -934,7 +934,7 @@
 
 .company-plan-card__cta {
   display: flex;
-  grid-row: 2;
+  grid-row: 3;
   grid-column: 2;
   min-width: 104px;
   min-height: 38px;
@@ -1411,4 +1411,137 @@ html body.business-page #dealettChat .dealett-chat-toggle.dealett-chat-toggle--i
   html body.business-page #dealettChat .dealett-chat-toggle.dealett-chat-toggle--image {
     width: min(78px, calc(100vw - 24px)) !important;
   }
+}
+
+.company-plan-source {
+  margin: 12px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+.company-plan-source a {
+  color: #334155;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.company-plan-card__condition {
+  text-decoration: none;
+}
+
+.company-chat {
+  padding: 72px 0;
+  background: #fbf8f2;
+}
+
+.company-chat .hero-ai-guide {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.company-chat h2 {
+  margin: 12px 0;
+  font-size: clamp(28px, 4vw, 44px);
+  letter-spacing: -0.04em;
+}
+
+.company-chat .hero-ai-guide__intro {
+  margin: 0 0 24px;
+  color: #536477;
+  line-height: 1.6;
+}
+
+html body.business-page .company-chat .hero-ai-guide__composer {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  overflow: hidden;
+  border: 1px solid #ddd8cf;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.company-chat .hero-ai-guide__composer:focus-within {
+  outline: 2px solid #c86c36;
+  outline-offset: 2px;
+}
+
+html body.business-page .company-chat textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 110px;
+  padding: 18px;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  resize: vertical;
+  background: transparent;
+  color: #071b32;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+html body.business-page .company-chat .hero-ai-guide__composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid #eee;
+  font-size: 13px;
+}
+
+html body.business-page .company-chat .hero-ai-guide__composer-footer > button {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #082843;
+  color: white;
+  cursor: pointer;
+}
+
+.company-chat .hero-ai-guide__prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.company-chat .hero-ai-guide__prompts > button {
+  padding: 9px 14px;
+  border: 1px solid #ddd8cf;
+  border-radius: 24px;
+  background: #fff;
+  color: #334155;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+html body.business-page .company-chat .has-inline-chat .hero-ai-guide__composer {
+  height: 480px;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+html body.business-page .company-chat .has-inline-chat .hero-ai-guide__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  align-items: center;
+  border-top: 1px solid #ddd8cf;
+}
+
+html body.business-page .company-chat .has-inline-chat textarea {
+  height: 64px;
+  min-height: 64px;
+  max-height: 100px;
+  resize: none;
+}
+
+html body.business-page .company-chat .has-inline-chat .hero-ai-guide__composer-footer {
+  display: contents;
+}
+
+.company-chat .has-inline-chat .hero-ai-guide__ask-label {
+  display: none;
 }

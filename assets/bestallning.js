@@ -397,7 +397,7 @@
         ...order.giftCards.map((gift) => [
           '    <div class="summary-gift-row">',
           `      <span>${escapeHtml(gift.provider)}</span>`,
-          '      <strong>XXX kr</strong>',
+          order.item.featuredOfferId ? `      <strong>${formatCurrency(gift.value)} kr</strong>` : '      <strong>XXX kr</strong>',
           '    </div>',
         ].join('')),
         '  </div>',
@@ -514,7 +514,7 @@
     els.giftCardDetails.innerHTML = [
       '<div class="gift-card-heading">',
       '  <span>Ditt valda presentkort tillhandahålls av Dealett.</span>',
-      '  <strong>XXX kr</strong>',
+      order.item.featuredOfferId ? `  <strong>${formatCurrency(order.item.rewardTotal)} kr</strong>` : '  <strong>XXX kr</strong>',
       '</div>',
       '<div class="gift-card-list">',
       ...order.giftCards.map((gift) => [
