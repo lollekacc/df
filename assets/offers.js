@@ -75,14 +75,10 @@ const createGiftCardHeader = () => {
   const header = createElement('div', 'offer-card-gift-header');
   header.setAttribute('aria-label', 'Presentkort');
 
-  ['Ny kund', 'Redan kund'].forEach((customerType) => {
-    const column = createElement('div', 'offer-card-gift-column');
-    column.append(
-      createElement('span', '', customerType),
-      createElement('strong', '', 'XXX kr')
-    );
-    header.append(column);
-  });
+  header.append(
+    createElement('span', '', 'Presentkort'),
+    createElement('strong', '', 'XXXX:-')
+  );
 
   return header;
 };

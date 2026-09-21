@@ -2,19 +2,22 @@ html body:has(.home-intro) .home-section-fade {
   position: absolute;
   z-index: 0;
   inset-inline: 0;
-  height: clamp(64px, 7vw, 110px);
+  height: clamp(108px, 12vw, 192px);
+  mask-size: 256px 100%;
+  mask-repeat: repeat-x;
+  mask-mode: alpha;
   background: var(--section-edge);
   pointer-events: none;
 }
 
 html body:has(.home-intro) .home-section-fade--top {
   top: 0;
-  mask-image: linear-gradient(to bottom, #000, rgb(0 0 0 / .9) 20%, rgb(0 0 0 / .5) 50%, rgb(0 0 0 / .1) 80%, transparent);
+  mask-image: url("./section-fade-top.png");
 }
 
 html body:has(.home-intro) .home-section-fade--bottom {
   bottom: 0;
-  mask-image: linear-gradient(to top, #000, rgb(0 0 0 / .9) 20%, rgb(0 0 0 / .5) 50%, rgb(0 0 0 / .1) 80%, transparent);
+  mask-image: url("./section-fade-bottom.png");
 }
 
 html body:has(.home-intro) .home-how {
@@ -40,6 +43,22 @@ html body:has(.home-intro) .newsletter-section > .home-section-fade--bottom {
 }
 
 @media (min-width: 901px) {
+  html body:has(.home-intro) .home-section-fade {
+    height: min(46%, clamp(280px, 26vw, 420px));
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+  }
+
+  html body:has(.home-intro) .home-section-fade--top {
+    top: -1px;
+    mask-image: url("./section-radial-top.png");
+  }
+
+  html body:has(.home-intro) .home-section-fade--bottom {
+    bottom: -1px;
+    mask-image: url("./section-radial-bottom.png");
+  }
+
   html body:has(.home-intro) .home-how > .home-section-fade--top {
     --section-edge: #fbf8f2;
   }

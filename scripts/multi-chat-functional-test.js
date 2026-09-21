@@ -134,7 +134,7 @@ async function run() {
       const widgetId = await page.evaluate(() => window.DealettChat.getConversationId());
       await page.goto(url, { waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => Boolean(window.DealettChat));
-      await page.locator('.dealett-chat-discovery').click();
+      await page.evaluate(() => window.DealettChat.open());
       await select('Widget ett');
       await sendQuestion('Fortsätt från startsidan');
       await respond('Fortsätt från startsidan');

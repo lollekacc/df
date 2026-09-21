@@ -1559,7 +1559,8 @@
       const english = chatLanguage === 'en';
       root.querySelector('.dealett-chat-send').disabled = isSending || Boolean(failedTurn);
       if (heroSend) heroSend.disabled = inline && (isSending || Boolean(failedTurn));
-      if (heroInput) heroInput.placeholder = inline
+      const hasConversation = messages.some(message => message.role === 'user');
+      if (heroInput) heroInput.placeholder = inline && hasConversation
         ? (english ? 'Write your reply...' : 'Skriv ditt svar...')
         : heroInitialPlaceholder;
       messageList.setAttribute('aria-busy', String(isSending));
@@ -1569,7 +1570,9 @@
         ? (english ? 'Dealett AI is replying…' : 'Dealett AI svarar…')
         : failedTurn
           ? (english ? 'No reply received. Try again.' : 'Svaret kunde inte hämtas. Försök igen.')
-          : (english ? 'Your conversation with Dealett AI' : 'Din konversation med Dealett AI');
+          : !hasConversation && heroForm
+            ? (english ? 'Ask Dealett AI' : 'Fråga Dealett AI')
+            : (english ? 'Your conversation with Dealett AI' : 'Din konversation med Dealett AI');
     };
     const sizeInlineChat = () => {
       if (!heroForm) return;
@@ -1587,7 +1590,6 @@
         .filter(box => box.height > 0 && box.top >= promptsBox.bottom - 1 && box.left < composerBox.right && box.right > composerBox.left);
       const boundary = obstacles.length ? Math.min(...obstacles.map(box => box.top)) : promptsBox.bottom;
       const promptHeight = Math.max(...[...prompts.children]
-        .filter(element => !element.classList.contains('dealett-chat-discovery'))
         .map(element => element.getBoundingClientRect().height), 0);
       const height = Math.max(composerBox.height, boundary - composerBox.top - promptHeight - gap - 12);
       const rightObstacles = [...document.querySelectorAll('.hero-finder, .hero-showcase')]
@@ -3734,19 +3736,6 @@
       persistConversationList();
       tabs.scrollLeft = tabs.scrollWidth;
     });
-    if (heroForm) {
-      const discovery = document.createElement('button');
-      discovery.type = 'button';
-      discovery.className = 'dealett-chat-discovery';
-      discovery.textContent = chatLanguage === 'en' ? 'Chats · + New chat' : 'Chattar · + Ny chatt';
-      heroGuide.querySelector('.hero-ai-guide__prompts').append(discovery);
-      discovery.addEventListener('click', () => {
-        conversationPresentation = 'homepage';
-        mountInlineChat();
-        openPanel({ skipGreeting: true });
-        setHistoryOpen(false);
-      });
-    }
     setHistoryOpen(historyOpen);
     window.addEventListener('resize', () => setHistoryOpen(historyOpen));
     document.addEventListener('keydown', event => {
@@ -3755,8 +3744,10 @@
 
     hydrateStoredConversation();
     recoverFailedTurn();
-    if (heroForm && conversationPresentation === 'homepage' && messages.some((message) => message.role === 'user')) {
+    if (heroForm && (document.querySelector('.home-intro') || (conversationPresentation === 'homepage' && messages.some(message => message.role === 'user')))) {
+      conversationPresentation = 'homepage';
       mountInlineChat();
+      persistConversation();
     }
     retryButton.addEventListener('click', () => {
       if (!failedTurn || isSending) return;

@@ -160,7 +160,17 @@ const run = async () => {
         })()`);
         assert.equal(actual.overflow, false, `${route} overflows at ${width}px`);
         if (!reference) reference = actual.design;
-        else assert.deepEqual(actual.design, reference, `${route} diverges from broadband at ${width}px`);
+        else {
+          const { heading, section, ...sharedDesign } = actual.design;
+          const { heading: referenceHeading, section: referenceSection, ...sharedReference } = reference;
+          assert.deepEqual(sharedDesign, sharedReference, `${route} diverges from broadband at ${width}px`);
+          assert(await page.evaluate(`(() => {
+            const intro = document.querySelector('.subscription-intro');
+            const filters = document.querySelector('.plan-toolbar');
+            return intro?.parentElement === filters?.closest('.result-shell') &&
+              intro.getBoundingClientRect().height < 110;
+          })()`), `${route} should have a compact introduction within the comparison area`);
+        }
 
         if (width !== 1440) continue;
         if (route === '5g-bredband') {

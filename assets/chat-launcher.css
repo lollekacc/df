@@ -13,6 +13,8 @@ html body:has(.home-intro) .hero-ai-guide.has-inline-chat .hero-ai-guide__compos
   max-height: none !important;
   margin: 0 !important;
   grid-template-rows: minmax(0, 1fr) auto !important;
+  border-color: #c96d34 !important;
+  box-shadow: 0 0 0 3px rgba(201, 109, 52, .12) !important;
 }
 
 html body:has(.home-intro) .hero-ai-guide.has-inline-chat {
@@ -1497,8 +1499,7 @@ html body #dealettChat .dealett-chat-navigation {
   box-sizing: border-box;
 }
 html body #dealettChat .dealett-chat-navigation button,
-html body .dealett-chat-history button,
-html body .dealett-chat-discovery {
+html body .dealett-chat-history button {
   border: 0;
   border-radius: 8px;
   padding: 8px 10px;
@@ -1569,7 +1570,6 @@ html body .hero-ai-guide.has-inline-chat .hero-ai-guide__prompts {
   scrollbar-width: none;
 }
 html body .hero-ai-guide.has-inline-chat .hero-ai-guide__prompts > button { flex: 1 0 auto; white-space: nowrap; }
-html body .hero-ai-guide.has-inline-chat .dealett-chat-discovery { display: none; }
 html body #dealettChat .dealett-chat-tabs { display: flex; flex: 1; min-width: 0; align-self: stretch; overflow-x: auto; scrollbar-width: none; gap: 3px; }
 html body #dealettChat .dealett-chat-tab { display: flex; flex: 0 1 170px; min-width: 95px; max-width: 190px; align-items: center; border-radius: 9px 9px 0 0; background: #eeece8; border: 1px solid transparent; }
 html body #dealettChat .dealett-chat-tab.is-active { background: #fff; border-color: #e5dfd7; border-bottom-color: #fff; box-shadow: inset 0 2px #e87920; }
@@ -1585,3 +1585,7 @@ html body .dealett-chat-history-dismiss { display: block; margin: 0 0 8px auto; 
   html body #dealettChat .dealett-chat-tab.is-pending [role="tab"]::before { animation: none; }
 }
 html body #dealettChat .dealett-chat-restart svg { width: 18px; height: 18px; display: block; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+
+@media (min-width: 901px) {
+  html body:has(.home-intro) .hero-ai-guide:not(.has-inline-chat) .hero-ai-guide__composer { flex: 1 1 auto; }
+}

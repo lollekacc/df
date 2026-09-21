@@ -242,7 +242,7 @@ html body.subscription-page .plan-card .offer-card-logo-background {
 }
 
 html body.subscription-page .plan-card:not(.is-answering) .offer-card-copy {
-  grid-area: 1 / 2;
+  grid-area: 2 / 1 / auto / -1;
   align-self: center;
   gap: 6px;
   padding: 0;
@@ -270,21 +270,11 @@ html body.subscription-page .plan-card .plan-description {
 }
 
 html body.subscription-page .plan-card > .offer-card-gift-header {
-  grid-area: 2 / 1 / auto / -1;
-  width: 100%;
-  min-height: 54px;
+  grid-area: 1 / 2;
+  justify-self: end;
+  align-self: center;
+  width: 96px;
   margin: 0;
-  border: 1px solid var(--dui-line);
-  border-radius: var(--subscription-control-radius);
-  background: rgba(39, 36, 67, .04);
-}
-
-html body.subscription-page .offer-card-gift-column {
-  background: transparent;
-}
-
-html body.subscription-page .offer-card-gift-column + .offer-card-gift-column {
-  border-color: var(--dui-line);
 }
 
 html body.subscription-page .plan-card .offer-card-details > :not(.offer-card-copy) {
@@ -576,5 +566,67 @@ html body.subscription-page :is(.compare-table thead th, .compare-table tbody th
   html body.subscription-page .operator-filter-button {
     width: 100%;
     padding-inline: 12px;
+  }
+}
+
+html body.subscription-page.abon-page #offersSection {
+  padding-top: 108px !important;
+}
+
+html body.subscription-page .shop-hero.subscription-intro {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding: 0 0 22px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+html body.subscription-page .subscription-intro h1 {
+  margin: 0 !important;
+  font-size: clamp(26px, 2.5vw, 36px) !important;
+  line-height: 1.15 !important;
+}
+
+html body.subscription-page .subscription-intro .shop-hero-lead {
+  margin: 0 !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+html body.subscription-page.abon-page .plan-toolbar {
+  align-items: start !important;
+  margin-bottom: 24px !important;
+}
+
+@media (min-width: 761px) and (max-width: 980px) {
+  html body.subscription-page.abon-page .plan-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body.subscription-page.family-page .plan-toolbar > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  html body.subscription-page.abon-page #offersSection {
+    padding-top: 88px !important;
+  }
+
+  html body.subscription-page .shop-hero.subscription-intro {
+    gap: 6px;
+    padding-bottom: 18px !important;
+  }
+
+  html body.subscription-page.abon-page .operator-filter {
+    display: flex !important;
+    flex-wrap: wrap;
+  }
+
+  html body.subscription-page.abon-page .operator-filter-button {
+    width: auto;
+    flex: 1 0 auto;
   }
 }

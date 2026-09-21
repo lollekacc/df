@@ -41,15 +41,6 @@ async function run() {
       const url = `http://127.0.0.1:${server.address().port}/`;
       await page.goto(url, { waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => Boolean(window.DealettChat));
-      await page.evaluate(() => sessionStorage.setItem('dealettChatConversationV3', JSON.stringify({
-        version: 3, conversationId: 'old-widget-session', updatedAt: Date.now(),
-        messages: [
-          { role: 'user', content: 'OLD WIDGET MESSAGE', sequence: 1 },
-          { role: 'assistant', content: 'OLD WIDGET REPLY', sequence: 2 },
-        ],
-      })));
-      await page.reload({ waitUntil: 'domcontentloaded' });
-      await page.waitForFunction(() => Boolean(window.DealettChat));
       const input = page.locator('#home-ai-question');
       const send = page.locator('[data-home-ai-form] [type="submit"]');
       const newChat = page.getByRole('button', { name: '+ Ny chatt', exact: true });
@@ -58,6 +49,10 @@ async function run() {
       const assistants = page.locator('#dealettChat .dealett-chat-message--assistant:not(.dealett-chat-message--typing):not(.dealett-chat-message--greeting)');
       const waitIdle = () => page.waitForFunction(() => document.querySelector('.dealett-chat-messages')?.getAttribute('aria-busy') === 'false');
       const count = async (locator, expected) => assert.equal(await locator.count(), expected);
+      assert.equal(await page.locator('.dealett-chat-navigation').isVisible(), true);
+      assert.equal(await input.getAttribute('placeholder'), 'Till exempel: Vi är fyra i familjen och vill ha mer surf...');
+      assert((await page.locator('.dealett-chat-inline-controls').innerText()).includes('Fråga Dealett AI'));
+      assert.equal(requests.length, 0);
       const initialStyle = await input.evaluate(e => [getComputedStyle(e.parentElement).borderRadius, getComputedStyle(e.parentElement).backgroundColor]);
       await input.fill('   ');
       await input.press('Enter');
@@ -71,6 +66,8 @@ async function run() {
         height: document.documentElement.scrollHeight,
         scroll: scrollY,
       }));
+      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       const initialLayout = await pageLayout();
       await input.press('Enter');
       await page.waitForFunction(() => document.querySelector('.dealett-chat-messages')?.getAttribute('aria-busy') === 'true');

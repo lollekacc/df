@@ -11876,7 +11876,7 @@ html body:has(.home-intro) .hero.hero .hero-showcase--editorial .hero-offer-tile
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: auto;
+  margin-bottom: 24px;
   padding: 15px 12px;
   border: 1px solid #efdfca;
   border-radius: 10px;
@@ -11922,7 +11922,7 @@ html body:has(.home-intro) .hero.hero .hero-showcase--editorial .hero-offer-tile
   justify-content: space-between;
   gap: 8px;
   padding: 13px 14px;
-  margin-top: 16px;
+  margin-top: auto;
   border-radius: 8px;
   background: #132334;
   color: #fff;
