@@ -170,6 +170,15 @@ async function run() {
       const promptsBounds = await page.locator('.hero-ai-guide__prompts').boundingBox();
       const nextBounds = await page.locator(width <= 900 ? '.hero-finder' : '.hero-value').boundingBox();
       assert(promptsBounds.y + promptsBounds.height <= nextBounds.y, 'Chat overlaps the next section');
+      assert(nextBounds.y - promptsBounds.y - promptsBounds.height <= 16, 'Unused space below chat');
+      if (width > 900) {
+        const finder = await page.locator('.hero-finder').boundingBox();
+        assert(box.x + box.width <= finder.x - 20, 'Chat overlaps adjacent finder');
+      }
+      assert.equal(await page.getByRole('button', { name: 'Starta om chatten', exact: true }).isVisible(), true);
+      const activeTabBounds = await page.locator('.dealett-chat-tab.is-active').boundingBox();
+      const tabsBounds = await page.locator('.dealett-chat-tabs').boundingBox();
+      assert(activeTabBounds.x >= tabsBounds.x - 1 && activeTabBounds.x + activeTabBounds.width <= tabsBounds.x + tabsBounds.width + 1, 'Active tab is clipped');
       if (process.env.CHAT_SCREENSHOT_DIR) {
         await page.locator('.hero-ai-guide').screenshot({ path: path.join(process.env.CHAT_SCREENSHOT_DIR, `home-chat-${width}.png`) });
       }
@@ -200,6 +209,8 @@ async function run() {
       await waitIdle();
       await count(users, 1);
       await count(assistants, 1);
+      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       const beforeLongConversation = await page.locator('.hero-ai-guide__composer').boundingBox();
       for (let turn = 0; turn < 8; turn += 1) {
         await input.fill(`Följdfråga ${turn + 1}`);
@@ -209,7 +220,7 @@ async function run() {
       const scroll = await page.locator('.dealett-chat-messages').evaluate(e => ({ height: e.clientHeight, content: e.scrollHeight }));
       assert(scroll.height > 0 && scroll.content > scroll.height);
       const longConversationBox = await page.locator('.hero-ai-guide__composer').boundingBox();
-      assert(Math.abs(longConversationBox.height - beforeLongConversation.height) <= 1, `Chat height changed from ${box.height} to ${longConversationBox.height}`);
+      assert(Math.abs(longConversationBox.height - beforeLongConversation.height) <= 1, `Chat height changed from ${beforeLongConversation.height} to ${longConversationBox.height}`);
       const replyDivider = await page.locator('.hero-ai-guide__form').evaluate(e => getComputedStyle(e).borderTopWidth);
       assert.equal(replyDivider, '1px');
       assert.equal(await input.isVisible(), true);

@@ -986,6 +986,12 @@
     bindEvents();
   };
 
+  window.addEventListener('dealett:purchase-completed', () => {
+    cart = window.DealettCart.readCart();
+    renderCartSummary();
+    window.DEALETT_updateCartCount?.();
+  });
+
   window.addEventListener('dealett:cart-updated', (event) => {
     cart = window.DealettCart?.normalizeCart(event.detail?.cart || []) || event.detail?.cart || [];
     renderCartSummary();

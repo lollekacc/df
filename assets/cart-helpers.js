@@ -5,6 +5,98 @@
   const REWARD_KEY = 'rewardDistribution';
   const STATE_KEY = 'dealettState';
   const CHECKOUT_KEY = 'dealettCheckout';
+  const ACTIVITY_KEY = 'dealettCartActivity';
+  const SAVED_CART_KEY = 'dealettSavedCart';
+  const CHECKOUT_LEASE_KEY = 'dealettCheckoutLease';
+  const CART_IDLE_MS = 60 * 60 * 1000;
+  let submissionTimer;
+
+  const touchCart = () => writeJson(ACTIVITY_KEY, Date.now());
+
+  const expireCart = () => {
+    const cart = readJson(CART_KEY, []);
+    if (!Array.isArray(cart) || !cart.length) return false;
+    const lastActivity = Number(readJson(ACTIVITY_KEY, 0));
+    if (!lastActivity) {
+      touchCart();
+      return false;
+    }
+    if (Date.now() - lastActivity < CART_IDLE_MS || Number(readJson(CHECKOUT_LEASE_KEY, 0)) > Date.now()) return false;
+    writeJson(SAVED_CART_KEY, cart);
+    writeJson(CART_KEY, []);
+    syncSelectionFromCart([]);
+    removeStorage(ACTIVITY_KEY);
+    notifyCartChanged([]);
+    renderSavedCart();
+    window.dispatchEvent(new Event('dealett:cart-expired'));
+    return true;
+  };
+
+  const renderSavedCart = () => {
+    let notice = document.querySelector('#savedCartNotice');
+    const host = document.querySelector('#cartSummaryContainer');
+    const saved = readJson(SAVED_CART_KEY, []);
+    if (!saved.length) {
+      notice?.remove();
+      return;
+    }
+    if (!host) return;
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.id = 'savedCartNotice';
+      notice.className = 'empty-cart-card';
+      notice.setAttribute('role', 'status');
+      host.before(notice);
+    }
+    const hasCart = readJson(CART_KEY, []).length > 0;
+    notice.innerHTML = '<p>Efter en timmes inaktivitet har din tidigare varukorg sparats separat.</p>' +
+      '<button type="button" class="primary-btn" data-restore-cart>' +
+      (hasCart ? 'Ersätt nuvarande val med tidigare val' : 'Återställ tidigare val') + '</button> ' +
+      '<button type="button" class="cart-step-back" data-dismiss-saved-cart>Ta bort sparade val</button>';
+  };
+
+  const setSubmitting = (active) => {
+    window.clearInterval(submissionTimer);
+    if (active) {
+      const renew = () => {
+        touchCart();
+        writeJson(CHECKOUT_LEASE_KEY, Date.now() + 30000);
+      };
+      renew();
+      submissionTimer = window.setInterval(renew, 10000);
+    } else {
+      removeStorage(CHECKOUT_LEASE_KEY);
+      touchCart();
+    }
+  };
+
+  const completePurchase = (purchasedItems) => {
+    setSubmitting(false);
+    const ids = new Set(purchasedItems.map(item => item.cartItemId));
+    const remaining = readJson(CART_KEY, []).filter(item => {
+      if (item.cartItemId) return !ids.has(item.cartItemId);
+      const offerId = item.offerId || item.id || item.planId || item.title;
+      return !purchasedItems.some(purchased => purchased.offerId === offerId);
+    });
+    writeJson('dealettCompletedCart', { cart: remaining, completedAt: Date.now() });
+    writeJson(CART_KEY, remaining);
+    removeStorage(SAVED_CART_KEY);
+    if (remaining.length) {
+      const latest = remaining[remaining.length - 1];
+      writeJson(SELECTED_OFFER_KEY, buildSelectedOffer(latest));
+      writeJson(REWARD_KEY, latest.rewards || {});
+      writeJson(STATE_KEY, latest.state || buildStateFromItem(latest));
+    } else {
+      removeStorage(SELECTED_OFFER_KEY);
+      removeStorage(REWARD_KEY);
+      removeStorage(STATE_KEY);
+    }
+    window.DEALETT_updateCartCount?.();
+    window.dispatchEvent(new Event('dealett:purchase-completed'));
+    if (window.parent !== window) {
+      window.parent.dispatchEvent(new Event('dealett:purchase-completed'));
+    }
+  };
 
   const providerAccents = {
     telia: '#6E2380',
@@ -206,7 +298,10 @@
     Array.isArray(cart) ? cart.map((item) => normalizeItem(item, options)) : []
   );
 
-  const readCart = () => normalizeCart(readJson(CART_KEY, []));
+  const readCart = () => {
+    expireCart();
+    return normalizeCart(readJson(CART_KEY, []));
+  };
 
   const getTotals = (cart) => normalizeCart(cart).reduce((totals, item) => ({
     price: totals.price + Math.max(Number(item.price) || 0, 0),
@@ -281,12 +376,14 @@
   const setCart = (cart, options = {}) => {
     const normalizedCart = normalizeCart(cart, options);
     writeJson(CART_KEY, normalizedCart);
+    touchCart();
 
     if (options.syncSelection !== false) {
       syncSelectionFromCart(normalizedCart);
     }
 
     notifyCartChanged(normalizedCart);
+    renderSavedCart();
     return normalizedCart;
   };
 
@@ -295,6 +392,7 @@
     const cart = [...readCart(), item];
 
     writeJson(CART_KEY, cart);
+    touchCart();
     writeJson(SELECTED_OFFER_KEY, options.selectedOffer || buildSelectedOffer(item));
     writeJson(STATE_KEY, options.state || item.state || buildStateFromItem(item));
 
@@ -305,6 +403,7 @@
     removeStorage('rewardChoice');
     clearCheckoutStorage();
     notifyCartChanged(cart);
+    renderSavedCart();
     return cart;
   };
 
@@ -494,6 +593,7 @@
   const openDrawer = (cart = readCart()) => {
     const elements = ensureDrawer();
     bindDrawerEvents(elements);
+    renderSavedCart();
     void elements.cartDrawer?.offsetWidth;
     elements.cartDrawer?.classList.remove('hidden');
     elements.cartDrawer?.setAttribute('aria-hidden', 'false');
@@ -551,6 +651,8 @@
     buildStateFromItem,
     buildSelectedOffer,
     clearCart,
+    completePurchase,
+    setSubmitting,
     clearCheckoutStorage,
     closeDrawer,
     escapeHtml,
@@ -571,6 +673,41 @@
     setDrawerStep,
     showCheckoutAgreement,
   };
+
+  expireCart();
+  const recordActivity = (event) => {
+    if (!event.isTrusted) return;
+    expireCart();
+    touchCart();
+  };
+  ['pointerdown', 'keydown', 'input', 'wheel'].forEach(type => document.addEventListener(type, recordActivity, true));
+  window.addEventListener('pageshow', expireCart);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') expireCart();
+  });
+  window.setInterval(expireCart, 15000);
+  window.addEventListener('storage', event => {
+    if (event.key === CART_KEY) {
+      const completed = readJson('dealettCompletedCart', null);
+      if (completed && Date.now() - completed.completedAt < 5000 && JSON.stringify(completed.cart) === event.newValue) {
+        window.dispatchEvent(new Event('dealett:purchase-completed'));
+      } else {
+        notifyCartChanged(readCart());
+      }
+      renderSavedCart();
+    }
+  });
+  document.addEventListener('click', event => {
+    if (event.target.closest('[data-restore-cart]')) {
+      const saved = readJson(SAVED_CART_KEY, []);
+      removeStorage(SAVED_CART_KEY);
+      if (saved.length) setCart(saved);
+    }
+    if (event.target.closest('[data-dismiss-saved-cart]')) {
+      removeStorage(SAVED_CART_KEY);
+      renderSavedCart();
+    }
+  });
 
   document.addEventListener('click', (event) => {
     const link = event.target.closest('a[href]');

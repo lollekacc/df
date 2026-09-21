@@ -1586,16 +1586,24 @@
         .map(element => element.getBoundingClientRect())
         .filter(box => box.height > 0 && box.top >= promptsBox.bottom - 1 && box.left < composerBox.right && box.right > composerBox.left);
       const boundary = obstacles.length ? Math.min(...obstacles.map(box => box.top)) : promptsBox.bottom;
-      const height = Math.max(composerBox.height, boundary - composerBox.top - promptsBox.height - gap - 12);
+      const promptHeight = Math.max(...[...prompts.children]
+        .filter(element => !element.classList.contains('dealett-chat-discovery'))
+        .map(element => element.getBoundingClientRect().height), 0);
+      const height = Math.max(composerBox.height, boundary - composerBox.top - promptHeight - gap - 12);
+      const rightObstacles = [...document.querySelectorAll('.hero-finder, .hero-showcase')]
+        .map(element => element.getBoundingClientRect())
+        .filter(box => box.height > 0 && box.left >= composerBox.right - 1 && box.top < composerBox.top + height && box.bottom > composerBox.top);
+      const rightBoundary = rightObstacles.length ? Math.min(...rightObstacles.map(box => box.left)) - 24 : composerBox.right;
+      const width = Math.max(composerBox.width, Math.min(rightBoundary, window.innerWidth - 16) - composerBox.left);
       const values = {
         'guide-height': guideBox.height,
         'composer-top': composerBox.top - guideBox.top,
         'composer-left': composerBox.left - guideBox.left,
-        'composer-width': composerBox.width,
+        'composer-width': width,
         'composer-height': height,
         'prompts-top': composerBox.top - guideBox.top + height + gap,
         'prompts-left': promptsBox.left - guideBox.left,
-        'prompts-width': promptsBox.width,
+        'prompts-width': width,
       };
       Object.entries(values).forEach(([key, value]) => heroGuide.style.setProperty(`--inline-${key}`, `${value}px`));
       if (active) heroGuide.classList.add('has-inline-chat');
@@ -1603,6 +1611,7 @@
     };
     const refreshInlineSize = () => {
       if (heroGuide?.classList.contains('has-inline-chat')) sizeInlineChat();
+      revealActiveTab();
     };
     window.addEventListener('resize', refreshInlineSize);
     document.querySelector('link[data-dealett-chat-launcher]')?.addEventListener('load', refreshInlineSize);
@@ -3493,21 +3502,33 @@
     chatsButton.setAttribute('aria-controls', 'dealett-chat-history');
     const createButton = document.createElement('button');
     createButton.type = 'button';
-    navigation.append(chatsButton, createButton);
+    const tabs = document.createElement('div');
+    tabs.className = 'dealett-chat-tabs';
+    tabs.setAttribute('role', 'tablist');
+    const revealActiveTab = () => {
+      const active = tabs.querySelector('.is-active');
+      if (!active) return;
+      const bounds = tabs.getBoundingClientRect();
+      const tabBounds = active.getBoundingClientRect();
+      if (tabBounds.right > bounds.right) tabs.scrollLeft += tabBounds.right - bounds.right;
+      else if (tabBounds.left < bounds.left) tabs.scrollLeft += tabBounds.left - bounds.left;
+    };
+    const restartButton = document.createElement('button');
+    restartButton.type = 'button';
+    restartButton.className = 'dealett-chat-restart';
+    restartButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 8a8 8 0 1 0 1 6"/><path d="M19 3v5h-5"/></svg>';
+    navigation.append(tabs, createButton, restartButton, chatsButton);
     panel.insertBefore(navigation, messageList);
     const history = document.createElement('nav');
     history.id = 'dealett-chat-history';
     history.className = 'dealett-chat-history';
     panel.append(history);
-    let historyOpen = window.innerWidth > 760;
+    let historyOpen = false;
     let showArchived = false;
     const setHistoryOpen = value => {
       historyOpen = value;
-      const mobile = window.innerWidth <= 760;
-      (mobile ? document.body : panel).append(history);
-      history.classList.toggle('dealett-chat-history--mobile', mobile);
+      panel.append(history);
       history.hidden = !value || panel.hidden;
-      panel.classList.toggle('has-chat-history', value);
       chatsButton.setAttribute('aria-expanded', String(value));
     };
     const recoverFailedTurn = () => {
@@ -3546,12 +3567,14 @@
         if (heroInput) heroInput.value = runtimes.get(id)?.draft || '';
       }
       const entry = conversations.get(id);
+      if (entry) entry.archived = false;
       if (root.classList.contains('dealett-chat--inline')) conversationPresentation = 'homepage';
       if (entry) entry.unread = false;
       persistConversation();
       syncInlineState();
-      if (window.innerWidth <= 760) setHistoryOpen(false);
+      setHistoryOpen(false);
       if (showLatest && lastCompletedAssistantItem) positionCompletedTurn(lastCompletedAssistantItem, { smooth: false });
+      revealActiveTab();
       focusChatInput();
     };
     const startConversation = () => {
@@ -3560,15 +3583,77 @@
       conversationPresentation = heroForm ? 'homepage' : null;
       if (heroForm) mountInlineChat();
       openPanel({ skipGreeting: true });
-      if (window.innerWidth <= 760) setHistoryOpen(false);
+      setHistoryOpen(false);
       persistConversation();
+    };
+    const closeConversationTab = id => {
+      const entry = conversations.get(id);
+      if (!entry) return;
+      entry.archived = true;
+      if (id === chatSessionId) {
+        const open = [...conversations.values()].filter(item => !item.archived);
+        if (open.length) selectConversation(open.at(-1).conversationId);
+        else startConversation();
+      }
+      persistConversationList();
     };
     renderConversationList = () => {
       if (backgroundUpdate) return;
       const english = chatLanguage === 'en';
       const unread = [...conversations.values()].filter(entry => entry.unread).length;
-      chatsButton.textContent = `${english ? 'Chats' : 'Chattar'}${unread ? ` (${unread})` : ''}`;
+      chatsButton.textContent = unread ? `⌄ ${unread}` : '⌄';
+      chatsButton.setAttribute('aria-label', `${english ? 'All chats' : 'Alla chattar'}${unread ? ` (${unread})` : ''}`);
+      chatsButton.title = english ? 'All chats and archived chats' : 'Alla chattar och arkiverade chattar';
+      tabs.setAttribute('aria-label', english ? 'Conversations' : 'Konversationer');
+      const focusedTab = tabs.contains(document.activeElement) ? document.activeElement.dataset.tabId : null;
+      const tabScroll = tabs.scrollLeft;
+      tabs.replaceChildren();
+      messageList.id = 'dealett-chat-transcript';
+      [...conversations.values()].filter(entry => !entry.archived).forEach(entry => {
+        const tab = document.createElement('div');
+        tab.className = 'dealett-chat-tab';
+        const selected = entry.conversationId === chatSessionId;
+        tab.classList.toggle('is-active', selected);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-selected', String(selected));
+        button.setAttribute('aria-controls', 'dealett-chat-transcript');
+        button.tabIndex = selected ? 0 : -1;
+        button.dataset.tabId = entry.conversationId;
+        const title = entry.title || entry.messages.find(message => message.role === 'user' && !message.hidden)?.content.slice(0, 55) || (english ? 'New chat' : 'Ny chatt');
+        const pending = selected ? isSending : runtimes.get(entry.conversationId)?.isSending;
+        tab.classList.toggle('is-pending', Boolean(pending));
+        tab.classList.toggle('is-unread', Boolean(entry.unread));
+        button.textContent = title;
+        button.title = title;
+        button.setAttribute('aria-label', `${title}${pending ? (english ? ' — Replying' : ' — Svarar') : entry.unread ? (english ? ' — New reply' : ' — Nytt svar') : ''}`);
+        button.addEventListener('click', () => selectConversation(entry.conversationId));
+        button.addEventListener('keydown', event => {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+          event.preventDefault();
+          const open = [...conversations.values()].filter(item => !item.archived);
+          const index = open.findIndex(item => item.conversationId === entry.conversationId);
+          const next = event.key === 'Home' ? 0 : event.key === 'End' ? open.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + open.length) % open.length;
+          selectConversation(open[next].conversationId);
+          tabs.querySelector('[aria-selected="true"]')?.focus({ preventScroll: true });
+        });
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'dealett-chat-tab-close';
+        close.textContent = '×';
+        close.setAttribute('aria-label', `${english ? 'Close tab' : 'Stäng flik'}: ${title}`);
+        close.title = english ? 'Close tab (saved in archive)' : 'Stäng flik (sparas i arkivet)';
+        close.addEventListener('click', () => closeConversationTab(entry.conversationId));
+        tab.append(button, close);
+        tabs.append(tab);
+      });
+      tabs.scrollLeft = tabScroll;
+      revealActiveTab();
+      if (focusedTab) [...tabs.querySelectorAll('[role="tab"]')].find(button => button.dataset.tabId === focusedTab)?.focus({ preventScroll: true });
       createButton.textContent = english ? '+ New chat' : '+ Ny chatt';
+      restartButton.setAttribute('aria-label', english ? 'Restart chat' : 'Starta om chatten');
+      restartButton.title = english ? 'Restart chat' : 'Starta om chatten';
       history.setAttribute('aria-label', english ? 'Saved chats' : 'Sparade chattar');
       history.replaceChildren();
       const dismiss = document.createElement('button');
@@ -3618,8 +3703,8 @@
             if (value?.trim()) { entry.title = value.trim().slice(0, 80); persistConversationList(); }
           });
           action(entry.archived ? (english ? 'Restore' : 'Återställ') : (english ? 'Archive' : 'Arkivera'), () => {
-            entry.archived = !entry.archived;
-            persistConversationList();
+            if (entry.archived) { entry.archived = false; persistConversationList(); }
+            else closeConversationTab(entry.conversationId);
           });
           action(english ? 'Delete' : 'Ta bort', () => {
             if (!window.confirm(english ? 'Delete this chat?' : 'Ta bort den här chatten?')) return;
@@ -3636,7 +3721,19 @@
       history.append(archiveToggle);
     };
     chatsButton.addEventListener('click', () => setHistoryOpen(!historyOpen));
-    createButton.addEventListener('click', startConversation);
+    createButton.addEventListener('click', () => {
+      startConversation();
+      tabs.scrollLeft = tabs.scrollWidth;
+    });
+    restartButton.addEventListener('click', () => {
+      const previousId = chatSessionId;
+      activeChatRequest?.abort();
+      startConversation();
+      conversations.delete(previousId);
+      runtimes.delete(previousId);
+      persistConversationList();
+      tabs.scrollLeft = tabs.scrollWidth;
+    });
     if (heroForm) {
       const discovery = document.createElement('button');
       discovery.type = 'button';
@@ -3647,7 +3744,7 @@
         conversationPresentation = 'homepage';
         mountInlineChat();
         openPanel({ skipGreeting: true });
-        setHistoryOpen(true);
+        setHistoryOpen(false);
       });
     }
     setHistoryOpen(historyOpen);

@@ -757,6 +757,7 @@ const main = async () => {
       assert(payload.conversationSnapshot.totalMessageCount === 2, 'Conversation total message count alias is missing.');
       assert(payload.agreement.orderId === payload.clientOrderId, 'Legacy agreement compatibility was lost.');
       assert(!capture.resultHidden, 'Success was not shown after durable acceptance.');
+      assert(await page.evaluate("JSON.parse(localStorage.getItem('dealettCart')).length === 0"), 'Purchased items remained in the active cart.');
       return page;
     });
 

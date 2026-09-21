@@ -203,6 +203,12 @@
     return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   };
 
+  let cartExpired = false;
+  window.addEventListener('dealett:cart-expired', () => {
+    cartExpired = true;
+    window.location.replace('index.html?openCart=1');
+  });
+
   const rawCart = readJson(localStorage, 'dealettCart', []);
   const storedCart = Array.isArray(rawCart)
     ? (window.DealettCart?.normalizeCart?.(rawCart) || rawCart)
@@ -1340,6 +1346,7 @@
         signedAt: pendingSubmission.payload.bankId.signedAt,
       },
     });
+    window.DealettCart?.completePurchase(storedCart);
     showResult({
       simulated,
       reference: acceptedOrder.reference,
@@ -1368,6 +1375,7 @@
 
   const setSubmitting = (isSubmitting, label = 'Startar BankID...') => {
     submissionInProgress = isSubmitting;
+    window.DealettCart?.setSubmitting(isSubmitting);
     els.submitButton.classList.toggle('is-loading', isSubmitting);
     els.submitLabel.textContent = isSubmitting
       ? label
@@ -1393,7 +1401,7 @@
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (submissionInProgress || orderSubmitted) return;
+    if (submissionInProgress || orderSubmitted || cartExpired) return;
 
     if (!cartSelectionSupported) {
       setMessage(unsupportedCartMessage, { focus: true });

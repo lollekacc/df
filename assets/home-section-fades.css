@@ -1,0 +1,51 @@
+html body:has(.home-intro) .home-section-fade {
+  position: absolute;
+  z-index: 0;
+  inset-inline: 0;
+  height: clamp(64px, 7vw, 110px);
+  background: var(--section-edge);
+  pointer-events: none;
+}
+
+html body:has(.home-intro) .home-section-fade--top {
+  top: 0;
+  mask-image: linear-gradient(to bottom, #000, rgb(0 0 0 / .9) 20%, rgb(0 0 0 / .5) 50%, rgb(0 0 0 / .1) 80%, transparent);
+}
+
+html body:has(.home-intro) .home-section-fade--bottom {
+  bottom: 0;
+  mask-image: linear-gradient(to top, #000, rgb(0 0 0 / .9) 20%, rgb(0 0 0 / .5) 50%, rgb(0 0 0 / .1) 80%, transparent);
+}
+
+html body:has(.home-intro) .home-how {
+  border-top-color: transparent;
+}
+
+html body:has(.home-intro) .home-how > .home-section-fade--top {
+  --section-edge: #fff;
+}
+
+html body:has(.home-intro) .home-how > .home-section-fade--bottom,
+html body:has(.home-intro) .gift-card-section > .home-section-fade--top {
+  --section-edge: #050505;
+}
+
+html body:has(.home-intro) .gift-card-section > .home-section-fade--bottom,
+html body:has(.home-intro) .newsletter-section > .home-section-fade--top {
+  --section-edge: #0d1726;
+}
+
+html body:has(.home-intro) .newsletter-section > .home-section-fade--bottom {
+  --section-edge: #f8f5f0;
+}
+
+@media (min-width: 901px) {
+  html body:has(.home-intro) .home-how > .home-section-fade--top {
+    --section-edge: #fbf8f2;
+  }
+
+  html body:has(.home-intro) .home-how > .home-section-fade--bottom,
+  html body:has(.home-intro) .gift-card-section > .home-section-fade--top {
+    --section-edge: linear-gradient(95deg, #bc5e25, #e59355);
+  }
+}
