@@ -44,15 +44,30 @@ async function run() {
       const input = page.locator('#home-ai-question');
       const send = page.locator('[data-home-ai-form] [type="submit"]');
       const newChat = page.getByRole('button', { name: '+ Ny chatt', exact: true });
+      const startNewChat = async () => {
+        if (!await newChat.isVisible()) await page.getByRole('button', { name: /^Alla chattar/ }).click();
+        await newChat.click();
+      };
       const retry = page.locator('#dealettChat .dealett-chat-inline-controls').getByRole('button', { name: 'Försök igen', exact: true });
       const users = page.locator('#dealettChat .dealett-chat-message--user');
       const assistants = page.locator('#dealettChat .dealett-chat-message--assistant:not(.dealett-chat-message--typing):not(.dealett-chat-message--greeting)');
       const waitIdle = () => page.waitForFunction(() => document.querySelector('.dealett-chat-messages')?.getAttribute('aria-busy') === 'false');
       const count = async (locator, expected) => assert.equal(await locator.count(), expected);
       assert.equal(await page.locator('.dealett-chat-navigation').isVisible(), true);
-      assert.equal(await input.getAttribute('placeholder'), 'Till exempel: Vi är fyra i familjen och vill ha mer surf...');
-      assert((await page.locator('.dealett-chat-inline-controls').innerText()).includes('Fråga Dealett AI'));
+      assert.equal(await input.getAttribute('placeholder'), width > 900 ? 'Skriv din fråga här...' : 'Skriv här. Till exempel: Vi är fyra i familjen och vill ha mer surf...');
+      if (width <= 900) assert((await page.locator('.dealett-chat-inline-controls').innerText()).includes('Fråga Dealett AI'));
       assert.equal(requests.length, 0);
+      if (width > 900) await page.getByRole('button', { name: 'Ta bort aktuell chatt', exact: true }).click();
+      else await page.getByRole('button', { name: 'Stäng flik: Ny chatt', exact: true }).click();
+      assert.equal(await page.getByRole('tab').count(), 0);
+      assert.equal(await input.getAttribute('placeholder'), width > 900 ? 'Skriv din fråga här...' : 'Skriv här...');
+      assert.equal(await page.locator('.dealett-chat-starting-example').innerText(), 'Till exempel: Vi är fyra i familjen och vill ha mer surf...');
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.waitForFunction(() => Boolean(window.DealettChat));
+      assert.equal(await page.getByRole('tab').count(), 0);
+      assert.equal(await input.getAttribute('placeholder'), width > 900 ? 'Skriv din fråga här...' : 'Skriv här...');
+      if (process.env.CHAT_SCREENSHOT_DIR) await page.locator('.hero-ai-guide').screenshot({ path: path.join(process.env.CHAT_SCREENSHOT_DIR, `chat-starting-${width}.png`) });
+      await page.waitForFunction(() => Boolean(document.querySelector('link[data-dealett-chat-launcher]')?.sheet));
       const initialStyle = await input.evaluate(e => [getComputedStyle(e.parentElement).borderRadius, getComputedStyle(e.parentElement).backgroundColor]);
       await input.fill('   ');
       await input.press('Enter');
@@ -123,7 +138,7 @@ async function run() {
       await input.fill('Svara senare');
       await send.click();
       await page.waitForFunction(() => document.querySelector('.dealett-chat-messages')?.getAttribute('aria-busy') === 'true');
-      await newChat.click();
+      await startNewChat();
       assert.equal(await input.inputValue(), '');
       await count(users, 0);
       if (heldRoute) await reply(heldRoute).catch(() => {});
@@ -143,28 +158,29 @@ async function run() {
       assert(bounds.y + bounds.height <= box.y + box.height);
       const composerInput = await input.boundingBox();
       const sendBounds = await send.boundingBox();
-      const statusBounds = await page.locator('.dealett-chat-inline-controls').boundingBox();
-      const resetBounds = await newChat.boundingBox();
+      const statusBounds = await page.locator('.dealett-chat-inline-controls').evaluate(element => { const box = element.getBoundingClientRect(); return { x: box.x, y: box.y, width: box.width, height: box.height }; });
+      const resetBounds = await (width > 900 ? page.getByRole('button', { name: 'Starta om chatten', exact: true }) : newChat).boundingBox();
       assert(statusBounds.y >= bounds.y);
-      assert.equal(composerInput.height, 30);
-      assert.equal(sendBounds.height, 30);
+      assert.equal(composerInput.height, width > 900 ? 34 : 30);
+      assert.equal(sendBounds.height, width > 900 ? 38 : 30);
       assert(Math.abs(composerInput.y + composerInput.height / 2 - sendBounds.y - sendBounds.height / 2) <= 2);
       assert(sendBounds.x >= composerInput.x + composerInput.width);
       assert.equal(await page.locator('.hero-ai-guide__ask-label').isVisible(), false);
       assert(sendBounds.y + sendBounds.height <= box.y + box.height);
-      assert(resetBounds.y >= box.y && resetBounds.y < box.y + 44);
+      assert(resetBounds.y >= box.y && resetBounds.y < box.y + (width > 900 ? 60 : 44));
       assert(resetBounds.x + resetBounds.width <= box.x + box.width);
-      assert.equal(await newChat.innerText(), '+ Ny chatt');
+      if (width <= 900) assert.equal(await newChat.innerText(), '+ Ny chatt');
       const messagesBounds = await page.locator('.dealett-chat-messages').boundingBox();
       const userBubbleBounds = await users.last().locator('.dealett-chat-bubble').boundingBox();
       const replyBounds = await page.locator('.hero-ai-guide__form').boundingBox();
-      assert(Math.abs(messagesBounds.y - box.y - 44) <= 2);
+      assert(Math.abs(messagesBounds.y - box.y - (width > 900 ? 60 : 44)) <= 2);
       assert(Math.abs(messagesBounds.x + messagesBounds.width - box.x - box.width) <= 2);
       assert(userBubbleBounds.x + userBubbleBounds.width <= messagesBounds.x + messagesBounds.width);
       assert(statusBounds.height <= 24 && statusBounds.x >= box.x);
-      assert(Math.abs(messagesBounds.y + messagesBounds.height - replyBounds.y) <= 2);
+      if (width <= 900) assert(Math.abs(messagesBounds.y + messagesBounds.height - replyBounds.y) <= 2);
+      else assert(messagesBounds.y + messagesBounds.height <= replyBounds.y);
       assert.equal(await page.locator('form form').count(), 0);
-      const promptsBounds = await page.locator('.hero-ai-guide__prompts').boundingBox();
+      const promptsBounds = await page.locator(width > 900 ? '.hero-ai-guide__composer' : '.hero-ai-guide__prompts').boundingBox();
       const nextBounds = await page.locator(width <= 900 ? '.hero-finder' : '.hero-value').boundingBox();
       assert(promptsBounds.y + promptsBounds.height <= nextBounds.y, 'Chat overlaps the next section');
       assert(nextBounds.y - promptsBounds.y - promptsBounds.height <= 16, 'Unused space below chat');
@@ -173,9 +189,14 @@ async function run() {
         assert(box.x + box.width <= finder.x - 20, 'Chat overlaps adjacent finder');
       }
       assert.equal(await page.getByRole('button', { name: 'Starta om chatten', exact: true }).isVisible(), true);
-      const activeTabBounds = await page.locator('.dealett-chat-tab.is-active').boundingBox();
-      const tabsBounds = await page.locator('.dealett-chat-tabs').boundingBox();
-      assert(activeTabBounds.x >= tabsBounds.x - 1 && activeTabBounds.x + activeTabBounds.width <= tabsBounds.x + tabsBounds.width + 1, 'Active tab is clipped');
+      if (width <= 900) {
+        const activeTabBounds = await page.locator('.dealett-chat-tab.is-active').boundingBox();
+        const tabsBounds = await page.locator('.dealett-chat-tabs').boundingBox();
+        assert(activeTabBounds.x >= tabsBounds.x - 1 && activeTabBounds.x + activeTabBounds.width <= tabsBounds.x + tabsBounds.width + 1, 'Active tab is clipped');
+      } else {
+        assert.equal(await page.locator('.dealett-chat-identity').isVisible(), true);
+        assert.equal(await page.locator('.dealett-chat-reference-actions > *').count(), 3);
+      }
       if (process.env.CHAT_SCREENSHOT_DIR) {
         await page.locator('.hero-ai-guide').screenshot({ path: path.join(process.env.CHAT_SCREENSHOT_DIR, `home-chat-${width}.png`) });
       }
@@ -221,7 +242,7 @@ async function run() {
       const replyDivider = await page.locator('.hero-ai-guide__form').evaluate(e => getComputedStyle(e).borderTopWidth);
       assert.equal(replyDivider, '1px');
       assert.equal(await input.isVisible(), true);
-      await newChat.click();
+      await startNewChat();
       await page.evaluate(() => window.DealettChat.close());
       await page.locator('.dealett-chat-toggle').click();
       assert.equal(await page.locator('.dealett-chat-panel').getAttribute('role'), 'dialog');

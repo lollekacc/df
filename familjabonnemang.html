@@ -12,54 +12,50 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="./assets/mobilabonnemang.css" />
+  <link rel="stylesheet" href="./assets/5g-bredband.css" />
   <link rel="stylesheet" href="./assets/familjabonnemang.css" />
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
   <link rel="stylesheet" href="./assets/dealett-ui.css" />
   <link rel="stylesheet" href="./assets/subscription-pages.css" />
-  </head>
+  <link rel="stylesheet" href="./assets/subscription-broadband.css" />
+</head>
 
-<body class="subscription-page abon-page family-page" data-header-mode="solid" data-header-theme="dark">
+<body class="subscription-page abon-page family-page">
   <div data-include="header"></div>
 
   <main class="abon-main">
+    <header class="shop-hero" data-header-anchor-target>
+      <div class="shop-hero-content">
+        <h1 id="plansTitle">Familjabonnemang</h1>
+        <p class="shop-hero-lead">Välj hur många abonnemang ni behöver och filtrera på operatör.</p>
+      </div>
+    </header>
     <section id="offersSection" class="result-section" aria-labelledby="plansTitle">
       <div class="result-shell">
-        <header class="shop-hero subscription-intro" data-header-anchor-target>
-          <h1 id="plansTitle">Familjabonnemang</h1>
-          <p class="shop-hero-lead">Välj hur många abonnemang ni behöver och filtrera på operatör.</p>
-        </header>
-
         <div id="offersStrip" class="offers-strip reveal">
-          <div class="plan-toolbar" aria-label="Filtrera familjeabonnemang">
-            <div>
-              <span class="plan-toolbar-label">Operatör</span>
-              <div id="operatorFilter" class="operator-filter" role="group" aria-label="Välj operatör"></div>
+          <div class="bredband-filters" aria-label="Filtrera familjeabonnemang">
+            <div class="bredband-filter-group">
+              <label for="operatorFilter">Operatör</label>
+              <select id="operatorFilter" aria-label="Välj operatör"></select>
             </div>
-            <div class="range-filter family-size-filter">
-              <span class="range-filter-head">
-                <label class="plan-toolbar-label" for="familySize">Antal abonnemang</label>
-              </span>
-              <output id="familySizeValue" class="range-current-value" for="familySize">3</output>
-              <div class="range-scale">
-                <input id="familySize" type="range" min="2" max="10" value="3" step="1" aria-label="Välj antal abonnemang" />
-                <span class="range-ticks" aria-hidden="true">
-                  <span data-label="2"></span><span data-label="3"></span><span data-label="4"></span>
-                  <span data-label="5"></span><span data-label="6"></span><span data-label="7"></span>
-                  <span data-label="8"></span><span data-label="9"></span><span data-label="10"></span>
-                </span>
-              </div>
+            <div class="bredband-filter-group">
+              <label for="familySize">Antal abonnemang</label>
+              <select id="familySize" aria-label="Välj antal abonnemang">
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
             </div>
-            <div class="range-filter data-range-filter">
-              <span class="range-filter-head">
-                <label class="plan-toolbar-label" for="dataFilter">Surf per användare</label>
-                <button id="dataFilterAll" class="range-all-button is-active" type="button" aria-pressed="true">Alla</button>
-              </span>
-              <output id="dataFilterValue" class="range-current-value" for="dataFilter">Alla</output>
-              <div class="range-scale">
-                <input id="dataFilter" type="range" min="0" max="0" value="0" step="1" aria-label="Välj surfmängd" />
-                <span id="dataFilterTicks" class="range-ticks" aria-hidden="true"></span>
-              </div>
+            <div class="bredband-filter-group">
+              <label for="dataFilter">Surf per användare</label>
+              <select id="dataFilter" aria-label="Välj surfmängd"><option value="all">Alla</option></select>
             </div>
           </div>
 
@@ -72,15 +68,16 @@
       </div>
     </section>
 
-    <section id="rewardSection" class="result-section is-hidden">
+    <dialog id="rewardSection" class="subscription-reward-dialog" aria-labelledby="rewardTitle">
+      <button class="modal-close-btn" type="button" data-reward-close aria-label="Stäng">×</button>
       <div class="result-shell result-narrow">
-        <div class="section-head center reveal">
+        <div class="section-head">
           <span class="section-kicker">Belöningar</span>
-          <h2>Välj presentkort</h2>
+          <h2 id="rewardTitle">Välj presentkort</h2>
           <p>Fördela hela värdet tydligt innan du går vidare.</p>
         </div>
 
-        <div class="pro-card reward-panel reveal">
+        <div class="pro-card reward-panel">
           <div class="reward-summary-bar">
             <div>
               <span>Totalt belöningsvärde</span>
@@ -104,14 +101,22 @@
           </button>
         </div>
       </div>
-    </section>
+    </dialog>
   </main>
+
+  <aside id="subscriptionSelection" class="bredband-sticky-bar" hidden>
+    <div class="bredband-sticky-inner">
+      <strong id="subscriptionSelectedText" aria-live="polite"></strong>
+      <button id="subscriptionContinue" class="bredband-primary-btn" type="button">Belöningar</button>
+    </div>
+  </aside>
 
   <div data-include="footer"></div>
 
   <script src="./assets/cart-helpers.js"></script>
   <script src="./assets/network-utils.js"></script>
   <script src="./assets/offer-compare.js"></script>
+  <script src="./assets/subscription-ui.js"></script>
   <script src="./assets/family-offers.js"></script>
   <script src="script.js?v=20260825-3"></script>
 </body>

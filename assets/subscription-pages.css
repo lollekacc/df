@@ -177,39 +177,6 @@ html body.subscription-page :is(.offer-card:hover, .offer-card.is-selected, .bre
   box-shadow: var(--subscription-card-hover-shadow) !important;
 }
 
-html body.subscription-page .plan-card:not(.is-answering) {
-  display: grid;
-  grid-template-columns: 108px minmax(0, 1fr);
-  gap: 18px 15px;
-  grid-template-rows: auto auto auto 1fr auto;
-  align-content: start;
-  padding: 44px 22px 22px;
-}
-
-html body.subscription-page .family-plan-card:not(.is-answering) {
-  grid-template-rows: auto auto auto auto 1fr auto;
-}
-
-html body.subscription-page .plan-card::before {
-  position: absolute;
-  top: 0;
-  left: 22px;
-  right: 22px;
-  height: 5px;
-  background: var(--subscription-accent) !important;
-}
-
-html body.subscription-page .plan-card::after {
-  content: none;
-}
-
-html body.subscription-page .plan-card .offer-card-actions {
-  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
-  align-self: end;
-  gap: 10px;
-  margin-top: 0;
-}
-
 html body.subscription-page .offer-compare-button:not(.offer-compare-button--icon) {
   width: 100% !important;
   min-height: 46px !important;
@@ -222,75 +189,6 @@ html body.subscription-page .offer-compare-button:not(.offer-compare-button--ico
 
 html body.subscription-page .offer-compare-button.is-selected {
   box-shadow: inset 0 0 0 2px var(--subscription-accent) !important;
-}
-
-html body.subscription-page .plan-card:not(.is-answering) > .offer-card-details:not(.is-hidden) {
-  display: contents;
-}
-
-html body.subscription-page .plan-card:not(.is-answering) .offer-card-logo-stage {
-  grid-area: 1 / 1;
-  align-self: center;
-  width: 108px;
-  min-height: 68px;
-  border-radius: 10px;
-  background: rgba(246, 244, 240, .72);
-}
-
-html body.subscription-page .plan-card .offer-card-logo-background {
-  inset: 11px 10px;
-}
-
-html body.subscription-page .plan-card:not(.is-answering) .offer-card-copy {
-  grid-area: 2 / 1 / auto / -1;
-  align-self: center;
-  gap: 6px;
-  padding: 0;
-}
-
-html body.subscription-page .plan-operator-name {
-  color: var(--dui-text);
-  font-size: 21px;
-  font-weight: 800;
-  line-height: 1.2;
-  text-transform: none;
-}
-
-html body.subscription-page .plan-card h3 {
-  margin: 0;
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--dui-muted) !important;
-}
-
-html body.subscription-page .plan-card .plan-description {
-  min-height: 0;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-html body.subscription-page .plan-card > .offer-card-gift-header {
-  grid-area: 1 / 2;
-  justify-self: end;
-  align-self: center;
-  width: 96px;
-  margin: 0;
-}
-
-html body.subscription-page .plan-card .offer-card-details > :not(.offer-card-copy) {
-  grid-column: 1 / -1;
-}
-
-html body.subscription-page .plan-card .plan-price {
-  margin: 0;
-  padding: 17px 0;
-  border-block: 1px solid var(--dui-line);
-}
-
-html body.subscription-page .plan-price strong {
-  font-size: 31px;
-  font-weight: 800;
-  line-height: 1.6;
 }
 
 html body.subscription-page .offer-card-meta {
@@ -359,39 +257,6 @@ html body.subscription-page .offer-binding-date input {
   color: var(--dui-text);
   color-scheme: light;
 }
-
-html body.subscription-page .plan-card.has-extra-toggle-tab {
-  overflow: hidden !important;
-}
-
-html body.subscription-page .plan-card .offer-extra-toggle-button--tab {
-  position: absolute;
-  top: 50%;
-  right: -39px;
-  z-index: 5;
-  width: 112px;
-  min-height: 34px;
-  padding: 0 12px;
-  border: 0 !important;
-  border-radius: 9px 9px 0 0 !important;
-  background: var(--offer-accent, #7b2389) !important;
-  color: #fff !important;
-  box-shadow: 0 8px 18px rgba(65, 28, 79, .18) !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  line-height: 34px;
-  letter-spacing: .02em;
-  text-align: center;
-  text-transform: lowercase;
-  transform: translateY(-50%) rotate(-90deg);
-  transform-origin: center;
-}
-
-html body.subscription-page .plan-card .offer-extra-toggle-button--tab:hover {
-  box-shadow: 0 10px 22px rgba(65, 28, 79, .22) !important;
-  transform: translateY(-50%) rotate(-90deg) translateY(-1px);
-}
-
 
 html body.subscription-page #rewardContinueBtn {
   margin-top: 0;
@@ -566,67 +431,5 @@ html body.subscription-page :is(.compare-table thead th, .compare-table tbody th
   html body.subscription-page .operator-filter-button {
     width: 100%;
     padding-inline: 12px;
-  }
-}
-
-html body.subscription-page.abon-page #offersSection {
-  padding-top: 108px !important;
-}
-
-html body.subscription-page .shop-hero.subscription-intro {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  padding: 0 0 22px !important;
-  border: 0 !important;
-  background: transparent !important;
-}
-
-html body.subscription-page .subscription-intro h1 {
-  margin: 0 !important;
-  font-size: clamp(26px, 2.5vw, 36px) !important;
-  line-height: 1.15 !important;
-}
-
-html body.subscription-page .subscription-intro .shop-hero-lead {
-  margin: 0 !important;
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-}
-
-html body.subscription-page.abon-page .plan-toolbar {
-  align-items: start !important;
-  margin-bottom: 24px !important;
-}
-
-@media (min-width: 761px) and (max-width: 980px) {
-  html body.subscription-page.abon-page .plan-toolbar {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  html body.subscription-page.family-page .plan-toolbar > :first-child {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 760px) {
-  html body.subscription-page.abon-page #offersSection {
-    padding-top: 88px !important;
-  }
-
-  html body.subscription-page .shop-hero.subscription-intro {
-    gap: 6px;
-    padding-bottom: 18px !important;
-  }
-
-  html body.subscription-page.abon-page .operator-filter {
-    display: flex !important;
-    flex-wrap: wrap;
-  }
-
-  html body.subscription-page.abon-page .operator-filter-button {
-    width: auto;
-    flex: 1 0 auto;
   }
 }

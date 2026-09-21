@@ -50,13 +50,22 @@ async function run() {
       const newChat = page.getByRole('button', { name: '+ Ny chatt', exact: true });
       const chats = page.getByRole('button', { name: /^Alla chattar/ });
       const select = async title => {
-        await page.getByRole('tab', { name: title, exact: false }).click();
+        const tab = page.getByRole('tab', { name: title, exact: false });
+        if (await tab.isVisible()) await tab.click();
+        else {
+          if (!await page.locator('#dealett-chat-history').isVisible()) await chats.click();
+          await page.locator('.dealett-chat-history-row > button').filter({ has: page.locator('strong', { hasText: title }) }).click();
+        }
+      };
+      const startNewChat = async () => {
+        if (!await newChat.isVisible()) await chats.click();
+        await newChat.click();
       };
       const sendQuestion = async message => { await input.fill(message); await send.click(); };
       await sendQuestion('Mobil för familjen');
       await page.waitForFunction(() => document.querySelector('.dealett-chat-messages').getAttribute('aria-busy') === 'true');
       const firstId = await page.evaluate(() => window.DealettChat.getConversationId());
-      await newChat.click();
+      await startNewChat();
       await sendQuestion('Bredband hemma');
       const secondId = await page.evaluate(() => window.DealettChat.getConversationId());
       assert.notEqual(firstId, secondId);
@@ -106,7 +115,7 @@ async function run() {
       const bounds = await page.locator('.dealett-chat-panel').boundingBox();
       assert(bounds.x >= 0 && bounds.x + bounds.width <= width + 1);
       assert.deepEqual(errors, []);
-      await newChat.click();
+      await startNewChat();
       await sendQuestion('Ta bort under svar');
       if (!await page.locator('#dealett-chat-history').isVisible()) await chats.click();
       const deleteRow = page.locator('.dealett-chat-history-row').filter({ has: page.locator('strong', { hasText: 'Ta bort under svar' }) });
@@ -118,11 +127,11 @@ async function run() {
       await page.goto(url + 'mobilabonnemang.html', { waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => Boolean(window.DealettChat));
       await page.evaluate(() => window.DealettChat.open());
-      await newChat.click();
+      await startNewChat();
       const widgetInput = page.locator('.dealett-chat-input');
       await widgetInput.fill('Widget ett');
       await widgetInput.press('Enter');
-      await newChat.click();
+      await startNewChat();
       await widgetInput.fill('Widget två');
       await widgetInput.press('Enter');
       await respond('Widget ett');
@@ -139,28 +148,36 @@ async function run() {
       await sendQuestion('Fortsätt från startsidan');
       await respond('Fortsätt från startsidan');
       assert.equal(requests.at(-1).conversationId, widgetId);
-      const countBeforeRestart = await page.getByRole('tab').count();
+      const countBeforeRestart = await page.locator('[role=tab]').count();
       await page.getByRole('button', { name: 'Starta om chatten', exact: true }).click();
-      assert.equal(await page.getByRole('tab').count(), countBeforeRestart);
+      assert.equal(await page.locator('[role=tab]').count(), countBeforeRestart);
       assert.notEqual(await page.evaluate(() => window.DealettChat.getConversationId()), widgetId);
       assert.equal(await page.locator('.dealett-chat-message--user').count(), 0);
       await select('Widget två');
       assert((await page.locator('.dealett-chat-messages').innerText()).includes('Svar: Widget två'));
+      if (width <= 900) {
       const activeTab = page.getByRole('tab', { selected: true });
       await activeTab.focus();
       await activeTab.press('Home');
       assert.equal(await page.getByRole('tab').first().getAttribute('aria-selected'), 'true');
       await page.getByRole('tab').first().press('End');
       assert.equal(await page.getByRole('tab').last().getAttribute('aria-selected'), 'true');
+      }
       await select('Widget två');
-      const tabsBeforeClose = await page.getByRole('tab').count();
-      await page.getByRole('button', { name: 'Stäng flik: Widget två', exact: true }).click();
-      assert.equal(await page.getByRole('tab').count(), tabsBeforeClose - 1);
+      const tabsBeforeClose = await page.locator('[role=tab]').count();
+      if (width <= 900) await page.getByRole('button', { name: 'Stäng flik: Widget två', exact: true }).click();
+      else {
+        await chats.click();
+        const row = page.locator('.dealett-chat-history-row').filter({ has: page.locator('strong', { hasText: 'Widget två' }) });
+        await row.locator('summary').click();
+        await row.getByRole('button', { name: 'Arkivera', exact: true }).click();
+      }
+      assert.equal(await page.locator('[role=tab]').count(), tabsBeforeClose - 1);
       await chats.click();
       await page.getByRole('button', { name: 'Arkiverade chattar', exact: true }).click();
       await page.locator('.dealett-chat-history-row > button').filter({ hasText: 'Widget två' }).click();
       assert((await page.locator('.dealett-chat-messages').innerText()).includes('Svar: Widget två'));
-      assert.equal(await page.getByRole('tab').count(), tabsBeforeClose);
+      assert.equal(await page.locator('[role=tab]').count(), tabsBeforeClose);
       assert.deepEqual(errors, []);
       await page.close();
       console.log(`PASS ${width}px: concurrent replies, isolation, unread, drafts, retry, reload, rename, archive, layout`);

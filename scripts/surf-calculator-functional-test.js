@@ -22,7 +22,7 @@ const server = http.createServer((req, res) => {
       await page.goto(`http://127.0.0.1:${server.address().port}/mobilabonnemang.html`, { waitUntil: 'networkidle' });
       const trigger = page.locator('[data-surf-calculator]');
       await trigger.click();
-      assert.equal(await page.locator('dialog').evaluate(el => el.open), true);
+      assert.equal(await page.locator('.surf-calculator').evaluate(el => el.open), true);
       assert.equal(await page.locator('#surf-wifi').isDisabled(), true);
       const set = async (id, value) => page.locator('#surf-' + id).evaluate((el, value) => { el.value = value; el.dispatchEvent(new Event('input', { bubbles: true })); }, value);
       await set('video', 60);
@@ -44,18 +44,18 @@ const server = http.createServer((req, res) => {
       await set('wifi', 0);
       await page.selectOption('#surf-quality', '0.7');
       await page.screenshot({ path: path.join(process.env.TEMP, `dealett-surf-${width}.png`) });
-      assert.equal(await page.locator('dialog').evaluate(el => el.scrollWidth <= el.clientWidth), true);
+      assert.equal(await page.locator('.surf-calculator').evaluate(el => el.scrollWidth <= el.clientWidth), true);
       await page.keyboard.press('Escape');
-      assert.equal(await page.locator('dialog').evaluate(el => el.open), false);
+      assert.equal(await page.locator('.surf-calculator').evaluate(el => el.open), false);
       assert.equal(await trigger.evaluate(el => el === document.activeElement), true);
       await trigger.click();
       const values = await page.locator('#dataFilter').getAttribute('data-values');
       assert.ok(values, 'Offer API data must populate the existing filter');
       await page.locator('.surf-apply').click();
-      assert.equal(await page.locator('dialog').evaluate(el => el.open), false);
+      assert.equal(await page.locator('.surf-calculator').evaluate(el => el.open), false);
       const chosen = values.split(',').find(v => v === 'unlimited' || Number(v) >= 26);
-      assert.ok((await page.locator('#dataFilterValue').textContent()).includes(chosen === 'unlimited' ? 'Obegränsad' : chosen));
-      assert.ok(await page.locator('.offer-card').count() > 0);
+      assert.ok((await page.locator('#dataFilter option:checked').textContent()).includes(chosen === 'unlimited' ? 'Obegränsad' : chosen));
+      assert.ok(await page.locator('.subscription-offer-card').count() > 0);
       console.log(`${width}px: calculations, limits, Wi-Fi, quality, modal focus and offer filter with API fixture passed (${chosen}).`);
       await page.close();
     }

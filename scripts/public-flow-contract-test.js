@@ -190,8 +190,8 @@ assert(
   { source: mobileOffers, expectedMetaLists: 3, label: 'Mobile' },
   { source: familyOffers, expectedMetaLists: 2, label: 'Family' },
 ].forEach(({ source, expectedMetaLists, label }) => {
-  const metaLists = source.match(/const meta = createElement\('ul', 'offer-card-meta(?: operator-plan-meta)?'\);/g) || [];
-  const bindingFirstLists = source.match(/const meta = createElement\('ul', 'offer-card-meta(?: operator-plan-meta)?'\);\s*\[\s*'24 mån bindningstid'/g) || [];
+  const metaLists = source.match(/const meta = createElement\('ul', '(?:offer-card-meta(?: operator-plan-meta)?|bredband-feature-list)'\);/g) || [];
+  const bindingFirstLists = source.match(/const meta = createElement\('ul', '(?:offer-card-meta(?: operator-plan-meta)?|bredband-feature-list)'\);\s*\[\s*'24 mån bindningstid'/g) || [];
 
   assert(
     metaLists.length === expectedMetaLists && bindingFirstLists.length === metaLists.length,

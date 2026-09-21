@@ -1560,9 +1560,22 @@
       root.querySelector('.dealett-chat-send').disabled = isSending || Boolean(failedTurn);
       if (heroSend) heroSend.disabled = inline && (isSending || Boolean(failedTurn));
       const hasConversation = messages.some(message => message.role === 'user');
+      const startingView = inline && !hasConversation && conversations.get(chatSessionId)?.startingView === true;
       if (heroInput) heroInput.placeholder = inline && hasConversation
         ? (english ? 'Write your reply...' : 'Skriv ditt svar...')
-        : heroInitialPlaceholder;
+        : startingView
+          ? (english ? 'Write here...' : 'Skriv här...')
+          : document.querySelector('.home-intro')
+            ? `${english ? 'Write here.' : 'Skriv här.'} ${heroInitialPlaceholder}`
+            : heroInitialPlaceholder;
+      if (heroInput && document.querySelector('.home-intro') && window.innerWidth > 900) heroInput.placeholder = english ? 'Write your question here...' : 'Skriv din fråga här...';
+      let example = messageList.querySelector('.dealett-chat-starting-example');
+      if (startingView && !example) {
+        example = document.createElement('p');
+        example.className = 'dealett-chat-starting-example';
+        example.textContent = heroInitialPlaceholder;
+        messageList.prepend(example);
+      } else if (!startingView) example?.remove();
       messageList.setAttribute('aria-busy', String(isSending));
       retryButton.hidden = !failedTurn || isSending;
       retryButton.textContent = english ? 'Try again' : 'Försök igen';
@@ -1591,7 +1604,8 @@
       const boundary = obstacles.length ? Math.min(...obstacles.map(box => box.top)) : promptsBox.bottom;
       const promptHeight = Math.max(...[...prompts.children]
         .map(element => element.getBoundingClientRect().height), 0);
-      const height = Math.max(composerBox.height, boundary - composerBox.top - promptHeight - gap - 12);
+      const referenceLayout = Boolean(document.querySelector('.home-intro')) && window.innerWidth > 900;
+      const height = Math.max(composerBox.height, boundary - composerBox.top - (referenceLayout ? 0 : promptHeight + gap) - 12);
       const rightObstacles = [...document.querySelectorAll('.hero-finder, .hero-showcase')]
         .map(element => element.getBoundingClientRect())
         .filter(box => box.height > 0 && box.left >= composerBox.right - 1 && box.top < composerBox.top + height && box.bottom > composerBox.top);
@@ -1614,6 +1628,7 @@
     const refreshInlineSize = () => {
       if (heroGuide?.classList.contains('has-inline-chat')) sizeInlineChat();
       revealActiveTab();
+      if (lastCompletedAssistantItem && !isSending) positionCompletedTurn(lastCompletedAssistantItem, { smooth: false });
     };
     window.addEventListener('resize', refreshInlineSize);
     document.querySelector('link[data-dealett-chat-launcher]')?.addEventListener('load', refreshInlineSize);
@@ -1630,6 +1645,7 @@
       root.classList.add('is-open');
       setHistoryOpen(historyOpen);
       syncInlineState();
+      if (lastCompletedAssistantItem && !isSending) positionCompletedTurn(lastCompletedAssistantItem, { smooth: false });
     };
     const focusChatInput = () => {
       if (backgroundUpdate) return;
@@ -3419,6 +3435,8 @@
         resetChatConversation({ greet: false });
       }
 
+      const entry = conversations.get(chatSessionId);
+      if (entry) entry.startingView = false;
       hasUserStartedChat = true;
       suggestionArea.replaceChildren();
       input.value = '';
@@ -3591,9 +3609,22 @@
     const closeConversationTab = id => {
       const entry = conversations.get(id);
       if (!entry) return;
+      if (document.querySelector('.home-intro') && root.classList.contains('dealett-chat--inline') && !entry.messages.some(message => message.role === 'user')) {
+        if (id === chatSessionId) {
+          entry.startingView = true;
+          persistConversation();
+          syncInlineState();
+          focusChatInput();
+        } else {
+          conversations.delete(id);
+          runtimes.delete(id);
+          persistConversationList();
+        }
+        return;
+      }
       entry.archived = true;
       if (id === chatSessionId) {
-        const open = [...conversations.values()].filter(item => !item.archived);
+        const open = [...conversations.values()].filter(item => !item.archived && !item.startingView);
         if (open.length) selectConversation(open.at(-1).conversationId);
         else startConversation();
       }
@@ -3604,6 +3635,7 @@
       const english = chatLanguage === 'en';
       const unread = [...conversations.values()].filter(entry => entry.unread).length;
       chatsButton.textContent = unread ? `⌄ ${unread}` : '⌄';
+      chatsButton.classList.toggle('has-unread', unread > 0);
       chatsButton.setAttribute('aria-label', `${english ? 'All chats' : 'Alla chattar'}${unread ? ` (${unread})` : ''}`);
       chatsButton.title = english ? 'All chats and archived chats' : 'Alla chattar och arkiverade chattar';
       tabs.setAttribute('aria-label', english ? 'Conversations' : 'Konversationer');
@@ -3611,7 +3643,7 @@
       const tabScroll = tabs.scrollLeft;
       tabs.replaceChildren();
       messageList.id = 'dealett-chat-transcript';
-      [...conversations.values()].filter(entry => !entry.archived).forEach(entry => {
+      [...conversations.values()].filter(entry => !entry.archived && !entry.startingView).forEach(entry => {
         const tab = document.createElement('div');
         tab.className = 'dealett-chat-tab';
         const selected = entry.conversationId === chatSessionId;
@@ -3634,7 +3666,7 @@
         button.addEventListener('keydown', event => {
           if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
           event.preventDefault();
-          const open = [...conversations.values()].filter(item => !item.archived);
+          const open = [...conversations.values()].filter(item => !item.archived && !item.startingView);
           const index = open.findIndex(item => item.conversationId === entry.conversationId);
           const next = event.key === 'Home' ? 0 : event.key === 'End' ? open.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + open.length) % open.length;
           selectConversation(open[next].conversationId);
@@ -3671,7 +3703,7 @@
       archiveToggle.type = 'button';
       archiveToggle.textContent = showArchived ? (english ? 'Back to chats' : 'Tillbaka till chattar') : (english ? 'Archived chats' : 'Arkiverade chattar');
       archiveToggle.addEventListener('click', () => { showArchived = !showArchived; renderConversationList(); });
-      [...conversations.values()].filter(entry => Boolean(entry.archived) === showArchived)
+      [...conversations.values()].filter(entry => !entry.startingView && Boolean(entry.archived) === showArchived)
         .sort((a, b) => b.updatedAt - a.updatedAt).forEach(entry => {
           const row = document.createElement('div');
           row.className = 'dealett-chat-history-row';
@@ -3721,6 +3753,8 @@
           history.append(row);
         });
       history.append(archiveToggle);
+      if (heroForm && root.classList.contains('dealett-chat--inline') && document.querySelector('.home-intro') && window.innerWidth > 900) history.prepend(createButton);
+      else navigation.insertBefore(createButton, restartButton);
     };
     chatsButton.addEventListener('click', () => setHistoryOpen(!historyOpen));
     createButton.addEventListener('click', () => {
@@ -3736,8 +3770,45 @@
       persistConversationList();
       tabs.scrollLeft = tabs.scrollWidth;
     });
+    if (heroForm && document.querySelector('.home-intro')) {
+      const identity = document.createElement('div');
+      identity.className = 'dealett-chat-identity';
+      identity.innerHTML = '<span class="dealett-ai-mark" aria-hidden="true">D<span>.</span></span><div><strong>Dealett AI</strong><span>Din personliga abonnemangsassistent</span></div>';
+      navigation.prepend(identity);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'dealett-chat-delete';
+      remove.setAttribute('aria-label', 'Ta bort aktuell chatt');
+      remove.title = 'Ta bort aktuell chatt';
+      remove.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 10v7M14 10v7"/></svg>';
+      navigation.insertBefore(remove, restartButton);
+      remove.addEventListener('click', () => {
+        if (messages.some(message => message.role === 'user') && !window.confirm('Ta bort den här chatten?')) return;
+        const previousId = chatSessionId;
+        activeChatRequest?.abort();
+        startConversation();
+        conversations.delete(previousId);
+        runtimes.delete(previousId);
+        conversations.get(chatSessionId).startingView = true;
+        persistConversation();
+        syncInlineState();
+      });
+      const actions = document.createElement('div');
+      actions.className = 'dealett-chat-reference-actions';
+      actions.innerHTML = '<button type="button" data-chat-prompt="Hjälp mig att hitta rätt mobilabonnemang"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>Hitta mobilabonnemang<span aria-hidden="true">›</span></button><a href="jamfor-tackning.html"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>Jämför täckning<span aria-hidden="true">›</span></a><button type="button" data-chat-prompt="Hur fungerar presentkort?"><i class="fa-solid fa-gift" aria-hidden="true"></i>Hur fungerar presentkort?<span aria-hidden="true">›</span></button>';
+      actions.addEventListener('click', event => {
+        const prompt = event.target.closest('[data-chat-prompt]');
+        if (prompt) window.DealettChat.ask(prompt.dataset.chatPrompt, { source: 'homepage_ai_guide' });
+      });
+      heroForm.before(actions);
+      const disclaimer = document.createElement('p');
+      disclaimer.className = 'dealett-chat-disclaimer';
+      disclaimer.textContent = 'Dealett AI kan göra fel. Kontrollera alltid viktig information.';
+      heroForm.after(disclaimer);
+      history.append(createButton);
+    }
     setHistoryOpen(historyOpen);
-    window.addEventListener('resize', () => setHistoryOpen(historyOpen));
+    window.addEventListener('resize', () => { setHistoryOpen(historyOpen); renderConversationList(); });
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && historyOpen) { setHistoryOpen(false); chatsButton.focus(); }
     });

@@ -44,27 +44,40 @@ html body:has(.home-intro) .newsletter-section > .home-section-fade--bottom {
 
 @media (min-width: 901px) {
   html body:has(.home-intro) .home-section-fade {
-    height: min(46%, clamp(280px, 26vw, 420px));
-    mask-size: 100% 100%;
-    mask-repeat: no-repeat;
+    display: none;
   }
 
-  html body:has(.home-intro) .home-section-fade--top {
-    top: -1px;
-    mask-image: url("./section-radial-top.png");
+  html body:has(.home-intro) .home-how {
+    background: linear-gradient(0deg, #dcf0ff 2.14501%, #e6ffcb 42.7495%, #efffe5 61.215%, #fff 81.3151%, #fbf8f2 100%) !important;
   }
 
-  html body:has(.home-intro) .home-section-fade--bottom {
-    bottom: -1px;
-    mask-image: url("./section-radial-bottom.png");
+  html body:has(.home-intro) .snabbval-section,
+  html body:has(.home-intro) .snabbval-section .hero-information {
+    background: #dcf0ff !important;
+    border-color: transparent !important;
   }
 
-  html body:has(.home-intro) .home-how > .home-section-fade--top {
-    --section-edge: #fbf8f2;
+  html body:has(.home-intro) .gift-card-section {
+    background: linear-gradient(360deg, #fff 57.7303%, #dcf0ff 100%) !important;
   }
 
-  html body:has(.home-intro) .home-how > .home-section-fade--bottom,
-  html body:has(.home-intro) .gift-card-section > .home-section-fade--top {
-    --section-edge: linear-gradient(95deg, #bc5e25, #e59355);
+  html body:has(.home-intro) .coverage-main.coverage-maplibre-section {
+    background: #fff !important;
+  }
+
+  html body:has(.home-intro) .coverage-maplibre-heading h2 {
+    color: #0d1726 !important;
+  }
+
+  html body:has(.home-intro) .coverage-maplibre-heading__intro {
+    color: #59616a !important;
+  }
+
+  html body:has(.home-intro) .coverage-maplibre-heading__eyebrow {
+    color: #28665f !important;
+  }
+
+  html body:has(.home-intro) .newsletter-section {
+    background: linear-gradient(0deg, #f8f5f0 0%, #fff 25%, #fff 62.5377%, #ddecff 100%) !important;
   }
 }

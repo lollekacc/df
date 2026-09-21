@@ -1,6 +1,5 @@
 (() => {
 const offersContainer = document.querySelector('#offers-container');
-const rewardSection = document.querySelector('#rewardSection');
 const rewardGrid = document.querySelector('#rewardGrid');
 const totalReward = document.querySelector('#totalReward');
 const remainingSum = document.querySelector('#remainingSum');
@@ -8,11 +7,7 @@ const rewardProgressFill = document.querySelector('#rewardProgressFill');
 const rewardContinueBtn = document.querySelector('#rewardContinueBtn');
 const operatorFilter = document.querySelector('#operatorFilter');
 const familySize = document.querySelector('#familySize');
-const familySizeValue = document.querySelector('#familySizeValue');
 const dataFilter = document.querySelector('#dataFilter');
-const dataFilterValue = document.querySelector('#dataFilterValue');
-const dataFilterAll = document.querySelector('#dataFilterAll');
-const dataFilterTicks = document.querySelector('#dataFilterTicks');
 
 const currency = new Intl.NumberFormat('sv-SE');
 const giftCardPlaceholder = 'Presentkort: XXX kr';
@@ -225,8 +220,7 @@ const appendExtraPlanToggle = (fragment, extraNodes, label, anchorNode = null) =
   });
 
   if (anchorNode) {
-    button.classList.add('offer-extra-toggle-button--tab');
-    anchorNode.classList.add('has-extra-toggle-tab');
+    button.classList.add('bredband-tv-btn');
     anchorNode.append(button);
   } else {
     const row = createElement('div', 'offer-extra-toggle-row');
@@ -524,17 +518,16 @@ const renderRewards = (offer) => {
 
 const selectOffer = (offer, card) => {
   selectedOffer = offer;
-  const selectedCard = card.closest?.('.offer-card') || card;
+  const selectedCard = card.closest?.('.subscription-offer-card') || card;
 
-  offersContainer?.querySelectorAll('.offer-card, .operator-plan-row').forEach((item) => {
-    item.classList.remove('is-selected');
+  offersContainer?.querySelectorAll('.subscription-offer-card, .operator-plan-row').forEach((item) => {
+    item.classList.remove('is-selected', 'active');
   });
 
-  selectedCard.classList.add('is-selected');
+  selectedCard.classList.add('is-selected', 'active');
   card.classList.add('is-selected');
-  rewardSection?.classList.remove('is-hidden');
   renderRewards(offer);
-  rewardSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.DealettSubscriptionUI.select(offer);
 };
 
 const resetOfferQuestions = () => {
@@ -542,7 +535,7 @@ const resetOfferQuestions = () => {
     panel.remove();
   });
 
-  offersContainer?.querySelectorAll('.offer-card').forEach((card) => {
+  offersContainer?.querySelectorAll('.subscription-offer-card').forEach((card) => {
     card.classList.remove('is-answering', 'is-selected');
     card.querySelector('.offer-card-questions')?.remove();
     card.querySelector('.offer-card-details')?.classList.remove('is-hidden');
@@ -778,7 +771,7 @@ const renderCustomerQuestion = (offer, card, answers) => {
 const renderPersonQuestion = (offer, card) => {
   resetOfferQuestions();
   selectedOffer = null;
-  rewardSection?.classList.add('is-hidden');
+  window.DealettSubscriptionUI.reset();
 
   const answers = {};
   const questionBox = createElement('div', 'offer-card-questions');
@@ -817,35 +810,21 @@ const renderPersonQuestion = (offer, card) => {
 
 const renderOperatorFilter = () => {
   if (!operatorFilter) return;
-
-  const fragment = document.createDocumentFragment();
-  ['Alla', ...offers.map((offer) => offer.provider)].forEach((operator) => {
-    const button = createElement('button', 'operator-filter-button', operator);
-    const isActive = operator === activeOperator;
-    button.type = 'button';
-    button.classList.toggle('is-active', isActive);
-    button.setAttribute('aria-pressed', String(isActive));
-    button.addEventListener('click', () => {
-      activeOperator = operator;
-      renderOperatorFilter();
-      renderOffers();
-    });
-    fragment.append(button);
+  operatorFilter.replaceChildren(...['Alla', ...offers.map((offer) => offer.provider)].map((operator) => {
+    const option = createElement('option', '', operator);
+    option.value = operator;
+    return option;
+  }));
+  operatorFilter.value = activeOperator;
+  operatorFilter.addEventListener('change', () => {
+    activeOperator = operatorFilter.value;
+    renderOffers();
   });
-  operatorFilter.replaceChildren(fragment);
 };
 
 const getPlanDataValue = (plan) => (
   Number(plan.dataAmount) >= 999 ? 'unlimited' : String(Number(plan.dataAmount) || 0)
 );
-
-const updateRangeProgress = (input) => {
-  if (!input) return;
-  const min = Number(input.min) || 0;
-  const max = Number(input.max) || 1;
-  const progress = ((Number(input.value) - min) / Math.max(max - min, 1)) * 100;
-  input.style.setProperty('--range-progress', `${progress}%`);
-};
 
 const renderDataFilter = (plans) => {
   if (!dataFilter || dataFilter.dataset.ready === 'true') return;
@@ -863,41 +842,17 @@ const renderDataFilter = (plans) => {
     dataSteps.push('unlimited');
   }
 
-  dataFilter.min = '0';
-  dataFilter.max = String(Math.max(dataSteps.length - 1, 0));
-  dataFilter.value = String(Math.min(1, Math.max(dataSteps.length - 1, 0)));
+  dataFilter.replaceChildren(new Option('Alla', 'all'), ...dataSteps.map((value, index) =>
+    new Option(value === 'unlimited' ? '∞ Obegränsad' : `${value} GB`, String(index))
+  ));
+  dataFilter.value = 'all';
   dataFilter.dataset.values = dataSteps.join(',');
   dataFilter.dataset.ready = 'true';
-  if (dataFilterTicks) {
-    dataFilterTicks.replaceChildren(...dataSteps.map((value) => {
-      const tick = document.createElement('span');
-      tick.dataset.label = value === 'unlimited' ? '∞' : value;
-      return tick;
-    }));
-  }
-  updateRangeProgress(dataFilter);
   activeData = 'all';
-  if (dataFilterValue) dataFilterValue.textContent = 'Alla';
-  dataFilterAll?.classList.add('is-active');
-  dataFilterAll?.setAttribute('aria-pressed', 'true');
 };
 
 const updateDataFilterValue = () => {
-  activeData = dataSteps[Number(dataFilter?.value) || 0] || null;
-  updateRangeProgress(dataFilter);
-  if (!dataFilterValue) return;
-  dataFilterValue.textContent = activeData === 'unlimited'
-      ? '∞ Obegränsad'
-      : activeData
-        ? `${activeData} GB`
-        : '—';
-  dataFilterAll?.classList.remove('is-active');
-  dataFilterAll?.setAttribute('aria-pressed', 'false');
-};
-
-const updateFamilySizeValue = () => {
-  updateRangeProgress(familySize);
-  if (familySizeValue) familySizeValue.textContent = familySize?.value || '2';
+  activeData = dataFilter.value === 'all' ? 'all' : dataSteps[Number(dataFilter.value)];
 };
 
 const createFamilyPlanCard = (plan, addonPlan, offer, persons) => {
@@ -911,50 +866,47 @@ const createFamilyPlanCard = (plan, addonPlan, offer, persons) => {
   const selectedPlan = buildFamilyPlanOffer(plan, addonPlan, offer, answers);
   const dataLabel = getPlanDataLabel(plan);
   const surfLabel = dataLabel === 'Obegränsad' ? 'obegränsad' : dataLabel;
-  const card = createElement('article', 'offer-card plan-card family-plan-card');
+  const card = createElement('article', 'subscription-offer-card bredband-offer-card');
   card.dataset.operator = plan.operator;
   card.style.setProperty('--offer-accent', offer.accent);
 
-  const logoBackground = createElement('div', 'offer-card-logo-background');
-  const logoStage = createElement('div', 'offer-card-logo-stage');
   const logoSource = plan.logo || offer.logo;
-  logoBackground.style.backgroundImage = `url("${String(logoSource).replace(/"/g, '\\"')}")`;
-  logoBackground.setAttribute('aria-hidden', 'true');
-  logoStage.append(logoBackground);
-
-  const details = createElement('div', 'offer-card-details');
-  const heading = createElement('div', 'offer-card-copy');
+  const heading = createElement('div', 'subscription-card-copy');
   heading.append(
-    createElement('span', 'plan-operator-name', plan.operator),
-    createElement('h3', '', plan.title || dataLabel),
+    createElement('p', 'bredband-operator-name', plan.operator),
+    createElement('p', 'bredband-operator-speed', plan.title || dataLabel),
     createElement('p', 'plan-description', `${persons} abonnemang med ${surfLabel} surf per abonnemang.`)
   );
   const streamingServices = createStreamingServiceRow(plan);
   if (streamingServices) heading.append(streamingServices);
 
-  const price = createElement('p', 'plan-price');
+  const price = createElement('p', 'bredband-price');
   price.innerHTML = `<strong>${formatCurrency(selectedPlan.price)} kr</strong><span>/mån totalt</span>`;
-  const perPerson = createElement('p', 'plan-price-detail', `${formatCurrency(selectedPlan.pricePerPerson)} kr per person`);
+  const perPerson = createElement('p', 'bredband-binding', `${formatCurrency(selectedPlan.pricePerPerson)} kr per person`);
 
-  const meta = createElement('ul', 'offer-card-meta');
+  const meta = createElement('ul', 'bredband-feature-list');
   [
     '24 mån bindningstid',
     getRoamingServiceLabel(plan),
     `${formatCurrency(selectedPlan.addonPrice)} kr per extra abonnemang`,
   ].filter(Boolean).forEach((item) => meta.append(createElement('li', '', item)));
 
-  const button = createElement('button', 'offer-card-action', 'Välj familjeabonnemang');
+  const button = createElement('button', 'offer-card-action bredband-choose-btn', 'Välj familjeabonnemang');
   button.type = 'button';
   button.addEventListener('click', () => selectOffer(selectedPlan, card));
 
-  const actions = createElement('div', 'offer-card-actions');
+  const actions = createElement('div', 'bredband-offer-footer');
   actions.append(
     createCompareButton(buildFamilyCompareItem(selectedPlan, plan, answers), { compact: false }),
     button
   );
 
-  details.append(heading, price, perPerson, meta, actions);
-  card.append(createGiftCardHeader(), logoStage, details);
+  window.DealettSubscriptionUI.buildCard(card, {
+    logo: logoSource, operator: plan.operator, heading, price, priceDetail: perPerson, meta, actions,
+    reward: selectedPlan.reward, onSelect: () => selectOffer(selectedPlan, card),
+  });
+  card.dataset.planId = selectedPlan.planId;
+  if (selectedOffer?.planId === selectedPlan.planId) card.classList.add('active', 'is-selected');
   return card;
 };
 
@@ -1072,34 +1024,23 @@ rewardContinueBtn?.addEventListener('click', () => {
       answers: cartItem.answers,
     },
   });
+  window.DealettSubscriptionUI.closeRewards();
   openCartDrawer(cart);
 });
 
 window.DealettCart?.bindDrawerEvents();
 familySize?.addEventListener('change', () => {
-  updateFamilySizeValue();
   selectedOffer = null;
-  rewardSection?.classList.add('is-hidden');
+  window.DealettSubscriptionUI.reset();
   renderOffers();
 });
-familySize?.addEventListener('input', updateFamilySizeValue);
 dataFilter?.addEventListener('change', () => {
   updateDataFilterValue();
   selectedOffer = null;
-  rewardSection?.classList.add('is-hidden');
+  window.DealettSubscriptionUI.reset();
   renderOffers();
 });
 dataFilter?.addEventListener('input', updateDataFilterValue);
-dataFilterAll?.addEventListener('click', () => {
-  activeData = 'all';
-  if (dataFilterValue) dataFilterValue.textContent = 'Alla';
-  dataFilterAll.classList.add('is-active');
-  dataFilterAll.setAttribute('aria-pressed', 'true');
-  selectedOffer = null;
-  rewardSection?.classList.add('is-hidden');
-  renderOffers();
-});
 renderOperatorFilter();
-updateFamilySizeValue();
 renderOffers();
 })();

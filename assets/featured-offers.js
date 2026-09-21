@@ -32,7 +32,7 @@
           row.append(icon, document.createTextNode(text));
           return row;
         }));
-        button.querySelector('.offer-content__amount').replaceChildren(document.createTextNode(`${format(offer.rewardTotal)} `), Object.assign(document.createElement('span'), { textContent: 'kr' }));
+        button.querySelector('.offer-content__amount').textContent = `${format(offer.rewardTotal)}:-`;
         button.setAttribute('aria-label', `Köp ${offer.operator} ${offer.title}, ${offer.persons} abonnemang, ${format(offer.monthlyPrice)} kr per månad`);
       });
       status.textContent = offers.some(offer => !offer.available) ? 'Vissa erbjudanden är inte tillgängliga just nu.' : '';
