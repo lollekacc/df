@@ -372,7 +372,12 @@
     els.contactSection?.classList.add('is-hidden');
   };
 
+  const giftCardProviders = ['Apollo', 'H&M', 'Hotel', 'ICA Maxi', 'Mio', 'Zalando', 'Ticketmaster', 'Apotea'];
+
+  const giftCardLogos = ['apollo', 'hm', 'hotels', 'ica', 'mio', 'zalando', 'ticketmaster', 'apotea'];
+
   const renderSummaryCard = (item, index) => {
+    const selectedProvider = Object.keys(item.rewards || {}).find((provider) => giftCardProviders.includes(provider) && item.rewards[provider] > 0) || '';
     const accent = getAccent(item.operator);
     const accentSoft = `${accent}14`;
     const rewardLabel = item.featuredOfferId ? `Presentkort: ${formatCurrency(item.rewardTotal)} kr` : 'Presentkort: XXX kr';
@@ -402,6 +407,24 @@
       '      </div>',
       '    </div>',
       '  </div>',
+      item.rewardTotal > 0 ? [
+        '  <fieldset class="cart-gift-choice">',
+        '    <legend>Vilket presentkort vill du ha?</legend>',
+        `    <p id="cartGiftHelp-${index}">Välj ditt presentkort nedan. Det ingår i ditt erbjudande.</p>`,
+        '    <div class="cart-gift-grid">',
+        ...giftCardProviders.map((provider, providerIndex) => [
+          '      <label class="cart-gift-option">',
+          `        <input type="radio" id="cartGiftCard-${index}-${providerIndex}" name="cartGiftCard-${index}" data-cart-gift-choice="${index}" value="${escapeHtml(provider)}" aria-describedby="cartGiftHelp-${index}"${provider === selectedProvider ? ' checked' : ''} required>`,
+          '        <span class="cart-gift-tile">',
+          `          <img src="images/gift-logos/${giftCardLogos[providerIndex]}.png" alt="" width="120" height="48">`,
+          `          <span>${escapeHtml(provider)}</span>`,
+          '          <span class="cart-gift-check" aria-hidden="true">✓</span>',
+          '        </span>',
+          '      </label>',
+        ].join('')),
+        '    </div>',
+        '  </fieldset>',
+      ].join('') : '',
       '  <div class="cart-summary-bottom">',
       '    <ul class="cart-feature-list">',
       ...item.features.map((feature) => `      <li><i class="fa-solid fa-check"></i>${escapeHtml(feature)}</li>`),
@@ -947,6 +970,17 @@
   };
 
   const bindEvents = () => {
+    els.cartSummaryContainer?.addEventListener('change', (event) => {
+      const choice = event.target.closest('[data-cart-gift-choice]');
+      if (!choice || !choice.checked) return;
+      const index = Number(choice.dataset.cartGiftChoice);
+      const item = cart[index];
+      if (!item || !giftCardProviders.includes(choice.value)) return;
+      item.rewards = { [choice.value]: item.rewardTotal };
+      item.rewardMixLabel = `${choice.value}: ${formatCurrency(item.rewardTotal)} kr`;
+      syncStoredCart();
+      document.getElementById(choice.id)?.focus({ preventScroll: true });
+    });
     els.cartSummaryContainer?.addEventListener('click', (event) => {
       const removeButton = event.target.closest('[data-remove-cart-item]');
       if (!removeButton) return;

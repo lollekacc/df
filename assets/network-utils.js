@@ -87,9 +87,64 @@
     return response.text();
   };
 
+  const fetchChat = async (resource, options = {}) => {
+    const { onDelta, timeoutMs = 60000, signal, label = 'Dealett assistant', ...fetchOptions } = options;
+    const controller = new AbortController();
+    const abort = () => controller.abort();
+    if (signal?.aborted) controller.abort();
+    else signal?.addEventListener('abort', abort, { once: true });
+    const timeout = window.setTimeout(abort, timeoutMs);
+    let reader;
+    const started = performance.now();
+    let firstTextMs = null;
+    try {
+      const response = await fetch(resolveResource(resource), {
+        ...fetchOptions,
+        headers: { ...fetchOptions.headers, Accept: 'text/event-stream' },
+        signal: controller.signal,
+      });
+      if (!response.ok) throw createFetchError(label, response);
+      if (!response.headers.get('content-type')?.includes('text/event-stream')) return await response.json();
+      if (!response.body) throw new Error('Missing chat response');
+      reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        buffer += done ? decoder.decode() : decoder.decode(value, { stream: true });
+        let boundary;
+        while ((boundary = /\r?\n\r?\n/.exec(buffer))) {
+          const block = buffer.slice(0, boundary.index);
+          buffer = buffer.slice(boundary.index + boundary[0].length);
+          const lines = block.split(/\r?\n/);
+          const event = lines.find(line => line.startsWith('event:'))?.slice(6).trim();
+          const data = lines.filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n');
+          if (!data) continue;
+          const payload = JSON.parse(data);
+          if (event === 'error') throw new Error(payload.error || 'Chat response failed');
+          if (event === 'delta' && typeof payload.text === 'string') {
+            if (firstTextMs === null) firstTextMs = Math.round(performance.now() - started);
+            onDelta?.(payload.text);
+          }
+          if (event === 'done') {
+            return { ...payload, clientPerformance: { firstTextMs, totalMs: Math.round(performance.now() - started) } };
+          }
+        }
+        if (buffer.length > 2_000_000) throw new Error('Chat response too large');
+        if (done) throw new Error('Chat response was interrupted');
+      }
+    } finally {
+      await reader?.cancel().catch(() => {});
+      reader?.releaseLock();
+      window.clearTimeout(timeout);
+      signal?.removeEventListener('abort', abort);
+    }
+  };
+
   window.DealettNetwork = {
     apiBase: API_BASE,
     fetchJson,
+    fetchChat,
     fetchText,
     fetchWithTimeout,
     resolveResource,

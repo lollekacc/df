@@ -3301,6 +3301,23 @@
 
       setSending(true);
       let requestFailed = false;
+      let streamingItem = null;
+      let streamedText = '';
+      const showDelta = delta => inConversation(requestConversationId, () => {
+        if (requestController.signal.aborted) return;
+        hideTypingIndicator();
+        if (!streamingItem) {
+          streamingItem = document.createElement('article');
+          streamingItem.className = 'dealett-chat-message dealett-chat-message--assistant';
+          streamingItem.dataset.streaming = 'true';
+          streamingItem.setAttribute('aria-busy', 'true');
+          streamingItem.innerHTML = '<div class="dealett-chat-bubble"><p data-no-translate></p></div>';
+          messageList.append(streamingItem);
+        }
+        streamedText += delta;
+        streamingItem.querySelector('p').textContent = streamedText;
+        scrollMessages();
+      });
       const clientRecord = options.messageRecord || null;
       if (clientRecord) {
         clientRecord.delivery = 'pending';
@@ -3321,7 +3338,8 @@
       }));
 
       try {
-        const response = await window.DealettNetwork.fetchJson('/api/chat', {
+        const response = await window.DealettNetwork.fetchChat('/api/chat', {
+          onDelta: showDelta,
           label: 'Dealett assistant',
           method: 'POST',
           timeoutMs: 60000,
@@ -3356,6 +3374,8 @@
             conversationToken = response.conversationToken;
             persistConversation();
           }
+          streamingItem?.remove();
+          streamingItem = null;
           renderAssistantResponse(response);
           if (clientRecord) clientRecord.delivery = 'sent';
           failedTurn = null;
@@ -3365,6 +3385,8 @@
         requestFailed = true;
       } finally {
         inConversation(requestConversationId, () => {
+          streamingItem?.remove();
+          streamingItem = null;
           activeChatRequest = null;
           if (requestFailed && clientRecord) {
             clientRecord.delivery = 'failed';

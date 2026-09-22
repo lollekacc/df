@@ -26,8 +26,8 @@ const { CdpPage, CHROME, delay, getFreePort, waitForJson } = require('./checkout
     };
     await wait('document.querySelectorAll("[data-featured-offer]:not(:disabled)").length === 4');
     for (const [id, operator, persons, price, reward] of [
-      ['family-4', 'Telenor', 4, 1136, 4000], ['family-3', 'Tele2', 3, 737, 3000],
-      ['duo-2', 'Tre', 2, 578, 2000], ['single-1', 'Telia', 1, 499, 1000],
+      ['family-4', 'Telia', 4, 1166, 4000], ['family-3', 'Tele2', 3, 737, 3000],
+      ['duo-2', 'Tre', 2, 578, 2000], ['single-1', 'Telenor', 1, 449, 1000],
     ]) {
       await page.evaluate('window.DealettCart.clearCart(); window.DealettCart.closeDrawer()');
       const selector = `[data-featured-offer="featured-${id}"]`;

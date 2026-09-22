@@ -814,7 +814,7 @@ const main = async () => {
       const page = await createPage(debugBase);
       const chatState = await page.evaluate(`(async () => {
         window.__chatRequests = [];
-        window.DealettNetwork.fetchJson = async (url, options) => {
+        window.DealettNetwork.fetchChat = async (url, options) => {
           if (url !== '/api/chat') throw new Error('Unexpected request: ' + url);
           const request = JSON.parse(options.body);
           window.__chatRequests.push(request);

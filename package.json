@@ -11,6 +11,8 @@
     "test:public-flow": "node scripts/public-flow-contract-test.js && node scripts/snabbval-contract-test.js",
     "test:checkout": "node scripts/checkout-functional-test.js",
     "test:checkout:visual": "node scripts/checkout-visual-test.js",
-    "test:chat": "node scripts/home-chat-functional-test.js && node scripts/multi-chat-functional-test.js"
+    "test:chat": "node scripts/home-chat-functional-test.js && node scripts/multi-chat-functional-test.js && npm run test:chat-network",
+    "test:chat-network": "node --test scripts/chat-network.test.js",
+    "test:chat-stream": "node scripts/chat-stream-functional-test.js"
   }
 }

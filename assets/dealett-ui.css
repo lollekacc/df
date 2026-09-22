@@ -11699,7 +11699,7 @@ html body:has(.home-intro) .hero.hero .hero-showcase--editorial {
 }
 
 html body:has(.home-intro) .hero.hero .hero-showcase--editorial .hero-offer-tile {
-  --offer-accent: #005b89;
+  --offer-accent: #7c2788;
   display: block !important;
   aspect-ratio: auto !important;
   height: auto !important;
@@ -11727,7 +11727,7 @@ html body:has(.home-intro) .hero.hero .hero-showcase--editorial .hero-offer-tile
 }
 
 html body:has(.home-intro) .hero.hero .hero-showcase--editorial .hero-offer-tile--single {
-  --offer-accent: #7c2788;
+  --offer-accent: #005b89;
 }
 
 html body:has(.home-intro) .hero.hero .hero-showcase--editorial .hero-offer-tile:enabled:hover {

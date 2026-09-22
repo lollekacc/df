@@ -628,6 +628,12 @@
       }
 
       if (event.target.closest('#cartCheckoutBtn') && readCart().length) {
+        const missingGiftChoice = [...cartDrawer.querySelectorAll('[data-cart-gift-choice]')].find((select) => !select.checkValidity());
+        if (missingGiftChoice) {
+          missingGiftChoice.reportValidity();
+          missingGiftChoice.focus();
+          return;
+        }
         setDrawerStep('checkout');
         cartDrawer.querySelector('#contactEmail')?.focus();
         return;
