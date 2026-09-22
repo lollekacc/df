@@ -26,7 +26,7 @@
           ? `${Number.isInteger(offer.monthlyPrice / offer.persons) ? '' : '≈ '}${format(Math.round(offer.monthlyPrice / offer.persons))} kr/person och månad`
           : 'Ett abonnemang. Hela priset.';
         button.querySelector('.offer-content__benefit').textContent = `${offer.bindingMonths} mån bindningstid`;
-        const logo = button.querySelector('.offer-content__brand img');
+        const logo = button.querySelector('.offer-content__watermark img');
         logo.src = offer.logo;
         logo.alt = offer.operator;
         const features = button.querySelector('[data-offer-features]');
