@@ -999,11 +999,17 @@
       ? [[10.4, 55.0], [24.5, 70.5]]
       : swedenFitBounds;
 
-    return map.cameraForBounds(cameraBounds, {
+    const camera = map.cameraForBounds(cameraBounds, {
       padding: getSwedenFitPadding(),
       bearing: swedenCameraBase.bearing,
       pitch: swedenCameraBase.pitch,
     });
+
+    if (camera && app.querySelector('.coverage-toolbar') && !window.matchMedia('(max-width: 760px)').matches) {
+      camera.center = [camera.center.lng, camera.center.lat - 4];
+    }
+
+    return camera;
   };
 
   const applySwedenMinZoom = () => {
@@ -1744,6 +1750,8 @@
     return;
   }
 
+  resetToSweden(false);
+
   map.touchZoomRotate.enable();
   map.scrollZoom.enable();
   map.dragPan.enable();
@@ -2476,7 +2484,6 @@
     updateCoverageLayer();
     setupGeocoder();
     map.resize();
-    resetToSweden(false);
     syncPerspectiveButton();
     updateMapScaleMode();
     refreshCoverageRendering();
