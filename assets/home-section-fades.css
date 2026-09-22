@@ -48,17 +48,55 @@ html body:has(.home-intro) .newsletter-section > .home-section-fade--bottom {
   }
 
   html body:has(.home-intro) .home-how {
-    background: linear-gradient(0deg, #dcf0ff 2.14501%, #e6ffcb 42.7495%, #efffe5 61.215%, #fff 81.3151%, #fbf8f2 100%) !important;
+    background: linear-gradient(0deg, #f8e2d2 2.14501%, #ffecd5 42.7495%, #fff3e7 61.215%, #fff 81.3151%, #fbf8f2 100%) !important;
   }
 
   html body:has(.home-intro) .snabbval-section,
   html body:has(.home-intro) .snabbval-section .hero-information {
-    background: #dcf0ff !important;
+    background: #0d1726 !important;
     border-color: transparent !important;
   }
 
+  html body:has(.home-intro) .snabbval-section .hero-information__title,
+  html body:has(.home-intro) .snabbval-section .hero-information__title span {
+    color: #fff !important;
+  }
+
+  html body:has(.home-intro) .snabbval-section .hero-information__item:first-child {
+    background: #fff !important;
+    color: #0d1726 !important;
+  }
+
+  html body:has(.home-intro) .snabbval-section .hero-information__item:first-child .hero-information__arrow {
+    background: #c66f20;
+    color: #fff;
+  }
+
   html body:has(.home-intro) .gift-card-section {
-    background: linear-gradient(360deg, #fff 57.7303%, #dcf0ff 100%) !important;
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(360deg, #fff 57.7303%, #f8e2d2 100%) !important;
+  }
+
+  html body:has(.home-intro) .gift-card-section::before {
+    content: "" !important;
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    width: auto;
+    height: auto;
+    border: 0;
+    transform: none;
+    will-change: auto;
+    z-index: -1;
+    pointer-events: none;
+    background: url("../images/gift-amber-ribbons.jpg") center / cover no-repeat;
+    mix-blend-mode: multiply;
+    opacity: .48;
+    mask-image:
+      linear-gradient(to right, #000, transparent 22%, transparent 82%, #000),
+      linear-gradient(to bottom, transparent, #000 24%, #000 72%, transparent);
+    mask-composite: intersect;
   }
 
   html body:has(.home-intro) .coverage-main.coverage-maplibre-section {
@@ -74,10 +112,10 @@ html body:has(.home-intro) .newsletter-section > .home-section-fade--bottom {
   }
 
   html body:has(.home-intro) .coverage-maplibre-heading__eyebrow {
-    color: #28665f !important;
+    color: #a45128 !important;
   }
 
   html body:has(.home-intro) .newsletter-section {
-    background: linear-gradient(0deg, #f8f5f0 0%, #fff 25%, #fff 62.5377%, #ddecff 100%) !important;
+    background: linear-gradient(0deg, #f8f5f0 0%, #fff 25%, #fff 62.5377%, #f8e2d2 100%) !important;
   }
 }

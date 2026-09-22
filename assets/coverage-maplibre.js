@@ -27,7 +27,11 @@
     telenor: 'Telenor',
     tre: 'Tre',
   };
-  const coverageQualityColors = {
+  const coverageQualityColors = app.querySelector('.coverage-toolbar') ? {
+    excellent: '#ef6b16',
+    good: '#ff9b45',
+    basic: '#ffd39a',
+  } : {
     excellent: '#57597f',
     good: '#4f9d9e',
     basic: '#f3b04a',
@@ -911,7 +915,7 @@
     }
 
     state.isPerspectiveMode = map.getPitch() > 6;
-    perspectiveButton.textContent = state.isPerspectiveMode ? '3D' : '2D';
+    (perspectiveButton.querySelector('span') || perspectiveButton).textContent = state.isPerspectiveMode ? '3D' : '2D';
     perspectiveButton.classList.toggle('is-active', state.isPerspectiveMode);
     perspectiveButton.setAttribute('aria-pressed', String(state.isPerspectiveMode));
   };
@@ -973,6 +977,12 @@
   };
 
   const getSwedenFitPadding = () => {
+    if (app.querySelector('.coverage-toolbar')) {
+      return window.matchMedia('(max-width: 760px)').matches
+        ? { top: 400, right: 60, bottom: 100, left: 24 }
+        : { top: 70, right: 180, bottom: 100, left: Math.min(500, window.innerWidth * 0.36) };
+    }
+
     if (window.matchMedia('(max-width: 720px)').matches) {
       return { top: 240, right: 24, bottom: 160, left: 24 };
     }
@@ -984,11 +994,17 @@
     return { top: 90, right: 80, bottom: 100, left: 280 };
   };
 
-  const getSwedenCamera = () => map.cameraForBounds(swedenFitBounds, {
-    padding: getSwedenFitPadding(),
-    bearing: swedenCameraBase.bearing,
-    pitch: swedenCameraBase.pitch,
-  });
+  const getSwedenCamera = () => {
+    const cameraBounds = app.querySelector('.coverage-toolbar')
+      ? [[10.4, 55.0], [24.5, 70.5]]
+      : swedenFitBounds;
+
+    return map.cameraForBounds(cameraBounds, {
+      padding: getSwedenFitPadding(),
+      bearing: swedenCameraBase.bearing,
+      pitch: swedenCameraBase.pitch,
+    });
+  };
 
   const applySwedenMinZoom = () => {
     const swedenCamera = getSwedenCamera();

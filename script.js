@@ -1560,6 +1560,8 @@
       root.querySelector('.dealett-chat-send').disabled = isSending || Boolean(failedTurn);
       if (heroSend) heroSend.disabled = inline && (isSending || Boolean(failedTurn));
       const hasConversation = messages.some(message => message.role === 'user');
+      const quickActions = heroGuide?.querySelector('.dealett-chat-reference-actions');
+      if (quickActions) quickActions.hidden = hasConversation || conversations.get(chatSessionId)?.quickActionsDismissed === true;
       const startingView = inline && !hasConversation && conversations.get(chatSessionId)?.startingView === true;
       if (heroInput) heroInput.placeholder = inline && hasConversation
         ? (english ? 'Write your reply...' : 'Skriv ditt svar...')
@@ -1606,11 +1608,7 @@
         .map(element => element.getBoundingClientRect().height), 0);
       const referenceLayout = Boolean(document.querySelector('.home-intro')) && window.innerWidth > 900;
       const height = Math.max(composerBox.height, boundary - composerBox.top - (referenceLayout ? 0 : promptHeight + gap) - 12);
-      const rightObstacles = [...document.querySelectorAll('.hero-finder, .hero-showcase')]
-        .map(element => element.getBoundingClientRect())
-        .filter(box => box.height > 0 && box.left >= composerBox.right - 1 && box.top < composerBox.top + height && box.bottom > composerBox.top);
-      const rightBoundary = rightObstacles.length ? Math.min(...rightObstacles.map(box => box.left)) - 24 : composerBox.right;
-      const width = Math.max(composerBox.width, Math.min(rightBoundary, window.innerWidth - 16) - composerBox.left);
+      const width = composerBox.width;
       const values = {
         'guide-height': guideBox.height,
         'composer-top': composerBox.top - guideBox.top,
@@ -3797,6 +3795,11 @@
       actions.className = 'dealett-chat-reference-actions';
       actions.innerHTML = '<button type="button" data-chat-prompt="Hjälp mig att hitta rätt mobilabonnemang"><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>Hitta mobilabonnemang<span aria-hidden="true">›</span></button><a href="jamfor-tackning.html"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>Jämför täckning<span aria-hidden="true">›</span></a><button type="button" data-chat-prompt="Hur fungerar presentkort?"><i class="fa-solid fa-gift" aria-hidden="true"></i>Hur fungerar presentkort?<span aria-hidden="true">›</span></button>';
       actions.addEventListener('click', event => {
+        if (!event.target.closest('button, a')) return;
+        const entry = conversations.get(chatSessionId);
+        if (entry) entry.quickActionsDismissed = true;
+        persistConversation();
+        syncInlineState();
         const prompt = event.target.closest('[data-chat-prompt]');
         if (prompt) window.DealettChat.ask(prompt.dataset.chatPrompt, { source: 'homepage_ai_guide' });
       });

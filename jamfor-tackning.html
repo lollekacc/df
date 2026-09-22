@@ -12,93 +12,60 @@
     <link rel="stylesheet" href="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.5.0/dist/maplibre-gl-geocoder.css" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="stylesheet" href="./assets/jamfor-tackning.css" />
     <link rel="stylesheet" href="styles-redesign.css" />
     <link rel="stylesheet" href="styles-editorial.css" />
     <link rel="stylesheet" href="./assets/dealett-ui.css" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
+    <link rel="stylesheet" href="./assets/jamfor-tackning.css" />
   </head>
   <body class="jamfor-page">
     <div data-include="header"></div>
 
     <main>
-      <section class="coverage-hero" data-header-anchor-target>
-        <img
-          src="images/editorial-hero-connectivity.png"
-          alt="T&auml;ckningskarta och mobiln&auml;t"
-          class="coverage-hero__img"
-          fetchpriority="high"
-          decoding="async"
-        />
-        <div class="coverage-hero__bg"></div>
-
-        <div class="page-shell coverage-hero__inner">
-          <div class="coverage-hero__copy">
-            <span class="coverage-badge">T&auml;ckningsfilter</span>
-            <h1>J&auml;mf&ouml;r Täckningskartor.</h1>
-            <p>
-              B&ouml;rja med operat&ouml;ren och v&auml;lj sedan vilken t&auml;ckning du vill f&ouml;rst&aring;.
-              Kartan visar en uppskattning, inte ett l&ouml;fte.
-            </p>
-
-          </div>
-
-          <aside class="coverage-hero__panel" aria-label="Aktuellt val">
-            <div class="hero-panel-card">
-              <div class="hero-panel-card__top">
-                <span class="hero-panel-card__label">Aktuellt val</span>
-                <span id="heroActiveOperator" class="hero-panel-card__pill">Ingen vald</span>
-              </div>
-
-              <div class="hero-panel-card__body">
-                <p>V&auml;lj ett n&auml;t f&ouml;rst. Anv&auml;nd sedan filter f&ouml;r tj&auml;nst, plats och kvalitet.</p>
-                <div class="hero-panel-card__chips">
-                  <span>N&auml;t</span>
-                  <span>Tj&auml;nst</span>
-                  <span>Plats</span>
-                  <span>Kvalitet</span>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section class="coverage-main coverage-maplibre-section section-space" id="coverageApp" data-coverage-map="real" data-map-engine="maplibre">
+      <section class="coverage-main coverage-maplibre-section" id="coverageApp" data-coverage-map="real" data-map-engine="maplibre">
         <div class="coverage-maplibre-shell">
-          <div id="coverageMapLibre" class="coverage-maplibre-canvas" aria-label="Interaktiv t&auml;ckningskarta"></div>
-          <div class="coverage-maplibre-scrim" aria-hidden="true"></div>
+          <section class="coverage-intro" data-header-anchor-target>
+            <span class="coverage-eyebrow">Täckning</span>
+            <h1>Jämför täckning</h1>
+            <p>Se vilket mobilnät som passar bäst där du bor, arbetar eller befinner dig.</p>
+          </section>
 
-          <aside class="coverage-maplibre-sidebar" aria-label="T&auml;ckningsfilter">
-            <div class="coverage-maplibre-copy">
-              <p class="coverage-maplibre-kicker">T&auml;ckning &amp; n&auml;t</p>
-              <h2>V&auml;lj operat&ouml;r och utforska kartan</h2>
-              <p>Se t&auml;ckning, j&auml;mf&ouml;r n&auml;t och s&ouml;k direkt p&aring; adress eller stad f&ouml;r att f&aring; en tydligare bild av l&auml;get d&auml;r du bor.</p>
-            </div>
-
-            <div class="coverage-maplibre-operators" aria-label="V&auml;lj operat&ouml;r">
+          <div class="coverage-toolbar" aria-label="Täckningsfilter">
+            <div class="coverage-operators" role="group" aria-label="V&auml;lj operat&ouml;r">
               <button class="coverage-maplibre-operator is-active" data-operator="telia" type="button" aria-label="Telia" aria-pressed="true">
                 <img src="images/telia.webp" alt="" aria-hidden="true" />
+                <span>Telia</span>
               </button>
               <button class="coverage-maplibre-operator" data-operator="tele2" type="button" aria-label="Tele2" aria-pressed="false">
                 <img src="images/tele2.webp" alt="" aria-hidden="true" />
+                <span>Tele2</span>
               </button>
               <button class="coverage-maplibre-operator" data-operator="telenor" type="button" aria-label="Telenor" aria-pressed="false">
                 <img src="images/telenor.svg" alt="" aria-hidden="true" />
+                <span>Telenor</span>
               </button>
               <button class="coverage-maplibre-operator" data-operator="tre" type="button" aria-label="Tre" aria-pressed="false">
                 <img src="images/tre.jpg" alt="" aria-hidden="true" />
+                <span>Tre</span>
               </button>
             </div>
 
-            <div class="coverage-maplibre-networks" aria-label="V&auml;lj ett eller flera n&auml;t">
+            <p class="coverage-network-label">Välj nät</p>
+            <div class="coverage-networks" role="group" aria-label="V&auml;lj ett eller flera n&auml;t">
               <button class="coverage-maplibre-network is-active" data-network="4G" type="button" aria-pressed="true">4G</button>
               <button class="coverage-maplibre-network" data-network="4G+" type="button" aria-pressed="false">4G+</button>
               <button class="coverage-maplibre-network" data-network="5G" type="button" aria-pressed="false">5G</button>
               <button class="coverage-maplibre-network" data-network="5G+" type="button" aria-pressed="false">5G+</button>
             </div>
+            <div class="coverage-maplibre-search" id="coverageGeocoder" role="search" aria-label="S&ouml;k adress eller plats"></div>
+            <div class="coverage-maplibre-actions" aria-label="Kartgenv&auml;gar">
+              <button class="coverage-maplibre-action" data-map-action="locate" type="button">
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i> Använd min plats <span aria-hidden="true">›</span>
+              </button>
+            </div>
 
-          </aside>
+          </div>
+          <div id="coverageMapLibre" class="coverage-maplibre-canvas" aria-label="Interaktiv t&auml;ckningskarta"></div>
 
           <div class="coverage-maplibre-quality-key" aria-label="F&auml;rgf&ouml;rklaring f&ouml;r t&auml;ckningsniv&aring;">
             <p>T&auml;ckningsniv&aring;</p>
@@ -107,27 +74,21 @@
             <span><i class="is-basic" aria-hidden="true"></i>Bas</span>
           </div>
 
-          <div class="coverage-maplibre-search" id="coverageGeocoder" role="search" aria-label="S&ouml;k adress eller plats"></div>
-
-          <div class="coverage-maplibre-actions" aria-label="Kartgenv&auml;gar">
-            <button class="coverage-maplibre-action" data-map-action="locate" type="button">
-              Hitta mig
-            </button>
-          </div>
-
           <div class="coverage-maplibre-themes" aria-label="Kartutseende">
-            <button class="is-active" data-map-theme="auto" type="button" aria-pressed="true">Auto</button>
-            <button data-map-theme="light" type="button" aria-pressed="false">Light</button>
-            <button data-map-theme="dark" type="button" aria-pressed="false">Dark</button>
+            <button class="is-active" data-map-theme="auto" title="Följ dagsljuset i Sverige" type="button" aria-pressed="true"><i class="fa-regular fa-sun" aria-hidden="true"></i><span>Auto</span></button>
+            <button data-map-theme="light" title="Ljust kartutseende" type="button" aria-pressed="false"><i class="fa-regular fa-sun" aria-hidden="true"></i><span>Ljust</span></button>
+            <button data-map-theme="dark" title="Mörkt kartutseende" type="button" aria-pressed="false"><i class="fa-regular fa-moon" aria-hidden="true"></i><span>Mörkt</span></button>
+            <button id="coverageMapPerspective" title="Växla mellan 2D och 3D" class="coverage-maplibre-perspective is-active" type="button" aria-label="V&auml;xla mellan 2D och 3D" aria-pressed="true"><i class="fa-solid fa-cube" aria-hidden="true"></i><span>3D</span></button>
           </div>
 
           <div class="coverage-maplibre-zoom" aria-label="Kartverktyg">
             <button id="coverageMapZoomIn" type="button" aria-label="Zooma in">+</button>
             <button id="coverageMapZoomOut" type="button" aria-label="Zooma ut">&minus;</button>
-            <button id="coverageMapCompass" class="coverage-maplibre-compass" type="button" aria-label="Rotera kartan mot norr"></button>
-            <button id="coverageMapPerspective" class="coverage-maplibre-perspective is-active" type="button" aria-label="V&auml;xla mellan 2D och 3D" aria-pressed="true">3D</button>
+            <button id="coverageMapCompass" title="Rotera mot norr" class="coverage-maplibre-compass" type="button" aria-label="Rotera kartan mot norr"></button>
+
           </div>
 
+          <p class="coverage-disclaimer">Kartan visar uppskattad täckning. Den faktiska upplevelsen kan variera med plats, byggnader och utrustning.</p>
         </div>
       </section>
     </main>

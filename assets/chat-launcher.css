@@ -1658,3 +1658,5 @@ html body #dealettChat .dealett-chat-delete { display: none; }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-message--assistant .dealett-chat-bubble { position: relative; margin-bottom: 16px; }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-message--assistant .dealett-chat-time { position: absolute; top: 100%; left: 4px; }
 }
+
+html body .hero-ai-guide.has-inline-chat .dealett-chat-reference-actions[hidden] { display: none; }
