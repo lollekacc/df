@@ -6,8 +6,14 @@
   let pending = false;
 
   const load = async () => {
+    status.textContent = 'Laddar erbjudanden…';
+    const loadingTimer = window.setTimeout(() => {
+      status.textContent = 'Det tar lite längre tid än vanligt. Vi försöker fortfarande…';
+    }, 8000);
     try {
-      const offers = await window.DealettNetwork.fetchJson('/api/featured-offers', { label: 'Aktuella erbjudanden' });
+      const offers = await window.DealettNetwork.fetchJson('/api/featured-offers', {
+        label: 'Aktuella erbjudanden', timeoutMs: 12000, retries: 5,
+      });
       buttons.forEach(button => {
         const offer = offers.find(item => item.id === button.dataset.featuredOffer && item.available);
         button.disabled = !offer;
@@ -41,6 +47,8 @@
       const retry = Object.assign(document.createElement('button'), { type: 'button', textContent: 'Försök igen' });
       retry.addEventListener('click', () => { retry.disabled = true; void load(); });
       status.append(' ', retry);
+    } finally {
+      window.clearTimeout(loadingTimer);
     }
   };
 

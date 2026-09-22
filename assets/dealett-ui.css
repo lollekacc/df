@@ -1,6 +1,3 @@
-@import url("https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
-
 /*
   Dealett Unified UI
   One visual component layer mapped onto the existing markup.
@@ -11130,7 +11127,7 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
     grid-template-rows: auto auto minmax(0, 1fr) auto !important;
     column-gap: var(--hero-divider-span) !important;
     min-height: calc(100svh - 136px + clamp(120px, 13vw, 200px)) !important;
-    padding: 88px max(24px, calc((100vw - 1500px) / 2)) 0 max(170px, calc((100vw - 1500px) / 2 + 160px)) !important;
+    padding: 44px max(24px, calc((100vw - 1500px) / 2)) 0 max(170px, calc((100vw - 1500px) / 2 + 160px)) !important;
     overflow: hidden !important;
     background: #fbf8f2 !important;
   }
@@ -11532,7 +11529,7 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
 @media (min-width: 1500px) {
   html body:has(.home-intro) .hero:not(.quiz-in-hero) {
     min-height: calc(100svh + 69px) !important;
-    padding-top: 148px !important;
+    padding-top: 74px !important;
   }
 
   html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-bottom,

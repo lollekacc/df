@@ -72,34 +72,6 @@ body.dealett-smooth-scroll {
   will-change: transform;
 }
 
-html[data-translation-boot="pending"] body {
-  visibility: hidden;
-}
-
-html[data-translation-boot="pending"]::after {
-  content: "";
-  position: fixed;
-  top: calc(50% - 18px);
-  left: calc(50% - 18px);
-  z-index: 10000;
-  width: 36px;
-  height: 36px;
-  border: 3px solid rgba(13, 23, 38, 0.18);
-  border-top-color: #C96F24;
-  border-radius: 50%;
-  animation: translation-loading-spin 0.8s linear infinite;
-}
-
-@keyframes translation-loading-spin {
-  to { transform: rotate(360deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html[data-translation-boot="pending"]::after {
-    animation-duration: 1.8s;
-  }
-}
-
 body {
   background: var(--bg);
   color: var(--text);

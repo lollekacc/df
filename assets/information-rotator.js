@@ -188,7 +188,8 @@
 
     plansPromise = window.DealettNetwork.fetchJson('/api/mobile/plans', {
       label: 'Snabbval abonnemang',
-      timeoutMs: 5000,
+      timeoutMs: 12000,
+      retries: 5,
     }).then((plans) => {
       if (!Array.isArray(plans)) throw new Error('Ogiltigt abonnemangssvar');
       return plans;

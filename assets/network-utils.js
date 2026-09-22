@@ -67,7 +67,8 @@
       return response;
     } catch (error) {
       if (error?.name === 'AbortError') {
-        throw new Error(`${label} timed out`);
+        if (signal?.aborted) throw error;
+        throw Object.assign(new Error(`${label} timed out`), { code: 'ETIMEDOUT' });
       }
 
       throw error;
@@ -78,8 +79,31 @@
   };
 
   const fetchJson = async (resource, options = {}) => {
-    const response = await fetchWithTimeout(resource, options);
-    return response.json();
+    const { retries = 0, retryDelayMs = 1500, ...fetchOptions } = options;
+    const attempts = String(fetchOptions.method || 'GET').toUpperCase() === 'GET' ? retries : 0;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const response = await fetchWithTimeout(resource, fetchOptions);
+        return await response.json();
+      } catch (error) {
+        const transient = error?.code === 'ETIMEDOUT' || error?.name === 'TypeError'
+          || [502, 503, 504].includes(error?.status);
+        if (!transient || attempt >= attempts || fetchOptions.signal?.aborted) throw error;
+        await new Promise((resolve, reject) => {
+          const signal = fetchOptions.signal;
+          const abort = () => {
+            window.clearTimeout(timer);
+            reject(signal.reason || new Error('Request cancelled'));
+          };
+          const timer = window.setTimeout(() => {
+            signal?.removeEventListener('abort', abort);
+            resolve();
+          }, retryDelayMs);
+          signal?.addEventListener('abort', abort, { once: true });
+          if (signal?.aborted) abort();
+        });
+      }
+    }
   };
 
   const fetchText = async (resource, options = {}) => {

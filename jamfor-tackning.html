@@ -8,6 +8,11 @@
     <link rel="icon" type="image/png" sizes="16x16" href="./images/browserlogo2-16.png?v=20260821-white-bg" />
     <link rel="shortcut icon" href="./images/browserlogo2.ico?v=20260821-white-bg" />
     <title>J&auml;mf&ouml;r t&auml;ckning | Dealett</title>
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&amp;display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" />
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.css" />
     <link rel="stylesheet" href="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.5.0/dist/maplibre-gl-geocoder.css" />
     <link rel="stylesheet" href="styles.css" />
@@ -32,7 +37,7 @@
 
           <div class="coverage-toolbar" aria-label="Täckningsfilter">
             <div class="coverage-operators" role="group" aria-label="V&auml;lj operat&ouml;r">
-              <button class="coverage-maplibre-operator is-active" data-operator="telia" type="button" aria-label="Telia" aria-pressed="true">
+              <button class="coverage-maplibre-operator" data-operator="telia" type="button" aria-label="Telia" aria-pressed="false">
                 <img src="images/telia.webp" alt="" aria-hidden="true" />
                 <span>Telia</span>
               </button>
@@ -52,7 +57,7 @@
 
             <p class="coverage-network-label">Välj nät</p>
             <div class="coverage-networks" role="group" aria-label="V&auml;lj ett eller flera n&auml;t">
-              <button class="coverage-maplibre-network is-active" data-network="4G" type="button" aria-pressed="true">4G</button>
+              <button class="coverage-maplibre-network" data-network="4G" type="button" aria-pressed="false">4G</button>
               <button class="coverage-maplibre-network" data-network="4G+" type="button" aria-pressed="false">4G+</button>
               <button class="coverage-maplibre-network" data-network="5G" type="button" aria-pressed="false">5G</button>
               <button class="coverage-maplibre-network" data-network="5G+" type="button" aria-pressed="false">5G+</button>

@@ -8,8 +8,11 @@
     <link rel="icon" type="image/png" sizes="16x16" href="./images/browserlogo2-16.png?v=20260821-white-bg" />
     <link rel="shortcut icon" href="./images/browserlogo2.ico?v=20260821-white-bg" />
     <title>Bättre deals, helt enkelt.</title>
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.css" />
-    <link rel="stylesheet" href="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.5.0/dist/maplibre-gl-geocoder.css" />
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&amp;display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" href="styles-redesign.css" />
@@ -17,6 +20,8 @@
     <link rel="stylesheet" href="./assets/dealett-ui.css?v=20260918-5" />
     <link rel="stylesheet" href="./assets/coverage-map-controls.css" />
     <link rel="stylesheet" href="./assets/inline-quiz.css?v=20260918-6" />
+    <link rel="stylesheet" href="./assets/finder-design.css?v=20260922-1" />
+    <link rel="stylesheet" href="./assets/operator-step.css?v=20260922-1" />
     <link rel="stylesheet" href="./assets/information-rotator.css?v=20260916-1" />
     <link rel="stylesheet" href="./assets/home-section-fades.css" />
   </head>
@@ -51,6 +56,7 @@
 
         <form class="hero-finder" data-hero-finder>
           <h2 class="hero-finder__title">Vad letar du efter?</h2>
+          <p class="hero-finder__intro">Två snabba val – så hittar vi rätt för dig.</p>
 
           <fieldset class="hero-finder__group hero-finder__group--type">
             <legend class="sr-only">Välj typ av abonnemang</legend>
@@ -71,7 +77,8 @@
 
           <div class="hero-finder__stage" data-finder-stage>
           <fieldset class="hero-finder__group" data-finder-mobile>
-            <legend>Hur många är ni?</legend>
+            <legend><i class="fa-solid fa-user-group" aria-hidden="true"></i>Hur många är ni?</legend>
+            <p class="hero-finder__hint">Välj antal personer</p>
             <div class="hero-finder__options hero-finder__options--people">
               <label class="hero-finder__option"><input type="radio" name="finder-persons" value="1" checked /><span>1</span></label>
               <label class="hero-finder__option"><input type="radio" name="finder-persons" value="2" /><span>2</span></label>
@@ -90,7 +97,8 @@
           </fieldset>
 
           <fieldset class="hero-finder__group" data-finder-mobile>
-            <legend>Hur mycket surf behöver ni?</legend>
+            <legend><i class="fa-solid fa-signal" aria-hidden="true"></i>Hur mycket surf behöver ni?</legend>
+            <p class="hero-finder__hint">Välj din ungefärliga förbrukning</p>
             <div class="hero-finder__options hero-finder__options--data">
               <label class="hero-finder__option"><input type="radio" name="finder-data" value="low" /><span>Lite</span></label>
               <label class="hero-finder__option"><input type="radio" name="finder-data" value="medium" checked /><span>Lagom</span></label>
@@ -112,7 +120,7 @@
           </button>
           <p class="hero-finder__address-help" data-finder-broadband hidden>Skriv adress eller stad för en preliminär kontroll, eller <a href="#coverageApp">öppna täckningskartan</a>.</p>
           </div>
-          <p class="hero-finder__note"><span>Kostnadsfritt</span><span>Ingen inloggning</span></p>
+          <p class="hero-finder__note"><span><i class="fa-solid fa-gift" aria-hidden="true"></i>Presentkort på köpet</span><span><i class="fa-regular fa-circle-check" aria-hidden="true"></i>Kostnadsfritt</span><span><i class="fa-solid fa-lock" aria-hidden="true"></i>Ingen inloggning</span></p>
 
           <div class="hero-operators" aria-label="Operatörer vi jämför">
             <strong>Vi jämför</strong>
@@ -872,7 +880,7 @@
             </div>
 
             <div class="coverage-maplibre-operators" aria-label="V&auml;lj operat&ouml;r">
-              <button class="coverage-maplibre-operator is-active" data-operator="telia" type="button" aria-label="Telia" aria-pressed="true">
+              <button class="coverage-maplibre-operator" data-operator="telia" type="button" aria-label="Telia" aria-pressed="false">
                 <img src="images/telia.webp" alt="" aria-hidden="true" />
               </button>
               <button class="coverage-maplibre-operator" data-operator="tele2" type="button" aria-label="Tele2" aria-pressed="false">
@@ -887,7 +895,7 @@
             </div>
 
             <div class="coverage-maplibre-networks" aria-label="V&auml;lj ett eller flera n&auml;t">
-              <button class="coverage-maplibre-network is-active" data-network="4G" type="button" aria-pressed="true">4G</button>
+              <button class="coverage-maplibre-network" data-network="4G" type="button" aria-pressed="false">4G</button>
               <button class="coverage-maplibre-network" data-network="4G+" type="button" aria-pressed="false">4G+</button>
               <button class="coverage-maplibre-network" data-network="5G" type="button" aria-pressed="false">5G</button>
               <button class="coverage-maplibre-network" data-network="5G+" type="button" aria-pressed="false">5G+</button>
@@ -951,14 +959,12 @@
 
     <div data-include="footer"></div>
 
-    <script src="https://unpkg.com/maplibre-gl@5.9.0/dist/maplibre-gl.js"></script>
-    <script src="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.5.0/dist/maplibre-gl-geocoder.min.js"></script>
     <script src="./assets/cart-helpers.js"></script>
     <script src="./assets/network-utils.js"></script>
     <script src="./assets/featured-offers.js"></script>
     <script src="./assets/offer-compare.js"></script>
     <script src="script.js?v=20260916-1"></script>
-    <script src="./assets/coverage-maplibre.js"></script>
+    <script src="./assets/coverage-loader.js"></script>
     <script src="./assets/newsletter-codex-background.js"></script>
     <script src="./assets/gift-logo-switcher.js"></script>
     <script src="./assets/information-rotator.js?v=20260916-1"></script>

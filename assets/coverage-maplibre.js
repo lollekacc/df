@@ -60,11 +60,8 @@
   const swedenBounds = [10.4, 55.0, 24.5, 69.3];
   const swedenFitBounds = [[10.4, 55.0], [24.5, 69.3]];
   const swedenMaxBounds = [[-8.0, 48.0], [39.0, 76.5]];
-  const swedenBoundaryUrl = 'assets/geo/sweden-boundary.geojson';
   const emptyFeatureCollection = { type: 'FeatureCollection', features: [] };
-  let swedenBoundaryFeature = null;
-  let swedenContainmentPolygons = [];
-  let coverageData = null;
+  const workerUrl = new URL('./coverage-worker.js', document.currentScript.src);
   const swedenCameraBase = {
     pitch: 18,
     bearing: -6,
@@ -433,355 +430,6 @@
     ],
   };
 
-  const normalizeBoundaryFeature = (geojson) => {
-    const feature = geojson?.type === 'FeatureCollection' ? geojson.features?.[0] : geojson;
-    const geometry = feature?.type === 'Feature' ? feature.geometry : feature;
-
-    if (!geometry || !['Polygon', 'MultiPolygon'].includes(geometry.type)) {
-      return null;
-    }
-
-    const normalizedFeature = {
-      type: 'Feature',
-      properties: { id: 'sweden' },
-      geometry: geometry.type === 'MultiPolygon'
-        ? geometry
-        : { type: 'MultiPolygon', coordinates: [geometry.coordinates] },
-    };
-
-    swedenContainmentPolygons = normalizedFeature.geometry.coordinates.map((polygon) => {
-      const simplifyRing = (ring) => {
-        const stride = Math.max(1, Math.floor((ring.length - 1) / 320));
-        const simplified = ring.filter((point, index) => index < ring.length - 1 && index % stride === 0);
-        simplified.push(simplified[0]);
-        return simplified;
-      };
-      const [outerRing, ...holes] = polygon;
-      const longitudes = outerRing.map(([longitude]) => longitude);
-      const latitudes = outerRing.map(([, latitude]) => latitude);
-
-      return {
-        bounds: [Math.min(...longitudes), Math.min(...latitudes), Math.max(...longitudes), Math.max(...latitudes)],
-        outerRing: simplifyRing(outerRing),
-        holes: holes.map(simplifyRing),
-      };
-    });
-
-    return normalizedFeature;
-  };
-
-  const ringContainsPoint = (ring, point) => {
-    const [x, y] = point;
-    let inside = false;
-
-    for (let index = 0, previous = ring.length - 1; index < ring.length; previous = index, index += 1) {
-      const [xi, yi] = ring[index];
-      const [xj, yj] = ring[previous];
-      const intersects = ((yi > y) !== (yj > y)) && x < ((xj - xi) * (y - yi)) / ((yj - yi) || Number.EPSILON) + xi;
-
-      if (intersects) {
-        inside = !inside;
-      }
-    }
-
-    return inside;
-  };
-
-  const isPointInSweden = (point) => {
-    const [longitude, latitude] = point;
-
-    return swedenContainmentPolygons.some(({ bounds, outerRing, holes }) => {
-      if (longitude < bounds[0] || latitude < bounds[1] || longitude > bounds[2] || latitude > bounds[3]) {
-        return false;
-      }
-
-      if (!ringContainsPoint(outerRing, point)) {
-        return false;
-      }
-
-      return !holes.some((hole) => ringContainsPoint(hole, point));
-    });
-  };
-
-  const createSeededRandom = (seedText) => {
-    let seed = 2166136261;
-
-    for (let index = 0; index < seedText.length; index += 1) {
-      seed ^= seedText.charCodeAt(index);
-      seed = Math.imul(seed, 16777619);
-    }
-
-    return () => {
-      seed += 0x6D2B79F5;
-      let value = seed;
-      value = Math.imul(value ^ (value >>> 15), value | 1);
-      value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-      return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
-    };
-  };
-
-  const weightedCitySeeds = [
-    [18.0686, 59.3293, 1.35], [11.9746, 57.7089, 1.18], [13.0038, 55.605, 1.16],
-    [17.6389, 59.8586, 0.9], [16.5448, 59.6099, 0.74], [15.2134, 59.2753, 0.74],
-    [15.6214, 58.4108, 0.72], [14.1618, 57.7826, 0.68], [12.6945, 56.0465, 0.66],
-    [13.191, 55.7047, 0.66], [20.263, 63.8258, 0.7], [22.1567, 65.5848, 0.58],
-    [17.3069, 62.3908, 0.58], [17.1413, 60.6749, 0.58], [13.5115, 59.4022, 0.56],
-    [12.9401, 57.721, 0.54], [16.1924, 58.5877, 0.52], [18.2948, 57.6348, 0.46],
-    [20.2253, 67.8558, 0.34], [18.9553, 69.6492, 0.3], [14.6361, 63.1792, 0.38],
-    [21.4794, 65.3172, 0.38], [15.437, 60.4858, 0.36], [12.8568, 56.6745, 0.34],
-  ];
-
-  const corridorPairs = [
-    [[13.0038, 55.605], [18.0686, 59.3293]],
-    [[11.9746, 57.7089], [18.0686, 59.3293]],
-    [[18.0686, 59.3293], [17.6389, 59.8586]],
-    [[18.0686, 59.3293], [17.3069, 62.3908]],
-    [[17.3069, 62.3908], [20.263, 63.8258]],
-    [[20.263, 63.8258], [22.1567, 65.5848]],
-    [[11.9746, 57.7089], [13.5115, 59.4022]],
-    [[13.0038, 55.605], [14.1618, 57.7826]],
-  ];
-
-  const operatorProfiles = {
-    telia: { seed: 'telia', extent: 1.08, north: 1.06, west: 0.95, qualityBias: 0.06 },
-    tele2: { seed: 'tele2', extent: 0.96, north: 0.82, west: 1.04, qualityBias: 0.01 },
-    telenor: { seed: 'telenor', extent: 0.98, north: 0.86, west: 1.1, qualityBias: 0.02 },
-    tre: { seed: 'tre', extent: 0.82, north: 0.62, west: 0.92, qualityBias: -0.04 },
-  };
-
-  const networkProfiles = {
-    '4g': { radius: 0.34, count: 9, corridorRadius: 0.2, corridorSteps: 11, northFactor: 0.96, gridStep: 0.22, inclusion: 0.98, baseOpacity: 0.25, qualityBias: 0.13 },
-    '4gPlus': { radius: 0.28, count: 7, corridorRadius: 0.16, corridorSteps: 9, northFactor: 0.84, gridStep: 0.24, inclusion: 0.94, baseOpacity: 0.23, qualityBias: 0.08 },
-    '5g': { radius: 0.24, count: 6, corridorRadius: 0.13, corridorSteps: 8, northFactor: 0.68, gridStep: 0.26, inclusion: 0.9, baseOpacity: 0.21, qualityBias: 0.02 },
-    '5gPlus': { radius: 0.2, count: 4, corridorRadius: 0.1, corridorSteps: 6, northFactor: 0.5, gridStep: 0.28, inclusion: 0.84, baseOpacity: 0.19, qualityBias: -0.04 },
-  };
-
-  const createIrregularBlob = (center, radius, random, properties = {}) => {
-    const pointCount = 13 + Math.floor(random() * 7);
-    const ring = [];
-    const latScale = Math.max(0.35, Math.cos(center[1] * Math.PI / 180));
-
-    for (let index = 0; index < pointCount; index += 1) {
-      const angle = (Math.PI * 2 * index) / pointCount;
-      const wobble = 0.62 + random() * 0.56;
-      const lng = center[0] + (Math.cos(angle) * radius * wobble) / latScale;
-      const lat = center[1] + Math.sin(angle) * radius * wobble;
-      ring.push([Number(lng.toFixed(5)), Number(lat.toFixed(5))]);
-    }
-
-    ring.push(ring[0]);
-
-    if (!ring.every((point, index) => index % 3 !== 0 || isPointInSweden(point))) {
-      return null;
-    }
-
-    return {
-      type: 'Feature',
-      properties,
-      geometry: { type: 'Polygon', coordinates: [ring] },
-    };
-  };
-
-  const getUrbanInfluence = ([longitude, latitude]) => {
-    const latitudeScale = Math.max(0.35, Math.cos(latitude * Math.PI / 180));
-
-    return weightedCitySeeds.reduce((strongest, [cityLongitude, cityLatitude, weight]) => {
-      const longitudeDistance = (longitude - cityLongitude) * latitudeScale;
-      const latitudeDistance = latitude - cityLatitude;
-      const distance = Math.sqrt(longitudeDistance ** 2 + latitudeDistance ** 2);
-      const influence = weight * Math.exp(-distance / 1.25);
-      return Math.max(strongest, influence);
-    }, 0);
-  };
-
-  const getMockCoverageQuality = (point, operatorProfile, networkProfile, random, bonus = 0) => {
-    const northness = Math.min(1, Math.max(0, (point[1] - 55.2) / 13.8));
-    const urbanInfluence = Math.min(1, getUrbanInfluence(point));
-    const score = 0.34
-      + ((1 - northness) * 0.2)
-      + (urbanInfluence * 0.28)
-      + operatorProfile.qualityBias
-      + networkProfile.qualityBias
-      + bonus
-      + ((random() - 0.5) * 0.34);
-
-    if (score >= 0.7) {
-      return 'excellent';
-    }
-
-    if (score >= 0.47) {
-      return 'good';
-    }
-
-    return 'basic';
-  };
-
-  const createNationwideTexture = (features, operatorProfile, networkProfile, random) => {
-    const latStep = networkProfile.gridStep;
-
-    for (let latitude = 55.18; latitude <= 69.08; latitude += latStep) {
-      const latitudeScale = Math.max(0.35, Math.cos(latitude * Math.PI / 180));
-      const lngStep = latStep / latitudeScale;
-      const rowOffset = Math.floor((latitude - 55.18) / latStep) % 2 ? lngStep * 0.5 : 0;
-
-      for (let longitude = 10.75 + rowOffset; longitude <= 24.25; longitude += lngStep) {
-        const center = [
-          longitude + ((random() - 0.5) * lngStep * 0.42),
-          latitude + ((random() - 0.5) * latStep * 0.42),
-        ];
-
-        if (!isPointInSweden(center)) {
-          continue;
-        }
-
-        const northness = Math.min(1, Math.max(0, (center[1] - 61.5) / 7.5));
-        const northCoverage = 1 - (
-          northness
-          * (1 - (networkProfile.northFactor * operatorProfile.north))
-          * 0.2
-        );
-        const inclusionChance = Math.min(
-          0.998,
-          (0.91 + networkProfile.inclusion * operatorProfile.extent * 0.07) * northCoverage,
-        );
-
-        if (random() > inclusionChance) {
-          continue;
-        }
-
-        const quality = getMockCoverageQuality(center, operatorProfile, networkProfile, random);
-        const blob = createIrregularBlob(
-          center,
-          latStep * (0.62 + random() * 0.38),
-          random,
-          { quality, detail: 'texture', opacity: 0.42 + random() * 0.16 },
-        );
-
-        if (blob) {
-          features.push(blob);
-        }
-
-        if (blob && random() < 0.42) {
-          const microCenter = [
-            center[0] + ((random() - 0.5) * lngStep * 0.58),
-            center[1] + ((random() - 0.5) * latStep * 0.58),
-          ];
-
-          if (isPointInSweden(microCenter)) {
-            const microBlob = createIrregularBlob(
-              microCenter,
-              latStep * (0.18 + random() * 0.18),
-              random,
-              {
-                quality: getMockCoverageQuality(microCenter, operatorProfile, networkProfile, random, (random() - 0.5) * 0.16),
-                detail: 'texture',
-                opacity: 0.5 + random() * 0.16,
-              },
-            );
-
-            if (microBlob) {
-              features.push(microBlob);
-            }
-          }
-        }
-      }
-    }
-  };
-
-  const buildCoverageCollection = (operator, networkKey) => {
-    const operatorProfile = operatorProfiles[operator];
-    const networkProfile = networkProfiles[networkKey];
-    const random = createSeededRandom(`${operatorProfile.seed}-${networkKey}-coverage`);
-    const features = [{
-      type: 'Feature',
-      properties: { quality: 'basic', detail: 'boundary', opacity: networkProfile.baseOpacity },
-      geometry: swedenBoundaryFeature.geometry,
-    }];
-
-    createNationwideTexture(features, operatorProfile, networkProfile, random);
-
-    weightedCitySeeds.forEach(([lng, lat, weight]) => {
-      const northPenalty = lat > 62 ? networkProfile.northFactor * operatorProfile.north : 1;
-      const count = Math.max(1, Math.round(networkProfile.count * weight * operatorProfile.extent * northPenalty));
-
-      for (let index = 0; index < count; index += 1) {
-        const offset = networkProfile.radius * (0.3 + random() * 1.05);
-        const angle = random() * Math.PI * 2;
-        const center = [lng + Math.cos(angle) * offset * 1.2, lat + Math.sin(angle) * offset * 0.82];
-        const radius = networkProfile.radius * (0.42 + random() * 0.78) * weight * operatorProfile.extent;
-
-        if (!isPointInSweden(center)) {
-          continue;
-        }
-
-        const blob = createIrregularBlob(center, radius, random, {
-          quality: getMockCoverageQuality(center, operatorProfile, networkProfile, random, 0.18),
-          detail: 'city',
-          opacity: 0.55 + random() * 0.13,
-        });
-
-        if (blob) {
-          features.push(blob);
-        }
-      }
-    });
-
-    corridorPairs.forEach(([start, end]) => {
-      const steps = Math.round(networkProfile.corridorSteps * operatorProfile.extent);
-
-      for (let index = 1; index < steps; index += 1) {
-        if (random() < (networkKey === '5gPlus' ? 0.34 : 0.16)) {
-          continue;
-        }
-
-        const t = index / steps;
-        const lng = start[0] + (end[0] - start[0]) * t + (random() - 0.5) * 0.22;
-        const lat = start[1] + (end[1] - start[1]) * t + (random() - 0.5) * 0.18;
-
-        if (!isPointInSweden([lng, lat])) {
-          continue;
-        }
-
-        const point = [lng, lat];
-        const blob = createIrregularBlob(point, networkProfile.corridorRadius * (0.72 + random() * 0.7), random, {
-          quality: getMockCoverageQuality(point, operatorProfile, networkProfile, random, 0.1),
-          detail: 'corridor',
-          opacity: 0.5 + random() * 0.12,
-        });
-
-        if (blob) {
-          features.push(blob);
-        }
-      }
-    });
-
-    return { type: 'FeatureCollection', features };
-  };
-
-  const buildAllCoverageData = () => operators.reduce((operatorResult, operator) => ({
-    ...operatorResult,
-    [operator]: Object.keys(networkProfiles).reduce((networkResult, networkKey) => ({
-      ...networkResult,
-      [networkKey]: buildCoverageCollection(operator, networkKey),
-    }), {}),
-  }), {});
-
-  const loadSwedenBoundary = async () => {
-    const response = await fetch(swedenBoundaryUrl);
-
-    if (!response.ok) {
-      throw new Error(`Failed to load Sweden boundary: ${response.status}`);
-    }
-
-    swedenBoundaryFeature = normalizeBoundaryFeature(await response.json());
-
-    if (!swedenBoundaryFeature) {
-      throw new Error('Invalid Sweden boundary GeoJSON');
-    }
-
-    coverageData = buildAllCoverageData();
-  };
-
   const getStoredMapTheme = () => {
     try {
       const storedTheme = localStorage.getItem(mapThemeStorageKey);
@@ -841,8 +489,8 @@
   const resolveMapTheme = (theme) => (theme === 'auto' ? (isSwedenDaylight() ? 'light' : 'dark') : theme);
 
   const state = {
-    activeOperator: 'telia',
-    selectedNetworks: ['4g'],
+    activeOperator: null,
+    selectedNetworks: [],
     mapTheme: getStoredMapTheme(),
     isPerspectiveMode: true,
     coverageSignature: '',
@@ -855,42 +503,60 @@
   const layerStatus = app.querySelector('#coverageLayerStatus');
   const perspectiveButton = app.querySelector('#coverageMapPerspective');
 
-  const getSelectedCoverageData = () => ({
-    type: 'FeatureCollection',
-    features: state.selectedNetworks.flatMap((networkKey) => (
-      coverageData?.[state.activeOperator]?.[networkKey]?.features || []
-    )),
-  });
-
-  const getSelectedLandCoverageData = () => ({
-    type: 'FeatureCollection',
-    features: state.selectedNetworks.flatMap((networkKey) => (
-      coverageData?.[state.activeOperator]?.[networkKey]?.features || []
-    ).flatMap((feature) => {
-      if (feature.properties?.detail === 'boundary') {
-        return [];
+  let selectedCoverage = emptyFeatureCollection;
+  let selectedTexture = emptyFeatureCollection;
+  let worker;
+  let sequence = 0;
+  let coverageRequest = 0;
+  let streetRequest = 0;
+  let coverageReady = false;
+  let mapReady = false;
+  let measurementFrame = 0;
+  const coverageStatus = document.createElement('p');
+  coverageStatus.setAttribute('role', 'status');
+  coverageStatus.hidden = true;
+  app.append(coverageStatus);
+  const getCombinations = () => {
+    if (!state.activeOperator && !state.selectedNetworks.length) return [];
+    const selectedOperators = state.activeOperator ? [state.activeOperator] : operators;
+    const selectedNetworks = state.selectedNetworks.length ? state.selectedNetworks : Object.values(networkKeys);
+    return selectedOperators.flatMap(operator => selectedNetworks.map(network => ({ operator, network })));
+  };
+  const getSelectedCoverageData = () => selectedCoverage;
+  const getSelectedLandCoverageData = () => selectedTexture;
+  const showCoverageError = () => {
+    coverageStatus.hidden = false;
+    coverageStatus.textContent = 'Täckningen kunde inte laddas. ';
+    const retry = Object.assign(document.createElement('button'), { type: 'button', textContent: 'Försök igen' });
+    retry.addEventListener('click', updateCoverageLayer);
+    coverageStatus.append(retry);
+  };
+  const getWorker = () => {
+    if (worker) return worker;
+    worker = new Worker(workerUrl);
+    worker.onerror = () => {
+      worker?.terminate();
+      worker = null;
+      coverageReady = false;
+      if (getCombinations().length) showCoverageError();
+    };
+    worker.onmessage = ({ data }) => {
+      if (data.id !== (data.kind === 'coverage' ? coverageRequest : streetRequest)) return;
+      if (data.error) { showCoverageError(); return; }
+      if (data.kind === 'coverage') {
+        selectedCoverage = data.collection;
+        selectedTexture = data.texture;
+        map.getSource('mobile-coverage')?.setData(selectedCoverage);
+        map.getSource('dealett-land-coverage-texture')?.setData(selectedTexture);
+        coverageReady = true;
+        coverageStatus.hidden = true;
+        refreshCoverageRendering();
+      } else {
+        map.getSource('dealett-coverage-measurements')?.setData(data.collection);
       }
-
-      const coordinates = getPolygonCentroid(feature.geometry);
-
-      if (!coordinates) {
-        return [];
-      }
-
-      return [{
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates,
-        },
-        properties: {
-          ...feature.properties,
-          operator: state.activeOperator,
-          network: networkKey,
-        },
-      }];
-    })),
-  });
+    };
+    return worker;
+  };
 
   const setPaintIfLayerExists = (layerId, property, value) => {
     if (map.getLayer(layerId)) {
@@ -1054,33 +720,31 @@
   };
 
   const updateLayerStatus = () => {
-    if (!layerStatus) {
-      return;
-    }
-
-    const networkText = state.selectedNetworks
-      .map((networkKey) => networkLabelsByKey[networkKey])
-      .filter(Boolean)
-      .join(', ');
-    layerStatus.innerHTML = `${operatorLabels[state.activeOperator]} valt: ${networkText}. Indigo visar mycket god, turkos god och gul bas-t&auml;ckning i denna detaljerade demo. <a href="jamfor-tackning.html">L&auml;s mer &rarr;</a>`;
+    if (!layerStatus) return;
+    const names = state.selectedNetworks.map(key => networkLabelsByKey[key]).join(', ');
+    layerStatus.textContent = !getCombinations().length
+      ? 'Välj operatör eller nät för att visa täckning.'
+      : (operatorLabels[state.activeOperator] || 'Alla operatörer') + ': ' + (names || 'Alla nät') + '. Kartan visar demotäckning.';
   };
 
   const updateCoverageLayer = () => {
-    const source = map.getSource('mobile-coverage');
-    const landTextureSource = map.getSource('dealett-land-coverage-texture');
-
-    if (source) {
-      source.setData(getSelectedCoverageData());
-    }
-
-    if (landTextureSource) {
-      landTextureSource.setData(getSelectedLandCoverageData());
-    }
-
+    coverageRequest = ++sequence;
+    streetRequest = ++sequence;
+    worker?.postMessage({ kind: 'cancel', id: sequence });
+    coverageReady = false;
     state.coverageSignature = '';
-    window.requestAnimationFrame(updateCoverageMeasurements);
-    map.triggerRepaint();
+    selectedCoverage = emptyFeatureCollection;
+    selectedTexture = emptyFeatureCollection;
+    for (const name of ['mobile-coverage', 'dealett-land-coverage-texture', 'dealett-coverage-measurements']) {
+      map.getSource(name)?.setData(emptyFeatureCollection);
+    }
     updateLayerStatus();
+    const combinations = getCombinations();
+    coverageStatus.hidden = !combinations.length;
+    if (!combinations.length || !mapReady) return;
+    coverageStatus.textContent = 'Laddar täckning…';
+    try { getWorker().postMessage({ kind: 'coverage', id: coverageRequest, combinations }); }
+    catch { showCoverageError(); }
   };
 
   const createNightLightSeed = (longitude, latitude, salt = 0) => {
@@ -1138,240 +802,25 @@
     feature.properties.kind === kind ? count + 1 : count
   ), 0);
 
-  const operatorCoverageProfiles = {
-    telia: { density: 1.08, urbanBias: 0.14, northReliability: 0.94, salt: 101 },
-    tele2: { density: 0.92, urbanBias: 0.36, northReliability: 0.7, salt: 203 },
-    telenor: { density: 0.96, urbanBias: 0.28, northReliability: 0.76, salt: 307 },
-    tre: { density: 0.8, urbanBias: 0.72, northReliability: 0.5, salt: 409 },
-  };
-
-  const networkCoverageProfiles = {
-    '4G': { density: 0.95, urbanBoost: 0.18, remotePenalty: 0.12, salt: 4 },
-    '4G+': { density: 0.86, urbanBoost: 0.32, remotePenalty: 0.22, salt: 44 },
-    '5G': { density: 0.64, urbanBoost: 0.62, remotePenalty: 0.46, salt: 5 },
-    '5G+': { density: 0.42, urbanBoost: 0.9, remotePenalty: 0.66, salt: 55 },
-  };
-
-  const swedenCityAnchors = [
-    [18.0686, 59.3293, 1.2],
-    [11.9746, 57.7089, 1],
-    [13.0038, 55.605, 0.95],
-    [17.6389, 59.8586, 0.82],
-    [15.6214, 58.4108, 0.68],
-    [16.1924, 58.5877, 0.58],
-    [20.263, 63.8258, 0.62],
-    [22.1567, 65.5848, 0.46],
-    [14.1618, 57.7826, 0.5],
-    [12.6945, 56.0465, 0.44],
-    [15.2134, 59.2753, 0.5],
-    [13.5115, 59.4022, 0.42],
-    [18.2948, 57.6348, 0.34],
-    [17.3069, 62.3908, 0.36],
-  ];
-
-  const getCoverageCityInfluence = (longitude, latitude) => swedenCityAnchors.reduce((strongest, [cityLongitude, cityLatitude, weight]) => {
-    const distance = Math.hypot((longitude - cityLongitude) * 0.72, latitude - cityLatitude);
-    const influence = weight * Math.exp(-distance / 0.95);
-    return Math.max(strongest, influence);
-  }, 0);
-
-  const getRoadCoverageFactor = (roadClass) => ({
-    motorway: 1.18,
-    trunk: 1.14,
-    primary: 1.08,
-    secondary: 1,
-    tertiary: 0.94,
-    minor: 0.86,
-    service: 0.72,
-    track: 0.48,
-  }[roadClass] ?? 0.8);
-
-  const getSelectedNetworkProfiles = () => state.selectedNetworks
-    .map((networkKey) => {
-      const networkLabel = networkLabelsByKey[networkKey];
-      const networkProfile = networkCoverageProfiles[networkLabel];
-
-      return networkProfile
-        ? { ...networkProfile, networkKey, networkLabel }
-        : null;
-    })
-    .filter(Boolean);
-
-  const clampCoverageValue = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
-
-  const getStreetKey = (line, roadClass) => {
-    const firstPoint = line[0];
-    const middlePoint = line[Math.floor(line.length / 2)];
-    const lastPoint = line[line.length - 1];
-
-    return [roadClass, firstPoint, middlePoint, lastPoint]
-      .flat()
-      .map((value) => typeof value === 'number' ? value.toFixed(5) : value)
-      .join('|');
-  };
-
-  const getCoverageQuality = (score) => {
-    if (score > 1.08) {
-      return 'excellent';
-    }
-
-    if (score > 0.72) {
-      return 'good';
-    }
-
-    return 'fair';
-  };
-
-  const createStreetCoverageFeature = (coordinates, quality, operator, networkKey, roadClass, strength) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'LineString',
-      coordinates,
-    },
-    properties: {
-      quality,
-      operator,
-      network: networkKey,
-      roadClass,
-      strength: Number(strength.toFixed(3)),
-    },
-  });
-
-  const sampleStreetCoverage = (feature, features, usedKeys, operatorProfile, networkProfile, featureLimit) => {
-    const roadClass = feature.properties?.class;
-    const roadFactor = getRoadCoverageFactor(roadClass);
-
-    if (roadFactor < 0.48 || features.length >= featureLimit) {
-      return;
-    }
-
-    for (const line of getLineStrings(feature.geometry)) {
-      if (line.length < 2 || features.length >= featureLimit) {
-        continue;
-      }
-
-      const middlePoint = line[Math.floor(line.length / 2)];
-      const [longitude, latitude] = middlePoint;
-
-      if (!isPointInSweden(middlePoint)) {
-        continue;
-      }
-
-      const streetKey = getStreetKey(line, roadClass);
-
-      if (usedKeys.has(streetKey)) {
-        continue;
-      }
-
-      usedKeys.add(streetKey);
-      const cityInfluence = getCoverageCityInfluence(longitude, latitude);
-      const northness = clampCoverageValue((latitude - 60.5) / 8.2, 0, 1);
-      const remoteFactor = 1 - (northness * networkProfile.remotePenalty * (1 - operatorProfile.northReliability));
-      const coverageStrength = operatorProfile.density
-        * networkProfile.density
-        * roadFactor
-        * remoteFactor
-        * (0.78 + cityInfluence * (operatorProfile.urbanBias + networkProfile.urbanBoost + 0.45));
-      const combinationSalt = (operatorProfile.salt * 17) + (networkProfile.salt * 31);
-      const availabilitySeed = createNightLightSeed(longitude, latitude, combinationSalt + line.length);
-      const availabilityThreshold = clampCoverageValue(0.68 + coverageStrength * 0.22, 0.08, 0.98);
-
-      if (availabilitySeed > availabilityThreshold) {
-        continue;
-      }
-
-      const qualitySeed = createNightLightSeed(longitude, latitude, combinationSalt + 997);
-      const qualityStrength = coverageStrength * (0.82 + qualitySeed * 0.36);
-      features.push(createStreetCoverageFeature(
-        line,
-        getCoverageQuality(qualityStrength),
-        state.activeOperator,
-        networkProfile.networkKey,
-        roadClass,
-        qualityStrength,
-      ));
-    }
-  };
-
   const updateCoverageMeasurements = () => {
+    measurementFrame = 0;
+    if (!coverageReady || !getCombinations().length) return;
     const source = map.getSource('dealett-coverage-measurements');
-
-    if (!source) {
-      return;
-    }
-
-    const selectedNetworkProfiles = getSelectedNetworkProfiles();
+    if (!source) return;
     const zoom = map.getZoom();
     const bounds = map.getBounds();
-    const roadLayers = [
-      'dealett-road-major',
-      'dealett-road-minor',
-      'dealett-coverage-vein-fair',
-      'dealett-coverage-vein-good',
-      'dealett-coverage-vein-excellent',
-    ].filter((layerId) => map.getLayer(layerId));
-    const roadFeatures = roadLayers.length
-      ? map.queryRenderedFeatures({ layers: roadLayers })
-      : [];
-    const signature = [
-      state.activeOperator,
-      state.selectedNetworks.join(','),
-      zoom.toFixed(1),
-      bounds.getWest().toFixed(2),
-      bounds.getSouth().toFixed(2),
-      bounds.getEast().toFixed(2),
-      bounds.getNorth().toFixed(2),
-      roadFeatures.length,
-    ].join('|');
-
-    if (signature === state.coverageSignature) {
-      return;
-    }
-
-    if (!selectedNetworkProfiles.length) {
-      state.coverageSignature = signature;
-      source.setData({ type: 'FeatureCollection', features: [] });
-      return;
-    }
-
-    if (!roadFeatures.length) {
-      source.setData({ type: 'FeatureCollection', features: [] });
-      return;
-    }
-
-    const features = [];
-    const operatorProfile = operatorCoverageProfiles[state.activeOperator] ?? operatorCoverageProfiles.telia;
-    const totalFeatureLimit = zoom < 7 ? 2800 : zoom < 12 ? 4800 : 6800;
-    const perNetworkFeatureLimit = Math.max(600, Math.floor(totalFeatureLimit / selectedNetworkProfiles.length));
-
-    selectedNetworkProfiles.forEach((networkProfile) => {
-      const networkFeatures = [];
-      const usedKeys = new Set();
-
-      roadFeatures.forEach((feature) => {
-        sampleStreetCoverage(
-          feature,
-          networkFeatures,
-          usedKeys,
-          operatorProfile,
-          networkProfile,
-          perNetworkFeatureLimit,
-        );
-      });
-      features.push(...networkFeatures);
-    });
-
-    source.setData({
-      type: 'FeatureCollection',
-      features,
-    });
+    const layers = ['dealett-road-major', 'dealett-road-minor', 'dealett-coverage-vein-fair', 'dealett-coverage-vein-good', 'dealett-coverage-vein-excellent'].filter(id => map.getLayer(id));
+    const roads = layers.length ? map.queryRenderedFeatures({ layers }).map(f => ({ geometry: f.geometry, properties: { class: f.properties?.class } })) : [];
+    const signature = [coverageRequest, zoom.toFixed(1), bounds.getWest().toFixed(2), bounds.getSouth().toFixed(2), bounds.getEast().toFixed(2), bounds.getNorth().toFixed(2), roads.length].join('|');
+    if (signature === state.coverageSignature) return;
     state.coverageSignature = signature;
+    streetRequest = ++sequence;
+    getWorker().postMessage({ kind: 'streets', id: streetRequest, combinations: getCombinations(), roads, zoom });
   };
 
   const refreshCoverageRendering = () => {
-    state.coverageSignature = '';
-    updateCoverageMeasurements();
-    map.triggerRepaint();
+    if (!coverageReady || measurementFrame) return;
+    measurementFrame = window.requestAnimationFrame(updateCoverageMeasurements);
   };
 
   const sampleNightRoadLights = (feature, features, usedKeys, zoom) => {
@@ -2467,36 +1916,20 @@
   };
 
   map.on('load', async () => {
-    try {
-      await loadSwedenBoundary();
-    } catch (error) {
-      console.error(error);
-      coverageData = operators.reduce((operatorResult, operator) => ({
-        ...operatorResult,
-        [operator]: Object.keys(networkProfiles).reduce((networkResult, networkKey) => ({
-          ...networkResult,
-          [networkKey]: emptyFeatureCollection,
-        }), {}),
-      }), {});
-    }
-
-    addMapLayers(map);
-    updateCoverageLayer();
     setupGeocoder();
     map.resize();
     syncPerspectiveButton();
     updateMapScaleMode();
-    refreshCoverageRendering();
-    updateNightLightPoints();
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(refreshCoverageRendering);
-    });
-    map.once('idle', refreshCoverageRendering);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    addMapLayers(map);
+    mapReady = true;
+    updateCoverageLayer();
+    window.requestAnimationFrame(updateNightLightPoints);
   });
 
   map.on('sourcedata', (event) => {
     if (event.sourceId === 'openmaptiles' && event.isSourceLoaded) {
-      window.requestAnimationFrame(refreshCoverageRendering);
+      refreshCoverageRendering();
     }
   });
 
@@ -2529,11 +1962,11 @@
   map.on('moveend', () => {
     syncPerspectiveButton();
     updateMapScaleMode();
-    updateCoverageMeasurements();
+    refreshCoverageRendering();
     updateNightLightPoints();
   });
   map.on('idle', () => {
-    updateCoverageMeasurements();
+    refreshCoverageRendering();
     updateNightLightPoints();
   });
 
@@ -2575,9 +2008,9 @@
         return;
       }
 
-      state.activeOperator = operator;
+      state.activeOperator = state.activeOperator === operator ? null : operator;
       app.querySelectorAll('.coverage-maplibre-operator').forEach((operatorButton) => {
-        const isActive = operatorButton === button;
+        const isActive = operatorButton.dataset.operator === state.activeOperator;
         operatorButton.classList.toggle('is-active', isActive);
         operatorButton.setAttribute('aria-pressed', String(isActive));
       });
@@ -2596,13 +2029,9 @@
       const networkKey = networkKeys[network];
       const isSelected = state.selectedNetworks.includes(networkKey);
 
-      if (isSelected && state.selectedNetworks.length === 1) {
-        return;
-      }
-
       state.selectedNetworks = isSelected
         ? state.selectedNetworks.filter((selectedNetworkKey) => selectedNetworkKey !== networkKey)
-        : Object.keys(networkProfiles).filter((candidateNetwork) => (
+        : Object.values(networkKeys).filter((candidateNetwork) => (
           [...state.selectedNetworks, networkKey].includes(candidateNetwork)
         ));
 

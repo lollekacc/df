@@ -1,0 +1,268 @@
+html body .hero-finder.is-inline-quiz:has(#step1.active-step) > :not(#quiz-steps-wrapper) {
+  display: none !important;
+}
+
+html body .hero-finder:has(#step1.active-step) #quiz-steps-wrapper {
+  position: relative !important;
+  inset: auto !important;
+  height: auto !important;
+}
+
+html body .hero-finder:has(#step1.active-step) #quiz-steps-wrapper > div,
+html body .hero-finder:has(#step1.active-step) #quiz-card-stack,
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1.active-step,
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-card {
+  height: auto !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 {
+  container-type: inline-size;
+  color: #071a40;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-card {
+  gap: 18px !important;
+  padding: 18px 0 42px !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-card-toolbar {
+  min-height: 38px !important;
+  margin-bottom: 10px !important;
+  padding-left: 92px !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-popup-actions {
+  top: 18px !important;
+  gap: 8px !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-popup-actions button {
+  width: 38px !important;
+  height: 38px !important;
+  border-color: #bac9e0 !important;
+  border-radius: 8px !important;
+  background: #ffffffb8 !important;
+  color: #071a40 !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-popup-actions svg {
+  width: 24px;
+  height: 24px;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-progress-row {
+  align-items: center;
+  gap: 12px !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-progress-track {
+  width: clamp(52px, 18cqw, 110px) !important;
+  height: 6px !important;
+  border-radius: 20px;
+  background: #d6d9db;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-progress-inline {
+  background: #ff6b09 !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-step-count {
+  color: #665e87;
+  font-size: clamp(12px, 3cqw, 18px) !important;
+  font-weight: 600;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-card-body {
+  gap: 18px !important;
+  flex: 0 0 auto;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .quiz-title {
+  color: #071a40 !important;
+  font-size: clamp(18px, 4.65cqw, 30px) !important;
+  line-height: 1.18 !important;
+  letter-spacing: -.035em;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-per-person {
+  flex: none;
+  grid-template-columns: repeat(var(--operator-columns, 1), minmax(0, 1fr)) !important;
+  grid-auto-rows: auto !important;
+  gap: 18px 12px !important;
+  padding: 2px 3px !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-person-card {
+  gap: 12px !important;
+  grid-template-rows: auto auto !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-person-title {
+  margin: 0 !important;
+  color: #665e87;
+  font-size: clamp(13px, 3.1cqw, 20px) !important;
+  line-height: 1.3 !important;
+  font-weight: 600;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-card-controls {
+  box-sizing: border-box;
+  grid-template-rows: auto auto !important;
+  gap: 12px !important;
+  padding: clamp(8px, 2cqw, 14px) !important;
+  border: 1px solid #81a5e7 !important;
+  border-radius: 10px;
+  background: #ffffffb8;
+  box-shadow: 0 14px 24px #172c4b08;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-choice-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 9.3% !important;
+  grid-template-rows: repeat(2, auto) !important;
+  gap: 7px !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-choice-grid .quiz-option {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 0 !important;
+  aspect-ratio: 2.55;
+  padding: 6px !important;
+  border-color: #bac9e0 !important;
+  border-radius: 7px !important;
+  background: #fff !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-choice-grid [data-operator="Telenor"] { grid-column: 1; grid-row: 2; }
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-choice-grid [data-operator="Tre"] { grid-column: 2; grid-row: 2; }
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-choice-grid [data-operator="Other"] {
+  grid-column: 3 !important;
+  grid-row: 1 / 3 !important;
+  height: 100% !important;
+  aspect-ratio: auto;
+  padding: 0 !important;
+  writing-mode: vertical-rl;
+  border-color: #ffab7e !important;
+  background: #fff6ef !important;
+  color: #071a40 !important;
+  font-size: clamp(11px, 3cqw, 18px) !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .partner-logo {
+  width: 90% !important;
+  height: 100% !important;
+  max-height: 12cqw !important;
+  object-fit: contain !important;
+  transform: none !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-person-card .quiz-option.selected {
+  background: #fff0e3 !important;
+  border-color: #ff6b09 !important;
+  box-shadow: inset 0 0 0 1px #ff6b09 !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-binding-controls {
+  grid-template-columns: 1fr 1fr !important;
+  align-items: center;
+  padding-top: 12px !important;
+  border-top: 1px solid #bac9e0 !important;
+  border-radius: 0 !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-date-field {
+  justify-content: flex-start !important;
+  height: 32px !important;
+  border: 0 !important;
+  background: transparent !important;
+  gap: 6px;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-date-icon {
+  order: -1;
+  width: 20px !important;
+  height: 24px !important;
+  flex: 0 0 20px;
+  color: #ff6b09;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-date-icon svg { width: 20px; height: 24px; stroke-width: 2; }
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 [data-operator-date] {
+  inset: 0 auto 0 0 !important;
+  width: 24px !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 [data-binding-text] {
+  width: calc(100% - 26px) !important;
+  height: 30px !important;
+  padding: 0 !important;
+  font-size: clamp(10px, 3.3cqw, 20px) !important;
+  font-weight: 600;
+  text-align: left !important;
+  color: #6c7189 !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 [data-binding-text]::placeholder { color: #6c7189; opacity: 1; }
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-no-binding-button {
+  position: relative;
+  min-height: 32px !important;
+  padding: 0 0 0 10px !important;
+  border: 0 !important;
+  border-radius: 5px !important;
+  background: transparent !important;
+  color: #071a40 !important;
+  font-size: clamp(9px, 3.1cqw, 19px) !important;
+  line-height: 1.3 !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-no-binding-button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  background: #9daac0;
+  transform: rotate(20deg);
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-no-binding-button.selected {
+  background: #fff0e3 !important;
+  box-shadow: inset 0 0 0 1px #ff6b09 !important;
+}
+
+
+
+
+@container (max-width: 240px) {
+  html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-binding-controls {
+    padding-top: 7px !important;
+  }
+
+  html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-date-field {
+    gap: 3px;
+  }
+
+  html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-date-icon {
+    flex-basis: 12px;
+    width: 12px !important;
+  }
+
+  html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-date-icon svg {
+    width: 12px;
+  }
+
+  html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 [data-binding-text] {
+    width: calc(100% - 15px) !important;
+    font-size: 8px !important;
+  }
+
+  html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-no-binding-button {
+    padding-left: 5px !important;
+    font-size: 8px !important;
+  }
+}

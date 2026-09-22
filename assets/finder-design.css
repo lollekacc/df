@@ -1,0 +1,173 @@
+html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder[data-hero-finder] {
+  height: auto !important;
+  min-height: 474px !important;
+  max-height: none !important;
+  gap: 14px !important;
+  padding-bottom: 58px !important;
+  color: #071b32;
+}
+
+html body:has(.home-intro) .hero-finder[data-hero-finder] .hero-finder__title {
+  margin: 4px 0 0;
+  font-size: clamp(30px, 3.1vw, 52px) !important;
+  line-height: 1.08;
+  letter-spacing: -.045em;
+  text-align: center;
+}
+
+html body:has(.home-intro) .hero-finder .hero-finder__intro {
+  margin: -4px 0 14px;
+  color: #5d7190;
+  font-size: clamp(14px, 1.25vw, 20px);
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+
+html body:has(.home-intro) .hero-finder[data-hero-finder] .hero-finder__stage {
+  height: auto;
+  gap: 24px;
+}
+
+html body:has(.home-intro) .hero-finder[data-hero-finder] [data-finder-mobile] {
+  position: relative;
+  gap: 10px !important;
+}
+
+html body:has(.home-intro) .hero-finder[data-hero-finder] [data-finder-mobile] legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: clamp(17px, 1.45vw, 23px);
+  letter-spacing: -.025em;
+}
+
+html body:has(.home-intro) .hero-finder [data-finder-mobile] legend i {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fce9db;
+  color: #cd671f;
+  font-size: 19px;
+}
+
+html body:has(.home-intro) .hero-finder .hero-finder__hint {
+  margin: -7px 0 2px 52px;
+  color: #5d7190;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+html body:has(.home-intro) .hero-finder[data-hero-finder] .hero-finder__note {
+  position: static;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 10px 0 0 !important;
+  color: #526b8d;
+  font-size: 12px !important;
+  line-height: 1.5;
+}
+
+html body:has(.home-intro) .hero-finder .hero-finder__note span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+html body:has(.home-intro) .hero-finder .hero-finder__note span::before {
+  content: none;
+}
+
+html body:has(.home-intro) .hero-finder .hero-finder__note i {
+  font-size: 18px;
+}
+
+@media (max-width: 900px) {
+  html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder[data-hero-finder] {
+    padding-bottom: 24px !important;
+  }
+
+  html body:has(.home-intro) .hero-finder[data-hero-finder] .hero-finder__submit {
+    top: auto;
+  }
+
+  html body:has(.home-intro) .hero-finder[data-hero-finder] .hero-finder__title {
+    font-size: clamp(28px, 6vw, 44px) !important;
+  }
+}
+
+@media (min-width: 901px) {
+  html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder[data-hero-finder].is-chat-aligned {
+    height: var(--finder-aligned-height) !important;
+    min-height: 0 !important;
+    gap: 6px !important;
+    padding-top: 12px !important;
+    padding-bottom: 50px !important;
+  }
+
+  html body:has(.home-intro) .hero-finder.is-chat-aligned .hero-finder__intro {
+    margin-bottom: 4px;
+  }
+
+  html body:has(.home-intro) .hero-finder[data-hero-finder].is-chat-aligned .hero-finder__stage {
+    gap: 12px;
+  }
+
+  html body:has(.home-intro) .hero-finder[data-hero-finder].is-chat-aligned [data-finder-mobile] {
+    gap: 6px !important;
+  }
+
+  html body:has(.home-intro) .hero-finder[data-hero-finder].is-chat-aligned [data-finder-mobile] legend {
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 900px) {
+  html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder[data-hero-finder] {
+    min-height: 0 !important;
+    gap: 6px !important;
+    padding-block: 16px !important;
+  }
+
+  html body:has(.home-intro) .hero-finder .hero-finder__intro {
+    margin-bottom: 4px;
+  }
+
+  html body:has(.home-intro) .hero-finder[data-hero-finder] .hero-finder__stage {
+    gap: 12px;
+  }
+
+  html body:has(.home-intro) .hero-finder[data-hero-finder] [data-finder-mobile] {
+    gap: 6px !important;
+  }
+
+  html body:has(.home-intro) .hero-finder[data-hero-finder] [data-finder-mobile] legend {
+    margin-bottom: 4px;
+  }
+
+  html body:has(.home-intro) .hero-finder .hero-operators {
+    grid-row: auto;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    height: 42px;
+    gap: 0;
+  }
+
+  html body:has(.home-intro) .hero-finder .hero-operators > strong {
+    display: none;
+  }
+
+  html body:has(.home-intro) .hero-finder .hero-operator {
+    height: 34px;
+  }
+
+  html body:has(.home-intro) .hero-finder .hero-operator img {
+    max-width: 100%;
+    max-height: 28px;
+  }
+}

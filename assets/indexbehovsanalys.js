@@ -146,7 +146,7 @@ function createIndexQuiz() {
       getState: () => JSON.parse(JSON.stringify(state)),
     };
 
-    injectQuizAiButtons();
+    injectQuizNavigation();
     bindEvents();
     document.addEventListener("dealett:chat-qualification-updated", handleChatQualificationUpdate);
     updateStepState(0);
@@ -230,10 +230,10 @@ function createIndexQuiz() {
     });
   }
 
-  function injectQuizAiButtons() {
+  function injectQuizNavigation() {
     steps.forEach((step) => {
       const card = step.querySelector(".quiz-card");
-      if (!card || card.querySelector("[data-quiz-ai-actions]")) return;
+      if (!card || card.querySelector(".quiz-popup-actions")) return;
 
       const backButton = card.querySelector(".quiz-back-inline");
       if (backButton) {
@@ -241,12 +241,6 @@ function createIndexQuiz() {
         backButton.setAttribute("title", "Tillbaka");
         backButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5" /><path d="m10 7-5 5 5 5" /></svg>';
       }
-
-      const actions = document.createElement("div");
-      actions.className = "quiz-ai-actions";
-      actions.dataset.quizAiActions = "";
-      actions.innerHTML = '<button type="button" class="quiz-ai-button" data-quiz-ai-action="continue" aria-label="Fortsätt härifrån med Dealett AI"><span>Fortsätt härifrån med</span><strong>Dealett AI</strong></button>';
-      card.append(actions);
 
       const popupActions = document.createElement("div");
       popupActions.className = "quiz-popup-actions";
@@ -270,12 +264,6 @@ function createIndexQuiz() {
       if (popupAction.dataset.quizPopupAction === "restart") {
         restartQuiz();
       }
-      return;
-    }
-
-    const aiButton = event.target.closest("[data-quiz-ai-action]");
-    if (aiButton) {
-      handleQuizAiClick(aiButton);
       return;
     }
 
@@ -369,22 +357,6 @@ function createIndexQuiz() {
     }
     if (!event.target.matches("[data-current-monthly-cost], [data-addon-monthly-cost], [data-device-monthly-cost], [data-device-remaining-months], [data-coverage-locations]")) return;
     handleOperatorDetailChange(event.target);
-  }
-
-  function handleQuizAiClick(button) {
-    const context = buildQuizChatContext();
-    if (window.DealettChat?.continueFromQuiz) {
-      window.DealettChat.continueFromQuiz({
-        qualification: context.qualification,
-        currentStage: context.currentStage,
-        currentStep: context.currentStep,
-        answers: context.answers,
-        context,
-      });
-      return;
-    }
-
-    document.querySelector(".dealett-chat-toggle")?.click();
   }
 
   function buildQuizChatContext() {

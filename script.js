@@ -678,9 +678,6 @@
 
   const setTranslationState = (state) => {
     document.documentElement.dataset.translationState = state;
-    if (state === 'ready' || state === 'error') {
-      document.documentElement.removeAttribute('data-translation-boot');
-    }
   };
 
   const isPreservedTranslationText = (text) => {
@@ -1152,7 +1149,6 @@
 
     document.documentElement.lang = nextLanguage;
     document.documentElement.dir = rtlLanguages.has(nextLanguage) ? 'rtl' : 'ltr';
-    document.documentElement.dataset.translationBoot = 'pending';
     window.location.reload();
   };
 
@@ -1591,6 +1587,8 @@
     };
     const sizeInlineChat = () => {
       if (!heroForm) return;
+      const finder = document.querySelector('[data-hero-finder]');
+      finder?.classList.remove('is-chat-aligned');
       const active = heroGuide.classList.contains('has-inline-chat');
       heroGuide.classList.remove('has-inline-chat');
       root.style.setProperty('display', 'none', 'important');
@@ -1607,7 +1605,7 @@
       const promptHeight = Math.max(...[...prompts.children]
         .map(element => element.getBoundingClientRect().height), 0);
       const referenceLayout = Boolean(document.querySelector('.home-intro')) && window.innerWidth > 900;
-      const height = Math.max(composerBox.height, boundary - composerBox.top - (referenceLayout ? 0 : promptHeight + gap) - 12);
+      const height = Math.max(composerBox.height, boundary - composerBox.top - (referenceLayout ? 0 : promptHeight + gap) - 12) * 0.85;
       const width = composerBox.width;
       const values = {
         'guide-height': guideBox.height,
@@ -1620,6 +1618,10 @@
         'prompts-width': width,
       };
       Object.entries(values).forEach(([key, value]) => heroGuide.style.setProperty(`--inline-${key}`, `${value}px`));
+      if (referenceLayout && finder) {
+        finder.style.setProperty('--finder-aligned-height', `${composerBox.top + height - finder.getBoundingClientRect().top}px`);
+        finder.classList.add('is-chat-aligned');
+      }
       if (active) heroGuide.classList.add('has-inline-chat');
       root.style.removeProperty('display');
     };
@@ -4175,6 +4177,7 @@
     let lastInputTime = 0;
     let animationFrame = 0;
     let resizeFrame = 0;
+    let lastTransform = '';
 
     const getDuration = () => {
       if (reducedMotion.matches) return 0;
@@ -4183,8 +4186,11 @@
 
     const render = (position) => {
       renderedY = position;
-      content.style.transform = `translate3d(0, ${(-position).toFixed(3)}px, 0)`;
-      document.documentElement.style.setProperty('--dealett-smooth-y', `${position.toFixed(3)}px`);
+      const transform = `translate3d(0, ${(-position).toFixed(3)}px, 0)`;
+      if (transform !== lastTransform) {
+        content.style.transform = transform;
+        lastTransform = transform;
+      }
     };
 
     const animateScroll = (time) => {
@@ -4228,11 +4234,13 @@
     const updatePageHeight = () => {
       resizeFrame = 0;
       syncHeaderPlacement();
+      const contentHeight = content.scrollHeight;
+      const maxScroll = Math.max(0, contentHeight - window.innerHeight);
       document.documentElement.style.setProperty(
         '--dealett-smooth-height',
-        `${Math.ceil(content.scrollHeight)}px`
+        `${Math.ceil(contentHeight)}px`
       );
-      targetY = Math.min(targetY, Math.max(0, content.scrollHeight - window.innerHeight));
+      targetY = Math.min(targetY, maxScroll);
       renderedY = Math.min(renderedY, targetY);
       render(renderedY);
     };
