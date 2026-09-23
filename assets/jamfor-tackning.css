@@ -512,3 +512,17 @@ body .home-coverage .coverage-main.coverage-maplibre-section .coverage-maplibre-
     height: calc(100% - 540px);
   }
 }
+.home-coverage .coverage-load-status {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: calc(100% - 40px);
+  margin: 0;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #0d1726;
+  color: #fff;
+  text-align: center;
+}

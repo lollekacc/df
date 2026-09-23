@@ -4,9 +4,10 @@
   const controllerUrl = new URL('./coverage-maplibre.js', document.currentScript.src).href;
   const styleAnchor = document.querySelector('link[rel="stylesheet"]');
   const status = document.createElement('p');
+  status.className = 'coverage-load-status';
   status.hidden = true;
   status.setAttribute('role', 'status');
-  app.append(status);
+  (app.querySelector('.coverage-maplibre-shell') || app).append(status);
   let loading = false;
   const loaded = new Set();
 

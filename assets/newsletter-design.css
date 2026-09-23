@@ -53,7 +53,7 @@ html body:has(.home-intro) .newsletter-form .button:hover { background: linear-g
   .newsletter-benefits li + li { border: 0; padding: 0; }
   .newsletter-benefits i { width: 36px; height: 42px; font-size: 20px; border-radius: 12px; }
 }
-html body:has(.home-intro) .newsletter-section { padding-top: 56px; padding-bottom: 32px; background: radial-gradient(ellipse at 0 22%, #ffe7d2, transparent 28%), radial-gradient(ellipse at 100% 24%, #ffe8d5, transparent 28%), #fcf8f3 !important; }
+html body:has(.home-intro) .newsletter-section { padding-top: 56px; padding-bottom: 32px; background: radial-gradient(ellipse at 0 22%, #ffe7d2, transparent 28%), radial-gradient(ellipse at 100% 24%, #ffe8d5, transparent 28%), #f8f5f0 !important; }
 html body:has(.home-intro) .newsletter-section > .home-section-fade { display: none; }
 .newsletter-intro { width: min(1480px, calc(100% - 64px)); margin: 0 auto 32px; text-align: center; padding: 0 180px; }
 .newsletter-eyebrow { display: flex; justify-content: center; align-items: center; gap: 20px; margin: 0 0 24px; color: #e96008; font-size: 13px; font-weight: 700; text-transform: uppercase; }
