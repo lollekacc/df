@@ -3,8 +3,8 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 {
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-card {
-  padding: 18px 0 42px !important;
-  gap: clamp(28px, 7.5cqw, 76px) !important;
+  padding: 18px 0 24px !important;
+  gap: 28px !important;
   background: #fffcf7 !important;
 }
 
@@ -34,11 +34,11 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-popup-a
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-progress-row {
   align-items: center;
-  gap: clamp(10px, 2.5cqw, 24px) !important;
+  gap: 12px !important;
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-progress-track {
-  width: clamp(45px, 17cqw, 170px) !important;
+  width: clamp(45px, 17cqw, 100px) !important;
   height: 5px !important;
   background: #dcdcdc;
 }
@@ -49,48 +49,52 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-progres
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-step-count {
   color: #536078;
-  font-size: clamp(12px, 2.8cqw, 28px) !important;
+  font-size: 13px !important;
   font-weight: 500;
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-card-body {
   flex: 1;
-  gap: clamp(14px, 2.8cqw, 28px) !important;
+  display: grid !important;
+  grid-template-rows: auto auto minmax(min-content, 3fr) minmax(0, 2fr);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px !important;
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-title {
   text-align: center !important;
   color: #08283e !important;
-  font-size: clamp(24px, 6.9cqw, 68px) !important;
-  line-height: 1.12 !important;
+  font-size: clamp(24px, 5.5cqw, 32px) !important;
+  line-height: 1.2 !important;
   letter-spacing: -.035em;
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-subtitle {
   text-align: center !important;
   color: #536078;
-  font-size: clamp(14px, 3.7cqw, 36px) !important;
+  font-size: 15px !important;
   font-weight: 400 !important;
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-option-list {
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: clamp(8px, 2cqw, 20px) !important;
-  margin: clamp(30px, 10cqw, 100px) 0 0 !important;
+  gap: 12px !important;
+  align-self: center;
+  margin: 12px 0 0 !important;
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-option {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: clamp(88px, 23.5cqw, 230px) !important;
-  padding: 12px 6px !important;
+  min-height: 64px !important;
+  padding: 16px 12px !important;
   border: 1px solid #dedede !important;
-  border-radius: clamp(10px, 2cqw, 20px) !important;
+  border-radius: 12px !important;
   background: #fffdfb !important;
   box-shadow: 0 10px 24px #08283e06 !important;
   color: #08283e !important;
-  font-size: clamp(12px, 3.65cqw, 36px) !important;
+  font-size: 16px !important;
   font-weight: 600 !important;
   text-align: center;
   letter-spacing: -.025em;
@@ -106,4 +110,10 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-option.
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-option::before,
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-option::after {
   display: none !important;
+}
+
+@container (max-width: 420px) {
+  html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-option-list {
+    grid-template-columns: 1fr !important;
+  }
 }

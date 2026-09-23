@@ -174,9 +174,35 @@
   transform: translateY(var(--logo-reveal-offset, 0px));
 }
 
+.about-logo-tagline {
+  position: absolute;
+  top: calc(50% + min(8.5vw, 122px) + 22px);
+  inset-inline: 24px;
+  margin: 0;
+  color: #0d1726;
+  font-size: clamp(18px, 2.2vw, 28px);
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  opacity: var(--logo-tagline-opacity, 1);
+  transform: translateY(calc(var(--logo-reveal-offset, 0px) + var(--logo-tagline-rise, 0px)));
+}
+
+html body.about-page .about-logo-reveal + .about-section-soft {
+  position: relative;
+  margin-top: calc(-1 * clamp(28px, 5vw, 64px));
+  border-top: 0;
+  border-radius: clamp(28px, 5vw, 64px) clamp(28px, 5vw, 64px) 0 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .about-logo-reveal::before {
+  .about-logo-reveal::before,
+  .about-logo-tagline {
     transform: none;
+  }
+
+  .about-logo-tagline {
+    opacity: 1;
   }
 }
 

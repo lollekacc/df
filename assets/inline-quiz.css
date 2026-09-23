@@ -162,11 +162,6 @@ html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-quiz-pager__dots i.is-active { background: #cd6825; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-quiz-pager button { width: 36px; height: 30px; border: 1px solid #d7d7d9; border-radius: 9px; background: #ffffffb3; color: #081a39; font-size: 32px; line-height: 1; cursor: pointer; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-quiz-pager button:disabled { opacity: .4; cursor: default; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; text-align: left; border: 1px solid #ece7e1; border-radius: 12px; background: #faf5ef; color: #081a39; font: inherit; cursor: pointer; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine strong { display: block; font-size: 14px; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine small { display: none; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine > span:last-child { margin-left: auto; font-size: 28px; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine__icon { width: 24px; height: 24px; flex-shrink: 0; fill: #faf5ef; stroke: currentColor; stroke-width: 1.8; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer .quiz-next-button { display: block; width: 100%; min-height: 38px !important; padding: 8px !important; border: 0 !important; border-radius: 10px !important; background: linear-gradient(180deg, #e98a40, #bd6329) !important; box-shadow: 0 6px 12px #d57a3326; color: white !important; font-size: 18px !important; font-weight: 700; text-align: center; text-decoration: none; box-sizing: border-box; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer__actions button { width: 100%; min-height: 36px; padding: 7px; border: 1px solid #bfc4ce; border-radius: 10px; background: transparent; color: #081a39; font: inherit; font-size: 17px; font-weight: 700; cursor: pointer; }
@@ -223,8 +218,6 @@ html body .analysis-quiz-popup__close {
   html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer__terms > div + div { padding-left: 8px; }
   html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer__terms strong { font-size: 12px; overflow-wrap: anywhere; }
   html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer small { font-size: 12px; }
-  html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine { gap: 8px; padding: 8px; }
-  html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine strong { font-size: 14px; }
   html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer__actions { gap: 10px; }
 }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-quiz-pager { width: 100%; max-width: none; }
