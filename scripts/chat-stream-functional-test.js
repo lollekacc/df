@@ -17,7 +17,10 @@ setOpenAiTransportForTests(async (_url, options) => {
           : { topic: 'greeting', interactionStage: 'greeting', qualification: {}, recommendationRequested: false }
     ) }),
   };
-  const answer = { reply, quickReplies: [], showOfferCards: message === 'Visa erbjudanden',
+  const answer = { reply: message === 'Visa erbjudanden'
+    ? `${reply}\n\n## Jämförelse\n- **Tre:** Utlandsdata.\n- **Telenor:** Mer surf.\n\nNästa steg:\n1. Välj surfmängd.\n2. Kontrollera avtalet.\n\n<img src=x onerror=alert(1)>`
+    : reply,
+    quickReplies: message === 'Visa erbjudanden' ? ['Förfina jämförelsen för fyra personer'] : [], showOfferCards: message === 'Visa erbjudanden',
     bestMatchReason: '', lowestEffectiveCostReason: '',
     bestMatchBenefits: ['6 GB per användare', 'Utlandsdata i 100 länder', 'Lokala samtal ingår utomlands', 'Utlandsdata i 100 länder.'],
     lowestEffectiveCostBenefits: ['10 GB per användare', 'Samtal, sms och roaming inom EU/EES', '299 kr/mån', '24 mån bindningstid'],
@@ -79,6 +82,16 @@ setOpenAiTransportForTests(async (_url, options) => {
       release();
       await page.locator('.dealett-chat-offer-card').first().waitFor();
       assert.equal(await page.locator('.dealett-chat-offer-card').count(), 2);
+      const offerMessage = page.locator('.dealett-chat-message--assistant').filter({ has: page.locator('.dealett-chat-offers') });
+      assert.equal(await offerMessage.locator('.dealett-chat-reply ul li').count(), 2);
+      assert.equal(await offerMessage.locator('.dealett-chat-reply ol li').count(), 2);
+      assert.equal(await offerMessage.locator('.dealett-chat-reply strong').count(), 2);
+      assert.equal(await offerMessage.locator('.dealett-chat-reply img').count(), 0);
+      assert.equal(await offerMessage.evaluate(element => {
+        const offers = element.querySelector('.dealett-chat-offers');
+        const actions = element.querySelector('.dealett-chat-quick-replies');
+        return Boolean(actions && (offers.compareDocumentPosition(actions) & Node.DOCUMENT_POSITION_FOLLOWING));
+      }), true);
       const cardText = await page.locator('.dealett-chat-offers').innerText();
       assert.match(cardText, /229/);
       assert.match(cardText, /299/);

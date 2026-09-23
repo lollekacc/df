@@ -2916,6 +2916,57 @@
       }
     };
 
+    const formatAssistantText = (content) => {
+      const inline = value => escapeChatText(value).replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      const blocks = [];
+      let paragraph = [];
+      let list = [];
+      let listType = '';
+      const flushParagraph = () => {
+        if (!paragraph.length) return;
+        const value = paragraph.join('\n');
+        if (paragraph.length === 1 && value.length > 280 && typeof Intl.Segmenter === 'function') {
+          const sentences = [...new Intl.Segmenter(chatLanguage, { granularity: 'sentence' }).segment(value)]
+            .map(part => part.segment.trim());
+          for (let index = 0; index < sentences.length; index += 2) {
+            blocks.push(`<p>${inline(sentences.slice(index, index + 2).join(' '))}</p>`);
+          }
+        } else {
+          blocks.push(`<p>${paragraph.map(inline).join('<br>')}</p>`);
+        }
+        paragraph = [];
+      };
+      const flushList = () => {
+        if (list.length) blocks.push(`<${listType}>${list.join('')}</${listType}>`);
+        list = [];
+        listType = '';
+      };
+      String(content || '').replace(/\r\n?/g, '\n').split('\n').forEach(line => {
+        const heading = line.match(/^\s*#{1,4}\s+(.+)$/);
+        const bullet = line.match(/^\s*(?:[-*•]\s+|(\d+)[.)]\s+)(.+)$/);
+        if (!line.trim()) {
+          flushParagraph();
+          flushList();
+        } else if (heading) {
+          flushParagraph();
+          flushList();
+          blocks.push(`<h4>${inline(heading[1])}</h4>`);
+        } else if (bullet) {
+          flushParagraph();
+          const type = bullet[1] ? 'ol' : 'ul';
+          if (listType && listType !== type) flushList();
+          listType = type;
+          list.push(`<li${bullet[1] ? ` value="${Number(bullet[1])}"` : ''}>${inline(bullet[2])}</li>`);
+        } else {
+          flushList();
+          paragraph.push(line.trim());
+        }
+      });
+      flushParagraph();
+      flushList();
+      return blocks.join('');
+    };
+
     const addMessage = (role, content, options = {}) => {
       const messageRecord = options.messageRecord || createMessageRecord(role, content, options);
       const timestamp = messageRecord.createdAt;
@@ -2934,7 +2985,8 @@
         ? options.paragraphs.map((paragraph, index) => (
           `  <p class="${index === 0 ? 'dealett-chat-greeting__lead' : 'dealett-chat-greeting__body'}"${contentAttributes ? ` ${contentAttributes}` : ''}>${escapeChatText(paragraph)}</p>`
         )).join('')
-        : `  <p${contentAttributes ? ` ${contentAttributes}` : ''}>${escapeChatText(content)}</p>`;
+        : isUser ? `  <p${contentAttributes ? ` ${contentAttributes}` : ''}>${escapeChatText(content)}</p>`
+          : `<div class="dealett-chat-reply"${contentAttributes ? ` ${contentAttributes}` : ''}>${formatAssistantText(content)}</div>`;
       item.innerHTML = [
         '<div class="dealett-chat-bubble">',
         contentMarkup,
@@ -3070,7 +3122,6 @@
       });
       if (isExplicitDemoResponse) markAssistantItemAsSimulated(assistantItem);
       renderEmbeddedWidget(assistantItem, response.embeddedWidget);
-      renderQuickReplies(assistantItem, response.quickReplies);
       const offerIds = Array.isArray(response.offerCards)
         ? response.offerCards.map((card) => String(card.planId || card.id || '')).filter(Boolean)
         : [];
@@ -3078,6 +3129,7 @@
         renderChatOfferCards(assistantItem, response.offerCards);
         offerIds.forEach((offerId) => renderedOfferIds.add(offerId));
       }
+      renderQuickReplies(assistantItem, response.quickReplies);
       writeQualification(response.qualification);
       writeOfferCalculation(response.offerCalculation);
       writeQuestionFlowState(response.flowState);
@@ -3274,7 +3326,6 @@
         if (isSimulated) markAssistantItemAsSimulated(item);
         lastResponseWasSimulated = isSimulated;
         renderEmbeddedWidget(item, structured.embeddedWidget);
-        renderQuickReplies(item, structured.quickReplies);
         const offerIds = Array.isArray(structured.offerCards)
           ? structured.offerCards.map((card) => String(card.planId || card.id || '')).filter(Boolean)
           : [];
@@ -3282,6 +3333,7 @@
           renderChatOfferCards(item, structured.offerCards);
           offerIds.forEach((offerId) => renderedOfferIds.add(offerId));
         }
+        renderQuickReplies(item, structured.quickReplies);
       });
       if (latestAssistantItem) lastCompletedAssistantItem = latestAssistantItem;
       status.textContent = lastResponseWasSimulated ? text.demoStatus : text.status;
@@ -3364,11 +3416,11 @@
           streamingItem.className = 'dealett-chat-message dealett-chat-message--assistant';
           streamingItem.dataset.streaming = 'true';
           streamingItem.setAttribute('aria-busy', 'true');
-          streamingItem.innerHTML = '<div class="dealett-chat-bubble"><p data-no-translate></p></div>';
+          streamingItem.innerHTML = '<div class="dealett-chat-bubble"><div class="dealett-chat-reply" data-no-translate></div></div>';
           messageList.append(streamingItem);
         }
         streamedText += delta;
-        streamingItem.querySelector('p').textContent = streamedText;
+        streamingItem.querySelector('.dealett-chat-reply').innerHTML = formatAssistantText(streamedText);
         scrollMessages();
       });
       const clientRecord = options.messageRecord || null;

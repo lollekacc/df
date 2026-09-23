@@ -584,6 +584,37 @@ html body #dealettChat .dealett-chat-offer-card::before {
   content: none !important;
 }
 
+html body #dealettChat .dealett-chat-reply {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+}
+
+html body #dealettChat .dealett-chat-reply > :is(p, ul, ol, h4) {
+  margin: 0 !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+html body #dealettChat .dealett-chat-reply > :is(p, ul, ol, h4) + :is(p, ul, ol, h4) {
+  margin-top: 12px !important;
+}
+
+html body #dealettChat .dealett-chat-reply > :is(ul, ol) {
+  display: block;
+  padding-left: 22px;
+}
+
+html body #dealettChat .dealett-chat-reply > ul { list-style: disc outside; }
+html body #dealettChat .dealett-chat-reply > ol { list-style: decimal outside; }
+html body #dealettChat .dealett-chat-reply li + li { margin-top: 6px; }
+html body #dealettChat .dealett-chat-reply :is(strong, h4) { font-weight: 700; }
+
+html body #dealettChat .dealett-chat-offers + .dealett-chat-quick-replies {
+  margin-top: 14px !important;
+}
+
 html body #dealettChat .dealett-chat-offer-card.provider-card--telenor {
   --chat-operator-color: #1aa3c9;
 }

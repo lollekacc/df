@@ -326,7 +326,7 @@
 .company-comparison {
   padding: 88px 0 94px;
   scroll-margin-top: 20px;
-  background: #fff;
+  background: linear-gradient(180deg, #f8e2d2 0, #fff3e7 70px, #fff 220px);
 }
 
 .company-section-head {
@@ -641,10 +641,23 @@
 }
 
 .company-plan-grid {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   align-items: stretch;
   gap: 14px;
+}
+
+.company-plan-grid::before {
+  position: absolute;
+  z-index: -1;
+  inset: -14px;
+  border-top: 2px solid rgba(201, 111, 36, 0.35);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #f7efe6 0%, #faf7f3 180px, #faf7f3 85%, #fff 100%);
+  content: '';
+  pointer-events: none;
 }
 
 .company-plan-card {
