@@ -284,6 +284,20 @@ function createIndexQuiz() {
       return;
     }
 
+    const streamingPrice = event.target.closest('[data-streaming-price], [data-streaming-custom]');
+    if (streamingPrice) {
+      const row = streamingPrice.closest('[data-streaming-row]');
+      const input = row.querySelector('[data-streaming-cost]');
+      row.querySelector('[data-streaming-service]').checked = true;
+      const custom = streamingPrice.hasAttribute('data-streaming-custom');
+      row.dataset.customPrice = String(custom);
+      input.value = custom ? '' : streamingPrice.dataset.streamingPrice;
+      input.setCustomValidity('');
+      syncStreamingPriceRow(row);
+      if (custom) input.focus();
+      return;
+    }
+
     const streamingNext = event.target.closest("[data-streaming-next]");
     if (streamingNext) {
       const step = streamingNext.closest(".quiz-step-card");
@@ -307,6 +321,10 @@ function createIndexQuiz() {
   }
 
   function handleWrapperChange(event) {
+    if (event.target.matches('[data-streaming-service]')) {
+      syncStreamingPriceRow(event.target.closest('[data-streaming-row]'));
+      return;
+    }
     if (event.target.matches('[data-binding-text]')) {
       event.target.reportValidity();
       return;
@@ -332,6 +350,11 @@ function createIndexQuiz() {
   }
 
   function handleWrapperInput(event) {
+    if (event.target.matches('[data-streaming-cost]')) {
+      event.target.setCustomValidity('');
+      syncStreamingPriceRow(event.target.closest('[data-streaming-row]'));
+      return;
+    }
     if (event.target.matches('[data-binding-text]')) {
       const input = event.target;
       const index = Number(input.dataset.personIndex);
@@ -1153,6 +1176,19 @@ function createIndexQuiz() {
     return Math.max(index - 1, 0);
   }
 
+  function syncStreamingPriceRow(row) {
+    if (!row) return;
+    const selected = row.querySelector('[data-streaming-service]').checked;
+    const input = row.querySelector('[data-streaming-cost]');
+    const custom = row.dataset.customPrice === 'true';
+    input.hidden = !selected || !custom;
+    row.querySelectorAll('[data-streaming-price]').forEach(button => {
+      button.setAttribute('aria-pressed', String(selected && !custom && input.value === button.dataset.streamingPrice));
+    });
+    row.querySelector('[data-streaming-custom]').setAttribute('aria-pressed', String(selected && custom));
+    if (!selected) input.setCustomValidity('');
+  }
+
   function handleStreamingStep(step) {
     state.streamingServices = Array.from(step.querySelectorAll("[data-streaming-service]:checked"))
       .map(input => input.value)
@@ -1160,7 +1196,8 @@ function createIndexQuiz() {
     state.streamingMonthlyCosts = state.streamingServices.reduce((costs, service) => {
       const input = step.querySelector(`[data-streaming-cost="${service}"]`);
       const amount = Number(input?.value);
-      if (amount > 0) costs[service] = amount;
+      input?.setCustomValidity("");
+      if (amount > 0 && input.checkValidity()) costs[service] = amount;
       return costs;
     }, {});
     state.streamingCalculation = state.streamingServices.length ? "include" : "none";
@@ -1168,6 +1205,8 @@ function createIndexQuiz() {
     const missingCost = state.streamingServices.find(service => !state.streamingMonthlyCosts[service]);
     if (missingCost) {
       const input = step.querySelector(`[data-streaming-cost="${missingCost}"]`);
+      const row = input?.closest("[data-streaming-row]");
+      if (row) { row.dataset.customPrice = "true"; syncStreamingPriceRow(row); }
       input?.focus();
       input?.setCustomValidity("Ange vad du betalar per månad så att effektiv kostnad blir korrekt.");
       input?.reportValidity();
@@ -2078,6 +2117,11 @@ function createIndexQuiz() {
     });
     steps[3]?.querySelectorAll("[data-streaming-cost]").forEach(input => {
       input.value = state.streamingMonthlyCosts[input.dataset.streamingCost] || "";
+      const row = input.closest('[data-streaming-row]');
+      if (row) {
+        row.dataset.customPrice = String(Boolean(input.value) && ![...row.querySelectorAll('[data-streaming-price]')].some(button => button.dataset.streamingPrice === input.value));
+        syncStreamingPriceRow(row);
+      }
     });
 
     if (state.currentStep === 1) {

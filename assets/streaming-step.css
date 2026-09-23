@@ -1,0 +1,163 @@
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step3 {
+  container-type: inline-size;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step3 .quiz-card {
+  padding: 12px 0 16px !important;
+  gap: 16px !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step3 .quiz-card-toolbar {
+  min-height: 36px !important;
+  padding-left: 88px !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step3 .quiz-popup-actions {
+  top: 12px !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step3 .quiz-popup-actions button {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step3 .quiz-step-count {
+  font-size: 12px !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step3 .quiz-card-body {
+  gap: 12px !important;
+  justify-content: flex-start !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step3 .quiz-title {
+  font-size: clamp(22px, 6.4cqw, 42px) !important;
+  letter-spacing: -.04em;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step3 .quiz-subtitle {
+  font-size: clamp(12px, 3.3cqw, 18px) !important;
+  color: #606675;
+}
+
+.streaming-plan-list {
+  display: grid;
+  grid-template-rows: repeat(5, minmax(62px, 1fr));
+  gap: 10px;
+  flex: 1 1 auto;
+  min-height: 350px;
+  margin: 6px 0;
+}
+
+.streaming-plan-row {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #e7e3dd;
+  border-radius: 15px;
+  background: #fffefd;
+  box-shadow: 0 5px 16px #17283c05;
+}
+
+.streaming-plan-row:has([data-streaming-service]:checked) {
+  border-color: #d77c3c;
+  background: #fff8f0;
+}
+
+.streaming-plan-service {
+  display: flex;
+  margin: 0 !important;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.streaming-plan-service input {
+  appearance: auto;
+  position: static;
+  opacity: 1;
+  width: 19px;
+  height: 19px;
+  margin: 0;
+  flex: 0 0 19px;
+  accent-color: #c76d32;
+}
+
+.streaming-plan-logo {
+  width: 58px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.streaming-plan-logo--hbo {
+  filter: brightness(0);
+}
+
+.streaming-plan-logo--tv4 {
+  height: 38px;
+  filter: brightness(0);
+}
+
+.streaming-plan-prices {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+}
+
+.streaming-plan-prices button,
+.streaming-plan-cost {
+  min-height: 32px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #deddd9;
+  border-radius: 8px;
+  background: #fff;
+  color: #0b263c;
+  font: 600 12px/1.2 var(--dui-font-body, sans-serif);
+}
+
+.streaming-plan-prices button {
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.streaming-plan-prices button:hover,
+.streaming-plan-prices button[aria-pressed="true"] {
+  border-color: #c76d32;
+  background: #fce8d8;
+  color: #954616;
+}
+
+.streaming-plan-prices button:focus-visible,
+.streaming-plan-cost:focus-visible,
+.streaming-plan-service input:focus-visible {
+  outline: 2px solid #c76d32;
+  outline-offset: 2px;
+}
+
+.streaming-plan-cost {
+  width: 64px;
+  margin: 0 !important;
+}
+
+.streaming-plan-prices [data-streaming-custom][aria-pressed="true"] {
+  display: none;
+}
+
+@container (max-width: 360px) {
+  .streaming-plan-row {
+    grid-template-columns: 70px minmax(0, 1fr);
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .streaming-plan-service { gap: 6px; }
+  .streaming-plan-logo { width: 44px; }
+  .streaming-plan-prices button { padding-inline: 6px; font-size: 11px; }
+}

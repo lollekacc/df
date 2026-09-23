@@ -134,17 +134,13 @@ html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .quiz-popup-actions button { cursor: pointer; transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .quiz-popup-actions button:hover,
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .quiz-popup-actions button:focus-visible { background: #0b2c43 !important; border-color: #0b2c43 !important; color: #fff !important; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .streaming-checkbox-grid { display: grid !important; grid-template-columns: 1fr !important; gap: 5px !important; margin: 0 !important; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .streaming-checkbox { margin: 0 !important; box-shadow: none !important; display: flex !important; align-items: center !important; gap: 8px !important; min-height: 31px !important; padding: 3px 9px !important; border-radius: 6px !important; font-size: 12px !important; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .streaming-checkbox > input[type=checkbox] { width: 16px !important; height: 16px !important; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .streaming-cost-input { width: 88px !important; height: 26px !important; min-height: 0 !important; padding: 3px 6px !important; margin: 0 0 0 auto !important; font-size: 12px !important; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .quiz-person-grid { display: grid !important; grid-template-columns: repeat(5,minmax(0,1fr)) !important; gap: 5px !important; margin: 15px 0 0 !important; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .quiz-more-toggle { margin: 0 !important; font-size: 12px !important; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .result-header { display: none !important; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .result-title { font-size: clamp(28px, 3.4vw, 48px) !important; color: #081a39 !important; letter-spacing: -.045em; line-height: 1.1 !important; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .result-desc { display: block !important; margin: 8px 0 0 !important; color: #717889; font-size: clamp(14px, 1.4vw, 18px); line-height: 1.4; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #offers-container { display: flex !important; flex-direction: column !important; gap: 8px !important; margin: 0 !important; min-height: 0 !important; }
-html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 12px; border: 1px solid #ece9e5; border-radius: 18px; background: #fffdfb; color: #081a39; box-shadow: 0 12px 35px #15213808; }
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #offers-container { display: flex !important; flex-direction: column !important; align-items: stretch !important; width: 100% !important; gap: 8px !important; margin: 0 !important; min-height: 0 !important; }
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer { display: flex; width: 100%; max-width: none; box-sizing: border-box; align-self: stretch; flex-direction: column; gap: 10px; min-width: 0; padding: 12px; border: 1px solid #ece9e5; border-radius: 18px; background: #fffdfb; color: #081a39; box-shadow: 0 12px 35px #15213808; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer__provider { display: flex; align-items: center; gap: 16px; min-width: 0; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer__provider img { width: 56px; height: 38px; object-fit: contain; border-radius: 12px; }
@@ -186,8 +182,6 @@ html body .hero-finder a:focus-visible { outline: 2px solid #cf763e; outline-off
   html body:has(.home-intro) .hero-finder .hero-finder__stage { height: 256px; }
 }
 html body:has(.home-intro) .hero:not(.quiz-in-hero) .hero-finder[data-hero-finder] { position: relative !important; }
-
-html body .hero-finder.is-inline-quiz:has(#step1.active-step .operator-person-card:nth-child(3 of :not([hidden]))) { min-height: 480px !important; }
 
 html body .home-how { position: relative; }
 html body .analysis-quiz-popup {
@@ -241,3 +235,35 @@ html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step7 .quiz-card > * { flex-shrink: 0; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .result-desc { text-align: left !important; }
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-offer__terms strong { overflow-wrap: anywhere; }
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-card {
+  box-sizing: border-box;
+  max-height: 100% !important;
+  overflow: auto !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .quiz-card-body {
+  flex: 1;
+  justify-content: space-between !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #offers-container {
+  flex: 1 0 auto;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .inline-offer {
+  flex: 1 0 auto;
+  justify-content: space-between;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step7 .quiz-card {
+  overflow: auto !important;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step7 .quiz-card > #offers-container {
+  flex-shrink: 1;
+}
+
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .inline-offer .quiz-next-button {
+  margin: 0 !important;
+}

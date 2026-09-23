@@ -24,6 +24,8 @@
     <link rel="stylesheet" href="./assets/finder-design.css?v=20260922-1" />
     <link rel="stylesheet" href="./assets/operator-step.css?v=20260922-1" />
     <link rel="stylesheet" href="./assets/price-step.css?v=20260923-1" />
+    <link rel="stylesheet" href="./assets/streaming-step.css?v=20260923-1" />
+    <link rel="stylesheet" href="./assets/travel-step.css?v=20260923-1" />
     <link rel="stylesheet" href="./assets/information-rotator.css?v=20260916-1" />
     <link rel="stylesheet" href="./assets/home-section-fades.css" />
     <link rel="stylesheet" href="./assets/newsletter-design.css?v=20260923-1" />
@@ -479,40 +481,73 @@
                       </p>
                       <h3 class="quiz-subtitle">Välj tjänster och månadskostnad. Vi räknar in värdet.</h3>
 
-                      <div class="streaming-checkbox-grid mt-8" aria-label="Streamingtjänster">
-                        <label class="streaming-checkbox">
-                          <input type="checkbox" value="netflix" data-streaming-service />
-                          <span>Netflix</span>
-                          <input class="streaming-cost-input" type="number" min="1" max="2000" step="10" inputmode="numeric" placeholder="kr/mån" aria-label="Vad betalar du för Netflix per månad?" data-streaming-cost="netflix" />
-                        </label>
-
-                        <label class="streaming-checkbox">
-                          <input type="checkbox" value="hbo" data-streaming-service />
-                          <span>HBO Max</span>
-                          <input class="streaming-cost-input" type="number" min="1" max="2000" step="10" inputmode="numeric" placeholder="kr/mån" aria-label="Vad betalar du för HBO Max per månad?" data-streaming-cost="hbo" />
-                        </label>
-
-                        <label class="streaming-checkbox">
-                          <input type="checkbox" value="disney" data-streaming-service />
-                          <span>Disney+</span>
-                          <input class="streaming-cost-input" type="number" min="1" max="2000" step="10" inputmode="numeric" placeholder="kr/mån" aria-label="Vad betalar du för Disney+ per månad?" data-streaming-cost="disney" />
-                        </label>
-
-                        <label class="streaming-checkbox">
-                          <input type="checkbox" value="amazon" data-streaming-service />
-                          <span>Amazon Prime</span>
-                          <input class="streaming-cost-input" type="number" min="1" max="2000" step="10" inputmode="numeric" placeholder="kr/mån" aria-label="Vad betalar du för Amazon Prime per månad?" data-streaming-cost="amazon" />
-                        </label>
-
-                        <label class="streaming-checkbox">
-                          <input type="checkbox" value="tv4" data-streaming-service />
-                          <span>TV4 Play</span>
-                          <input class="streaming-cost-input" type="number" min="1" max="2000" step="10" inputmode="numeric" placeholder="kr/mån" aria-label="Vad betalar du för TV4 Play per månad?" data-streaming-cost="tv4" />
-                        </label>
+                      <div class="streaming-plan-list" aria-label="Streamingtjänster">
+                        <div class="streaming-plan-row" data-streaming-row="netflix">
+                          <label class="streaming-plan-service">
+                            <input type="checkbox" value="netflix" data-streaming-service aria-label="Netflix" />
+                            <img class="streaming-plan-logo streaming-plan-logo--netflix" src="images/streaming/netflix.svg" alt="Netflix" />
+                          </label>
+                          <div class="streaming-plan-prices" role="group" aria-label="Månadskostnad för Netflix">
+                            <button type="button" data-streaming-price="129" aria-pressed="false" aria-label="Netflix Basic, 129 kr per månad" title="Basic">129 kr</button>
+                            <button type="button" data-streaming-price="169" aria-pressed="false" aria-label="Netflix Standard, 169 kr per månad" title="Standard">169 kr</button>
+                            <button type="button" data-streaming-price="219" aria-pressed="false" aria-label="Netflix Premium, 219 kr per månad" title="Premium">219 kr</button>
+                            <button type="button" data-streaming-custom aria-pressed="false" aria-label="Ange eget pris för Netflix">Eget</button>
+                            <input class="streaming-plan-cost" type="number" min="1" max="2000" step="any" inputmode="decimal" placeholder="kr/mån" aria-label="Vad betalar du för Netflix per månad?" data-streaming-cost="netflix" hidden />
+                          </div>
+                        </div>
+                        <div class="streaming-plan-row" data-streaming-row="hbo">
+                          <label class="streaming-plan-service">
+                            <input type="checkbox" value="hbo" data-streaming-service aria-label="HBO Max" />
+                            <img class="streaming-plan-logo streaming-plan-logo--hbo" src="images/streaming/hbo-max-wordmark.svg" alt="HBO Max" />
+                          </label>
+                          <div class="streaming-plan-prices" role="group" aria-label="Månadskostnad för HBO Max">
+                            <button type="button" data-streaming-price="89" aria-pressed="false" aria-label="HBO Max Basic med reklam, 89 kr per månad" title="Basic med reklam">89 kr</button>
+                            <button type="button" data-streaming-price="129" aria-pressed="false" aria-label="HBO Max Standard, 129 kr per månad" title="Standard">129 kr</button>
+                            <button type="button" data-streaming-price="169" aria-pressed="false" aria-label="HBO Max Premium, 169 kr per månad" title="Premium">169 kr</button>
+                            <button type="button" data-streaming-custom aria-pressed="false" aria-label="Ange eget pris för HBO Max">Eget</button>
+                            <input class="streaming-plan-cost" type="number" min="1" max="2000" step="any" inputmode="decimal" placeholder="kr/mån" aria-label="Vad betalar du för HBO Max per månad?" data-streaming-cost="hbo" hidden />
+                          </div>
+                        </div>
+                        <div class="streaming-plan-row" data-streaming-row="disney">
+                          <label class="streaming-plan-service">
+                            <input type="checkbox" value="disney" data-streaming-service aria-label="Disney+" />
+                            <img class="streaming-plan-logo streaming-plan-logo--disney" src="images/streaming/disney-plus.svg" alt="Disney+" />
+                          </label>
+                          <div class="streaming-plan-prices" role="group" aria-label="Månadskostnad för Disney+">
+                            <button type="button" data-streaming-price="69" aria-pressed="false" aria-label="Disney+ Standard med reklam, 69 kr per månad" title="Standard med reklam">69 kr</button>
+                            <button type="button" data-streaming-price="109" aria-pressed="false" aria-label="Disney+ Standard, 109 kr per månad" title="Standard">109 kr</button>
+                            <button type="button" data-streaming-price="159" aria-pressed="false" aria-label="Disney+ Premium, 159 kr per månad" title="Premium">159 kr</button>
+                            <button type="button" data-streaming-custom aria-pressed="false" aria-label="Ange eget pris för Disney+">Eget</button>
+                            <input class="streaming-plan-cost" type="number" min="1" max="2000" step="any" inputmode="decimal" placeholder="kr/mån" aria-label="Vad betalar du för Disney+ per månad?" data-streaming-cost="disney" hidden />
+                          </div>
+                        </div>
+                        <div class="streaming-plan-row" data-streaming-row="amazon">
+                          <label class="streaming-plan-service">
+                            <input type="checkbox" value="amazon" data-streaming-service aria-label="Amazon Prime" />
+                            <img class="streaming-plan-logo streaming-plan-logo--amazon" src="images/streaming/prime-video.svg" alt="Amazon Prime" />
+                          </label>
+                          <div class="streaming-plan-prices" role="group" aria-label="Månadskostnad för Amazon Prime">
+                            <button type="button" data-streaming-price="69" aria-pressed="false" aria-label="Amazon Prime Prime, 69 kr per månad" title="Prime">69 kr</button>
+                            <button type="button" data-streaming-custom aria-pressed="false" aria-label="Ange eget pris för Amazon Prime">Eget</button>
+                            <input class="streaming-plan-cost" type="number" min="1" max="2000" step="any" inputmode="decimal" placeholder="kr/mån" aria-label="Vad betalar du för Amazon Prime per månad?" data-streaming-cost="amazon" hidden />
+                          </div>
+                        </div>
+                        <div class="streaming-plan-row" data-streaming-row="tv4">
+                          <label class="streaming-plan-service">
+                            <input type="checkbox" value="tv4" data-streaming-service aria-label="TV4 Play" />
+                            <img class="streaming-plan-logo streaming-plan-logo--tv4" src="images/streaming/tv4-play.svg" alt="TV4 Play" />
+                          </label>
+                          <div class="streaming-plan-prices" role="group" aria-label="Månadskostnad för TV4 Play">
+                            <button type="button" data-streaming-price="69" aria-pressed="false" aria-label="TV4 Play Plus med reklam, 69 kr per månad" title="Plus med reklam">69 kr</button>
+                            <button type="button" data-streaming-price="169" aria-pressed="false" aria-label="TV4 Play Plus utan reklam, 169 kr per månad" title="Plus utan reklam">169 kr</button>
+                            <button type="button" data-streaming-custom aria-pressed="false" aria-label="Ange eget pris för TV4 Play">Eget</button>
+                            <input class="streaming-plan-cost" type="number" min="1" max="2000" step="any" inputmode="decimal" placeholder="kr/mån" aria-label="Vad betalar du för TV4 Play per månad?" data-streaming-cost="tv4" hidden />
+                          </div>
+                        </div>
                       </div>
 
                       <button class="quiz-next-button mt-8" type="button" data-streaming-next>
-                        Fortsätt
+                        Inget <span aria-hidden="true">→</span>
                       </button>
                     </div>
                   </div>
@@ -548,15 +583,9 @@
                       <h3 class="quiz-subtitle">Det hjälper oss väga in roaming och utlandsbehov.</h3>
 
                       <div class="quiz-option-list mt-8 flex flex-col gap-4">
-                        <button class="quiz-option rounded-[1.5rem] border border-slate-200 bg-white px-6 py-5 text-left text-lg font-bold text-slate-900 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md" data-travel="none" type="button">
-                          Nej
-                        </button>
-                        <button class="quiz-option rounded-[1.5rem] border border-slate-200 bg-white px-6 py-5 text-left text-lg font-bold text-slate-900 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md" data-travel="eu" type="button">
-                          Ja, inom EU
-                        </button>
-                        <button class="quiz-option rounded-[1.5rem] border border-slate-200 bg-white px-6 py-5 text-left text-lg font-bold text-slate-900 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md" data-travel="outside_eu" type="button">
-                          Ja, utanför EU
-                        </button>
+                        <button class="quiz-option travel-option" data-travel="none" type="button"><img src="images/quiz/travel-home.svg" alt="" aria-hidden="true" /><span>Nej</span></button>
+                        <button class="quiz-option travel-option" data-travel="eu" type="button"><img src="images/quiz/travel-europe.svg" alt="" aria-hidden="true" /><span>Ja, inom EU</span></button>
+                        <button class="quiz-option travel-option" data-travel="outside_eu" type="button"><img src="images/quiz/travel-world.svg" alt="" aria-hidden="true" /><span>Ja, utanför EU</span></button>
                       </div>
                     </div>
                   </div>
@@ -591,15 +620,9 @@
                       <h3 class="quiz-subtitle">Det hjälper oss hitta abonnemang med rätt utlandsvillkor.</h3>
 
                       <div class="quiz-option-list quiz-option-list--centered mt-8 flex flex-col gap-4">
-                        <button class="quiz-option rounded-[1.5rem] border border-slate-200 bg-white px-6 py-5 text-left text-lg font-bold text-slate-900 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md" data-international-usage="calls" type="button">
-                          Lokala samtal och surf
-                        </button>
-                        <button class="quiz-option rounded-[1.5rem] border border-slate-200 bg-white px-6 py-5 text-left text-lg font-bold text-slate-900 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md" data-international-usage="data" type="button">
-                          Bara surf
-                        </button>
-                        <button class="quiz-option rounded-[1.5rem] border border-slate-200 bg-white px-6 py-5 text-left text-lg font-bold text-slate-900 shadow-sm transition hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md" data-international-usage="family_calls" type="button">
-                          Ringa fritt inom familjen
-                        </button>
+                        <button class="quiz-option travel-option international-option" data-international-usage="calls" type="button"><img src="images/quiz/usage-calls.svg" alt="" aria-hidden="true" /><span>Lokala samtal och surf</span></button>
+                        <button class="quiz-option travel-option international-option" data-international-usage="data" type="button"><img src="images/quiz/usage-data.svg" alt="" aria-hidden="true" /><span>Bara surf</span></button>
+                        <button class="quiz-option travel-option international-option" data-international-usage="family_calls" type="button"><img src="images/quiz/usage-family.svg" alt="" aria-hidden="true" /><span>Ringa fritt inom familjen</span></button>
                       </div>
                     </div>
                   </div>
@@ -773,7 +796,7 @@
         <div class="home-how__copy">
           <h2><span>Osäker på vilket abonnemang</span><span>som passar dig?</span></h2>
           <p>* Svar direkt * Tar cirka 2 minuter </p>
-          <a href="#quiz-steps-wrapper" class="button button--primary analysis-start-action" data-home-quiz-link data-analysis-start-action><span data-analysis-start-label>Starta analysen</span><span aria-hidden="true">→</span></a>
+          <a href="#quiz-steps-wrapper" class="button button--primary primary-btn" data-home-quiz-link data-analysis-start-action><span data-analysis-start-label>Starta analysen</span><span aria-hidden="true">→</span></a>
         </div>
         <ol class="home-how__steps">
           <li><span>1</span><div><h3>Berätta vad du behöver</h3><p>Surf, antal personer och ungefärlig budget.</p></div></li>

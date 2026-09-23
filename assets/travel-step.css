@@ -1,0 +1,128 @@
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) {
+  container-type: inline-size;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-card {
+  padding: 14px 0 24px !important;
+  gap: clamp(24px, 6cqw, 60px) !important;
+  background: #fffcf7 !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-card-toolbar {
+  min-height: 38px !important;
+  padding-left: 94px !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-popup-actions {
+  top: 14px !important;
+  gap: 10px !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-popup-actions button {
+  width: 38px !important;
+  height: 38px !important;
+  border: 1px solid #bdcbd5 !important;
+  border-radius: 9px !important;
+  background: #fffdf9 !important;
+  color: #08283e !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-popup-actions svg {
+  width: 24px;
+  height: 24px;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-progress-track {
+  width: clamp(48px, 16cqw, 170px) !important;
+  height: 4px !important;
+  background: #d9dbdf;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-step-count {
+  font-size: clamp(12px, 2.8cqw, 28px) !important;
+  font-weight: 500;
+  color: #536078;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-card-body {
+  justify-content: flex-start !important;
+  gap: 14px !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-title {
+  font-size: clamp(25px, 6.3cqw, 64px) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -.04em;
+  color: #062840 !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-subtitle {
+  font-size: clamp(13px, 3.1cqw, 30px) !important;
+  line-height: 1.45 !important;
+  font-weight: 400 !important;
+  color: #536078;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-option-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: clamp(6px, 1.6cqw, 18px) !important;
+  margin: auto 0 16% !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .travel-option {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(10px, 2cqw, 22px);
+  min-width: 0;
+  min-height: 150px !important;
+  aspect-ratio: .96;
+  padding: clamp(10px, 2.6cqw, 30px) 4px !important;
+  border: 1px solid #b9c9d4 !important;
+  border-radius: clamp(8px, 1.2cqw, 14px) !important;
+  background: #fffefd !important;
+  color: #062840 !important;
+  box-shadow: none !important;
+  font-size: clamp(12px, 3cqw, 30px) !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .travel-option img {
+  width: 90%;
+  height: auto;
+  min-height: 0;
+  flex: 1;
+  object-fit: contain;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .travel-option::before,
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .travel-option::after {
+  display: none !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .travel-option:is(:hover, :focus-visible, .selected) {
+  border-color: #ff650b !important;
+  background: #fff5eb !important;
+  transform: none !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step5 .international-option {
+  background: #fff !important;
+  border-color: #ccd6df !important;
+  box-shadow: 0 8px 22px #08284004 !important;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step5 .international-option span {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 2.4em;
+}
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack #step5 .international-option:is(:hover, :focus-visible, .selected) {
+  border-color: #ff650b !important;
+  background: #fff5eb !important;
+}

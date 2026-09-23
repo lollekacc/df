@@ -1,26 +1,8 @@
-html body .hero-finder.is-inline-quiz:has(#step6.active-step) > :not(#quiz-steps-wrapper) {
-  display: none !important;
-}
-
-html body .hero-finder:has(#step6.active-step) #quiz-steps-wrapper {
-  position: relative !important;
-  inset: auto !important;
-  height: auto !important;
-}
-
-html body .hero-finder:has(#step6.active-step) #quiz-steps-wrapper > div,
-html body .hero-finder:has(#step6.active-step) #quiz-card-stack,
-html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6.active-step {
-  height: auto !important;
-}
-
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 {
   container-type: inline-size;
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-card {
-  height: auto !important;
-  min-height: 420px !important;
   padding: 18px 0 42px !important;
   gap: clamp(28px, 7.5cqw, 76px) !important;
   background: #fffcf7 !important;
@@ -72,11 +54,12 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-step-co
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-card-body {
-  flex: none;
+  flex: 1;
   gap: clamp(14px, 2.8cqw, 28px) !important;
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-title {
+  text-align: center !important;
   color: #08283e !important;
   font-size: clamp(24px, 6.9cqw, 68px) !important;
   line-height: 1.12 !important;
@@ -84,6 +67,7 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-title {
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-subtitle {
+  text-align: center !important;
   color: #536078;
   font-size: clamp(14px, 3.7cqw, 36px) !important;
   font-weight: 400 !important;
