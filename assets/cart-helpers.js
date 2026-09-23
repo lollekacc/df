@@ -6,7 +6,6 @@
   const STATE_KEY = 'dealettState';
   const CHECKOUT_KEY = 'dealettCheckout';
   const ACTIVITY_KEY = 'dealettCartActivity';
-  const SAVED_CART_KEY = 'dealettSavedCart';
   const CHECKOUT_LEASE_KEY = 'dealettCheckoutLease';
   const CART_IDLE_MS = 60 * 60 * 1000;
   let submissionTimer;
@@ -22,37 +21,12 @@
       return false;
     }
     if (Date.now() - lastActivity < CART_IDLE_MS || Number(readJson(CHECKOUT_LEASE_KEY, 0)) > Date.now()) return false;
-    writeJson(SAVED_CART_KEY, cart);
     writeJson(CART_KEY, []);
     syncSelectionFromCart([]);
     removeStorage(ACTIVITY_KEY);
     notifyCartChanged([]);
-    renderSavedCart();
     window.dispatchEvent(new Event('dealett:cart-expired'));
     return true;
-  };
-
-  const renderSavedCart = () => {
-    let notice = document.querySelector('#savedCartNotice');
-    const host = document.querySelector('#cartSummaryContainer');
-    const saved = readJson(SAVED_CART_KEY, []);
-    if (!saved.length) {
-      notice?.remove();
-      return;
-    }
-    if (!host) return;
-    if (!notice) {
-      notice = document.createElement('div');
-      notice.id = 'savedCartNotice';
-      notice.className = 'empty-cart-card';
-      notice.setAttribute('role', 'status');
-      host.before(notice);
-    }
-    const hasCart = readJson(CART_KEY, []).length > 0;
-    notice.innerHTML = '<p>Efter en timmes inaktivitet har din tidigare varukorg sparats separat.</p>' +
-      '<button type="button" class="primary-btn" data-restore-cart>' +
-      (hasCart ? 'Ersätt nuvarande val med tidigare val' : 'Återställ tidigare val') + '</button> ' +
-      '<button type="button" class="cart-step-back" data-dismiss-saved-cart>Ta bort sparade val</button>';
   };
 
   const setSubmitting = (active) => {
@@ -80,7 +54,6 @@
     });
     writeJson('dealettCompletedCart', { cart: remaining, completedAt: Date.now() });
     writeJson(CART_KEY, remaining);
-    removeStorage(SAVED_CART_KEY);
     if (remaining.length) {
       const latest = remaining[remaining.length - 1];
       writeJson(SELECTED_OFFER_KEY, buildSelectedOffer(latest));
@@ -383,7 +356,6 @@
     }
 
     notifyCartChanged(normalizedCart);
-    renderSavedCart();
     return normalizedCart;
   };
 
@@ -403,7 +375,6 @@
     removeStorage('rewardChoice');
     clearCheckoutStorage();
     notifyCartChanged(cart);
-    renderSavedCart();
     return cart;
   };
 
@@ -593,7 +564,6 @@
   const openDrawer = (cart = readCart()) => {
     const elements = ensureDrawer();
     bindDrawerEvents(elements);
-    renderSavedCart();
     void elements.cartDrawer?.offsetWidth;
     elements.cartDrawer?.classList.remove('hidden');
     elements.cartDrawer?.setAttribute('aria-hidden', 'false');
@@ -680,6 +650,7 @@
     showCheckoutAgreement,
   };
 
+  removeStorage('dealettSavedCart');
   expireCart();
   const recordActivity = (event) => {
     if (!event.isTrusted) return;
@@ -700,18 +671,6 @@
       } else {
         notifyCartChanged(readCart());
       }
-      renderSavedCart();
-    }
-  });
-  document.addEventListener('click', event => {
-    if (event.target.closest('[data-restore-cart]')) {
-      const saved = readJson(SAVED_CART_KEY, []);
-      removeStorage(SAVED_CART_KEY);
-      if (saved.length) setCart(saved);
-    }
-    if (event.target.closest('[data-dismiss-saved-cart]')) {
-      removeStorage(SAVED_CART_KEY);
-      renderSavedCart();
     }
   });
 

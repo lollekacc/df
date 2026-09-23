@@ -569,7 +569,7 @@ html body #dealettChat .dealett-chat-offer-card {
   overflow: visible !important;
   isolation: isolate;
   display: grid !important;
-  grid-template-rows: 3px minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
   min-height: 0 !important;
   max-height: var(--chat-offer-max-height, none) !important;
   transform: none !important;
@@ -624,17 +624,10 @@ html body #dealettChat .dealett-chat-offer-card.provider-card--tre {
   --chat-operator-color: #ff2683;
 }
 
-html body #dealettChat .dealett-chat-offer-card .offer-card__accent {
-  grid-row: 1;
-  height: 3px !important;
-  background: var(--chat-operator-color, var(--provider-accent, #ff8000)) !important;
-  border-radius: 12px 12px 0 0;
-}
-
 html body #dealettChat .dealett-chat-offer-card .offer-card__inner {
   position: relative;
   z-index: 1;
-  grid-row: 2;
+  grid-row: 1;
   display: grid !important;
   grid-template-rows: 1fr auto !important;
   min-height: 0 !important;
@@ -668,17 +661,34 @@ html body #dealettChat .dealett-chat-offer-top {
   gap: 8px;
 }
 
-html body #dealettChat .dealett-chat-offer-operator {
+html body #dealettChat .dealett-chat-offer-operator-frame {
+  position: relative;
+  isolation: isolate;
+  display: flex;
   flex: 0 1 auto;
   min-width: 0;
-  width: auto;
   max-width: 38%;
   height: 34px;
-  padding: 3px 6px 2px;
+  background: #fff;
+  border-radius: 8px 8px 0 0;
+}
+
+html body #dealettChat .dealett-chat-offer-operator-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 6px;
   border: 1px solid var(--chat-operator-color, var(--provider-accent, #e0e3e9));
   border-bottom: 0;
   border-radius: 8px 8px 0 0;
-  background: #fff;
+  pointer-events: none;
+}
+
+html body #dealettChat .dealett-chat-offer-operator {
+  min-width: 0;
+  width: auto;
+  max-width: 100%;
+  height: 34px;
+  padding: 3px 6px 2px;
   object-fit: contain;
   object-position: left center;
 }
@@ -773,27 +783,88 @@ html body #dealettChat .dealett-chat-offer-card .offer-card__stat-value {
 html body #dealettChat .dealett-chat-offer-card .offer-card__reason {
   display: flex !important;
   align-items: center !important;
-  gap: 3px !important;
+  gap: 5px !important;
   margin: 6px 0 0 !important;
   padding: 4px !important;
   border: 0 !important;
   border-radius: 7px !important;
   background: #fff3e7 !important;
   color: #172f4d !important;
-  font-size: 14px !important;
+  font-size: 12px !important;
   line-height: 1.3 !important;
 }
 
-html body #dealettChat .offer-card__reason > i {
+html body #dealettChat .dealett-chat-offer-info {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
   color: #ae520a;
   font-size: 17px;
+  cursor: pointer;
+}
+
+html body #dealettChat .dealett-chat-offer-info:hover {
+  background: #ffe0bc;
+}
+
+html body #dealettChat .dealett-chat-offer-info:focus-visible {
+  outline: 2px solid #ae520a;
+  outline-offset: 2px;
+}
+
+html body dialog.dealett-chat-offer-explanation {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  box-sizing: border-box;
+  margin: auto;
+  padding: 24px;
+  border: 1px solid #e0e3e9;
+  border-radius: 16px;
+  background: #fff;
+  color: #172f4d;
+  box-shadow: 0 16px 60px #09213b33;
+  font: 15px/1.55 Arial, sans-serif;
+}
+
+html body dialog.dealett-chat-offer-explanation::backdrop {
+  background: #09213b66;
+}
+
+html body .dealett-chat-offer-explanation h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+html body .dealett-chat-offer-explanation p { margin: 12px 0; }
+html body .dealett-chat-offer-explanation__operator { font-weight: 700; }
+html body .dealett-chat-offer-explanation form { margin-top: 20px; }
+html body .dealett-chat-offer-explanation button {
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #09213b;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
 }
 
 html body #dealettChat .offer-card__reason > small {
   margin-left: auto;
-  max-width: 42%;
   color: #6e6258;
-  font-size: 12px;
+  font-size: 13px;
+}
+
+html body #dealettChat .offer-card__reason > :is(span, small) {
+  flex: 0 0 auto;
+  font-size: var(--chat-notice-font-size, 12px);
+  white-space: nowrap;
 }
 
 html body #dealettChat .dealett-chat-offer-benefits {
@@ -1773,8 +1844,7 @@ html body #dealettChat .dealett-chat-delete { display: none; }
   }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-tabs { display: none; }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-identity { display: flex; flex: 1; align-items: center; gap: 10px; min-width: 0; color: #0d1a30; }
-  html body .dealett-ai-mark { display: inline-grid; place-content: center; flex: 0 0 36px; width: 36px; height: 36px; background: #0c172c; color: white; border-radius: 50%; font-size: 25px; line-height: 1; position: relative; font-weight: 400; }
-  html body .dealett-ai-mark > span { position: absolute; color: #ed822e; bottom: 7px; right: 7px; font-size: 23px; }
+  html body .dealett-ai-mark { display: inline-block; flex: 0 0 36px; width: 36px; height: 36px; background: url('../images/chat-brand.png') center / contain no-repeat; }
   html body .dealett-chat-identity > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
   html body .dealett-chat-identity strong { font-size: 16px; line-height: 1.2; font-weight: 700; }
   html body .dealett-chat-identity > div > span { color: #667286; font-size: 11px; line-height: 1.25; }
@@ -1785,7 +1855,7 @@ html body #dealettChat .dealett-chat-delete { display: none; }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-history { top: 60px; max-height: calc(100% - 60px); }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-messages { padding: 16px 20px 8px !important; gap: 12px !important; }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-message--assistant:not(.dealett-chat-message--typing) { position: relative; padding-left: 43px !important; box-sizing: border-box; }
-  html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-message--assistant:not(.dealett-chat-message--typing)::before { content: 'D.'; position: absolute; top: 0; left: 0; display: grid; place-content: center; width: 32px; height: 32px; border-radius: 50%; background: #0c172c; color: white; font-size: 23px; }
+  html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-message--assistant:not(.dealett-chat-message--typing)::before { content: ''; position: absolute; top: 0; left: 0; width: 32px; height: 32px; background: url('../images/chat-brand.png') center / contain no-repeat; }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-message--assistant .dealett-chat-bubble { align-self: flex-start; max-width: 80% !important; padding: 10px 14px !important; border-radius: 14px !important; background: #f7f5f3 !important; }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-time { display: block !important; margin-top: 4px; font-size: 10px; color: #758093 !important; }
   html body:has(.home-intro) #dealettChat.dealett-chat--inline .dealett-chat-inline-controls { font-size: 10px; line-height: 14px; margin-left: 0; }

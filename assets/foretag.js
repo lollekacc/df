@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  const updateResults = () => {
+  const updateResults = (animate = false) => {
     sortCards();
     let visibleCount = 0;
 
@@ -122,6 +122,13 @@ document.addEventListener('DOMContentLoaded', () => {
     resultCount.textContent = String(visibleCount);
     resultLabel.textContent = visibleCount === 1 ? 'lösning' : 'lösningar';
     emptyState.hidden = visibleCount !== 0;
+    if (animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      planGrid.getAnimations().forEach((animation) => animation.cancel());
+      planGrid.animate(
+        [{ opacity: 0.65, transform: 'translateY(5px)' }, { opacity: 1, transform: 'translateY(0)' }],
+        { duration: 180, easing: 'ease-out' },
+      );
+    }
   };
 
   sizeButtons.forEach((button) => {
@@ -136,14 +143,14 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', () => {
       state.operator = button.dataset.operatorFilter;
       updateOperator();
-      updateResults();
+      updateResults(true);
       syncUrlState();
     });
   });
 
   sortControl.addEventListener('change', () => {
     state.sort = sortControl.value;
-    updateResults();
+    updateResults(true);
     syncUrlState();
   });
 
@@ -154,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sortControl.value = state.sort;
     updateSize();
     updateOperator();
-    updateResults();
+    updateResults(true);
     syncUrlState();
   });
 

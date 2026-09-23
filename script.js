@@ -1542,16 +1542,35 @@
         wrap.style.setProperty('--chat-offer-scale', '1');
         wrap.style.setProperty('--chat-offer-max-height', 'none');
         const cards = [...wrap.querySelectorAll('.dealett-chat-offer-card')];
+        const fitNotices = () => {
+          wrap.querySelectorAll('.offer-card__reason:has(.dealett-chat-offer-info)').forEach(notice => {
+            notice.style.setProperty('--chat-notice-font-size', '12px');
+            const parts = [...notice.querySelectorAll(':scope > span, :scope > small')];
+            const style = getComputedStyle(notice);
+            const zoom = notice.getBoundingClientRect().width / notice.offsetWidth;
+            const available = notice.getBoundingClientRect().width
+              - notice.querySelector('button').getBoundingClientRect().width
+              - (parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)
+                + parseFloat(style.columnGap) * parts.length) * zoom - 2;
+            const textWidth = parts.reduce((width, part) => width + part.getBoundingClientRect().width, 0);
+            if (textWidth > 0) {
+              const size = Math.max(1, Math.floor(12 * available / textWidth * 10) / 10);
+              notice.style.setProperty('--chat-notice-font-size', `${size}px`);
+            }
+          });
+        };
+        fitNotices();
         const naturalHeight = Math.max(...cards.map(card => card.getBoundingClientRect().height));
         const chromeHeight = Math.max(...cards.map(card =>
           card.getBoundingClientRect().height - card.querySelector('.offer-card__inner').getBoundingClientRect().height
         ));
-        let scale = Math.min(1, Math.max(0, availableHeight - chromeHeight - 1) / (naturalHeight - chromeHeight));
+        let scale = Math.min(1, Math.max(0, availableHeight - chromeHeight - 4) / (naturalHeight - chromeHeight));
         wrap.style.setProperty('--chat-offer-scale', String(scale));
-        for (let attempt = 0; attempt < 4; attempt += 1) {
+        for (let attempt = 0; attempt < 8; attempt += 1) {
+          fitNotices();
           const fittedHeight = Math.max(...cards.map(card => card.getBoundingClientRect().height));
-          if (fittedHeight <= availableHeight) break;
-          scale *= Math.max(0, availableHeight - chromeHeight - 1) / (fittedHeight - chromeHeight);
+          if (fittedHeight <= availableHeight - 3) break;
+          scale *= Math.max(0, availableHeight - chromeHeight - 4) / (fittedHeight - chromeHeight);
           wrap.style.setProperty('--chat-offer-scale', String(scale));
         }
         wrap.style.removeProperty('--chat-offer-max-height');
@@ -3233,10 +3252,9 @@
         article.innerHTML = [
           logo ? `<img src="${escapeChatText(logo)}" alt="" class="dealett-chat-offer-watermark" />` : '',
           '<div class="dealett-chat-offer-top">',
-          logo ? `<img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="dealett-chat-offer-operator" />` : '',
+          logo ? `<span class="dealett-chat-offer-operator-frame"><img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="dealett-chat-offer-operator" /></span>` : '',
           card.rewardLabel ? `<span class="dealett-chat-offer-reward"><span>${escapeChatText(card.rewardLabel)}</span><strong>xxx:-</strong></span>` : '',
           '</div>',
-          '<div class="offer-card__accent"></div>',
           '<div class="offer-card__inner">',
           '<div class="dealett-chat-offer-content">',
           '  <div class="offer-card__stats">',
@@ -3244,13 +3262,41 @@
           renderStat('fa-wifi', card.dataTitle, card.dataLabel, dataDetail, 'fa-globe'),
           renderStat('fa-tag', card.monthlyPriceTitle, card.monthlyPriceLabel, card.monthlyPriceSubLabel, 'fa-coins'),
           '  </div>',
-          card.recommendationType === 'example_offer' ? `  <p class="offer-card__reason"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>${escapeChatText(card.resultLabel)}</span><small>${english ? 'Can be tailored to your needs' : 'Kan anpassas efter dina behov'}</small></p>` : '',
+          card.recommendationType === 'example_offer' ? `  <p class="offer-card__reason"><button type="button" class="dealett-chat-offer-info" aria-haspopup="dialog" aria-label="${english ? 'Why is this offer shown?' : 'Varför visas det här erbjudandet?'}"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button><span>${escapeChatText(card.resultLabel)}</span><small>${english ? 'Can be tailored to your needs' : 'Kan anpassas efter dina behov'}</small></p>` : '',
           card.strictMatch === false && card.reason ? `  <p class="offer-card__reason">${escapeChatText(card.reason)}</p>` : '',
           benefits.length ? `  <ul class="dealett-chat-offer-benefits">${benefits.map(benefit => `<li>${escapeChatText(benefit)}</li>`).join('')}</ul>` : '',
           '</div>',
-          safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel)} <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>` : '',
+          safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${english ? 'Add to cart' : 'Lägg i varukorgen'} <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>` : '',
           '</div>',
         ].join('');
+        article.querySelector('.dealett-chat-offer-info')?.addEventListener('click', (event) => {
+          const trigger = event.currentTarget;
+          const dialog = document.createElement('dialog');
+          dialog.className = 'dealett-chat-offer-explanation';
+          dialog.setAttribute('aria-labelledby', 'dealett-offer-explanation-title');
+          const explanation = english
+            ? 'This offer is shown as a preliminary example so you can compare the available plans. It is not yet a verified recommendation tailored to your needs. Your data needs, number of users and other requirements need to be confirmed before we can complete the comparison.'
+            : 'Det här erbjudandet visas som ett preliminärt exempel så att du kan jämföra alternativen. Det är ännu inte en verifierad rekommendation anpassad efter dina behov. Surfbehov, antal användare och övriga önskemål behöver bekräftas innan jämförelsen kan slutföras.';
+          dialog.innerHTML = [
+            `<h2 id="dealett-offer-explanation-title">${english ? 'Why is this offer shown?' : 'Varför visas det här erbjudandet?'}</h2>`,
+            `<p class="dealett-chat-offer-explanation__operator">${escapeChatText(card.operator)}</p>`,
+            `<p>${escapeChatText(explanation)}</p>`,
+            card.reason ? `<p>${escapeChatText(card.reason)}</p>` : '',
+            `<form method="dialog"><button autofocus>${english ? 'Close' : 'Stäng'}</button></form>`,
+          ].join('');
+          dialog.addEventListener('click', (click) => {
+            if (click.target !== dialog) return;
+            const bounds = dialog.getBoundingClientRect();
+            if (click.clientX < bounds.left || click.clientX > bounds.right
+              || click.clientY < bounds.top || click.clientY > bounds.bottom) dialog.close();
+          });
+          dialog.addEventListener('close', () => {
+            dialog.remove();
+            if (trigger.isConnected) trigger.focus({ preventScroll: true });
+          }, { once: true });
+          document.body.append(dialog);
+          dialog.showModal();
+        });
         wrap.append(article);
       });
 
@@ -3905,7 +3951,7 @@
     if (heroForm && document.querySelector('.home-intro')) {
       const identity = document.createElement('div');
       identity.className = 'dealett-chat-identity';
-      identity.innerHTML = '<span class="dealett-ai-mark" aria-hidden="true">D<span>.</span></span><div><strong>Dealett AI</strong><span>Din personliga abonnemangsassistent</span></div>';
+      identity.innerHTML = '<span class="dealett-ai-mark" aria-hidden="true"></span><div><strong>Dealett AI</strong><span>Din personliga abonnemangsassistent</span></div>';
       navigation.prepend(identity);
       const remove = document.createElement('button');
       remove.type = 'button';

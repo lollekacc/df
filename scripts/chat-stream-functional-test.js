@@ -82,6 +82,18 @@ setOpenAiTransportForTests(async (_url, options) => {
       release();
       await page.locator('.dealett-chat-offer-card').first().waitFor();
       assert.equal(await page.locator('.dealett-chat-offer-card').count(), 2);
+      const offerInfo = page.locator('.dealett-chat-offer-info').first();
+      await offerInfo.click();
+      const explanation = page.locator('dialog.dealett-chat-offer-explanation');
+      await explanation.waitFor({ state: 'visible' });
+      assert.match(await explanation.innerText(), /preliminärt exempel/);
+      await explanation.getByRole('button', { name: 'Stäng', exact: true }).click();
+      assert.equal(await explanation.count(), 0);
+      assert.equal(await offerInfo.evaluate(element => element === document.activeElement), true);
+      await offerInfo.press('Enter');
+      await explanation.waitFor({ state: 'visible' });
+      await page.keyboard.press('Escape');
+      await explanation.waitFor({ state: 'detached' });
       const offerMessage = page.locator('.dealett-chat-message--assistant').filter({ has: page.locator('.dealett-chat-offers') });
       assert.equal(await offerMessage.locator('.dealett-chat-reply ul li').count(), 2);
       assert.equal(await offerMessage.locator('.dealett-chat-reply ol li').count(), 2);
@@ -106,7 +118,7 @@ setOpenAiTransportForTests(async (_url, options) => {
         images.length === 2 && images.every(image => image.complete && image.naturalWidth > 0)), true);
       assert.equal(await page.locator('.dealett-chat-offer-operator').evaluateAll(images =>
         images.length === 2 && images.every(image => image.complete && image.naturalWidth > 0
-          && image.getBoundingClientRect().right <= image.parentElement.querySelector('.dealett-chat-offer-reward').getBoundingClientRect().left)), true);
+          && image.getBoundingClientRect().right <= image.closest('.dealett-chat-offer-card').querySelector('.dealett-chat-offer-reward').getBoundingClientRect().left)), true);
       for (const height of [1000, 600]) {
         await page.setViewportSize({ width, height });
         await page.waitForFunction(() => {

@@ -1,17 +1,19 @@
 .surf-page { background: #f8f5f0; color: #0d1726; }
-.surf-page-main { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 76px 0 80px; }
-.surf-page-hero { max-width: 820px; margin-bottom: 44px; }
-.surf-page-hero h1 { margin: 20px 0; font-size: clamp(44px, 6vw, 76px); font-weight: 600; line-height: 1.04; letter-spacing: -.055em; }
+.surf-page-main { width: calc(100% - 64px); max-width: none; margin: 0 auto; padding: 64px 0; }
+.surf-page-hero { display: grid; grid-template-columns: 1.3fr 1fr; column-gap: 48px; align-items: center; margin-bottom: 28px; }
+.surf-page-hero > .surf-eyebrow { grid-column: 1 / -1; }
+.surf-page-hero h1 { margin: 14px 0; font-size: clamp(36px, 4vw, 58px); font-weight: 600; line-height: 1.04; letter-spacing: -.055em; }
 .surf-page-hero h1 span { color: #a65d25; }
 .surf-page-hero > p { max-width: 550px; color: #59606a; font-size: 17px; line-height: 1.7; }
-.surf-page-steps { display: flex; flex-wrap: wrap; gap: 16px 28px; padding: 0; margin: 30px 0 0; list-style: none; font-size: 12px; font-weight: 600; }
+.surf-page-steps { display: flex; flex-wrap: wrap; gap: 16px 28px; padding: 0; margin: 12px 0 0; grid-column: 1 / -1; list-style: none; font-size: 12px; font-weight: 600; }
 .surf-page-steps span { color: #a65d25; margin-right: 8px; }
-.surf-calculator--page { position: static; width: 100%; max-height: none; margin: 0; padding: 32px; overflow: visible; box-shadow: none; background: #eee8df; border: 1px solid #ded5c9; border-radius: 24px; }
-.surf-calculator--page .surf-layout { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 48px; }
+.surf-calculator--page { position: static; width: 100%; max-height: none; margin: 0; padding: 24px; overflow: visible; box-shadow: none; background: #eee8df; border: 1px solid #ded5c9; border-radius: 24px; }
+.surf-calculator--page .surf-layout { grid-template-columns: minmax(0, 1.85fr) minmax(320px, 1fr); gap: 32px; }
 .surf-calculator--page .surf-inputs { padding: 12px 8px; }
 .surf-calculator--page .surf-inputs h3 { font-size: 23px; letter-spacing: -.03em; }
-.surf-calculator--page .surf-activity { margin-top: 28px; }
-.surf-calculator--page .surf-result { position: sticky; top: 110px; padding: 32px; }
+.surf-calculator--page .surf-activity { margin-top: 10px; padding: 8px 20px; background: #fffaf4; border: 1px solid #ded5c9; border-radius: 16px; }
+.surf-calculator--page .surf-activity input[type=range] { margin: 10px 0 8px; }
+.surf-calculator--page .surf-result { position: sticky; top: 90px; padding: 28px; scroll-margin-top: 100px; }
 .surf-calculator--page .surf-number strong { font-size: clamp(64px, 7vw, 88px); }
 .surf-calculator--page .surf-apply { display: flex; justify-content: space-between; align-items: center; gap: 12px; box-sizing: border-box; text-decoration: none; padding: 17px 20px; }
 .surf-calculator--page .surf-apply:hover { background: #293749; }
@@ -20,8 +22,8 @@
 .surf-page-tips article > span { color: #a65d25; font-size: 12px; }
 .surf-page-tips h3 { font-size: 15px; margin: 14px 0 10px; }
 .surf-page-tips p { font-size: 13px; color: #59606a; line-height: 1.7; }
-@media (max-width: 760px) {
-  .surf-page-main { padding-top: 40px; width: calc(100% - 32px); }
+@media (max-width: 900px) {
+  .surf-page-main { padding-top: 64px; width: calc(100% - 32px); }
   .surf-calculator--page { padding: 20px; }
   .surf-calculator--page .surf-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .surf-calculator--page .surf-result { position: static; padding: 24px; }
@@ -30,4 +32,42 @@
 @media (max-width: 440px) {
   .surf-page-tips { grid-template-columns: 1fr; }
   .surf-page-steps { flex-direction: column; gap: 12px; }
+}
+
+.surf-calculator--page .surf-label > label:first-child { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 15px; }
+.surf-calculator--page .surf-label i { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: #f2e4d3; }
+.surf-video-rate { font-size: 10px; color: #8b4a19; background: #f2e4d3; padding: 4px 6px; border-radius: 5px; white-space: nowrap; }
+.surf-time-description { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.surf-time-entry { display: flex; align-items: center; gap: 8px; flex-shrink: 0; color: #59606a; font-size: 11px; }
+.surf-calculator--page .surf-time-entry input { box-sizing: border-box; width: 76px; padding: 9px 6px; border: 1px solid #c9bcae; border-radius: 8px; color: #0d1726; background: #fff; font: inherit; font-size: 15px; font-weight: 600; text-align: center; }
+.surf-shortcuts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.surf-shortcuts button { min-height: 36px; padding: 6px 14px; border: 1px solid #ded5c9; border-radius: 8px; background: transparent; color: #59606a; font: inherit; font-size: 12px; cursor: pointer; }
+.surf-shortcuts button:hover { border-color: #a65d25; }
+.surf-shortcuts button[aria-pressed=true] { background: #0d1726; border-color: #0d1726; color: #fff; }
+.surf-breakdown { margin-top: 24px; padding-top: 20px; border-top: 1px solid #eee9e2; }
+.surf-breakdown h3 { margin: 0 0 16px; font-size: 14px; }
+.surf-breakdown-row { margin-top: 12px; }
+.surf-breakdown-row > div:first-child { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; color: #59606a; }
+.surf-breakdown-row output { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.surf-breakdown-track { height: 5px; border-radius: 6px; background: #eee9e2; margin-top: 6px; overflow: hidden; }
+.surf-breakdown-track span { display: block; height: 100%; background: #a65d25; border-radius: inherit; }
+.surf-mobile-summary { display: none; }
+@media (max-width: 900px) {
+  .surf-page-hero { grid-template-columns: 1fr; gap: 0; }
+  .surf-page-hero h1 br { display: none; }
+  .surf-page-hero h1 span::before { content: ' '; }
+  .surf-page-hero > p { margin-top: 0; }
+  .surf-mobile-summary { display: flex; position: sticky; top: 64px; z-index: 10; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 12px; background: #0d1726; color: #fff; text-decoration: none; margin-bottom: 16px; font-size: 12px; }
+  .surf-mobile-summary small { display: block; color: #d7dce3; font-size: 10px; margin-top: 3px; }
+  .surf-mobile-summary strong { margin-left: auto; white-space: nowrap; font-size: 16px; }
+}
+@media (max-width: 540px) {
+  .surf-calculator--page { padding: 14px; }
+  .surf-calculator--page .surf-inputs { padding: 4px 0; }
+  .surf-calculator--page .surf-activity { padding: 14px; }
+  .surf-calculator--page .surf-label { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .surf-calculator--page .surf-time-entry { align-self: flex-end; }
+  .surf-shortcuts { gap: 6px; }
+  .surf-shortcuts button { flex: 1; min-height: 40px; padding: 6px 8px; }
+  .surf-calculator--page .surf-result { padding: 20px; }
 }

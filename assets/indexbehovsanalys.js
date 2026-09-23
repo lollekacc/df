@@ -135,6 +135,8 @@ function createIndexQuiz() {
   let lastOfferCalculation = null;
   let pendingAdvanceTimer = null;
   let quizHasStarted = false;
+  let analysisPopup = null;
+  let analysisPopupTrigger = null;
 
   function init() {
     if (!dom.wrapper || !dom.stack || !steps.length) return;
@@ -189,7 +191,7 @@ function createIndexQuiz() {
     document.querySelectorAll("[data-home-quiz-link]").forEach(link => {
       link.addEventListener("click", event => {
         event.preventDefault();
-        startQuiz({ inHero: true });
+        startQuiz({ inHero: true, popupTrigger: link.matches("[data-analysis-start-action]") ? link : null });
       });
     });
     dom.familyOfferGrid?.addEventListener("click", handleFamilyOfferClick);
@@ -1370,6 +1372,36 @@ function createIndexQuiz() {
       : "Vilka operatörer har ni? Och vilka datum upphör bindningstiderna?";
   }
 
+  function openAnalysisPopup(trigger) {
+    mountQuizInSection();
+    analysisPopupTrigger = trigger;
+    if (!analysisPopup) {
+      analysisPopup = document.createElement("div");
+      analysisPopup.className = "analysis-quiz-popup";
+      analysisPopup.setAttribute("role", "dialog");
+      analysisPopup.setAttribute("aria-label", "Abonnemangsanalys");
+      const close = document.createElement("button");
+      close.type = "button";
+      close.className = "analysis-quiz-popup__close";
+      close.setAttribute("aria-label", "Stäng analysen");
+      close.textContent = "×";
+      close.addEventListener("click", showIntro);
+      analysisPopup.append(close);
+      analysisPopup.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          showIntro();
+        }
+      });
+    }
+    if (!sectionWrapperAnchor.parentNode) {
+      dom.wrapper.parentNode?.insertBefore(sectionWrapperAnchor, dom.wrapper);
+    }
+    trigger.closest(".home-how").append(analysisPopup);
+    analysisPopup.hidden = false;
+    analysisPopup.append(dom.wrapper);
+  }
+
   function mountQuizInHero() {
     if (!dom.wrapper || !dom.heroFinder) return;
 
@@ -1435,7 +1467,12 @@ function createIndexQuiz() {
     quizHasStarted = true;
     syncAnalysisStartButtons();
 
-    mountQuizInHero();
+    if (options.popupTrigger) openAnalysisPopup(options.popupTrigger);
+    else {
+      if (analysisPopup) analysisPopup.hidden = true;
+      analysisPopupTrigger = null;
+      mountQuizInHero();
+    }
 
     const stepToShow = options.initialStep ?? (finderDataSelected ? state.currentStep : 0);
     applyStep(stepToShow);
@@ -1446,6 +1483,7 @@ function createIndexQuiz() {
     document.getElementById("analys")?.classList.add("quiz-running");
 
     syncStackHeight();
+    steps[state.currentStep]?.querySelector(".quiz-title, .result-title")?.focus({ preventScroll: true });
   }
 
   function showIntro() {
@@ -1455,6 +1493,9 @@ function createIndexQuiz() {
     if (pendingAdvanceTimer) window.clearTimeout(pendingAdvanceTimer);
     pendingAdvanceTimer = null;
     mountQuizInSection();
+    if (analysisPopup) analysisPopup.hidden = true;
+    analysisPopupTrigger?.focus({ preventScroll: true });
+    analysisPopupTrigger = null;
     dom.wrapper?.classList.add("hidden", "opacity-0");
     dom.intro?.classList.remove("hidden");
     document.getElementById("analys")?.classList.remove("quiz-running");
