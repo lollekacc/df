@@ -17,9 +17,6 @@
 .surf-calculator input[type=range]::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; border: 3px solid #fff; border-radius: 50%; background: #c8792b; box-shadow: 0 1px 5px #0d172633; }
 .surf-calculator input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border: 3px solid #fff; border-radius: 50%; background: #c8792b; }
 .surf-calculator input:disabled { opacity: .45; cursor: default; }
-.surf-quality { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 22px; font-size: 12px; }
-.surf-quality select { max-width: 65%; border: 1px solid #d9d1c6; border-radius: 8px; padding: 8px; background: #fff; color: #0d1726; font: inherit; }
-.surf-wifi { margin-top: 24px; padding-top: 22px; border-top: 1px solid #ddd6cd; }
 .surf-result { padding: 26px; border-radius: 18px; background: #fff; align-self: start; }
 .surf-number { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-top: 18px; }
 .surf-number strong { font-size: 64px; font-weight: 600; letter-spacing: -.06em; line-height: 1.1; }
@@ -33,6 +30,7 @@
 .surf-result details { margin-top: 22px; font-size: 12px; }
 .surf-result summary { cursor: pointer; font-weight: 600; }
 .surf-result details p { font-size: 11px; }
+.surf-calculator .surf-disclaimer { margin: 24px 0 0; padding-top: 16px; border-top: 1px solid #d9d1c6; font-size: 12px; line-height: 1.6; color: #59606a; }
 .surf-calculator :focus-visible, .surf-trigger:focus-visible { outline: 3px solid #a65d25 !important; outline-offset: 5px; }
 @media (max-width: 640px) {
   .surf-calculator { padding: 22px 18px; border-radius: 18px; }

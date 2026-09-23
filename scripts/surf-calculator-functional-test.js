@@ -23,26 +23,20 @@ const server = http.createServer((req, res) => {
       const trigger = page.locator('[data-surf-calculator]');
       await trigger.click();
       assert.equal(await page.locator('.surf-calculator').evaluate(el => el.open), true);
-      assert.equal(await page.locator('#surf-wifi').isDisabled(), true);
+      assert.equal(await page.locator('#surf-wifi').count(), 0);
       const set = async (id, value) => page.locator('#surf-' + id).evaluate((el, value) => { el.value = value; el.dispatchEvent(new Event('input', { bubbles: true })); }, value);
       await set('video', 60);
-      assert.equal(await page.locator('#surf-gb').textContent(), '21');
-      assert.equal(await page.locator('#surf-buffer').textContent(), '26 GB');
-      await set('wifi', 30);
-      assert.equal(await page.locator('#surf-gb').textContent(), '11');
-      await page.selectOption('#surf-quality', '2');
-      assert.equal(await page.locator('#surf-gb').textContent(), '30');
-      await set('wifi', 60);
+      assert.equal(await page.locator('#surf-gb').textContent(), '210');
+      assert.equal(await page.locator('#surf-buffer').textContent(), '252 GB');
+      assert.equal(await page.locator('#surf-quality').count(), 0);
+      await set('video', 0);
       assert.equal(await page.locator('#surf-gb').textContent(), '0');
       assert.equal(await page.locator('.surf-apply').isDisabled(), true);
       await set('video', 15);
-      assert.equal(await page.locator('#surf-wifi').inputValue(), '15');
       await set('music', 1440);
       assert.equal(await page.locator('#surf-total').textContent(), '24 tim');
       await set('music', 0);
       await set('video', 60);
-      await set('wifi', 0);
-      await page.selectOption('#surf-quality', '0.7');
       await page.screenshot({ path: path.join(process.env.TEMP, `dealett-surf-${width}.png`) });
       assert.equal(await page.locator('.surf-calculator').evaluate(el => el.scrollWidth <= el.clientWidth), true);
       await page.keyboard.press('Escape');
@@ -53,10 +47,10 @@ const server = http.createServer((req, res) => {
       assert.ok(values, 'Offer API data must populate the existing filter');
       await page.locator('.surf-apply').click();
       assert.equal(await page.locator('.surf-calculator').evaluate(el => el.open), false);
-      const chosen = values.split(',').find(v => v === 'unlimited' || Number(v) >= 26);
+      const chosen = values.split(',').find(v => v === 'unlimited' || Number(v) >= 252);
       assert.ok((await page.locator('#dataFilter option:checked').textContent()).includes(chosen === 'unlimited' ? 'Obegränsad' : chosen));
       assert.ok(await page.locator('.subscription-offer-card').count() > 0);
-      console.log(`${width}px: calculations, limits, Wi-Fi, quality, modal focus and offer filter with API fixture passed (${chosen}).`);
+      console.log(`${width}px: calculations, limits, fixed 4K, modal focus and offer filter with API fixture passed (${chosen}).`);
       await page.close();
     }
   } finally { await browser.close(); server.close(); }

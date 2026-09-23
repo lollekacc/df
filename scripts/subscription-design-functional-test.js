@@ -198,8 +198,8 @@ const run = async () => {
           await page.evaluate(`document.querySelector('[data-surf-calculator]').click()`);
           assert(await page.evaluate(`document.querySelector('.surf-calculator').open`));
           await page.evaluate(`document.querySelector('#surf-video').value = '60'; document.querySelector('#surf-video').dispatchEvent(new Event('input'))`);
-          assert.equal(await page.evaluate(`document.querySelector('#surf-gb').textContent`), '21');
-          assert.equal(await page.evaluate(`document.querySelector('#surf-buffer').textContent`), '26 GB');
+          assert.equal(await page.evaluate(`document.querySelector('#surf-gb').textContent`), '210');
+          assert.equal(await page.evaluate(`document.querySelector('#surf-buffer').textContent`), '252 GB');
           await page.evaluate(`document.querySelector('.surf-apply').click()`);
           assert(await page.evaluate(`!document.querySelector('.surf-calculator').open && document.querySelector('#dataFilter').value !== 'all'`));
           await page.evaluate(`document.querySelector('#dataFilter').value = 'all'; document.querySelector('#dataFilter').dispatchEvent(new Event('change'))`);

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="./assets/language-bootstrap.js"></script>
+    <link rel="icon" type="image/png" sizes="32x32" href="./images/browserlogo2-32.png?v=20260821-white-bg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./images/browserlogo2-16.png?v=20260821-white-bg" />
+    <link rel="shortcut icon" href="./images/browserlogo2.ico?v=20260821-white-bg" />
+  <title>Surfkalkyl – Hur mycket surf behöver du? | Dealett</title>
+
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&amp;display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="styles-redesign.css" />
+    <link rel="stylesheet" href="styles-editorial.css" />
+  <link rel="stylesheet" href="./assets/dealett-ui.css" />
+  <link rel="stylesheet" href="./assets/surf-calculator.css" />
+  <meta name="description" content="Räkna ut hur mycket mobilsurf du behöver med Dealetts surfkalkyl." />
+  <link rel="stylesheet" href="./assets/surf-page.css" />
+</head>
+
+<body class="surf-page">
+  <div data-include="header"></div>
+  <main class="surf-page-main">
+    <header class="surf-page-hero" data-header-anchor-target>
+      <span class="surf-eyebrow">SURFKALKYL · HITTA DIN NIVÅ</span>
+      <h1>Din vardag.<br><span>Din mängd surf.</span></h1>
+      <p>Lite scroll eller många serier? Räkna på en vanlig dag och se hur mycket mobilsurf du behöver varje månad.</p>
+      <ol class="surf-page-steps" aria-label="Så fungerar surfkalkylen">
+        <li><span>01</span> Ange tiden på mobilnätet</li>
+        <li><span>02</span> Se ditt uppskattade behov</li>
+        <li><span>03</span> Hitta din surfmängd</li>
+      </ol>
+    </header>
+    <div data-surf-page></div>
+    <noscript><p>Aktivera JavaScript för att använda surfkalkylen.</p></noscript>
+    <section class="surf-page-tips" aria-labelledby="surf-tips-title">
+      <div><span class="surf-eyebrow">BRA ATT VETA</span><h2 id="surf-tips-title">Små vanor.<br>Stor skillnad.</h2></div>
+      <article><span aria-hidden="true">01 /</span><h3>Wi-Fi sparar mobilsurf</h3><p>Tiden på ditt hemnätverk räknas inte som mobildata. Ange bara tiden du använder mobilnätet i kalkylen.</p></article>
+      <article><span aria-hidden="true">02 /</span><h3>Vi räknar med 4K</h3><p>Video och streaming räknas alltid i 4K, med en uppskattad förbrukning på 7 GB per timme.</p></article>
+      <article><span aria-hidden="true">03 /</span><h3>Lite extra utrymme</h3><p>Vi lägger på 20 % marginal. Jämför gärna med din faktiska förbrukning i mobilens inställningar.</p></article>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <script src="./assets/cart-helpers.js"></script>
+  <script src="./assets/network-utils.js"></script>
+  <script src="script.js?v=20260825-3"></script>
+  <script src="./assets/surf-calculator.js"></script>
+</body>
+</html>
