@@ -18,7 +18,9 @@ setOpenAiTransportForTests(async (_url, options) => {
     ) }),
   };
   const answer = { reply, quickReplies: [], showOfferCards: message === 'Visa erbjudanden',
-    bestMatchReason: '', lowestEffectiveCostReason: '', bestMatchBenefits: [], lowestEffectiveCostBenefits: [],
+    bestMatchReason: '', lowestEffectiveCostReason: '',
+    bestMatchBenefits: ['6 GB per användare', 'Utlandsdata i 100 länder', 'Lokala samtal ingår utomlands', 'Utlandsdata i 100 länder.'],
+    lowestEffectiveCostBenefits: ['10 GB per användare', 'Samtal, sms och roaming inom EU/EES', '299 kr/mån', '24 mån bindningstid'],
     offerCardCopy: { dataTitle: 'Surf', monthlyPriceTitle: 'Pris', perMonthSuffix: '/mån', bindingTitle: 'Bindningstid', bindingMonthsSuffix: ' månader', rewardLabel: 'Presentkort', ctaLabel: 'Välj' },
   };
   return { ok: true, body: (async function* () {
@@ -81,6 +83,35 @@ setOpenAiTransportForTests(async (_url, options) => {
       assert.match(cardText, /229/);
       assert.match(cardText, /299/);
       assert.match(cardText, /inte skräddarsytt/);
+      const benefitsText = await page.locator('.dealett-chat-offer-benefits').allTextContents();
+      assert(!benefitsText.some(text => /(?:10|6) GB per användare|299|229|bindningstid/i.test(text)));
+      assert(benefitsText.some(text => /3Världen ingår/.test(text)));
+      assert(benefitsText.some(text => /Utlandsdata i 100 länder/.test(text)));
+      assert(benefitsText.some(text => /Samtal, sms och roaming inom EU\/EES/.test(text)));
+      assert.equal((benefitsText.join(' ').match(/Utlandsdata i 100 länder/g) || []).length, 1);
+      assert.equal(await page.locator('.dealett-chat-offer-card .offer-card__logo').evaluateAll(images =>
+        images.every(image => image.complete && image.naturalWidth > 0)), true);
+      for (const height of [1000, 600]) {
+        await page.setViewportSize({ width, height });
+        await page.waitForFunction(() => {
+          const body = document.querySelector('.dealett-chat-messages');
+          const style = getComputedStyle(body);
+          const available = body.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+          const cards = [...document.querySelectorAll('.dealett-chat-offer-card')];
+          const bounds = cards.map(card => card.getBoundingClientRect());
+          const heads = cards.map(card => card.querySelector('.offer-card__head').getBoundingClientRect());
+          const buttons = cards.map(card => card.querySelector('.dealett-chat-offer-cta').getBoundingClientRect());
+          return bounds.every(rect => rect.height <= available + 1)
+            && cards.every(card => [...card.querySelectorAll('.offer-card__inner, .dealett-chat-offer-content')]
+              .every(element => element.scrollHeight <= element.clientHeight + 1
+                && !['auto', 'scroll'].includes(getComputedStyle(element).overflowY)))
+            && Math.abs(heads[0].top - heads[1].top) < 1
+            && Math.abs(bounds[0].height - bounds[1].height) < 1
+            && Math.abs(buttons[0].top - buttons[1].top) < 1
+            && buttons.every((rect, index) => rect.bottom <= bounds[index].bottom);
+        });
+      }
+      await page.setViewportSize({ width, height: 1000 });
       await page.screenshot({ path: `/tmp/dealett-stream-offers-${width}.png` });
       await input.fill('Detaljerad jämförelse');
       await input.press('Enter');

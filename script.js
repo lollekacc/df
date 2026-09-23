@@ -1531,6 +1531,35 @@
     const panel = root.querySelector('.dealett-chat-panel');
     const closeButton = root.querySelector('.dealett-chat-close');
     let messageList = root.querySelector('.dealett-chat-messages');
+    const fitChatOffers = () => {
+      if (!messageList.clientHeight) return;
+      const bodyStyle = getComputedStyle(messageList);
+      const availableHeight = messageList.clientHeight
+        - parseFloat(bodyStyle.paddingTop) - parseFloat(bodyStyle.paddingBottom);
+      if (availableHeight <= 0) return;
+      root.style.setProperty('--chat-offer-max-height', `${availableHeight}px`);
+      messageList.querySelectorAll('.dealett-chat-offers').forEach(wrap => {
+        wrap.style.setProperty('--chat-offer-scale', '1');
+        wrap.style.setProperty('--chat-offer-max-height', 'none');
+        const cards = [...wrap.querySelectorAll('.dealett-chat-offer-card')];
+        const naturalHeight = Math.max(...cards.map(card => card.getBoundingClientRect().height));
+        const chromeHeight = Math.max(...cards.map(card =>
+          card.getBoundingClientRect().height - card.querySelector('.offer-card__inner').getBoundingClientRect().height
+        ));
+        let scale = Math.min(1, Math.max(0, availableHeight - chromeHeight - 1) / (naturalHeight - chromeHeight));
+        wrap.style.setProperty('--chat-offer-scale', String(scale));
+        for (let attempt = 0; attempt < 4; attempt += 1) {
+          const fittedHeight = Math.max(...cards.map(card => card.getBoundingClientRect().height));
+          if (fittedHeight <= availableHeight) break;
+          scale *= Math.max(0, availableHeight - chromeHeight - 1) / (fittedHeight - chromeHeight);
+          wrap.style.setProperty('--chat-offer-scale', String(scale));
+        }
+        wrap.style.removeProperty('--chat-offer-max-height');
+      });
+    };
+    const offerHeightObserver = new ResizeObserver(fitChatOffers);
+    offerHeightObserver.observe(messageList);
+    document.fonts?.ready.then(fitChatOffers);
     const suggestionArea = root.querySelector('.dealett-chat-suggestions');
     const form = root.querySelector('.dealett-chat-form');
     const input = root.querySelector('.dealett-chat-input');
@@ -3101,14 +3130,26 @@
       const wrap = document.createElement('div');
       wrap.className = 'dealett-chat-offers';
       offerCards.slice(0, 3).forEach((card, index) => {
-        const normalizeDataBenefit = value => String(value || '')
+        const normalizeBenefit = value => String(value || '')
           .trim()
           .toLocaleLowerCase('sv')
-          .replace(/\s+(surf|data)$/, '');
-        const dataLabel = normalizeDataBenefit(card.dataLabel);
+          .replace(/\s+/g, ' ')
+          .replace(/[.!]+$/, '');
+        const mainFacts = [card.dataLabel, card.monthlyPriceLabel, card.monthlyPriceSubLabel, card.bindingLabel, card.rewardLabel]
+          .map(normalizeBenefit).filter(Boolean);
+        const seenBenefits = new Set();
         const benefits = (Array.isArray(card.benefits) ? card.benefits : [])
           .map(benefit => String(benefit || '').trim())
-          .filter(benefit => benefit && normalizeDataBenefit(benefit) !== dataLabel);
+          .filter(benefit => {
+            const normalized = normalizeBenefit(benefit);
+            const basicData = /^(?:(?:surf|data|datamängd)\s*:?\s*)?(?:\d+(?:[.,]\d+)?\s*(?:gb|mb|tb)|obegränsad(?:\s+surf)?|unlimited(?:\s+data)?)(?:\s+(?:surf|data))?(?:\s+(?:per\s+(?:användare|person|månad|user|month)|delas i familjen|shared (?:data|with the family)))?$/i;
+            const basicPrice = /^(?:(?:månadspris|pris|monthly price|price|totalt|total)\s*:?\s*)?\d[\d\s.,]*\s*(?:kr|sek)(?:\s*(?:\/|per\s+)(?:mån(?:ad)?|month|person|användare|user))*$/i;
+            const basicBinding = /^(?:(?:bindningstid|binding period|contract(?: term)?)\s*:?\s*)?(?:\d+\s*(?:mån(?:ader)?|months?)(?:\s+(?:bindningstid|binding period|contract(?: term)?))?|(?:ingen|utan) bindningstid|no (?:binding period|contract))$/i;
+            if (!normalized || mainFacts.includes(normalized) || basicData.test(normalized)
+              || basicPrice.test(normalized) || basicBinding.test(normalized) || seenBenefits.has(normalized)) return false;
+            seenBenefits.add(normalized);
+            return true;
+          });
         const roamingBenefitIndex = benefits.findIndex(benefit => /^Data och lokala samtal utanför EU$/i.test(benefit));
         const countryBenefitIndex = benefits.findIndex(benefit => /^Gäller i upp till\s+(\d+)\s+länder$/i.test(benefit));
         if (roamingBenefitIndex !== -1 && countryBenefitIndex !== -1) {
@@ -3129,6 +3170,7 @@
         article.innerHTML = [
           '<div class="offer-card__accent"></div>',
           '<div class="offer-card__inner">',
+          '<div class="dealett-chat-offer-content">',
           logo ? [
             '  <div class="offer-card__head">',
             `    <img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ''}" />`,
@@ -3143,6 +3185,7 @@
           card.recommendationType === 'example_offer' ? `  <p class="offer-card__reason">${escapeChatText(card.resultLabel)}</p>` : '',
           card.strictMatch === false && card.reason ? `  <p class="offer-card__reason">${escapeChatText(card.reason)}</p>` : '',
           benefits.length ? `  <ul class="dealett-chat-offer-benefits">${benefits.map(benefit => `<li>${escapeChatText(benefit)}</li>`).join('')}</ul>` : '',
+          '</div>',
           safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel)} <i class="fa-solid fa-cart-shopping"></i></button>` : '',
           '</div>',
         ].join('');
@@ -3195,6 +3238,7 @@
       });
 
       messageItem.append(wrap);
+      fitChatOffers();
       scrollMessages();
     };
 
@@ -3415,6 +3459,8 @@
       messageList.setAttribute('role', 'log');
       messageList.setAttribute('aria-live', 'polite');
       panel.querySelector('.dealett-chat-messages').replaceWith(messageList);
+      offerHeightObserver.disconnect();
+      offerHeightObserver.observe(messageList);
       activeChatRequest = null;
       failedTurn = null;
       typingIndicator = null;
@@ -3603,6 +3649,8 @@
           recoverFailedTurn();
         }
         if (previousList.isConnected) previousList.replaceWith(messageList);
+        offerHeightObserver.disconnect();
+        offerHeightObserver.observe(messageList);
         messageList.scrollTop = runtimes.get(id)?.scrollTop || 0;
         messageList.append(inlineControls);
         input.value = runtimes.get(id)?.draft || '';

@@ -482,14 +482,15 @@ body .home-coverage .coverage-main.coverage-maplibre-section {
 }
 
 body .home-coverage .coverage-main.coverage-maplibre-section .coverage-maplibre-shell {
-  height: max(920px, calc(100svh + 124px)) !important;
-  min-height: 920px !important;
+  background: #0d1726 !important;
+  height: clamp(780px, 60vw, 1000px) !important;
+  min-height: 780px !important;
 }
 
 @media (max-width: 760px) {
   body .home-coverage .coverage-main.coverage-maplibre-section .coverage-maplibre-shell {
-    height: 1200px !important;
-    min-height: 1200px !important;
+    height: 1240px !important;
+    min-height: 1240px !important;
   }
 }
 
@@ -503,4 +504,11 @@ body .home-coverage .coverage-main.coverage-maplibre-section .coverage-maplibre-
 
 .home-coverage .coverage-maplibre-canvas .maplibregl-ctrl-bottom-right {
   bottom: 0;
+}
+
+@media (max-width: 760px) {
+  .home-coverage #coverageMapLibre.coverage-maplibre-canvas {
+    top: 540px;
+    height: calc(100% - 540px);
+  }
 }

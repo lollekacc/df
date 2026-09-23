@@ -6,6 +6,9 @@
     return;
   }
 
+  const isHomeCoverage = Boolean(app.closest('.home-coverage'));
+  const homeOverviewCenter = [15, 62.4];
+
   const operators = ['telia', 'tele2', 'telenor', 'tre'];
   const networks = ['4G', '4G+', '5G', '5G+'];
   const networkKeys = {
@@ -63,8 +66,8 @@
   const emptyFeatureCollection = { type: 'FeatureCollection', features: [] };
   const workerUrl = new URL('./coverage-worker.js', document.currentScript.src);
   const swedenCameraBase = {
-    pitch: 18,
-    bearing: -6,
+    pitch: isHomeCoverage ? 0 : 18,
+    bearing: isHomeCoverage ? 0 : -6,
   };
   const mapPitch2D = 0;
   const mapPitch3D = 22;
@@ -661,6 +664,33 @@
   };
 
   const getSwedenCamera = () => {
+    if (isHomeCoverage) {
+      if (!window.matchMedia('(max-width: 760px)').matches) {
+        return {
+          center: homeOverviewCenter,
+          zoom: 4.3 + Math.log2(Math.max(1, mapElement.clientHeight) / 1000),
+          bearing: 0,
+          pitch: 0,
+        };
+      }
+
+      const center = maplibregl.MercatorCoordinate.fromLngLat(homeOverviewCenter);
+      const corners = swedenFitBounds.map(point => maplibregl.MercatorCoordinate.fromLngLat(point));
+      const halfWidth = Math.max(...corners.map(point => Math.abs(point.x - center.x)));
+      const halfHeight = Math.max(...corners.map(point => Math.abs(point.y - center.y)));
+      const bounds = [
+        new maplibregl.MercatorCoordinate(center.x - halfWidth, center.y + halfHeight).toLngLat(),
+        new maplibregl.MercatorCoordinate(center.x + halfWidth, center.y - halfHeight).toLngLat(),
+      ];
+      const sidePadding = 124;
+      const camera = map.cameraForBounds(bounds, {
+        padding: { top: 40, bottom: 40, left: sidePadding, right: sidePadding },
+        bearing: 0,
+        pitch: 0,
+      });
+      return camera ? { ...camera, center: homeOverviewCenter } : null;
+    }
+
     const cameraBounds = app.querySelector('.coverage-toolbar')
       ? [[10.4, 55.0], [24.5, 70.5]]
       : swedenFitBounds;
@@ -1178,11 +1208,11 @@
     map = new maplibregl.Map({
       container: mapElement,
       style: satelliteHybridStyle,
-      center: [16.6, 62.2],
+      center: isHomeCoverage ? homeOverviewCenter : [16.6, 62.2],
       zoom: 4,
       pitch: swedenCameraBase.pitch,
       bearing: swedenCameraBase.bearing,
-      maxBounds: swedenMaxBounds,
+      maxBounds: isHomeCoverage ? undefined : swedenMaxBounds,
       minZoom: 3,
       maxZoom: 18,
       renderWorldCopies: false,
