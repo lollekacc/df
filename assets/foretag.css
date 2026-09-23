@@ -24,6 +24,22 @@
   pointer-events: none;
 }
 
+html body.business-page .footer {
+  --company-footer-wave-height: 64px;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 64' preserveAspectRatio='none'%3E%3Cpath fill='white' d='M0 6C110 15 190 54 340 56C500 58 580 8 720 10C860 12 940 50 1100 48C1240 46 1320 16 1440 6V64H0Z'/%3E%3C/svg%3E"), linear-gradient(#000, #000);
+  mask-size: 100% var(--company-footer-wave-height), 100% calc(100% - var(--company-footer-wave-height) + 1px);
+  mask-position: center top, center bottom;
+  mask-repeat: no-repeat;
+}
+
+html body.business-page .footer::before {
+  content: none !important;
+}
+
+@media (max-width: 760px) {
+  html body.business-page .footer { --company-footer-wave-height: 48px; }
+}
+
 .company-main {
   overflow: clip;
   color: var(--company-ink);

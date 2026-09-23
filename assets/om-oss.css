@@ -158,6 +158,28 @@
   background: var(--dui-surface-soft, #f4f1ec);
 }
 
+.about-logo-reveal {
+  position: relative;
+  height: clamp(320px, 65svh, 680px);
+  clip-path: inset(0);
+  background: #e8dfd2;
+  pointer-events: none;
+}
+
+.about-logo-reveal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../images/Dealett-header.png") center / min(78vw, 1120px) auto no-repeat;
+  transform: translateY(var(--logo-reveal-offset, 0px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-logo-reveal::before {
+    transform: none;
+  }
+}
+
 .about-section-head {
   max-width: 760px;
   margin: 0 0 clamp(28px, 4vw, 48px);
