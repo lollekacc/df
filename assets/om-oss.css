@@ -4,7 +4,29 @@
 }
 
 .about-main {
+  position: relative;
+  isolation: isolate;
   overflow: hidden;
+  background: #e8dfd2;
+}
+
+.about-main::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--logo-background-height, 100svh);
+  background: url("../images/Dealett-header.png") center / min(78vw, 1120px) auto no-repeat;
+  transform: translateY(var(--logo-background-offset, 0px));
+  pointer-events: none;
+}
+
+.about-main > * {
+  position: relative;
+}
+
+html body.about-page main.about-main .about-hero,
+html body.about-page main.about-main .about-partners-section {
+  background: rgba(248, 245, 240, 0.70) !important;
 }
 
 .about-container {
@@ -162,16 +184,7 @@
   position: relative;
   height: clamp(320px, 65svh, 680px);
   clip-path: inset(0);
-  background: #e8dfd2;
   pointer-events: none;
-}
-
-.about-logo-reveal::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("../images/Dealett-header.png") center / min(78vw, 1120px) auto no-repeat;
-  transform: translateY(var(--logo-reveal-offset, 0px));
 }
 
 .about-logo-tagline {
@@ -196,7 +209,18 @@ html body.about-page .about-logo-reveal + .about-section-soft {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .about-logo-reveal::before,
+  .about-main::before {
+    display: none;
+  }
+
+  html body.about-page main.about-main .about-hero {
+    background: linear-gradient(rgba(248, 245, 240, 0.70), rgba(248, 245, 240, 0.70)), url("../images/Dealett-header.png") center / 78% auto no-repeat !important;
+  }
+
+  .about-logo-reveal {
+    background: url("../images/Dealett-header.png") center / min(78vw, 1120px) auto no-repeat;
+  }
+
   .about-logo-tagline {
     transform: none;
   }
@@ -447,7 +471,10 @@ html body.about-page .about-cta-inner .about-kicker {
   color: #f0a35d !important;
 }
 
-html body.about-page .about-hero-copy > p,
+html body.about-page .about-hero-copy > p {
+  color: #444 !important;
+}
+
 html body.about-page .about-section-head p,
 html body.about-page .about-process-card p,
 html body.about-page .about-clarity-copy p {

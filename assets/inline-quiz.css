@@ -260,3 +260,9 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step7 .quiz-card > 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack .inline-offer .quiz-next-button {
   margin: 0 !important;
 }
+
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; text-align: left; border: 1px solid #ece7e1; border-radius: 12px; background: #faf5ef; color: #081a39; font: inherit; cursor: pointer; }
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine strong { display: block; font-size: 14px; }
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine small { display: none; }
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine > span:last-child { margin-left: auto; font-size: 28px; }
+html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack .inline-refine__icon { width: 24px; height: 24px; flex-shrink: 0; fill: #faf5ef; stroke: currentColor; stroke-width: 1.8; }

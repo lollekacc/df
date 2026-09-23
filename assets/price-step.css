@@ -5,7 +5,6 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 {
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-card {
   padding: 18px 0 24px !important;
   gap: 28px !important;
-  background: #fffcf7 !important;
 }
 
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-card-toolbar {
@@ -80,6 +79,8 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step6 .quiz-option-
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   gap: 12px !important;
   align-self: center;
+  position: relative;
+  top: 80px;
   margin: 12px 0 0 !important;
 }
 

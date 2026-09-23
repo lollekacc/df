@@ -207,17 +207,17 @@
   width: 30px;
   height: 30px;
   place-items: center;
-  border: 1px solid rgba(13, 23, 38, .18);
-  border-radius: 50%;
-  background: #fff;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #fff;
   font-size: 11px;
   transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
 }
 
 .hero-information__control:hover,
 .hero-information__control:focus-visible {
-  border-color: #0d1726;
-  background: #0d1726;
+  background: transparent;
   color: #fff;
   outline: none;
 }
@@ -242,13 +242,10 @@
 .hero-information__page:hover,
 .hero-information__page:focus-visible {
   background: #0d1726;
-  outline: 2px solid rgba(189, 100, 40, .28);
-  outline-offset: 3px;
+  outline: none;
 }
 
 .hero-information__page.is-active {
-  width: 20px;
-  border-radius: 4px;
   background: #bd6428;
 }
 

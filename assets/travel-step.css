@@ -5,7 +5,6 @@ html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-card {
   padding: 14px 0 24px !important;
   gap: clamp(24px, 6cqw, 60px) !important;
-  background: #fffcf7 !important;
 }
 
 html body :is(.hero-finder, .analysis-quiz-popup) #quiz-steps-wrapper #quiz-card-stack :is(#step4, #step5) .quiz-card-toolbar {

@@ -3205,9 +3205,9 @@ body:has(.home-intro) .newsletter-form .button:hover { color:#fff; }
   transform: translate(1px, 1px) !important;
 }
 
-body:has(.home-intro) main button[aria-pressed="true"]:not(.quiz-option):not(.operator-no-binding-button),
-body:has(.home-intro) main button.is-active:not(.quiz-option):not(.operator-no-binding-button),
-body:has(.home-intro) main button.is-selected:not(.quiz-option):not(.operator-no-binding-button) {
+body:has(.home-intro) main button[aria-pressed="true"]:not(.quiz-option, .operator-no-binding-button, .hero-information__control, .hero-information__page),
+body:has(.home-intro) main button.is-active:not(.quiz-option, .operator-no-binding-button, .hero-information__control, .hero-information__page),
+body:has(.home-intro) main button.is-selected:not(.quiz-option, .operator-no-binding-button, .hero-information__control, .hero-information__page) {
   outline: 3px solid #ff8a00;
   outline-offset: 2px;
 }

@@ -266,6 +266,12 @@ function createIndexQuiz() {
       return;
     }
 
+    const refinementStart = event.target.closest("[data-refinement-start]");
+    if (refinementStart && state.resultMode === "initial") {
+      handleRefinementStart();
+      return;
+    }
+
     const personToggle = event.target.closest("[data-person-toggle]");
     if (personToggle) {
       toggleExtraPersonOptions();
@@ -1702,6 +1708,7 @@ function createIndexQuiz() {
         '<p class="offer-card__empty-text">Försök igen om en stund eller välj ett paket direkt från startsidan.</p>',
         "</article>"
       ].join("");
+      if (state.resultMode === "initial") dom.offersContainer.appendChild(buildRefinementPanel());
       syncStackHeight();
       return;
     }
@@ -1719,6 +1726,7 @@ function createIndexQuiz() {
         `<p class="offer-card__empty-text">${escapeHtml(noOfferText)}</p>`,
         "</article>"
       ].join("");
+      if (state.resultMode === "initial") dom.offersContainer.appendChild(buildRefinementPanel());
       syncStackHeight();
       return;
     }
@@ -1903,6 +1911,15 @@ function createIndexQuiz() {
     pager.firstElementChild.addEventListener('click', () => onChange(index - 1));
     pager.lastElementChild.addEventListener('click', () => onChange(index + 1));
     return pager;
+  }
+
+  function buildRefinementPanel() {
+    const panel = document.createElement('button');
+    panel.type = 'button';
+    panel.className = 'inline-refine';
+    panel.dataset.refinementStart = '';
+    panel.innerHTML = '<svg class="inline-refine__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="9" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg><span><strong>Förfina med streaming & resor</strong><small>Lägg till dina favoriter för en mer personlig rekommendation</small></span><span aria-hidden="true">›</span>';
+    return panel;
   }
 
   function buildQualificationFromState() {
@@ -2350,6 +2367,9 @@ function createIndexQuiz() {
         '<div class="inline-offer__terms"><div><strong>' + (Number(binding) === 0 ? 'Ingen' : escapeHtml(binding) + ' mån') + '</strong><small>bindningstid</small></div><div><strong>' + escapeHtml(getQuizOfferHighlights(features)[1]) + '</strong><small>roaming</small></div><div><strong>Presentkort: ' + escapeHtml(formatMoney(gift)) + '</strong><small>ingår</small></div></div>' +
         '<a href="varukorg.html" class="quiz-next-button" data-recommendation-cart>Välj ' + escapeHtml(plan.operator) + ' →</a>' +
         '<div class="inline-offer__actions"><button type="button" data-inline-details>Se detaljer <span aria-hidden="true">›</span></button><span data-inline-compare></span></div>';
+      if (state.resultMode === "initial") {
+        article.querySelector('[data-recommendation-cart]').before(buildRefinementPanel());
+      }
       article.querySelector('[data-inline-details]').addEventListener('click', () => renderDetails(0));
       article.querySelector('[data-inline-compare]').append(createCompareButton(buildRecommendationCompareItem(plan, index), { compact: false }));
       article.querySelector('[data-recommendation-cart]').addEventListener('click', event => {
