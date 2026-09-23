@@ -92,6 +92,10 @@ html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-per
   padding: 2px 3px !important;
 }
 
+html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-person-card[hidden] {
+  display: none !important;
+}
+
 html body .hero-finder #quiz-steps-wrapper #quiz-card-stack #step1 .operator-person-card {
   gap: 12px !important;
   grid-template-rows: auto auto !important;

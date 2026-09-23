@@ -566,11 +566,24 @@
     }
 
     const fragment = document.createDocumentFragment();
+    const savedSelections = readCheckout().numberSelections || [];
 
     for (let index = 1; index <= count; index += 1) {
       const field = document.createElement('div');
       field.className = 'phone-input-field';
 
+      const saved = savedSelections[index - 1];
+      const heading = document.createElement('strong');
+      heading.textContent = index === 1 ? 'Huvudabonnemang' : `Abonnemang ${index}`;
+      const modeLabel = document.createElement('label');
+      modeLabel.htmlFor = `numberMode${index}`;
+      modeLabel.textContent = 'Telefonnummer';
+      const mode = document.createElement('select');
+      mode.id = `numberMode${index}`;
+      mode.dataset.numberMode = '';
+      mode.append(new Option('Behåll mitt nummer', 'number_transfer'), new Option('Jag vill ha ett nytt nummer', 'new_number'));
+      mode.value = saved?.type === 'new_number' ? 'new_number' : 'number_transfer';
+      const transfer = document.createElement('div');
       const label = document.createElement('label');
       label.setAttribute('for', `transferPhone${index}`);
       label.textContent = index === 1 ? 'Huvudabonnemangets nummer' : `Nummer ${index}`;
@@ -582,8 +595,44 @@
       input.autocomplete = 'tel';
       input.inputMode = 'tel';
       if (index === 1) input.value = getContact().phone;
+      if (saved?.phoneNumber) input.value = saved.phoneNumber;
+      transfer.append(label, input);
 
-      field.append(label, input);
+      const newNumber = document.createElement('div');
+      const suggestionLabel = document.createElement('label');
+      suggestionLabel.htmlFor = `newPhone${index}`;
+      suggestionLabel.textContent = 'Välj ett demonummer';
+      const suggestions = document.createElement('select');
+      suggestions.id = `newPhone${index}`;
+      suggestions.dataset.demoNumber = '';
+      suggestions.append(new Option('Välj ett av fem demonummer', ''));
+      for (let suggestion = 1; suggestion <= 5; suggestion += 1) {
+        const number = `070000${String((index - 1) * 5 + suggestion).padStart(4, '0')}`;
+        suggestions.append(new Option(`${number.slice(0, 3)} ${number.slice(3, 6)} ${number.slice(6, 8)} ${number.slice(8)} (demo)`, number));
+      }
+      suggestions.value = saved?.demoNumberPreference || '';
+      const note = document.createElement('p');
+      note.id = `newPhoneNote${index}`;
+      note.textContent = 'Demonummer – endast för att prova valet. Numret är inte reserverat. Ditt riktiga nummer tilldelas av operatören.';
+      suggestions.setAttribute('aria-describedby', note.id);
+      newNumber.append(suggestionLabel, suggestions, note);
+      const updateMode = () => {
+        const isNew = mode.value === 'new_number';
+        transfer.hidden = isNew;
+        input.disabled = isNew;
+        newNumber.hidden = !isNew;
+        suggestions.disabled = !isNew;
+      };
+      field.addEventListener('change', () => {
+        updateMode();
+        els.startDateSection?.classList.add('is-hidden');
+        document.querySelector('#embeddedCheckoutSection')?.classList.add('is-hidden');
+        document.querySelector('#embeddedCheckoutFrame')?.removeAttribute('src');
+        saveCheckout({ readyForReview: false });
+      });
+      updateMode();
+
+      field.append(heading, modeLabel, mode, transfer, newNumber);
       fragment.append(field);
     }
 
@@ -930,14 +979,14 @@
       return;
     }
 
-    saveCheckout({ phoneNumbers: [] });
+    saveCheckout({ phoneNumbers: [], numberSelections: [], numberHandling: 'not_applicable' });
     els.startDateSection?.classList.remove('is-hidden');
     scrollToSection(els.startDateSection);
   };
 
   const handleConfirmNumbers = () => {
-    const inputs = [...(els.phoneInputsContainer?.querySelectorAll('input') || [])];
-    const phoneNumbers = inputs.map((input) => input.value.trim());
+    const fields = [...(els.phoneInputsContainer?.querySelectorAll('.phone-input-field') || [])];
+    const inputs = fields.map((field) => field.querySelector('input')).filter((input) => !input.disabled);
     const invalidInput = inputs.find((input) => !isPhoneValid(input.value.trim()));
 
     if (invalidInput) {
@@ -946,8 +995,26 @@
       return;
     }
 
+    const missingSelection = fields.map((field) => field.querySelector('[data-demo-number]'))
+      .find((select) => !select.disabled && !select.value);
+    if (missingSelection) {
+      showMessage(els.numberMessage, 'Välj ett demonummer för varje nytt abonnemang.');
+      missingSelection.focus();
+      return;
+    }
+    const numberSelections = fields.map((field) => {
+      const type = field.querySelector('[data-number-mode]').value;
+      return {
+        type,
+        phoneNumber: type === 'number_transfer' ? field.querySelector('input').value.trim() : null,
+        demoNumberPreference: type === 'new_number' ? field.querySelector('[data-demo-number]').value : null,
+      };
+    });
+    const phoneNumbers = numberSelections.filter((selection) => selection.type === 'number_transfer').map((selection) => selection.phoneNumber);
+    const numberHandling = phoneNumbers.length === fields.length ? 'number_transfer' : phoneNumbers.length ? 'mixed' : 'new_number';
+
     showMessage(els.numberMessage, '');
-    saveCheckout({ phoneNumbers });
+    saveCheckout({ phoneNumbers, numberSelections, numberHandling });
     els.startDateSection?.classList.remove('is-hidden');
     scrollToSection(els.startDateSection);
   };

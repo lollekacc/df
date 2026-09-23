@@ -26,7 +26,7 @@ async function run() {
   const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
   try {
     for (const width of [1440, 390]) {
-      for (const persons of [1, 4, 10]) {
+      for (const persons of [1, 4, 5, 8, 10]) {
         const page = await browser.newPage({ viewport: { width, height: 1000 } });
         await page.goto(`http://127.0.0.1:${server.address().port}/`, { waitUntil: 'domcontentloaded' });
         await page.waitForFunction(() => Boolean(window.DealettQuiz));
@@ -55,10 +55,36 @@ async function run() {
         assert.equal(result.state.persons, persons);
         assert.equal(result.state.data, 'medium');
         assert.ok(await page.locator('#quiz-card-stack .active-step').isVisible());
+        const visiblePeople = page.locator('[data-operator-group]:visible');
+        for (let start = 0; start < persons; start += 4) {
+          const count = Math.min(4, persons - start);
+          await page.waitForFunction(({ start, count }) => {
+            const cards = [...document.querySelectorAll('[data-operator-group]')].filter(card => card.getClientRects().length);
+            return cards.length === count && cards[0].getAttribute('aria-label') === `Person ${start + 1}`;
+          }, { start, count });
+          assert.deepEqual(await visiblePeople.evaluateAll(cards => cards.map(card => card.getAttribute('aria-label'))),
+            Array.from({ length: count }, (_, index) => `Person ${start + index + 1}`));
+          if (start > 0) {
+            await page.locator('#step1 .quiz-back-inline').click();
+            await page.waitForFunction(start => document.querySelector(`[data-operator="Tele2"][data-person-index="${start - 4}"]`).getClientRects().length > 0, start);
+            const previous = page.locator(`[data-no-binding][data-person-index="${start - 1}"]`);
+            assert.equal(await previous.getAttribute('aria-pressed'), 'true');
+            await previous.click();
+            await page.waitForFunction(start => document.querySelector(`[data-operator="Tele2"][data-person-index="${start}"]`).getClientRects().length > 0, start);
+          }
+          for (let index = start; index < start + count; index += 1) {
+            await page.locator(`[data-operator="Tele2"][data-person-index="${index}"]`).click();
+            await page.locator(`[data-no-binding][data-person-index="${index}"]`).click();
+          }
+        }
+        await page.waitForFunction(() => window.DealettQuiz.getState().currentStep !== 1);
+        const completed = await page.evaluate(() => window.DealettQuiz.getState());
+        assert.equal(completed.operators.filter(operator => operator === 'Tele2').length, persons);
+        assert.equal(completed.operatorNoBinding.filter(Boolean).length, persons);
         await page.close();
       }
     }
-    console.log('Finder opens directly on the operator question at desktop and mobile widths for 1, 4 and 10 people.');
+    console.log('Finder groups 1, 4, 5, 8 and 10 people in batches of four on desktop and mobile, preserves answers on back navigation, and advances after completion.');
   } finally {
     await browser.close();
     server.close();

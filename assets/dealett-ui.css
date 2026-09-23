@@ -11424,9 +11424,24 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
   }
 
   html body:has(.home-intro) .hero-information__eyebrow,
-  html body:has(.home-intro) .hero-information__intro,
-  html body:has(.home-intro) .hero-information__controls {
+  html body:has(.home-intro) .hero-information__intro {
     display: none !important;
+  }
+
+  html body:has(.home-intro) .hero-information__controls {
+    display: flex !important;
+    grid-column: 1 / -1;
+    justify-content: center;
+    padding: 0 16px 10px;
+    background: transparent;
+  }
+
+  html body:has(.home-intro) .hero-information__page {
+    background: #fff;
+  }
+
+  html body:has(.home-intro) .hero-information__page.is-active {
+    background: #f59e0b;
   }
 
   html body:has(.home-intro) .hero-information__title {
@@ -11515,7 +11530,7 @@ html body:has(.home-intro) .hero-operator:nth-child(3) img {
     grid-template-columns: minmax(440px, .95fr) minmax(0, 1.05fr) !important;
     width: 100% !important;
     min-height: 70px !important;
-    height: 70px !important;
+    height: auto !important;
     margin: 0 !important;
     overflow: hidden !important;
     border: 0 !important;

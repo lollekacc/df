@@ -503,7 +503,7 @@
       '    <section id="numberSection" class="result-section is-hidden">',
       '      <div class="result-shell result-medium">',
       '        <div class="pro-card checkout-card">',
-      '          <div class="section-head left-tight"><span class="section-kicker">Nummerflytt</span><h2>Fyll i numren som ska flyttas</h2><p>Vi går igenom en person i taget.</p></div>',
+      '          <div class="section-head left-tight"><span class="section-kicker">Telefonnummer</span><h2>Behåll ditt nummer eller välj ett nytt</h2><p>Välj nummerhantering för varje abonnemang.</p></div>',
       '          <div id="phoneInputsContainer" class="phone-inputs"></div>',
       '          <p id="numberMessage" class="form-message" aria-live="polite"></p>',
       '          <button id="confirmNumbersBtn" class="primary-btn full-btn is-hidden" type="button">Bekräfta</button>',

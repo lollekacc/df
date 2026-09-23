@@ -1535,7 +1535,7 @@
       if (!messageList.clientHeight) return;
       const bodyStyle = getComputedStyle(messageList);
       const availableHeight = messageList.clientHeight
-        - parseFloat(bodyStyle.paddingTop) - parseFloat(bodyStyle.paddingBottom);
+        - parseFloat(bodyStyle.paddingTop) - parseFloat(bodyStyle.paddingBottom) - 20;
       if (availableHeight <= 0) return;
       root.style.setProperty('--chat-offer-max-height', `${availableHeight}px`);
       messageList.querySelectorAll('.dealett-chat-offers').forEach(wrap => {
@@ -3179,15 +3179,11 @@
           providerClass ? `provider-card--${providerClass}` : '',
         ].filter(Boolean).join(' ');
         article.innerHTML = [
+          logo ? `<img src="${escapeChatText(logo)}" alt="" class="dealett-chat-offer-watermark" /><img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="dealett-chat-offer-operator" />` : '',
+          card.rewardLabel ? `<span class="dealett-chat-offer-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i><span>${escapeChatText(card.rewardLabel)}</span></span>` : '',
           '<div class="offer-card__accent"></div>',
           '<div class="offer-card__inner">',
           '<div class="dealett-chat-offer-content">',
-          [
-            '  <div class="offer-card__head">',
-            logo ? `    <img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ''}" />` : '',
-            card.rewardLabel ? `    <span class="dealett-chat-offer-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i><span>${escapeChatText(card.rewardLabel)}</span></span>` : '',
-            '  </div>',
-          ].join(''),
           '  <div class="offer-card__stats">',
           renderStat('fa-calendar-days', card.bindingTitle, bindingValue),
           renderStat('fa-wifi', card.dataTitle, card.dataLabel, dataDetail, 'fa-globe'),

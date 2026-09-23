@@ -197,9 +197,6 @@ function createIndexQuiz() {
     dom.wrapper.addEventListener("change", handleWrapperChange);
     dom.wrapper.addEventListener("input", handleWrapperInput);
     window.addEventListener("resize", syncStackHeight);
-    window.matchMedia('(max-width: 900px)').addEventListener('change', () => {
-      if (state.currentStep === 1) showOperatorPage(Math.floor(operatorPage / getOperatorPageSize()) * getOperatorPageSize());
-    });
     bindNewsletterForm();
     bindStaticOfferCards();
 
@@ -1354,7 +1351,7 @@ function createIndexQuiz() {
   }
 
   function getOperatorPageSize() {
-    return window.matchMedia('(max-width: 900px)').matches ? 2 : 4;
+    return 4;
   }
 
   function syncBindingDateLabel(input) {

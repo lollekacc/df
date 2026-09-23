@@ -89,8 +89,11 @@ setOpenAiTransportForTests(async (_url, options) => {
       assert(benefitsText.some(text => /Utlandsdata i 100 länder/.test(text)));
       assert(benefitsText.some(text => /Samtal, sms och roaming inom EU\/EES/.test(text)));
       assert.equal((benefitsText.join(' ').match(/Utlandsdata i 100 länder/g) || []).length, 1);
-      assert.equal(await page.locator('.dealett-chat-offer-card .offer-card__logo').evaluateAll(images =>
-        images.every(image => image.complete && image.naturalWidth > 0)), true);
+      assert.equal(await page.locator('.dealett-chat-offer-watermark').evaluateAll(images =>
+        images.length === 2 && images.every(image => image.complete && image.naturalWidth > 0)), true);
+      assert.equal(await page.locator('.dealett-chat-offer-operator').evaluateAll(images =>
+        images.length === 2 && images.every(image => image.complete && image.naturalWidth > 0
+          && image.getBoundingClientRect().right <= image.parentElement.querySelector('.dealett-chat-offer-reward').getBoundingClientRect().left)), true);
       for (const height of [1000, 600]) {
         await page.setViewportSize({ width, height });
         await page.waitForFunction(() => {
@@ -99,13 +102,14 @@ setOpenAiTransportForTests(async (_url, options) => {
           const available = body.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
           const cards = [...document.querySelectorAll('.dealett-chat-offer-card')];
           const bounds = cards.map(card => card.getBoundingClientRect());
-          const heads = cards.map(card => card.querySelector('.offer-card__head').getBoundingClientRect());
+          const badges = cards.map(card => card.querySelector('.dealett-chat-offer-reward').getBoundingClientRect());
           const buttons = cards.map(card => card.querySelector('.dealett-chat-offer-cta').getBoundingClientRect());
-          return bounds.every(rect => rect.height <= available + 1)
+          return bounds.every((rect, index) => rect.bottom - badges[index].top <= available + 1
+            && badges[index].top < rect.top)
             && cards.every(card => [...card.querySelectorAll('.offer-card__inner, .dealett-chat-offer-content')]
               .every(element => element.scrollHeight <= element.clientHeight + 1
                 && !['auto', 'scroll'].includes(getComputedStyle(element).overflowY)))
-            && Math.abs(heads[0].top - heads[1].top) < 1
+            && Math.abs(badges[0].top - badges[1].top) < 1
             && Math.abs(bounds[0].height - bounds[1].height) < 1
             && Math.abs(buttons[0].top - buttons[1].top) < 1
             && buttons.every((rect, index) => rect.bottom <= bounds[index].bottom);

@@ -365,6 +365,10 @@
   }
 
   const getNumberHandlingLabel = () => {
+    if (order.numberHandling === 'mixed') {
+      const newCount = order.persons - order.transferredNumberCount;
+      return `Flytta ${order.transferredNumberCount} ${order.transferredNumberCount === 1 ? 'befintligt nummer' : 'befintliga nummer'} och få ${newCount} ${newCount === 1 ? 'nytt nummer' : 'nya nummer'}`;
+    }
     if (order.numberHandling === 'number_transfer') {
       const count = order.transferredNumberCount || order.persons;
       return count === 1 ? 'Behåll befintligt nummer' : `Flytta ${count} befintliga nummer`;
@@ -435,6 +439,8 @@
       order.data ? `    <p>${escapeHtml(order.data)}</p>` : '',
       `    <p>${escapeHtml(getBindingLabel())}</p>`,
       `    <p>${escapeHtml(getNumberHandlingLabel())}</p>`,
+      ...(checkout.numberSelections || []).flatMap((selection, index) => selection.type === 'new_number' && selection.demoNumberPreference
+        ? [`    <p>Abonnemang ${index + 1}: demonummer ${escapeHtml(selection.demoNumberPreference)} – inte reserverat. Operatören tilldelar ditt riktiga nummer.</p>`] : []),
       '  </div>',
       '</div>',
       '<hr class="summary-divider" />',
@@ -880,6 +886,7 @@
         lineCount: order.persons,
         transferredNumberCount: order.transferredNumberCount,
         phoneNumbers: Array.isArray(checkout.phoneNumbers) ? [...checkout.phoneNumbers] : [],
+        numberSelections: cloneJson(checkout.numberSelections || [], []),
       },
       giftCards: order.giftCards.map((gift) => ({
         provider: gift.provider,
@@ -1028,14 +1035,19 @@
     return fieldSources[field]?.find((value) => value !== undefined && value !== null && value !== '') ?? fallback;
   };
 
-  const buildParticipantSnapshots = (cartItems, phoneNumbers) => {
+  const buildParticipantSnapshots = (cartItems, phoneNumbers, numberSelections = []) => {
     let phoneNumberIndex = 0;
     return cartItems.flatMap((item, subscriptionIndex) => {
       const participantCount = Math.max(Number(item.persons) || 1, 1);
       const phoneLineCount = Math.max(Number(item.phoneLines) || 0, 0);
       return Array.from({ length: participantCount }, (_, participantIndex) => {
         const receivesPhoneNumber = participantIndex < phoneLineCount;
-        const phoneNumber = receivesPhoneNumber ? (phoneNumbers[phoneNumberIndex++] || null) : null;
+        const lineIndex = receivesPhoneNumber ? phoneNumberIndex++ : -1;
+        const selection = numberSelections[lineIndex];
+        const phoneNumber = receivesPhoneNumber
+          ? (selection ? (selection.type === 'number_transfer' ? selection.phoneNumber : null) : phoneNumbers[lineIndex] || null)
+          : null;
+        const numberHandling = receivesPhoneNumber ? (selection?.type || (phoneNumber ? 'number_transfer' : 'new_number')) : 'not_applicable';
         return {
           participantId: `${item.cartItemId}-participant-${participantIndex + 1}`,
           subscriptionId: item.cartItemId,
@@ -1043,8 +1055,9 @@
           participantIndex,
           role: participantIndex === 0 ? 'primary' : 'member',
           phoneNumber,
-          numberPorting: phoneNumber ? 'number_transfer' : (receivesPhoneNumber ? 'new_number' : 'not_applicable'),
-          numberHandling: phoneNumber ? 'number_transfer' : (receivesPhoneNumber ? 'new_number' : 'not_applicable'),
+          numberPorting: numberHandling,
+          numberHandling,
+          demoNumberPreference: numberHandling === 'new_number' ? selection?.demoNumberPreference || null : null,
           requestedActivationDate: order.startDate,
           currentOperator: getParticipantValue(cart[subscriptionIndex] || {}, participantIndex, 'currentOperator'),
           bindingEnd: getParticipantValue(cart[subscriptionIndex] || {}, participantIndex, 'bindingEnd'),
@@ -1080,7 +1093,8 @@
       inputs: cloneJson(primaryCalculation.inputs || primaryQualification, {}),
       outputs: cloneJson(primaryCalculation.outputs || primaryCalculation, {}),
     };
-    const participants = buildParticipantSnapshots(cartItems, phoneNumbers);
+    const numberSelections = currentCheckout.numberSelections || checkout.numberSelections || [];
+    const participants = buildParticipantSnapshots(cartItems, phoneNumbers, numberSelections);
     const conversationSnapshot = readConversationSnapshot();
     const conversationAssociation = readConversationAssociation();
     const conversationId = conversationAssociation?.conversationId ||
@@ -1207,6 +1221,7 @@
       participants,
       numberHandling: {
         type: currentCheckout.numberHandling || order.numberHandling,
+        numberSelections: cloneJson(numberSelections, []),
         phoneNumbers,
         transferredNumberCount: phoneNumbers.length,
       },

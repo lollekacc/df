@@ -19,10 +19,10 @@
       reason: 'Obegränsad surf passar när mobilen används för mycket video, hotspot och annan datatung användning.',
     },
     {
-      id: 'resor-utanfor-eu',
-      question: 'Jag reser ofta utanför EU och vill kunna surfa utan höga extrakostnader. Vilket abonnemang passar?',
+      id: 'extra-sim',
+      question: 'Jag vill ha ett extra SIM-kort till min surfplatta. Vilket abonnemang inkluderar det?',
       planId: 'tele2-unlimited-plus',
-      reason: 'Obegränsad Max inkluderar 60 GB surf i 170 länder och är därför ett starkt val för resor utanför EU.',
+      reason: 'Tele2 Obegränsad Max inkluderar ett extra SIM-kort med 50 GB surf, utöver mobilens obegränsade surf.',
     },
     {
       id: 'streamingpaket',
@@ -43,16 +43,12 @@
   if (!rotator || !dialog) return;
 
   const slots = Array.from(rotator.querySelectorAll('[data-information-slot]'));
-  const pages = Array.from(
-    { length: Math.ceil(recommendations.length / slots.length) },
-    (_, page) => recommendations
-      .map((_, index) => index)
-      .slice(page * slots.length, (page + 1) * slots.length)
-  );
+  const desktop = window.matchMedia('(min-width: 901px)');
+  let pages = [];
   const position = rotator.querySelector('[data-information-position]');
   const toggleButton = rotator.querySelector('[data-information-toggle]');
   const toggleIcon = rotator.querySelector('[data-information-toggle-icon]');
-  const pageButtons = Array.from(rotator.querySelectorAll('[data-information-page]'));
+  let pageButtons = [];
   const dialogAnswer = dialog.querySelector('[data-information-dialog-answer]');
   const dialogQuestion = dialog.querySelector('[data-information-dialog-question]');
   const dialogLoading = dialog.querySelector('[data-information-loading]');
@@ -172,6 +168,27 @@
     render();
   };
 
+  const configurePages = () => {
+    const firstIndex = pages[pageIndex]?.[0] || 0;
+    const pageSize = desktop.matches ? 1 : slots.length;
+    pages = Array.from({ length: Math.ceil(recommendations.length / pageSize) }, (_, page) =>
+      recommendations.map((_, index) => index).slice(page * pageSize, (page + 1) * pageSize)
+    );
+    pageIndex = Math.floor(firstIndex / pageSize);
+    pageButtons = pages.map((indexes, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'hero-information__page';
+      button.dataset.informationPage = String(index);
+      button.setAttribute('aria-label', indexes.length === 1
+        ? `Visa fråga ${indexes[0] + 1}`
+        : `Visa fråga ${indexes[0] + 1} till ${indexes[indexes.length - 1] + 1}`);
+      return button;
+    });
+    rotator.querySelector('.hero-information__pages')?.replaceChildren(...pageButtons);
+    render({ animate: false });
+  };
+
   const runCycle = () => {
     if (!visible || manuallyPaused || interactionPaused || document.hidden || reduceMotion.matches || dialog.open) return;
     move(1);
@@ -281,6 +298,7 @@
     appendFact(factFragment, 'Surf', getDataLabel(plan));
     if (persons > 1) appendFact(factFragment, 'Antal', `${persons} abonnemang`);
     if (includedStreaming.length) appendFact(factFragment, 'Ingår', includedStreaming.join(', '));
+    if (plan.extraSim?.included) appendFact(factFragment, 'Extra SIM', `${plan.extraSim.dataGb} GB ingår`);
     const roamingLabel = getRoamingLabel(plan);
     if (roamingLabel) appendFact(factFragment, 'Utomlands', roamingLabel);
     if (plan.internationalCalls?.freeCallsWithinFamilyWorldwide) {
@@ -479,6 +497,7 @@
   }, { threshold: 0.15 });
   observer.observe(rotator);
   reduceMotion.addEventListener('change', startCycle);
-  render({ animate: false });
+  desktop.addEventListener('change', configurePages);
+  configurePages();
   startCycle();
 })();
