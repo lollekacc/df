@@ -1712,7 +1712,7 @@ function createIndexQuiz() {
     if (desc) {
       desc.textContent = isRefined
         ? "Nu väger vi även in de extra frågor du besvarade."
-        : "Baserat på antal personer, nuvarande operatör, bindningstid, surf och pris visar vi en första matchning.";
+        : "Vi har hittat de bästa mobilabonnemangen för dig.";
     }
   }
 
@@ -1855,9 +1855,10 @@ function createIndexQuiz() {
         .map((plan, index) => ({ plan, label: getExpandedRecommendationLabel(plan, index, featuredEntries) }))
     ] : visibleEntries;
     const renderPage = index => {
-      dom.offersContainer.replaceChildren(buildRecommendationCard(entries[index].plan, index, entries[index].label));
-      dom.offersContainer.append(buildInlinePager(index, entries.length, renderPage, 'Erbjudande'));
-      dom.offersContainer.append(buildRefinementPanel());
+      dom.offersContainer.replaceChildren(
+        buildInlinePager(index, entries.length, renderPage, 'Erbjudande'),
+        buildRecommendationCard(entries[index].plan, index, entries[index].label)
+      );
     };
     renderPage(0);
   }
@@ -1866,7 +1867,8 @@ function createIndexQuiz() {
     const pager = document.createElement('nav');
     pager.className = 'inline-quiz-pager';
     pager.setAttribute('aria-label', label);
-    pager.innerHTML = `<button type="button" aria-label="Föregående ${label.toLowerCase()}" ${index === 0 ? 'disabled' : ''}>←</button><span>${escapeHtml(label)} ${index + 1} / ${total}</span><button type="button" aria-label="Nästa ${label.toLowerCase()}" ${index === total - 1 ? 'disabled' : ''}>→</button>`;
+    const dots = label === 'Erbjudande' ? '<span class="inline-quiz-pager__dots" aria-hidden="true">' + Array.from({ length: total }, (_, dot) => '<i class="' + (dot === index ? 'is-active' : '') + '"></i>').join('') + '</span>' : '';
+    pager.innerHTML = `<button type="button" aria-label="Föregående ${label.toLowerCase()}" ${index === 0 ? 'disabled' : ''}>‹</button><span class="inline-quiz-pager__status" aria-live="polite">${dots}${escapeHtml(label)} ${index + 1} / ${total}</span><button type="button" aria-label="Nästa ${label.toLowerCase()}" ${index === total - 1 ? 'disabled' : ''}>›</button>`;
     pager.firstElementChild.addEventListener('click', () => onChange(index - 1));
     pager.lastElementChild.addEventListener('click', () => onChange(index + 1));
     return pager;
@@ -1878,7 +1880,7 @@ function createIndexQuiz() {
     panel.type = 'button';
     panel.className = 'inline-refine';
     panel.dataset.refinementStart = '';
-    panel.textContent = isRefined ? 'Ändra streaming & resor →' : 'Förfina med streaming & resor →';
+    panel.innerHTML = '<svg class="inline-refine__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="9" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg><span><strong>' + (isRefined ? 'Ändra streaming & resor' : 'Förfina med streaming & resor') + '</strong><small>Lägg till dina favoriter för en mer personlig rekommendation</small></span><span aria-hidden="true">›</span>';
     return panel;
   }
 
@@ -2316,14 +2318,15 @@ function createIndexQuiz() {
       return chunks;
     });
     const renderSummary = () => {
-      article.innerHTML = '<div class="inline-offer__head"><img src="' + escapeHtml(plan.logo) + '" alt="' + escapeHtml(plan.operator) + '" /><span>' + escapeHtml(label) + '</span></div>' +
+      const binding = plan.bindingMonths ?? plan.offerCalculation?.bindingMonths ?? 24;
+      article.innerHTML = '<div class="inline-offer__head"><div class="inline-offer__provider"><img src="' + escapeHtml(plan.logo) + '" alt="' + escapeHtml(plan.operator) + '" /><div><strong>' + escapeHtml(plan.operator) + '</strong><small>Mobilabonnemang</small></div></div><span class="inline-offer__badge"><span aria-hidden="true">★</span> ' + escapeHtml(label) + '</span></div>' +
         '<div class="inline-offer__facts"><div><strong>' + escapeHtml(data) + '</strong><small>surf · ' + (state.persons || 1) + ' abonnemang</small></div><div><strong>' + escapeHtml(price) + '</strong><small>/mån totalt' + (state.persons > 1 ? ' · ' + escapeHtml(formatMoney(plan.pricePerPerson)) + '/person' : '') + '</small></div></div>' +
-        '<p>24 mån bindningstid · ' + escapeHtml(getQuizOfferHighlights(features)[1]) + '</p>' +
-        '<p>Presentkort: <strong>' + escapeHtml(formatMoney(gift)) + '</strong></p>' +
-        '<div class="inline-offer__actions"><button type="button" data-inline-details>Se detaljer</button><span data-inline-compare></span></div>' +
-        '<a href="varukorg.html" class="quiz-next-button" data-recommendation-cart>Välj ' + escapeHtml(plan.operator) + ' →</a>';
+        '<div class="inline-offer__terms"><div><strong>' + (Number(binding) === 0 ? 'Ingen' : escapeHtml(binding) + ' mån') + '</strong><small>bindningstid</small></div><div><strong>' + escapeHtml(getQuizOfferHighlights(features)[1]) + '</strong><small>roaming</small></div><div><strong>Presentkort: ' + escapeHtml(formatMoney(gift)) + '</strong><small>ingår</small></div></div>' +
+        '<a href="varukorg.html" class="quiz-next-button" data-recommendation-cart>Välj ' + escapeHtml(plan.operator) + ' →</a>' +
+        '<div class="inline-offer__actions"><button type="button" data-inline-details>Se detaljer <span aria-hidden="true">›</span></button><span data-inline-compare></span></div>';
+      article.querySelector('[data-recommendation-cart]').before(buildRefinementPanel());
       article.querySelector('[data-inline-details]').addEventListener('click', () => renderDetails(0));
-      article.querySelector('[data-inline-compare]').append(createCompareButton(buildRecommendationCompareItem(plan, index), { compact: true }));
+      article.querySelector('[data-inline-compare]').append(createCompareButton(buildRecommendationCompareItem(plan, index), { compact: false }));
       article.querySelector('[data-recommendation-cart]').addEventListener('click', event => {
         event.preventDefault();
         saveRecommendationAndNavigate(plan);

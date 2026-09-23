@@ -100,12 +100,11 @@
 
 .about-partners-inner {
   display: grid;
-  grid-template-columns: minmax(250px, 0.7fr) minmax(0, 1.3fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: clamp(28px, 5vw, 72px);
 }
 
-.about-partners-copy h2,
 .about-clarity-copy h2 {
   margin: 10px 0 0;
   color: var(--dui-text, #0d1726);
@@ -141,12 +140,6 @@
   max-width: 88px;
   height: 28px;
   object-fit: contain;
-}
-
-.about-partner-card span {
-  color: var(--dui-text, #0d1726);
-  font-size: 13px;
-  font-weight: 700;
 }
 
 .about-section {
