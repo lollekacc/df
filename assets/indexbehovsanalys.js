@@ -717,6 +717,12 @@ function createIndexQuiz() {
     const persons = Number(option.dataset.persons);
     if (!persons) return;
 
+    setPersons(persons);
+    setSelected(step, "[data-persons]", option);
+    showStepAfterSelection(1);
+  }
+
+  function setPersons(persons) {
     state.persons = persons;
     state.operators = Array.from({ length: persons }, () => null);
     state.operatorDates = Array.from({ length: persons }, () => null);
@@ -731,10 +737,8 @@ function createIndexQuiz() {
     state.refinementQueue = [];
     state.refinementPromptCollapsed = false;
 
-    setSelected(step, "[data-persons]", option);
     resetCustomerStep();
     prepareOperatorQuestion(persons);
-    showStepAfterSelection(1);
   }
 
   function setHeroFinderExpanded(expanded) {
@@ -838,14 +842,10 @@ function createIndexQuiz() {
     const persons = Number(values.get("finder-persons")) || 1;
     const data = String(values.get("finder-data") || "medium");
     finderDataSelected = true;
+    setPersons(persons);
+    state.data = data;
+    syncQuizUiFromState();
     startQuiz({ inHero: true, initialStep: 1 });
-
-    requestAnimationFrame(() => {
-      const option = steps[0]?.querySelector(`[data-persons="${persons}"]`);
-      if (option) handlePersonsStep(option, steps[0]);
-      state.data = data;
-      syncQuizUiFromState();
-    });
   }
 
   function handleHeroAiSubmit(event) {
@@ -1440,17 +1440,15 @@ function createIndexQuiz() {
 
     mountQuizInHero();
 
+    const stepToShow = options.initialStep ?? (finderDataSelected ? state.currentStep : 0);
+    applyStep(stepToShow);
+
     dom.intro?.classList.add("hidden");
     dom.wrapper?.classList.remove("hidden");
     dom.wrapper?.classList.remove("opacity-0");
     document.getElementById("analys")?.classList.add("quiz-running");
 
-    const stepToShow = options.initialStep ?? (finderDataSelected ? state.currentStep : 0);
-
-    requestAnimationFrame(() => {
-      dom.wrapper?.classList.remove("opacity-0");
-      showStep(stepToShow);
-    });
+    syncStackHeight();
   }
 
   function showIntro() {
