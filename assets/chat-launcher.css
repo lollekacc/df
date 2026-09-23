@@ -674,8 +674,10 @@ html body #dealettChat .dealett-chat-offer-operator {
   width: auto;
   max-width: 38%;
   height: 34px;
-  padding: 2px;
-  border-radius: 4px;
+  padding: 3px 6px 2px;
+  border: 1px solid var(--chat-operator-color, var(--provider-accent, #e0e3e9));
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
   background: #fff;
   object-fit: contain;
   object-position: left center;
