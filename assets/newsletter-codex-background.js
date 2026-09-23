@@ -117,7 +117,7 @@
       float drag = (0.018 + velocity * 0.09) * active;
       vec2 warped = p + swirl * drag + fieldVelocity * fieldEnergy * 0.032 * active;
 
-      float time = u_time * active;
+      float time = u_time * active * 6.0;
       float fieldA = fbm(warped * 1.55 + vec2(time * 0.025, -time * 0.018));
       float fieldB = fbm(warped * 3.0 - vec2(time * 0.018, time * 0.026));
       float flow = fieldA * 0.7 + fieldB * 0.3;

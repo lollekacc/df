@@ -28,15 +28,17 @@ html body:has(.home-intro) .newsletter-form .button:hover { background: linear-g
 .newsletter-reassurance { margin: 0; color: #a3a7b0; font-size: 13px; line-height: 1.5; }
 .newsletter-status:empty { display: none; }
 .newsletter-art { align-self: stretch; min-height: 300px; pointer-events: none; }
-.newsletter-phone { position: absolute; top: 8px; left: 8%; width: 200px; height: 390px; padding: 50px 17px; border: 3px solid #af8a67; border-radius: 34px; background: linear-gradient(130deg, #111c2a, #03070d 55%, #24150f); box-shadow: inset 0 0 0 4px #20252d, 10px 6px 28px #f7761730; transform: rotate(12deg); }
-.newsletter-phone::before { content: ''; position: absolute; top: 16px; left: 75px; width: 45px; height: 6px; border-radius: 10px; background: #020407; }
-.newsletter-phone-brand { display: block; text-align: center; font-size: 14px; letter-spacing: .18em; color: #8f939d; }
-.newsletter-phone-notice { display: grid; grid-template-columns: 38px 1fr; gap: 12px; margin-top: 34px; padding: 16px 12px; background: linear-gradient(135deg, #242c38, #252026); border: 1px solid #ffffff12; border-radius: 18px; font-size: 14px; line-height: 1.3; }
-.newsletter-phone-notice i { display: grid; place-items: center; background: #e96c09; border-radius: 11px; font-size: 22px; }
-.newsletter-phone-notice b { grid-column: 1 / -1; height: 7px; border-radius: 5px; background: #ffffff10; }
-.newsletter-phone-notice b:last-child { width: 55%; }
-.newsletter-art-bell { position: absolute; right: -18px; top: -14px; display: grid; place-items: center; width: 66px; height: 66px; border: 1px solid #fb9e49; border-radius: 50%; color: #ffa13c; font-size: 32px; background: #653015; box-shadow: 0 0 36px #ed7b1830; transform: rotate(12deg); }
-.newsletter-orbit { position: absolute; width: 360px; height: 145px; top: 170px; left: -70px; border-bottom: 3px solid #ffa344; border-radius: 50%; transform: rotate(-30deg); filter: drop-shadow(0 0 7px #ff7b00); }
+.newsletter-phone-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 310px;
+  max-width: none;
+  height: 465px;
+  object-fit: contain;
+  transform: translate(-45%, -43%) rotate(5deg);
+  mask-image: radial-gradient(ellipse at center, #000 48%, transparent 73%);
+}
 @media (max-width: 1199px) {
   html body:has(.home-intro) .newsletter-panel { grid-template-columns: minmax(0, 1.25fr) minmax(280px, 1fr); }
   .newsletter-art { display: none; }

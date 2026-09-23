@@ -83,7 +83,7 @@ setOpenAiTransportForTests(async (_url, options) => {
       assert.match(cardText, /229/);
       assert.match(cardText, /299/);
       assert.match(cardText, /inte skräddarsytt/);
-      const benefitsText = await page.locator('.dealett-chat-offer-benefits').allTextContents();
+      const benefitsText = await page.locator('.dealett-chat-offer-benefits, .dealett-chat-offer-detail').allTextContents();
       assert(!benefitsText.some(text => /(?:10|6) GB per användare|299|229|bindningstid/i.test(text)));
       assert(benefitsText.some(text => /3Världen ingår/.test(text)));
       assert(benefitsText.some(text => /Utlandsdata i 100 länder/.test(text)));
@@ -112,6 +112,7 @@ setOpenAiTransportForTests(async (_url, options) => {
         });
       }
       await page.setViewportSize({ width, height: 1000 });
+      await page.locator('.dealett-chat-messages').evaluate(element => { element.scrollTop = element.scrollHeight; });
       await page.screenshot({ path: `/tmp/dealett-stream-offers-${width}.png` });
       await input.fill('Detaljerad jämförelse');
       await input.press('Enter');

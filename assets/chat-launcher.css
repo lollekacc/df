@@ -570,7 +570,11 @@ html body #dealettChat .dealett-chat-offer-card {
   max-height: var(--chat-offer-max-height, none) !important;
   transform: none !important;
   min-width: 0 !important;
-  border-radius: 8px !important;
+  border-radius: 12px !important;
+  border-color: #e0e3e9 !important;
+  background: linear-gradient(135deg, #fff, #fdfdfd) !important;
+  box-shadow: 0 3px 12px rgba(13, 23, 38, .06) !important;
+  color: #09213b !important;
 }
 
 html body #dealettChat .dealett-chat-offer-card::before {
@@ -580,6 +584,7 @@ html body #dealettChat .dealett-chat-offer-card::before {
 html body #dealettChat .dealett-chat-offer-card .offer-card__accent {
   grid-row: 1;
   height: 3px !important;
+  background: #ff8000 !important;
 }
 
 html body #dealettChat .dealett-chat-offer-card .offer-card__inner {
@@ -589,102 +594,177 @@ html body #dealettChat .dealett-chat-offer-card .offer-card__inner {
   min-height: 0 !important;
   gap: 7px !important;
   zoom: var(--chat-offer-scale, 1);
-  padding: 7px !important;
+  padding: 9px !important;
 }
 
 html body #dealettChat .dealett-chat-offer-card .offer-card__head {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 8px !important;
   min-height: 48px !important;
-  margin-top: 5px !important;
-  padding: 4px !important;
-  border-radius: 6px !important;
+  margin: 0 0 8px !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+html body #dealettChat .dealett-chat-offer-card .offer-card__head::before,
+html body #dealettChat .dealett-chat-offer-card .offer-card__head::after {
+  content: none !important;
 }
 
 html body #dealettChat .dealett-chat-offer-card .offer-card__logo,
 html body #dealettChat .dealett-chat-offer-card .offer-card__logo--telenor,
 html body #dealettChat .dealett-chat-offer-card .offer-card__logo--tre {
-  width: 72% !important;
-  max-width: 92px !important;
-  height: 38px !important;
+  width: 42px !important;
+  max-width: 42px !important;
+  height: 42px !important;
+  object-fit: contain !important;
+  border-radius: 8px !important;
 }
 
-html body #dealettChat .dealett-chat-offer-card .offer-card__gift-badge {
-  top: 4px !important;
-  right: 4px !important;
-  width: 36px !important;
-  height: 36px !important;
-  border-width: 1px !important;
+html body #dealettChat .dealett-chat-offer-card .offer-card__logo--telenor {
+  width: 99px !important;
+  max-width: 100% !important;
+  border-radius: 0 !important;
+  object-position: left !important;
 }
 
-html body #dealettChat .dealett-chat-offer-card .offer-card__gift-badge span {
-  margin-top: 0 !important;
-  padding: 2px !important;
-  font-size: 6px !important;
-  line-height: 1.05 !important;
+html body #dealettChat .dealett-chat-offer-reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px;
+  border-radius: 10px;
+  background: #fff4e8;
+  color: #09213b;
+  font-size: 9px;
+}
+
+html body #dealettChat .dealett-chat-offer-reward > i {
+  color: #ff8000;
+  font-size: 16px;
 }
 
 html body #dealettChat .dealett-chat-offer-card .offer-card__stats {
   gap: 4px !important;
-  margin-top: 6px !important;
+  margin-top: 0 !important;
 }
 
 html body #dealettChat .dealett-chat-offer-card .offer-card__stat {
-  grid-template-columns: 18px minmax(0, 1fr) !important;
-  gap: 4px !important;
-  padding: 4px !important;
-  border-radius: 6px !important;
+  grid-template-columns: 30px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 37px !important;
+  padding: 4px 6px !important;
+  border: 1px solid #e1e5ec !important;
+  border-radius: 7px !important;
+  background: #fafafb !important;
 }
 
 html body #dealettChat .dealett-chat-offer-card .offer-card__stat > div {
   display: block !important;
 }
 
+html body #dealettChat .dealett-chat-offer-card .offer-card__stat:has(.dealett-chat-offer-detail) {
+  grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+
+html body #dealettChat .dealett-chat-offer-card .offer-card__stat > .dealett-chat-offer-detail {
+  display: flex !important;
+  align-items: center;
+  gap: 7px;
+  align-self: stretch;
+  padding-left: 9px;
+  border-left: 1px solid #e1e5ec;
+  color: #657898;
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+html body #dealettChat .dealett-chat-offer-detail > i {
+  font-size: 15px;
+}
+
 html body #dealettChat .dealett-chat-offer-card .offer-card__stat-icon {
-  width: 18px !important;
-  height: 18px !important;
-  border-radius: 5px !important;
-  font-size: 8px !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 50% !important;
+  background: #fff2e4 !important;
+  color: #ff8000 !important;
+  font-size: 16px !important;
 }
 
 html body #dealettChat .dealett-chat-offer-card .offer-card__stat-label {
-  font-size: 7px !important;
+  margin: 0 !important;
+  color: #294063 !important;
+  font-size: 10px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
   line-height: 1.1 !important;
 }
 
 html body #dealettChat .dealett-chat-offer-card .offer-card__stat-value {
-  margin-top: 1px !important;
-  font-size: 10px !important;
+  margin: 2px 0 0 !important;
+  color: #09213b !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
   line-height: 1.15 !important;
   text-align: left !important;
   white-space: normal !important;
 }
 
-html body #dealettChat .dealett-chat-offer-card .offer-card__stat-sub {
-  display: block !important;
-  margin-top: 2px !important;
-  color: rgba(39, 36, 67, .62) !important;
-  font-size: 7px !important;
-  font-weight: 500 !important;
-  line-height: 1.2 !important;
+html body #dealettChat .dealett-chat-offer-card .offer-card__reason {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin: 6px 0 0 !important;
+  padding: 8px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: #fff3e7 !important;
+  color: #172f4d !important;
+  font-size: 10px !important;
+  line-height: 1.3 !important;
+}
+
+html body #dealettChat .offer-card__reason > i {
+  color: #ae520a;
+  font-size: 17px;
+}
+
+html body #dealettChat .offer-card__reason > small {
+  margin-left: auto;
+  max-width: 42%;
+  color: #6e6258;
+  font-size: 8px;
 }
 
 html body #dealettChat .dealett-chat-offer-benefits {
-  gap: 3px !important;
-  margin-top: 6px !important;
-  font-size: 9px !important;
-  line-height: 1.25 !important;
+  gap: 5px !important;
+  margin: 8px 0 0 !important;
+  color: #294063 !important;
+  font-size: 10px !important;
+  line-height: 1.3 !important;
 }
 
 html body #dealettChat .dealett-chat-offer-benefits li::before {
-  margin-right: 3px !important;
+  margin-right: 8px !important;
+  color: #ff8000 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
 }
 
 html body #dealettChat .dealett-chat-offer-cta {
-  min-height: 30px !important;
-  gap: 4px !important;
+  min-height: 32px !important;
+  gap: 9px !important;
   margin-top: 0 !important;
   padding: 5px !important;
-  border-radius: 6px !important;
-  font-size: 9px !important;
+  border-radius: 7px !important;
+  background: #09213b !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
   line-height: 1.15 !important;
 }
 

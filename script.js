@@ -3160,6 +3160,17 @@
         const providerClass = getProviderClass(card.operator);
         const logo = getOperatorLogo(card.operator);
         const safeCtaUrl = getSafeChatUrl(card.ctaUrl);
+        const english = chatLanguage === 'en';
+        const detailIndex = benefits.findIndex(benefit => /utlandsdata|\b5g\b/i.test(benefit));
+        const dataDetail = detailIndex >= 0 ? benefits.splice(detailIndex, 1)[0] : '';
+        const bindingValue = String(card.bindingLabel || '').replace(/\s*bindningstid\s*/i, '').trim();
+        const renderStat = (icon, title, value, detail = '', detailIcon = '') => value ? [
+          '<div class="offer-card__stat">',
+          `<span class="offer-card__stat-icon"><i class="fa-solid ${icon}" aria-hidden="true"></i></span>`,
+          `<div><p class="offer-card__stat-label">${escapeChatText(title)}</p><p class="offer-card__stat-value">${escapeChatText(value)}</p></div>`,
+          detail ? `<div class="dealett-chat-offer-detail"><i class="fa-solid ${detailIcon}" aria-hidden="true"></i><span>${escapeChatText(detail)}</span></div>` : '',
+          '</div>',
+        ].join('') : '';
         const article = document.createElement('article');
         article.className = [
           'offer-card',
@@ -3171,22 +3182,22 @@
           '<div class="offer-card__accent"></div>',
           '<div class="offer-card__inner">',
           '<div class="dealett-chat-offer-content">',
-          logo ? [
+          [
             '  <div class="offer-card__head">',
-            `    <img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ''}" />`,
-            `    <span class="offer-card__gift-badge"><span>${escapeChatText(card.rewardLabel)}</span></span>`,
+            logo ? `    <img src="${escapeChatText(logo)}" alt="${escapeChatText(card.operator)}" class="offer-card__logo ${providerClass ? `offer-card__logo--${providerClass}` : ''}" />` : '',
+            card.rewardLabel ? `    <span class="dealett-chat-offer-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i><span>${escapeChatText(card.rewardLabel)}</span></span>` : '',
             '  </div>',
-          ].join('') : '',
+          ].join(''),
           '  <div class="offer-card__stats">',
-          card.bindingLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-file-signature"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.bindingTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.bindingLabel)}</p></div></div>` : '',
-          card.dataLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-wifi"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.dataTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.dataLabel)}</p></div></div>` : '',
-          card.monthlyPriceLabel ? `    <div class="offer-card__stat"><span class="offer-card__stat-icon"><i class="fa-solid fa-tag"></i></span><div><p class="offer-card__stat-label">${escapeChatText(card.monthlyPriceTitle)}</p><p class="offer-card__stat-value">${escapeChatText(card.monthlyPriceLabel)}</p>${card.monthlyPriceSubLabel ? `<p class="offer-card__stat-sub">${escapeChatText(card.monthlyPriceSubLabel)}</p>` : ''}</div></div>` : '',
+          renderStat('fa-calendar-days', card.bindingTitle, bindingValue),
+          renderStat('fa-wifi', card.dataTitle, card.dataLabel, dataDetail, 'fa-globe'),
+          renderStat('fa-tag', card.monthlyPriceTitle, card.monthlyPriceLabel, card.monthlyPriceSubLabel, 'fa-coins'),
           '  </div>',
-          card.recommendationType === 'example_offer' ? `  <p class="offer-card__reason">${escapeChatText(card.resultLabel)}</p>` : '',
+          card.recommendationType === 'example_offer' ? `  <p class="offer-card__reason"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>${escapeChatText(card.resultLabel)}</span><small>${english ? 'Can be tailored to your needs' : 'Kan anpassas efter dina behov'}</small></p>` : '',
           card.strictMatch === false && card.reason ? `  <p class="offer-card__reason">${escapeChatText(card.reason)}</p>` : '',
           benefits.length ? `  <ul class="dealett-chat-offer-benefits">${benefits.map(benefit => `<li>${escapeChatText(benefit)}</li>`).join('')}</ul>` : '',
           '</div>',
-          safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel)} <i class="fa-solid fa-cart-shopping"></i></button>` : '',
+          safeCtaUrl || card.planId ? `  <button class="offer-card__cta dealett-chat-offer-cta" type="button" data-chat-offer-card="${escapeChatText(card.id)}" data-chat-offer-plan="${escapeChatText(card.planId || '')}" data-chat-offer-url="${escapeChatText(safeCtaUrl)}">${escapeChatText(card.ctaLabel)} <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>` : '',
           '</div>',
         ].join('');
         wrap.append(article);
