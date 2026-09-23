@@ -2,14 +2,14 @@ body.jamfor-page {
   background: #0d1726 !important;
 }
 
-.jamfor-page .coverage-main.coverage-maplibre-section {
+:is(.jamfor-page, .home-coverage) .coverage-main.coverage-maplibre-section {
   margin: 0 0 -104px;
   padding: 0 !important;
   border: 0;
   background: #0d1726 !important;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-shell {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-shell {
   width: 100%;
   height: max(1380px, calc(100svh + 584px)) !important;
   min-height: 1380px !important;
@@ -18,7 +18,7 @@ body.jamfor-page {
   box-shadow: none !important;
 }
 
-.jamfor-page .coverage-maplibre-shell::after {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-shell::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -38,7 +38,7 @@ body.jamfor-page {
   margin-top: 0 !important;
 }
 
-.jamfor-page .coverage-intro {
+:is(.jamfor-page, .home-coverage) .coverage-intro {
   position: absolute;
   z-index: 2;
   top: 94px;
@@ -48,21 +48,21 @@ body.jamfor-page {
   pointer-events: none;
 }
 
-.jamfor-page .coverage-eyebrow {
+:is(.jamfor-page, .home-coverage) .coverage-eyebrow {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
 }
 
-.jamfor-page .coverage-intro h1 {
+:is(.jamfor-page, .home-coverage) .coverage-intro :is(h1, h2) {
   margin: 10px 0 12px;
   font: 600 clamp(32px, 3vw, 46px)/1.1 var(--dui-font-heading, Arial, sans-serif);
   letter-spacing: -.035em;
   color: #fff !important;
 }
 
-.jamfor-page .coverage-intro p {
+:is(.jamfor-page, .home-coverage) .coverage-intro p {
   margin: 0;
   max-width: 390px;
   color: #e0e8ee;
@@ -70,7 +70,7 @@ body.jamfor-page {
   line-height: 1.5;
 }
 
-.jamfor-page .coverage-toolbar {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar {
   position: absolute;
   z-index: 20;
   top: 260px;
@@ -86,13 +86,13 @@ body.jamfor-page {
   box-shadow: 0 16px 48px #06162633;
 }
 
-.jamfor-page .coverage-operators, .jamfor-page .coverage-networks {
+:is(.jamfor-page, .home-coverage) .coverage-operators, :is(.jamfor-page, .home-coverage) .coverage-networks {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
-.jamfor-page .coverage-toolbar :is(.coverage-operators, .coverage-networks) button {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar :is(.coverage-operators, .coverage-networks) button {
   position: relative;
   display: flex;
   align-items: center;
@@ -114,25 +114,25 @@ body.jamfor-page {
   transform: none !important;
 }
 
-.jamfor-page .coverage-toolbar button img {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar button img {
   width: 32px;
   height: 30px;
   object-fit: contain;
   border-radius: 5px;
 }
 
-.jamfor-page .coverage-toolbar :is(.coverage-operators, .coverage-networks) button::after {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar :is(.coverage-operators, .coverage-networks) button::after {
   content: none !important;
 }
 
-.jamfor-page .coverage-toolbar .coverage-operators button[aria-pressed="true"] {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .coverage-operators button[aria-pressed="true"] {
   background: #243247 !important;
   color: #fff !important;
   border-color: #5a687c !important;
   box-shadow: inset 0 0 0 1px #8191a6 !important;
 }
 
-.jamfor-page .coverage-network-label {
+:is(.jamfor-page, .home-coverage) .coverage-network-label {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -141,37 +141,37 @@ body.jamfor-page {
   font-size: 14px;
 }
 
-.jamfor-page .coverage-network-label::after {
+:is(.jamfor-page, .home-coverage) .coverage-network-label::after {
   content: '';
   height: 1px;
   flex: 1;
   background: #dfe3e7;
 }
 
-.jamfor-page .coverage-toolbar .coverage-networks button {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .coverage-networks button {
   height: 44px !important;
   border-radius: 24px !important;
 }
 
-.jamfor-page .coverage-toolbar .coverage-networks button[aria-pressed="true"] {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .coverage-networks button[aria-pressed="true"] {
   background: #c65c14 !important;
   border-color: #b7500e !important;
   color: white !important;
   box-shadow: inset 0 0 0 2px #f3ad78 !important;
 }
 
-.jamfor-page .coverage-toolbar :is(.coverage-operators, .coverage-networks) button:hover {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar :is(.coverage-operators, .coverage-networks) button:hover {
   border-color: #c96f24 !important;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-actions {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-actions {
   position: static !important;
   width: 100% !important;
   transform: none !important;
   padding: 0 !important;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-action {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-action {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -187,12 +187,12 @@ body.jamfor-page {
   font-size: 13px !important;
 }
 
-.jamfor-page .coverage-maplibre-action span {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-action span {
   margin-left: auto;
   font-size: 24px;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-themes {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-themes {
   inset: 260px 36px auto auto !important;
   display: grid !important;
   gap: 6px !important;
@@ -202,7 +202,7 @@ body.jamfor-page {
   background: #fff !important;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-themes button {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-themes button {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -215,36 +215,36 @@ body.jamfor-page {
   font-size: 12px !important;
 }
 
-.jamfor-page .coverage-maplibre-themes button i {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-themes button i {
   font-size: 20px;
   width: 24px;
   text-align: center;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-themes button[aria-pressed="true"] {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-themes button[aria-pressed="true"] {
   color: #a3450b !important;
   background: #fff0e4 !important;
   box-shadow: inset 3px 0 #c65c14 !important;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-themes .coverage-maplibre-perspective {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-themes .coverage-maplibre-perspective {
   margin-top: 6px;
   border-top: 1px solid #dfe3e7 !important;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-zoom {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-zoom {
   inset: 510px 36px auto auto !important;
   width: 54px !important;
   border-radius: 15px !important;
   background: #fff !important;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-zoom button {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-zoom button {
   width: 46px !important;
   height: 48px !important;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-quality-key {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-quality-key {
   left: clamp(24px, 3vw, 48px);
   bottom: 168px;
   width: 220px;
@@ -257,19 +257,19 @@ body.jamfor-page {
   backdrop-filter: blur(12px);
 }
 
-.jamfor-page .coverage-maplibre-quality-key p {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-quality-key p {
   margin: 0 0 4px;
   color: #fff;
   font-size: 12px;
   letter-spacing: .03em;
 }
 
-.jamfor-page .coverage-maplibre-quality-key span {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-quality-key span {
   font-size: 12px;
   font-weight: 500;
 }
 
-.jamfor-page .coverage-maplibre-quality-key i {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-quality-key i {
   width: 14px;
   height: 14px;
   flex-basis: 14px;
@@ -277,19 +277,19 @@ body.jamfor-page {
   border-radius: 50%;
 }
 
-.jamfor-page .coverage-maplibre-quality-key .is-excellent {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-quality-key .is-excellent {
   background: #ef6b16;
 }
 
-.jamfor-page .coverage-maplibre-quality-key .is-good {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-quality-key .is-good {
   background: #ff9b45;
 }
 
-.jamfor-page .coverage-maplibre-quality-key .is-basic {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-quality-key .is-basic {
   background: #ffd39a;
 }
 
-.jamfor-page .coverage-disclaimer {
+:is(.jamfor-page, .home-coverage) .coverage-disclaimer {
   position: absolute;
   z-index: 2;
   bottom: 122px;
@@ -302,25 +302,25 @@ body.jamfor-page {
   text-shadow: 0 1px 4px #061626;
 }
 
-.jamfor-page .coverage-main button:focus-visible {
+:is(.jamfor-page, .home-coverage) .coverage-main button:focus-visible {
   outline: 3px solid #c96f24 !important;
   outline-offset: 3px !important;
 }
 
-.jamfor-page .coverage-maplibre-canvas canvas:focus-visible {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-canvas canvas:focus-visible {
   outline: 3px solid #c96f24;
   outline-offset: -3px;
 }
 
-.jamfor-page .coverage-main .maplibregl-ctrl-attrib {
+:is(.jamfor-page, .home-coverage) .coverage-main .maplibregl-ctrl-attrib {
   display: block !important;
 }
 
-.jamfor-page .coverage-maplibre-canvas .maplibregl-ctrl-bottom-right {
+:is(.jamfor-page, .home-coverage) .coverage-maplibre-canvas .maplibregl-ctrl-bottom-right {
   bottom: 108px;
 }
 
-.jamfor-page .coverage-toolbar .coverage-maplibre-search {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .coverage-maplibre-search {
   position: relative !important;
   inset: auto !important;
   width: 100% !important;
@@ -331,12 +331,12 @@ body.jamfor-page {
   backdrop-filter: none !important;
 }
 
-.jamfor-page .coverage-toolbar .coverage-maplibre-search:focus-within {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .coverage-maplibre-search:focus-within {
   border-color: #a95317 !important;
   box-shadow: 0 0 0 3px rgba(201, 111, 36, .18) !important;
 }
 
-.jamfor-page .coverage-toolbar .coverage-maplibre-search__feedback {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .coverage-maplibre-search__feedback {
   left: 0;
   right: 0;
   z-index: 7;
@@ -348,7 +348,7 @@ body.jamfor-page {
   text-shadow: none;
 }
 
-.jamfor-page .coverage-toolbar .is-selected .coverage-maplibre-search__feedback {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .is-selected .coverage-maplibre-search__feedback {
   width: 1px;
   height: 1px;
   min-height: 0;
@@ -358,7 +358,7 @@ body.jamfor-page {
   clip-path: inset(50%);
 }
 
-.jamfor-page .coverage-toolbar .suggestions {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .suggestions {
   padding: 0;
   list-style: none;
   border: 1px solid #dfe1e3;
@@ -367,7 +367,7 @@ body.jamfor-page {
   backdrop-filter: none;
 }
 
-.jamfor-page .coverage-toolbar .suggestions > li > button {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .suggestions > li > button {
   min-height: 44px;
   border-color: #e8eaec;
   border-radius: 0;
@@ -376,50 +376,50 @@ body.jamfor-page {
   transform: none;
 }
 
-.jamfor-page .coverage-toolbar .suggestions > .active > button,
-.jamfor-page .coverage-toolbar .suggestions > li > button:hover {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .suggestions > .active > button,
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .suggestions > li > button:hover {
   background: #fcf1e7;
   color: #974811;
 }
 
-.jamfor-page .coverage-toolbar .suggestions > li > button:disabled {
+:is(.jamfor-page, .home-coverage) .coverage-toolbar .suggestions > li > button:disabled {
   color: #5a616b;
   background: #f8f7f4;
 }
 
 @media (max-width: 1100px) and (min-width: 761px) {
-  .jamfor-page .coverage-toolbar {
+  :is(.jamfor-page, .home-coverage) .coverage-toolbar {
     width: 350px;
   }
 
-  .jamfor-page .coverage-intro {
+  :is(.jamfor-page, .home-coverage) .coverage-intro {
     width: 360px;
   }
 
 }
 @media (max-width: 760px) {
-  .jamfor-page .coverage-main .coverage-maplibre-shell {
+  :is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-shell {
     height: 1664px !important;
     min-height: 1664px !important;
   }
 
-  .jamfor-page .coverage-intro {
+  :is(.jamfor-page, .home-coverage) .coverage-intro {
     top: 82px;
     left: 20px;
     right: 20px;
     width: auto;
   }
 
-  .jamfor-page .coverage-intro h1 {
+  :is(.jamfor-page, .home-coverage) .coverage-intro :is(h1, h2) {
     font-size: 30px;
   }
 
-  .jamfor-page .coverage-intro p {
+  :is(.jamfor-page, .home-coverage) .coverage-intro p {
     font-size: 14px;
     max-width: 350px;
   }
 
-  .jamfor-page .coverage-toolbar {
+  :is(.jamfor-page, .home-coverage) .coverage-toolbar {
     top: 228px;
     left: 16px;
     right: 16px;
@@ -429,33 +429,33 @@ body.jamfor-page {
     border-radius: 18px;
   }
 
-  .jamfor-page .coverage-toolbar .coverage-operators button {
+  :is(.jamfor-page, .home-coverage) .coverage-toolbar .coverage-operators button {
     height: 64px !important;
     gap: 5px;
   }
 
-  .jamfor-page .coverage-toolbar button img {
+  :is(.jamfor-page, .home-coverage) .coverage-toolbar button img {
     height: 24px;
     width: 28px;
   }
 
-  .jamfor-page .coverage-main .coverage-maplibre-themes {
+  :is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-themes {
     inset: 548px 16px auto auto !important;
     width: 104px;
   }
 
-  .jamfor-page .coverage-main .coverage-maplibre-zoom {
+  :is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-zoom {
     inset: 802px 16px auto auto !important;
   }
 
-  .jamfor-page .coverage-main .coverage-maplibre-quality-key {
+  :is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-quality-key {
     bottom: 176px;
     left: 16px;
     width: 190px;
     padding: 14px;
   }
 
-  .jamfor-page .coverage-disclaimer {
+  :is(.jamfor-page, .home-coverage) .coverage-disclaimer {
     bottom: 122px;
     left: 16px;
     right: 16px;
@@ -472,6 +472,35 @@ html body.jamfor-page .footer::before {
   background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 64' preserveAspectRatio='none'%3E%3Cpath fill='%230D1726' d='M0 6C110 15 190 54 340 56C500 58 580 8 720 10C860 12 940 50 1100 48C1240 46 1320 16 1440 6V64H0Z'/%3E%3C/svg%3E") center top / 100% 100% no-repeat !important;
 }
 
-.jamfor-page .coverage-main .coverage-maplibre-themes button::after {
+:is(.jamfor-page, .home-coverage) .coverage-main .coverage-maplibre-themes button::after {
   content: none !important;
+}
+
+body .home-coverage .coverage-main.coverage-maplibre-section {
+  margin: 0;
+  padding: 0 !important;
+}
+
+body .home-coverage .coverage-main.coverage-maplibre-section .coverage-maplibre-shell {
+  height: max(920px, calc(100svh + 124px)) !important;
+  min-height: 920px !important;
+}
+
+@media (max-width: 760px) {
+  body .home-coverage .coverage-main.coverage-maplibre-section .coverage-maplibre-shell {
+    height: 1200px !important;
+    min-height: 1200px !important;
+  }
+}
+
+.home-coverage .coverage-main .coverage-maplibre-quality-key {
+  bottom: 76px;
+}
+
+.home-coverage .coverage-disclaimer {
+  bottom: 30px;
+}
+
+.home-coverage .coverage-maplibre-canvas .maplibregl-ctrl-bottom-right {
+  bottom: 0;
 }

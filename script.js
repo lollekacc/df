@@ -4186,7 +4186,9 @@
 
     const render = (position) => {
       renderedY = position;
-      const transform = `translate3d(0, ${(-position).toFixed(3)}px, 0)`;
+      const pixelRatio = window.devicePixelRatio || 1;
+      const alignedPosition = Math.round(position * pixelRatio) / pixelRatio;
+      const transform = `translate3d(0, ${-alignedPosition}px, 0)`;
       if (transform !== lastTransform) {
         content.style.transform = transform;
         lastTransform = transform;
