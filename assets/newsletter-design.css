@@ -94,13 +94,16 @@ html body:has(.home-intro) .newsletter-intro h2 { margin: 0 0 12px; color: #0b15
   .newsletter-glass { width: 62px; height: 62px; font-size: 27px; }
   .newsletter-pearl--two, .newsletter-pearl--four, .newsletter-pearl--six { display: none; }
 }
-.newsletter-note--punchline {
-  position: relative;
-  top: auto;
+.newsletter-section > .newsletter-punchline {
+  position: static;
   display: block;
   width: fit-content;
   max-width: calc(100% - 48px);
   margin: 24px auto 16px;
+  color: #ae998d;
+  font-family: 'Segoe Print', 'Comic Sans MS', cursive;
+  font-size: clamp(16px, 1.35vw, 22px);
+  line-height: 1.5;
   text-align: center;
   text-wrap: balance;
   transform: rotate(-3deg);
