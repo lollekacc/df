@@ -246,6 +246,8 @@
 }
 
 .hero-information__page.is-active {
+  width: 9px;
+  height: 9px;
   background: #bd6428;
 }
 
