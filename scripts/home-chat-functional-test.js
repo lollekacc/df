@@ -57,6 +57,12 @@ async function run() {
       assert.equal(await input.getAttribute('placeholder'), width > 900 ? 'Skriv din fråga här...' : 'Skriv här. Till exempel: Vi är fyra i familjen och vill ha mer surf...');
       if (width <= 900) assert((await page.locator('.dealett-chat-inline-controls').innerText()).includes('Fråga Dealett AI'));
       assert.equal(requests.length, 0);
+      const messages = page.locator('#dealettChat .dealett-chat-messages');
+      await messages.hover();
+      const scrollBeforeWheel = await page.evaluate(() => scrollY);
+      await page.mouse.wheel(0, 300);
+      await page.waitForFunction(before => scrollY > before, scrollBeforeWheel);
+      await page.evaluate(() => scrollTo(0, 0));
       if (width > 900) await page.getByRole('button', { name: 'Ta bort aktuell chatt', exact: true }).click();
       else await page.getByRole('button', { name: 'Stäng flik: Ny chatt', exact: true }).click();
       assert.equal(await page.getByRole('tab').count(), 0);
