@@ -31,6 +31,7 @@ async function setup({ hostname = 'preview.dealett.se', pathname = '/', search =
   let recording = false;
   let optedOut = false;
   const sdk = {
+    set_config(value) { Object.assign(options, value); },
     init(key, value) { options = value; optedOut = false; value.loaded(sdk); },
     capture(name, properties) { const event = options.before_send({ event: name, properties }); if (!optedOut && event) events.push(event); },
     startSessionRecording() { recording = true; }, stopSessionRecording() { recording = false; },
@@ -80,6 +81,7 @@ test('recording requires separate consent and withdrawal stops all events', asyn
   state.click('reject');
   assert.equal(state.recording, false);
   assert.equal(state.optedOut, true);
+  assert.equal(state.options.disable_persistence, true);
   assert.equal(state.options.before_send({ event: '$pageview', properties: {} }), null);
   state.click('accept');
   assert.equal(state.optedOut, false);
@@ -107,5 +109,6 @@ test('cross-tab withdrawal stops collection and query URLs disable replay', asyn
   state.storage.clear();
   state.listeners.storage({ key: null });
   assert.equal(state.optedOut, true);
+  assert.equal(state.options.disable_persistence, true);
   assert.equal(state.panel.hidden, false);
 });

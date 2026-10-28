@@ -37,10 +37,11 @@
   };
   const applyConsent = () => {
     if (!allowed()) {
-      if (client) { client.stopSessionRecording(); client.opt_out_capturing(); }
+      if (client) { client.stopSessionRecording(); client.opt_out_capturing(); client.set_config({ disable_persistence: true }); }
       return;
     }
     if (client) {
+      client.set_config({ disable_persistence: false });
       client.opt_in_capturing({ captureEventName: false });
       if (consent.replay && !location.search && !location.hash) client.startSessionRecording();
       else client.stopSessionRecording();
