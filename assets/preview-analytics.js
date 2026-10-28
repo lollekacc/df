@@ -113,9 +113,11 @@
     panel.querySelector('.preview-consent-intro').hidden = detailed;
     panel.querySelector('.preview-consent-details').hidden = !detailed;
     panel.querySelector('[data-choice="configure"]').hidden = detailed;
+    panel.querySelector('[data-choice="reject"]').hidden = !detailed;
+    panel.querySelector('[data-choice="accept"]').textContent = detailed ? 'Godkänn alla' : 'Okej';
     panel.querySelector('[data-choice="save"]').hidden = !detailed;
     panel.querySelector('[data-choice="back"]').hidden = !detailed;
-    panel.querySelector('h2').textContent = detailed ? 'Dina integritetsval' : 'Vi värnar om din integritet';
+    panel.querySelector('h2').textContent = detailed ? 'Dina integritetsval' : 'Vi använder kakor';
   };
   const show = () => {
     panel.querySelector('[name="analytics"]').checked = consent?.analytics === true;
@@ -135,12 +137,12 @@
     panel.setAttribute('aria-labelledby', 'preview-consent-title');
     panel.setAttribute('lang', 'sv');
     panel.setAttribute('dir', 'ltr');
-    panel.innerHTML = '<header><button type="button" data-choice="back" hidden>← Tillbaka</button><h2 id="preview-consent-title" tabindex="-1">Vi värnar om din integritet</h2></header>' +
+    panel.innerHTML = '<header><button type="button" data-choice="back" hidden>← Tillbaka</button><h2 id="preview-consent-title" tabindex="-1">Vi använder kakor</h2></header>' +
       '<div class="preview-consent-content"><div class="preview-consent-intro">' +
       '<p>Vi vill göra Dealett enklare och bättre att använda. Med ditt godkännande använder vi PostHog i EU för att förstå hur vår previewsida används.</p>' +
       '<p>Besöksstatistik visar sidbesök, klick och hur långt du scrollar. Din IP-adress sparas tillsammans med statistiken och ett slumpmässigt besöks-id lagras i din webbläsare.</p>' +
       '<p>Du kan också godkänna sessionsinspelning, så att vi kan se hur du navigerar på sidan. Text och inmatningar maskeras och känsliga delar undantas.</p>' +
-      '<p>Välj <strong>Godkänn alla</strong> för statistik och inspelning, eller öppna <strong>Inställningar</strong> för att välja var för sig. Du kan använda sidan även om du avvisar allt.</p>' +
+      '<p>Välj <strong>Okej</strong> för att godkänna statistik och inspelning, eller öppna <strong>Inställningar</strong> för att välja var för sig eller neka alla. Du kan använda sidan även om du avvisar allt.</p>' +
       '<p>Ditt val sparas i 180 dagar. Du kan när som helst ändra eller återkalla det via <strong>Integritetsval</strong>.</p></div>' +
       '<div class="preview-consent-details" hidden><p>Välj vad du vill tillåta. Valfria funktioner startar först när du godkänner dem.</p>' +
       '<div class="preview-consent-category"><details><summary>Nödvändig lagring <span>Alltid aktiv</span></summary><p>Sparar dina integritetsval så att vi kommer ihåg dem. Detta aktiverar inte besöksstatistik eller inspelning.</p></details></div>' +
@@ -149,7 +151,7 @@
       '<p>Valet sparas i 180 dagar. Du kan ändra det när som helst via Integritetsval.</p></div>' +
       '<a href="/integritetspolicy.html#preview-analytics">Läs vår integritetspolicy</a></div>' +
       '<div class="preview-consent-actions"><button type="button" data-choice="configure">Inställningar</button>' +
-      '<button type="button" data-choice="reject">Avvisa alla</button><button type="button" data-choice="accept">Godkänn alla</button>' +
+      '<button type="button" data-choice="reject" hidden>Neka alla</button><button type="button" data-choice="accept">Okej</button>' +
       '<button type="button" data-choice="save" hidden>Spara mina val</button></div>';
     panel.addEventListener('cancel', () => { panel.hidden = true; });
     panel.querySelector('[data-choice="configure"]').addEventListener('click', () => {
