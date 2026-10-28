@@ -1,4 +1,10 @@
 (() => {
+  if (location.hostname === 'preview.dealett.se') {
+    const analytics = document.createElement('script');
+    analytics.src = '/assets/preview-analytics.js';
+    analytics.async = true;
+    document.head.append(analytics);
+  }
   const partials = {
     header: 'partials/header.html',
     footer: 'partials/footer.html',
