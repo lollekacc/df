@@ -104,34 +104,62 @@
   const save = (analytics, replay) => {
     consent = { analytics, replay: analytics && replay, at: Date.now() };
     try { localStorage.setItem(consentKey, JSON.stringify(consent)); } catch {}
+    panel.close();
     panel.hidden = true;
     applyConsent();
     settings.focus();
   };
+  const setView = (detailed) => {
+    panel.querySelector('.preview-consent-intro').hidden = detailed;
+    panel.querySelector('.preview-consent-details').hidden = !detailed;
+    panel.querySelector('[data-choice="configure"]').hidden = detailed;
+    panel.querySelector('[data-choice="save"]').hidden = !detailed;
+    panel.querySelector('[data-choice="back"]').hidden = !detailed;
+    panel.querySelector('h2').textContent = detailed ? 'Dina integritetsval' : 'Vi värnar om din integritet';
+  };
   const show = () => {
     panel.querySelector('[name="analytics"]').checked = consent?.analytics === true;
     panel.querySelector('[name="replay"]').checked = consent?.replay === true;
+    setView(false);
     panel.hidden = false;
-    panel.querySelector('button').focus();
+    if (!panel.open) panel.showModal();
+    panel.querySelector('h2').focus();
   };
   const mount = () => {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = '/assets/preview-analytics.css';
+    style.href = '/assets/preview-analytics.css?v=20261028-modal';
     document.head.append(style);
-    panel = document.createElement('section');
+    panel = document.createElement('dialog');
     panel.className = 'preview-consent';
     panel.setAttribute('aria-labelledby', 'preview-consent-title');
     panel.setAttribute('lang', 'sv');
     panel.setAttribute('dir', 'ltr');
-    panel.innerHTML = '<h2 id="preview-consent-title">Hjälp oss förbättra Dealett</h2>' +
-      '<p>Med ditt samtycke använder vi PostHog i EU för att förstå sidbesök och klick. IP-adressen sparas med statistiken. Du kan också tillåta inspelning av hur du använder sidan. Text och inmatningar maskeras. Du kan använda sidan utan att godkänna.</p>' +
-      '<p>Valet sparas i 180 dagar. Analysen använder ett slumpmässigt besöks-id i lokal lagring. <a href="/integritetspolicy.html#preview-analytics">Läs om analys och integritet</a>.</p>' +
-      '<label><input type="checkbox" name="analytics"> Besöksstatistik</label>' +
-      '<label><input type="checkbox" name="replay"> Sessionsinspelning (kräver besöksstatistik)</label>' +
-      '<div class="preview-consent-actions"><button type="button" data-choice="reject">Avvisa alla</button>' +
-      '<button type="button" data-choice="accept">Godkänn alla</button>' +
-      '<button type="button" data-choice="save">Spara mina val</button></div>';
+    panel.innerHTML = '<header><button type="button" data-choice="back" hidden>← Tillbaka</button><h2 id="preview-consent-title" tabindex="-1">Vi värnar om din integritet</h2></header>' +
+      '<div class="preview-consent-content"><div class="preview-consent-intro">' +
+      '<p>Vi vill göra Dealett enklare och bättre att använda. Med ditt godkännande använder vi PostHog i EU för att förstå hur vår previewsida används.</p>' +
+      '<p>Besöksstatistik visar sidbesök, klick och hur långt du scrollar. Din IP-adress sparas tillsammans med statistiken och ett slumpmässigt besöks-id lagras i din webbläsare.</p>' +
+      '<p>Du kan också godkänna sessionsinspelning, så att vi kan se hur du navigerar på sidan. Text och inmatningar maskeras och känsliga delar undantas.</p>' +
+      '<p>Välj <strong>Godkänn alla</strong> för statistik och inspelning, eller öppna <strong>Inställningar</strong> för att välja var för sig. Du kan använda sidan även om du avvisar allt.</p>' +
+      '<p>Ditt val sparas i 180 dagar. Du kan när som helst ändra eller återkalla det via <strong>Integritetsval</strong>.</p></div>' +
+      '<div class="preview-consent-details" hidden><p>Välj vad du vill tillåta. Valfria funktioner startar först när du godkänner dem.</p>' +
+      '<div class="preview-consent-category"><details><summary>Nödvändig lagring <span>Alltid aktiv</span></summary><p>Sparar dina integritetsval så att vi kommer ihåg dem. Detta aktiverar inte besöksstatistik eller inspelning.</p></details></div>' +
+      '<div class="preview-consent-category"><label><span>Besöksstatistik</span><input type="checkbox" name="analytics" role="switch"></label><details><summary>Visa information</summary><p>PostHog i EU samlar sidbesök, utvalda klick, scrollning och IP-adress. Ett slumpmässigt besöks-id lagras i din webbläsare.</p></details></div>' +
+      '<div class="preview-consent-category"><label><span>Sessionsinspelning</span><input type="checkbox" name="replay" role="switch"></label><details><summary>Visa information</summary><p>Visar hur du navigerar på sidan. Text och inmatningar maskeras. Kräver besöksstatistik; den slås på om du väljer inspelning.</p></details></div>' +
+      '<p>Valet sparas i 180 dagar. Du kan ändra det när som helst via Integritetsval.</p></div>' +
+      '<a href="/integritetspolicy.html#preview-analytics">Läs vår integritetspolicy</a></div>' +
+      '<div class="preview-consent-actions"><button type="button" data-choice="configure">Inställningar</button>' +
+      '<button type="button" data-choice="reject">Avvisa alla</button><button type="button" data-choice="accept">Godkänn alla</button>' +
+      '<button type="button" data-choice="save" hidden>Spara mina val</button></div>';
+    panel.addEventListener('cancel', () => { panel.hidden = true; });
+    panel.querySelector('[data-choice="configure"]').addEventListener('click', () => {
+      setView(true);
+      panel.querySelector('h2').focus();
+    });
+    panel.querySelector('[data-choice="back"]').addEventListener('click', () => {
+      setView(false);
+      panel.querySelector('h2').focus();
+    });
     settings = document.createElement('button');
     settings.type = 'button';
     settings.className = 'preview-consent-settings';
@@ -148,7 +176,8 @@
       if (!event.target.checked) panel.querySelector('[name="replay"]').checked = false;
     });
     document.body.append(settings, panel);
-    panel.hidden = Boolean(consent);
+    panel.hidden = true;
+    if (!consent) show();
     applyConsent();
     window.addEventListener('storage', (event) => {
       if (event.key !== consentKey && event.key !== null) return;

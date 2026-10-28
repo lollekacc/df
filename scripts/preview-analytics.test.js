@@ -14,7 +14,7 @@ async function setup({ hostname = 'preview.dealett.se', pathname = '/', search =
     const children = new Map();
     const handlers = {};
     return { tag, hidden: false, checked: false, handlers,
-      setAttribute() {}, append() {}, focus() {}, remove() {},
+      setAttribute() {}, append() {}, focus() {}, remove() {}, showModal() { this.open = true; }, close() { this.open = false; },
       addEventListener(name, fn) { handlers[name] = fn; },
       querySelector(selector) { if (!children.has(selector)) children.set(selector, element(selector)); return children.get(selector); },
     };
