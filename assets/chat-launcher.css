@@ -1923,6 +1923,10 @@ html body .hero-ai-guide__composer-footer .dealett-chat-voice[aria-pressed="true
 html body #dealettChat .dealett-chat-voice[aria-pressed="true"] { background: #fbe3d7 !important; color: #a5341c !important; }
 html body .dealett-chat-voice:focus-visible { outline: 2px solid #c96d34; outline-offset: 2px; }
 html body .dealett-chat-voice:disabled { opacity: .4; cursor: wait; }
+html body .hero-ai-guide__composer-footer .dealett-chat-voice svg,
+html body #dealettChat .dealett-chat-voice svg { color: #534a43; stroke: #534a43; }
+html body .hero-ai-guide__composer-footer .dealett-chat-voice[aria-pressed="true"] svg,
+html body #dealettChat .dealett-chat-voice[aria-pressed="true"] svg { color: #a5341c; stroke: #a5341c; }
 html body .hero-ai-guide__composer-footer button svg,
 html body #dealettChat .dealett-chat-form button svg {
   width: 21px;
