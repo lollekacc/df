@@ -243,7 +243,7 @@ html body #dealettChat.dealett-chat--inline .dealett-chat-messages {
   min-height: 0 !important;
   max-height: none !important;
   overflow-y: auto !important;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: auto;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   padding: 16px 46px 4px 20px !important;
