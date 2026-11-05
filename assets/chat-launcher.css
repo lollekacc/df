@@ -1882,3 +1882,67 @@ html body #dealettChat .dealett-chat-delete { display: none; }
 }
 
 html body .hero-ai-guide.has-inline-chat .dealett-chat-reference-actions[hidden] { display: none; }
+
+html body #dealettChat .dealett-chat-form {
+  grid-template-columns: minmax(0, 1fr) 42px 42px !important;
+}
+
+html body #dealettChat:not(.dealett-chat--inline) .dealett-chat-panel {
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto !important;
+}
+html body #dealettChat:not(.dealett-chat--inline) .dealett-chat-header { grid-row: 1; }
+html body #dealettChat:not(.dealett-chat--inline) .dealett-chat-navigation { grid-row: 2; }
+html body #dealettChat:not(.dealett-chat--inline) .dealett-chat-messages { grid-row: 3; }
+html body #dealettChat:not(.dealett-chat--inline) .dealett-chat-suggestions { grid-row: 4; }
+html body #dealettChat:not(.dealett-chat--inline) .dealett-chat-voice-notice { grid-row: 5; }
+html body #dealettChat:not(.dealett-chat--inline) .dealett-chat-form { grid-row: 6; }
+
+html body:has(.home-intro) .hero-ai-guide.has-inline-chat .hero-ai-guide__form {
+  grid-template-columns: minmax(0, 1fr) 38px 38px;
+}
+
+html body .hero-ai-guide__composer-footer .dealett-chat-voice,
+html body #dealettChat .dealett-chat-voice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent !important;
+  color: #534a43 !important;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+html body .hero-ai-guide__composer-footer .dealett-chat-voice { margin-left: auto; margin-right: 6px; }
+html body .hero-ai-guide__composer-footer .dealett-chat-voice[aria-pressed="true"],
+html body #dealettChat .dealett-chat-voice[aria-pressed="true"] { background: #fbe3d7 !important; color: #a5341c !important; }
+html body .dealett-chat-voice:focus-visible { outline: 2px solid #c96d34; outline-offset: 2px; }
+html body .dealett-chat-voice:disabled { opacity: .4; cursor: wait; }
+html body .hero-ai-guide__composer-footer .dealett-chat-voice svg,
+html body #dealettChat .dealett-chat-voice svg { color: #534a43; stroke: #534a43; }
+html body .hero-ai-guide__composer-footer .dealett-chat-voice[aria-pressed="true"] svg,
+html body #dealettChat .dealett-chat-voice[aria-pressed="true"] svg { color: #a5341c; stroke: #a5341c; }
+html body .hero-ai-guide__composer-footer button svg,
+html body #dealettChat .dealett-chat-form button svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+html body #dealettChat .dealett-chat-send { border-radius: 50% !important; }
+html body #dealettChat .dealett-chat-voice-notice {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  color: #62544a;
+  font-size: 12px;
+  line-height: 1.4;
+}
+html body #dealettChat .dealett-chat-voice-notice[hidden] { display: none; }

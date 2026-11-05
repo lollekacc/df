@@ -1479,6 +1479,17 @@
     const conversationTtlMs = 60 * 60 * 1000;
     const maxRecoveryMessages = 250;
     let isSending = false;
+    let voiceController = null;
+    let voiceLoadVersion = 0;
+    let voiceState = 'idle';
+    let voiceDetail = '';
+    const stopVoice = () => {
+      voiceLoadVersion += 1;
+      voiceController?.stop();
+      voiceState = 'idle';
+      voiceDetail = '';
+      renderVoice();
+    };
     const conversationsKey = 'dealettChatConversationsV1';
     const conversations = new Map();
     const runtimes = new Map();
@@ -1594,6 +1605,89 @@
     const heroInput = heroForm?.querySelector('textarea');
     const heroSend = heroForm?.querySelector('[type="submit"]');
     const heroInitialPlaceholder = heroInput?.placeholder;
+    const voiceButtons = [];
+    const voiceNotice = document.createElement('div');
+    voiceNotice.className = 'dealett-chat-voice-notice';
+    voiceNotice.setAttribute('role', 'status');
+    voiceNotice.hidden = true;
+    form.before(voiceNotice);
+    const voiceCopy = {
+      sv: {
+        start: 'Starta röstsamtal', stop: 'Avsluta röstsamtal', connecting: 'Ansluter mikrofonen…',
+        listening: 'Lyssnar – prata med Dealett AI', thinking: 'Dealett AI tänker…', speaking: 'Dealett AI pratar – du kan avbryta genom att prata',
+        disclosure: 'Rösten är AI-genererad.', permissionDenied: 'Tillåt mikrofonen i webbläsaren och försök igen.',
+        unsupported: 'Röstsamtal kräver HTTPS och en webbläsare med mikrofonstöd. Du kan fortfarande skriva.',
+        microphoneLost: 'Ingen tillgänglig mikrofon. Kontrollera anslutningen och försök igen.',
+        playbackBlocked: 'Ljudet kunde inte spelas upp. Tillåt ljud och starta röstsamtalet igen.',
+        connectionFailed: 'Röstsamtalet kunde inte anslutas eller avbröts. Försök igen eller skriv ditt meddelande.',
+        replyFailed: 'Röstsamtalet pausades. Försök igen med meddelandet i chatten.',
+        rateLimited: 'För många röstsamtal. Vänta en stund och försök igen.',
+        previewOnly: 'Röstsamtal är inte tillgängliga i förhandsvisningen.', sessionEnded: 'Röstsamtalet avslutades efter 1 minut. Du kan fortsätta skriva eller starta ett nytt röstsamtal.',
+      },
+      en: {
+        start: 'Start voice conversation', stop: 'End voice conversation', connecting: 'Connecting microphone…',
+        listening: 'Listening – talk to Dealett AI', thinking: 'Dealett AI is thinking…', speaking: 'Dealett AI is speaking – speak to interrupt',
+        disclosure: 'The voice is AI-generated.', permissionDenied: 'Allow microphone access in your browser and try again.',
+        unsupported: 'Voice requires HTTPS and a browser with microphone support. You can still type.',
+        microphoneLost: 'No microphone available. Check the connection and try again.',
+        playbackBlocked: 'Audio could not play. Allow audio and start voice again.',
+        connectionFailed: 'Voice could not connect or was disconnected. Try again or type your message.',
+        replyFailed: 'Voice paused. Retry the message in the chat.',
+        rateLimited: 'Too many voice connections. Wait a moment and try again.',
+        previewOnly: 'Voice is unavailable in the public preview.', sessionEnded: 'Voice ended after 1 minute. You can keep typing or start a new voice conversation.',
+      },
+    };
+    const renderVoice = () => {
+      const labels = voiceCopy[chatLanguage === 'en' ? 'en' : 'sv'];
+      const active = voiceState !== 'idle';
+      voiceButtons.forEach(button => {
+        button.setAttribute('aria-label', active ? labels.stop : labels.start);
+        button.title = active ? labels.stop : labels.start;
+        button.setAttribute('aria-pressed', String(active));
+        button.disabled = !active && (isSending || Boolean(failedTurn));
+        button.innerHTML = active
+          ? '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor" stroke="none"/></svg>'
+          : '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>';
+      });
+      voiceNotice.hidden = !active && !voiceDetail;
+      voiceNotice.textContent = active ? `${labels[voiceState]} · ${labels.disclosure}` : (labels[voiceDetail] || '');
+    };
+    [root.querySelector('.dealett-chat-send'), heroSend].filter(Boolean).forEach(send => {
+      send.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'dealett-chat-voice';
+      send.before(button);
+      voiceButtons.push(button);
+      button.addEventListener('click', async () => {
+        if (voiceState !== 'idle') { stopVoice(); return; }
+        if (isSending || failedTurn) return;
+        if (heroForm) { conversationPresentation = 'homepage'; mountInlineChat(); }
+        openPanel({ skipGreeting: true });
+        const version = ++voiceLoadVersion;
+        voiceState = 'connecting';
+        voiceDetail = '';
+        renderVoice();
+        try {
+          if (!voiceController) {
+            const { createChatVoice } = await import('./assets/chat-voice.js');
+            if (version !== voiceLoadVersion) return;
+            voiceController = createChatVoice({
+              language: () => chatLanguage,
+              onState: (state, detail) => { voiceState = state; voiceDetail = detail; renderVoice(); },
+              onTranscript: transcript => new Promise(resolve => {
+                const accepted = sendMessage(transcript, { voice: true, onVoiceReply: resolve });
+                if (accepted === false) resolve(null);
+              }),
+            });
+          }
+          if (version === voiceLoadVersion) await voiceController.start();
+        } catch {
+          if (version === voiceLoadVersion) { voiceState = 'idle'; voiceDetail = 'connectionFailed'; renderVoice(); }
+        }
+      });
+    });
+    renderVoice();
     const inlineControls = document.createElement('div');
     inlineControls.className = 'dealett-chat-inline-controls';
     const inlineStatus = document.createElement('span');
@@ -1605,6 +1699,7 @@
     messageList.append(inlineControls);
     const syncInlineState = () => {
       if (backgroundUpdate) return;
+      renderVoice();
       const inline = root.classList.contains('dealett-chat--inline');
       const english = chatLanguage === 'en';
       root.querySelector('.dealett-chat-send').disabled = isSending || Boolean(failedTurn);
@@ -2049,6 +2144,7 @@
     const syncLanguage = (event) => {
       const previousLanguage = chatLanguage;
       chatLanguage = getChatLanguage();
+      if (previousLanguage !== chatLanguage) stopVoice();
       text = copy[chatLanguage] || copy.sv;
       status.textContent = lastResponseWasSimulated ? text.demoStatus : text.status;
       input.placeholder = text.placeholder;
@@ -3541,8 +3637,10 @@
           failedTurn = null;
           persistConversation();
         });
+        options.onVoiceReply?.(response.reply || null);
       } catch {
         requestFailed = true;
+        options.onVoiceReply?.(null);
       } finally {
         inConversation(requestConversationId, () => {
           streamingItem?.remove();
@@ -3563,6 +3661,7 @@
     };
 
     const resetChatConversation = ({ greet = true } = {}) => {
+      stopVoice();
       saveRuntime();
       if (!messages.some(message => message.role === 'user') && !isSending) {
         conversations.delete(chatSessionId);
@@ -3611,6 +3710,7 @@
     const sendMessage = (rawMessage, options = {}) => {
       const message = String(rawMessage || '').trim();
       if (!message && !options.silent) return false;
+      if (!options.voice) stopVoice();
       if (root.classList.contains('dealett-chat--inline') && (isSending || failedTurn)) return false;
 
       if (isConversationExpired()) {
@@ -3621,7 +3721,7 @@
       if (entry) entry.startingView = false;
       hasUserStartedChat = true;
       suggestionArea.replaceChildren();
-      input.value = '';
+      if (!options.voice) input.value = '';
 
       if (isSending) {
         const messageRecord = createPendingMessageRecord('user', message, {
@@ -3681,6 +3781,7 @@
     };
 
     const closePanel = () => {
+      stopVoice();
       setHistoryOpen(false);
       panel.hidden = true;
       root.classList.remove('is-open');
@@ -3743,6 +3844,7 @@
     const selectConversation = id => {
       const showLatest = !runtimes.has(id) || conversations.get(id)?.unread;
       if (id !== chatSessionId) {
+        stopVoice();
         saveRuntime();
         const previousList = messageList;
         if (runtimes.has(id)) {
@@ -3793,6 +3895,7 @@
     const closeConversationTab = id => {
       const entry = conversations.get(id);
       if (!entry) return;
+      if (id === chatSessionId) stopVoice();
       if (document.querySelector('.home-intro') && root.classList.contains('dealett-chat--inline') && !entry.messages.some(message => message.role === 'user')) {
         if (id === chatSessionId) {
           entry.startingView = true;
