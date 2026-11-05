@@ -15,6 +15,11 @@ async function run() {
       page.on('pageerror', error => errors.push(error.message));
       await page.addInitScript(() => {
         window.voiceTest = { stopped: 0, calls: [], mode: 'ok', peers: [] };
+        const originalSetTimeout = window.setTimeout.bind(window);
+        window.setTimeout = (callback, delay, ...args) => {
+          if (delay === 60000) voiceTest.expire = callback;
+          return originalSetTimeout(callback, delay, ...args);
+        };
         const track = () => ({ stop() { voiceTest.stopped++; }, addEventListener() {} });
         navigator.mediaDevices.getUserMedia = async () => {
           if (voiceTest.mode === 'denied') throw new DOMException('Denied', 'NotAllowedError');
@@ -128,6 +133,13 @@ async function run() {
       await page.getByRole('button', { name: '+ Ny chatt', exact: true }).click();
       assert.equal(await page.evaluate(() => voiceTest.stopped), 1);
       assert.equal(await widgetMic.getAttribute('aria-pressed'), 'false');
+      await widgetMic.click();
+      await page.waitForFunction(() => document.querySelector('.dealett-chat-voice-notice').textContent.includes('Lyssnar'));
+      await page.evaluate(() => voiceTest.expire());
+      assert.equal(await page.evaluate(() => voiceTest.stopped), 2);
+      assert.equal(await widgetMic.getAttribute('aria-pressed'), 'false');
+      assert((await notice.innerText()).includes('efter 1 minut'));
+      assert.equal(await widgetInput.isEnabled(), true);
       assert.deepEqual(errors, []);
       await page.close();
     }

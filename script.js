@@ -1622,7 +1622,7 @@
         connectionFailed: 'Röstsamtalet kunde inte anslutas eller avbröts. Försök igen eller skriv ditt meddelande.',
         replyFailed: 'Röstsamtalet pausades. Försök igen med meddelandet i chatten.',
         rateLimited: 'För många röstsamtal. Vänta en stund och försök igen.',
-        previewOnly: 'Röstsamtal är inte tillgängliga i förhandsvisningen.', sessionEnded: 'Röstsamtalet avslutades efter 15 minuter. Starta igen för att fortsätta.',
+        previewOnly: 'Röstsamtal är inte tillgängliga i förhandsvisningen.', sessionEnded: 'Röstsamtalet avslutades efter 1 minut. Du kan fortsätta skriva eller starta ett nytt röstsamtal.',
       },
       en: {
         start: 'Start voice conversation', stop: 'End voice conversation', connecting: 'Connecting microphone…',
@@ -1634,7 +1634,7 @@
         connectionFailed: 'Voice could not connect or was disconnected. Try again or type your message.',
         replyFailed: 'Voice paused. Retry the message in the chat.',
         rateLimited: 'Too many voice connections. Wait a moment and try again.',
-        previewOnly: 'Voice is unavailable in the public preview.', sessionEnded: 'Voice ended after 15 minutes. Start again to continue.',
+        previewOnly: 'Voice is unavailable in the public preview.', sessionEnded: 'Voice ended after 1 minute. You can keep typing or start a new voice conversation.',
       },
     };
     const renderVoice = () => {

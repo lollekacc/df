@@ -90,7 +90,7 @@ export function createChatVoice({ language, onState, onTranscript }) {
       channel.onopen = () => {
         if (session !== current) return;
         clearTimeout(current.timer);
-        current.limit = setTimeout(() => { if (session === current) stop('sessionEnded'); }, 15 * 60 * 1000);
+        current.limit = setTimeout(() => { if (session === current) stop('sessionEnded'); }, 60 * 1000);
         update('listening');
       };
       channel.onclose = channel.onerror = () => { if (session === current) stop('connectionFailed'); };
